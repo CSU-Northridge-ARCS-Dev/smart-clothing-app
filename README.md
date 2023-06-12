@@ -7,6 +7,7 @@ To start application:
 - npx expo start
 # Resorces
  Expo Doc link: https://docs.expo.dev/get-started/installation/
+ React Native Doc Link: https://reactnative.dev/docs
 
 # Developing Etiquette
 - Stable branch will be used to store the most stable version of the application. This branch must have a functioning and running appliction all the times. 
