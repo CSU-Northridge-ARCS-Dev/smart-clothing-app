@@ -9,7 +9,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Text content */}
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text>Welcome to the Smart Clothing Application!</Text>
       <StatusBar style="auto" />
 
       {/* Image container */}
