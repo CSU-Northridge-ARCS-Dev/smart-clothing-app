@@ -1,7 +1,11 @@
 # smart-clothing-app
-# Environment
+# Dependencies
 - Ensure node version is up to date
-- Download Expo Go app on your mobile device.
+- Install 'axios' -> npm install axios
+- Install necessary dependencies:
+    - For Google Fit: Install the react-native-google-fit package using the command: npm install react-native-google-fit
+    - For Apple HealthKit: Install the react-native-health package using the command: npm install react-native-health
+- Download Expo Go app on your mobile device, to test.
 To start application: 
 - cd SmartClothingApp
 - npx expo start
