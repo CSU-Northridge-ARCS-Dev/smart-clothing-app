@@ -7,6 +7,7 @@ To start application:
     - npx expo start
 # Resorces
  Expo Doc link: https://docs.expo.dev/get-started/installation/
+ React Bootstrap doc: https://react-bootstrap.netlify.app/docs/getting-started/introduction
 
 # Developing Etiquette
 - Stable branch will be used to store the most stable version of the application. This branch must have a functioning and running appliction all the times. 
