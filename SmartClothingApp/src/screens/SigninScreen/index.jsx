@@ -39,9 +39,10 @@ const SigninScreen = ({ navigation }) => {
       <View style={styles.btnContainer}>
         <Button
           mode="elevated"
+          onPress={() => navigation.navigate("SignIn")}
           style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
         >
-          Sign In
+          Sign In (Goes to Homescreen)
         </Button>
       </View>
       <GoogleButton />

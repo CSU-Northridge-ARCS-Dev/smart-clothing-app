@@ -36,11 +36,9 @@ const ForgotPasswordScreen = ({ navigation }) => {
           Send reset link
         </Button>
       </View>
-      <View
-        style={{ justifyContent: "center", marginVertical: verticalScale(10) }}
-      >
+      <View style={{ justifyContent: "center", marginVertical: verticalScale(10) }} >
         <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
-          Go back to Signin
+          Go back to Sign in
         </Button>
       </View>
     </ScrollView>
