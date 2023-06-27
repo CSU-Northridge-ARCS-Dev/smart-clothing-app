@@ -1,72 +1,46 @@
-// import axios from 'axios';
-
-// // Hexoskin API endpoint URL
-// const API_URL = 'https://api.hexoskin.com/api/user/';
-
-// // API key obtained from Hexoskin
-// const API_KEY = 'uZH2l4oFztSgno63SNuypkkmb2t2MuOPoAF6jUSI';
-// const API_KEY_Private = '.';
-
-// // Function to fetch Hexoskin data
-// async function fetchHexoskinData() {
-//   try {
-//     const response = await axios.get(API_URL, {
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Authorization': `Bearer ${API_KEY}`,
-//       },
-//       // Additional request parameters if required
-//       params: {
-//         // Example: date range for data retrieval
-//         start_date: '2022-01-01',
-//         end_date: '2022-01-31',
-//       },
-//     });
-//     // Handle the response data
-//     console.log(response.data);
-//   } catch (error) {
-//     // Handle errors
-//     console.error('Error fetching Hexoskin data:', error);
-//   }
-// }
-
-// // Call the function to fetch Hexoskin data
-// fetchHexoskinData();
-
-/*
- * Create form to request access token from Google's OAuth 2.0 server.
- */
-import document from 'react';
-
 export function oauthSignIn() {
   console.log("button presseddd");
-  // Google's OAuth 2.0 endpoint for requesting an access token
-  var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
 
-  // Create <form> element to submit parameters to OAuth 2.0 endpoint.
-  var form = document.createElement('form');
-  form.setAttribute('method', 'GET'); // Send as a GET request.
-  form.setAttribute('action', oauth2Endpoint);
+  var CLIENT_ID = 'uZH2l4oFztSgno63SNuypkkmb2t2MuOPoAF6jUSI';
+  var REDIRECT_URI = 'exp://u.expo.dev/f6c4ce5b-576b-4240-8cfa-1c658b0faf4a?channel-name=main&runtime-version=exposdk:45.0.0';
+  var SCOPE = '';
+  var UNIQUE_STATE_STRING = '';
+  let AUTH_CODE;
+  //Endpoint for requesting an access token
+  const authUrl = `https://api.hexoskin.com/api/connect/oauth2/auth/?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPE}&state=${UNIQUE_STATE_STRING}`;
 
-  // Parameters to pass to OAuth 2.0 endpoint.
-  var params = {'client_id': 'uZH2l4oFztSgno63SNuypkkmb2t2MuOPoAF6jUSI',
-                'redirect_uri': 'https://api.hexoskin.com/api/user/',
-                'response_type': 'token',
-                'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
-                'include_granted_scopes': 'true',
-                'state': 'pass-through value'};
+  fetch(authUrl)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      AUTH_CODE = data;
+    })
+    .catch(error => {
+      console.log(error);
+    });
 
-  // Add form parameters as hidden input values.
-  for (var p in params) {
-    var input = document.createElement('input');
-    input.setAttribute('type', 'hidden');
-    input.setAttribute('name', p);
-    input.setAttribute('value', params[p]);
-    form.appendChild(input);
-  }
+  console.log("button pressed2");
+  const tokenUrl = 'https://api.hexoskin.com/api/connect/oauth2/token/';
 
-  // Add form to page and submit it to open the OAuth 2.0 endpoint.
-  document.body.appendChild(form);
-  form.submit();
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: AUTH_CODE,
+      redirect_uri: REDIRECT_URI,
+    }),
+  };
+
+  fetch(tokenUrl, requestOptions)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    })
+    .catch(error => {
+      // Handle any errors
+    });
 }
 
