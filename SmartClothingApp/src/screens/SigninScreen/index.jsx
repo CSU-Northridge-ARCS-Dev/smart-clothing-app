@@ -42,7 +42,7 @@ const SigninScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("SignIn")}
           style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
         >
-          Sign In (Goes to Homescreen)
+          Sign In
         </Button>
       </View>
       <GoogleButton />
