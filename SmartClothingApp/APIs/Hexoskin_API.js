@@ -1,7 +1,10 @@
+import {HEXOSKIN_CLIENT_ID} from '@env';
+import {HEXOSKIN_CLIENT_SECRET} from '@env';
 export function oauthSignIn() {
   console.log("button presseddd");
 
-  var CLIENT_ID = 'uZH2l4oFztSgno63SNuypkkmb2t2MuOPoAF6jUSI';
+  var CLIENT_ID = HEXOSKIN_CLIENT_ID;
+  var CLIENT_SECRET = HEXOSKIN_CLIENT_SECRET;
   var REDIRECT_URI = 'exp://u.expo.dev/f6c4ce5b-576b-4240-8cfa-1c658b0faf4a?channel-name=main&runtime-version=exposdk:45.0.0';
   var SCOPE = '';
   var UNIQUE_STATE_STRING = '';
