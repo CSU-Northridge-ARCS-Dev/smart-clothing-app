@@ -7,7 +7,7 @@ export function oauthSignIn() {
   var UNIQUE_STATE_STRING = '';
   let AUTH_CODE;
   //Endpoint for requesting an access token
-  const authUrl = `https://api.hexoskin.com/api/connect/oauth2/auth/?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPE}&state=${UNIQUE_STATE_STRING}`;
+  const authUrl = `https://api.hexoskin.com/api/connect/oauth2/auth/?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPE}&state=${UNIQUE_STATE_STRING}`;
 
   fetch(authUrl)
     .then(response => response.json())
@@ -16,7 +16,7 @@ export function oauthSignIn() {
       AUTH_CODE = data;
     })
     .catch(error => {
-      console.log(error);
+      console.log('Error', error);
     });
 
   console.log("button pressed2");
@@ -40,7 +40,7 @@ export function oauthSignIn() {
       console.log(data);
     })
     .catch(error => {
-      // Handle any errors
+      console.log('error2', error);
     });
 }
 
