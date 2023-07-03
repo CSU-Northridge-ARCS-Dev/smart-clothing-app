@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Image, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, Checkbox, Text, TextInput } from "react-native-paper";
+import { AppColor, AppStyle } from "../../constants/themes";
+import { HeroSection } from "../../components";
 const SignupScreen = ({ navigation }) => {
   const [user, setUser] = useState({
     fname: "",
@@ -13,13 +15,21 @@ const SignupScreen = ({ navigation }) => {
   const [checked, setChecked] = useState(false);
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.image}></View>
-      <View style={styles.title}>
-        <Text variant="headlineMedium">Sign Up</Text>
-        <Text variant="titleMedium">User Registration</Text>
-      </View>
-      <View>
+    <ScrollView>
+      <HeroSection />
+      <View style={styles.content}>
+        <Text
+          variant="headlineMedium"
+          style={[AppStyle.title, { marginBottom: verticalScale(10) }]}
+        >
+          Sign Up
+        </Text>
+        <Text
+          variant="titleMedium"
+          style={[AppStyle.subTitle, { marginBottom: verticalScale(10) }]}
+        >
+          User Registration
+        </Text>
         <TextInput
           label="First Name"
           value={user.fname}
@@ -61,45 +71,37 @@ const SignupScreen = ({ navigation }) => {
           />
           <Text>User Agreement</Text>
         </View>
-      </View>
-      <View style={styles.btnContainer}>
-        <Button
-          mode="outlined"
-          style={{ flex: 1, marginHorizontal: horizontalScale(10) }}
-        >
-          Cancel
-        </Button>
-        <Button
-          mode="elevated"
-          style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
-        >
-          Create Account
-        </Button>
-      </View>
-      <View style={{ marginVertical: verticalScale(10) }}>
-        <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
-          Already have an account? Sign In
-        </Button>
+        <View style={styles.btnContainer}>
+          <Button
+            mode="outlined"
+            style={{ flex: 1, marginHorizontal: horizontalScale(10) }}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="elevated"
+            style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
+          >
+            Create Account
+          </Button>
+        </View>
+        <View style={{ marginVertical: verticalScale(10) }}>
+          <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
+            Already have an account? Sign In
+          </Button>
+        </View>
       </View>
     </ScrollView>
   );
 };
 const styles = StyleSheet.create({
-  container: {
+  content: {
+    backgroundColor: AppColor.background,
     paddingHorizontal: horizontalScale(20),
-    marginBottom: verticalScale(20),
-  },
-  title: {
-    alignItems: "center",
-    marginVertical: verticalScale(20),
-  },
-  image: {
-    marginTop: verticalScale(20),
-    alignSelf: "center",
-    backgroundColor: "#00000050",
-    borderRadius: 5,
-    height: verticalScale(150),
-    width: verticalScale(150),
+    borderTopLeftRadius: horizontalScale(25),
+    borderTopRightRadius: horizontalScale(25),
+    transform: [{ translateY: verticalScale(-25) }],
+    paddingTop: verticalScale(25),
   },
   checkbox: {
     flex: 1,
