@@ -9,8 +9,8 @@ const handleGoogleSignUp = async () => {
     console.log("Google Sign Up");
 
     // const { type, accessToken, user } = await Google.logInAsync({
-    //   androidClientId: "YOUR_ANDROID_CLIENT_ID",
-    //   iosClientId: "YOUR_IOS_CLIENT_ID",
+    //   androidClientId: "",
+    //   iosClientId: "",
     //   scopes: ["profile", "email"],
     // });
 
