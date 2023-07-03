@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, Checkbox, Text, TextInput } from "react-native-paper";
+
+import GoogleButton from "../../components/GoogleButton";
+
 const SignupScreen = ({ navigation }) => {
   const [user, setUser] = useState({
     fname: "",
@@ -76,6 +79,7 @@ const SignupScreen = ({ navigation }) => {
           Create Account
         </Button>
       </View>
+      <GoogleButton />
       <View style={{ marginVertical: verticalScale(10) }}>
         <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
           Already have an account? Sign In
