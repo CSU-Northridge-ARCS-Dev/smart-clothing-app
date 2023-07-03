@@ -4,25 +4,12 @@ import { AppImages } from "../../../assets";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button } from "react-native-paper";
 
+// import { TEZ } from '@env';
+
 const handleGoogleSignUp = async () => {
   try {
     console.log("Google Sign Up");
-
-    // const { type, accessToken, user } = await Google.logInAsync({
-    //   androidClientId: "",
-    //   iosClientId: "",
-    //   scopes: ["profile", "email"],
-    // });
-
-    // if (type === "success") {
-    //   const credential = firebase.auth.GoogleAuthProvider.credential(
-    //     null,
-    //     accessToken
-    //   );
-    //   await firebase.auth().signInWithCredential(credential);
-
-    //   console.log("Success Logged in!");
-    // }
+    console.log(TEZ);
   } catch (error) {
     console.log("Error signing up with Google:", error);
   }
