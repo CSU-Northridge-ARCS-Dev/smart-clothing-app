@@ -4,7 +4,7 @@ import { AppImages } from "../../../assets";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button } from "react-native-paper";
 
-// import { TEZ } from '@env';
+import { TEZ } from '@env';
 
 const handleGoogleSignUp = async () => {
   try {
