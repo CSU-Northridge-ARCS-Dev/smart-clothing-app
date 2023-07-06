@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, Text, TextInput } from "react-native-paper";
-import { GoogleButton } from "../../components";
+import { GoogleButton, HeroSection } from "../../components";
+import { AppColor, AppStyle } from "../../constants/themes";
 const SigninScreen = ({ navigation }) => {
   const [user, setUser] = useState({
     email: "",
@@ -11,12 +12,20 @@ const SigninScreen = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.image}></View>
-      <View style={styles.title}>
-        <Text variant="headlineMedium">Sign In</Text>
-        <Text variant="titleMedium">Welcome back. Login to continue</Text>
-      </View>
-      <View>
+      <HeroSection />
+      <View style={styles.content}>
+        <Text
+          variant="headlineMedium"
+          style={[AppStyle.title, { marginBottom: verticalScale(10) }]}
+        >
+          Sign In
+        </Text>
+        <Text
+          variant="titleMedium"
+          style={[AppStyle.subTitle, { marginBottom: verticalScale(10) }]}
+        >
+          Welcome back. Login to continue
+        </Text>
         <TextInput
           label="Username/Email"
           value={user.email}
@@ -35,42 +44,31 @@ const SigninScreen = ({ navigation }) => {
             Forgot your Username/Password ?
           </Button>
         </View>
-      </View>
-      <View style={styles.btnContainer}>
-        <Button
-          mode="elevated"
-          onPress={() => navigation.navigate("SignIn")}
-          style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
-        >
-          Sign In
+        <View style={styles.btnContainer}>
+          <Button
+            mode="elevated"
+            onPress={() => navigation.navigate("SignIn")}
+            style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
+          >
+            Sign In
+          </Button>
+        </View>
+        <GoogleButton />
+        <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
+          Don't have an account? Sign Up
         </Button>
       </View>
-      <GoogleButton />
-      <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
-        Don't have an account? Sign Up
-      </Button>
     </ScrollView>
   );
 };
 const styles = StyleSheet.create({
-  container: {
+  content: {
+    backgroundColor: AppColor.background,
     paddingHorizontal: horizontalScale(20),
-    marginBottom: verticalScale(20),
-  },
-  title: {
-    alignItems: "center",
-    marginVertical: verticalScale(20),
-  },
-  image: {
-    marginTop: verticalScale(20),
-    alignSelf: "center",
-    backgroundColor: "#00000050",
-    borderRadius: 5,
-    height: verticalScale(150),
-    width: verticalScale(150),
-  },
-  checkbox: {
-    justifyContent: "center",
+    borderTopLeftRadius: horizontalScale(25),
+    borderTopRightRadius: horizontalScale(25),
+    transform: [{ translateY: verticalScale(-25) }],
+    paddingTop: verticalScale(25),
   },
   btnContainer: {
     marginVertical: verticalScale(10),
