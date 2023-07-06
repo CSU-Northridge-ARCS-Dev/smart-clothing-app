@@ -1,5 +1,17 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeApp } from "firebase/app";
+// import { getAuth } from "firebase/auth";
+import "firebase/auth";
+
+import {
+  FIREBASE_CONFIG_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_DATABASE_URL,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSANGIND_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID,
+} from "@env";
 
 // Optionally import the services that you want to use
 // import {...} from "firebase/auth";
@@ -9,21 +21,20 @@ import { getAuth } from 'firebase/auth';
 // import {...} from "firebase/storage";
 
 // Initialize Firebase
-// TODO ENV
 const firebaseConfig = {
-  apiKey: '', //NEED .ENV CONFIGURATED FOR THIS
-  authDomain: 'smart-clothing-app.firebaseapp.com',
-  databaseURL: 'https://smart-clothing-app.firebaseio.com',
-  projectId: 'smart-clothing-app',
-  storageBucket: 'smart-clothing-app.appspot.com',
-  messagingSenderId: 'sender-id',
-  appId: 'app-id',
-  measurementId: 'G-measurement-id',
+  apiKey: FIREBASE_CONFIG_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  databaseURL: FIREBASE_DATABASE_URL,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSANGIND_SENDER_ID,
+  appId: FIREBASE_APP_ID,
+  measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+// const auth = getAuth();
 // For more information on how to access Firebase in your project,
 // see the Firebase documentation: https://firebase.google.com/docs/web/setup#access-firebase
 
-export {app, auth};
+export default app;
