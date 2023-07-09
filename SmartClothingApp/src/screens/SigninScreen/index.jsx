@@ -1,13 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, Text, TextInput } from "react-native-paper";
 import { GoogleButton } from "../../components";
+
+import { auth } from "../../../firebaseConfig.js";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
 const SigninScreen = ({ navigation }) => {
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.navigate("Home");
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleSignInWithEmail = () => {
+    signInWithEmailAndPassword(auth, user.email, user.password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("Logged in successfully!");
+        console.log(user);
+        navigation.navigate("HomeScreen");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log("Error login user!");
+        console.log(errorCode);
+        console.log(errorMessage);
+      });
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -39,7 +69,7 @@ const SigninScreen = ({ navigation }) => {
       <View style={styles.btnContainer}>
         <Button
           mode="elevated"
-          onPress={() => navigation.navigate("SignIn")}
+          onPress={handleSignInWithEmail}
           style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
         >
           Sign In
@@ -52,6 +82,7 @@ const SigninScreen = ({ navigation }) => {
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: horizontalScale(20),
