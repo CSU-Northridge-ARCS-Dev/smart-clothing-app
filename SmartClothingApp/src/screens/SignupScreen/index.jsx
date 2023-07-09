@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, Checkbox, Text, TextInput } from "react-native-paper";
@@ -17,6 +17,16 @@ const SignupScreen = ({ navigation }) => {
     repassword: "",
   });
   const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.navigate("HomeScreen");
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   const handleSignUpWithEmail = () => {
     createUserWithEmailAndPassword(auth, user.email, user.password)
