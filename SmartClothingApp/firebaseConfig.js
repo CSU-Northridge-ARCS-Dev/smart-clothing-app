@@ -1,6 +1,5 @@
 import { initializeApp } from "firebase/app";
-// import { getAuth } from "firebase/auth";
-import "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 import {
   FIREBASE_CONFIG_API_KEY,
@@ -33,8 +32,8 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-// const auth = getAuth();
+const auth = getAuth(app);
 // For more information on how to access Firebase in your project,
 // see the Firebase documentation: https://firebase.google.com/docs/web/setup#access-firebase
 
-export default app;
+export { auth };

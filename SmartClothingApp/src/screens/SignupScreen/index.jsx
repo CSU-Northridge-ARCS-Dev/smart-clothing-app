@@ -3,7 +3,10 @@ import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, Checkbox, Text, TextInput } from "react-native-paper";
 
-import GoogleButton from "../../components/GoogleButton";
+// import GoogleButton from "../../components/GoogleButton";
+
+import { auth } from "../../../firebaseConfig.js";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const SignupScreen = ({ navigation }) => {
   const [user, setUser] = useState({
@@ -14,6 +17,22 @@ const SignupScreen = ({ navigation }) => {
     repassword: "",
   });
   const [checked, setChecked] = useState(false);
+
+  const handleSignUpWithEmail = () => {
+    createUserWithEmailAndPassword(auth, user.email, user.password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("User created successfully!");
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log("Error creating user!");
+        console.log(errorCode);
+        console.log(errorMessage);
+      });
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -75,11 +94,12 @@ const SignupScreen = ({ navigation }) => {
         <Button
           mode="elevated"
           style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
+          onPress={handleSignUpWithEmail}
         >
           Create Account
         </Button>
       </View>
-      <GoogleButton />
+      {/* <GoogleButton /> */}
       <View style={{ marginVertical: verticalScale(10) }}>
         <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
           Already have an account? Sign In
