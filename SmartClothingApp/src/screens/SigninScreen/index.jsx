@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
 const SigninScreen = ({ navigation }) => {
@@ -9,6 +9,33 @@ const SigninScreen = ({ navigation }) => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState({
+    email: "",
+    password: "",
+  });
+  const isValid = () => {
+    let flag = false;
+    let errors = error;
+    if (user.email.length < 1) {
+      errors.email = "Enter valid email/username";
+      flag = false;
+    }
+    if (user.password.length < 1) {
+      errors.password = "Password cannot be empty";
+      flag = false;
+    }
+    setError({ ...errors });
+    return flag;
+  };
+
+  const onLogin = () => {
+    console.log(error);
+    if (isValid()) {
+      //login api call
+    } else {
+      //handle error
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -26,19 +53,31 @@ const SigninScreen = ({ navigation }) => {
         >
           Welcome back. Login to continue
         </Text>
-        <TextInput
-          label="Username/Email"
-          value={user.email}
-          mode="outlined"
-          onChangeText={(text) => setUser({ ...user, email: text })}
-        />
-        <TextInput
-          label="Password"
-          secureTextEntry
-          value={user.password}
-          mode="outlined"
-          onChangeText={(text) => setUser({ ...user, password: text })}
-        />
+        <View>
+          <TextInput
+            label="Username/Email"
+            value={user.email}
+            mode="outlined"
+            onChangeText={(text) => setUser({ ...user, email: text })}
+            error={error.email.length > 1}
+          />
+          <HelperText type="error" visible={error.email.length > 1}>
+            Email/Username is invalid!
+          </HelperText>
+        </View>
+        <View>
+          <TextInput
+            label="Password"
+            secureTextEntry
+            value={user.password}
+            mode="outlined"
+            onChangeText={(text) => setUser({ ...user, password: text })}
+            error={error.password.length > 1}
+          />
+          <HelperText type="error" visible={error.password.length > 1}>
+            Password cannot be empty
+          </HelperText>
+        </View>
         <View style={styles.checkbox}>
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
             Forgot your Username/Password ?
@@ -47,7 +86,7 @@ const SigninScreen = ({ navigation }) => {
         <View style={styles.btnContainer}>
           <Button
             mode="elevated"
-            onPress={() => navigation.navigate("SignIn")}
+            onPress={onLogin}
             style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
           >
             Sign In
