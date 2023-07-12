@@ -14,7 +14,7 @@ import MyDevices from "../screens/MyDevices";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-export function AuthStack() {
+const AuthStack = () => {
   return (
     <Stack.Navigator
       initialRouteName="SignIn"
@@ -25,15 +25,6 @@ export function AuthStack() {
       <Stack.Screen name="Forgot" component={ForgotPasswordScreen} />
     </Stack.Navigator>
   );
-}
+};
 
-export function MainTabNavigator() {
-  return (
-    <Tab.Navigator initialRouteName="Home">
-      <Tab.Screen name="Home Screen" component={HomeScreen} />
-      <Tab.Screen name="View Health Data" component={ViewHealthData} />
-      <Tab.Screen name="View Insights" component={ViewInsights} />
-      <Tab.Screen name="My Devices" component={MyDevices} />
-    </Tab.Navigator>
-  );
-}
+export default AuthStack;
