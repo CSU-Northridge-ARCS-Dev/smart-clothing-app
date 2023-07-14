@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import {
@@ -43,22 +43,26 @@ const SignupScreen = ({ navigation }) => {
   }, []);
 
   const handleSignUpWithEmail = () => {
-    createUserWithEmailAndPassword(auth, user.email, user.password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log("User created successfully!");
-        console.log(user);
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log("Error creating user!");
-        console.log(errorCode);
-        console.log(errorMessage);
-      });
+    if (isValid()) {
+      createUserWithEmailAndPassword(auth, user.email, user.password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log("User created successfully!");
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log("Error creating user!");
+          console.log(errorCode);
+          console.log(errorMessage);
+        });
+    } else {
+      console.log("Invalid user details!");
+    }
   };
   const isValid = () => {
-    let flag = false;
+    let flag = true;
     let errors = error;
     if (user.email.length < 1 || !user.email.includes("@")) {
       errors.email = "Enter valid email";
@@ -79,13 +83,7 @@ const SignupScreen = ({ navigation }) => {
     setError({ ...errors });
     return flag;
   };
-  const onSignup = () => {
-    if (isValid()) {
-      //signup function
-    } else {
-      //show error
-    }
-  };
+
   return (
     <ScrollView>
       <HeroSection />
@@ -178,14 +176,31 @@ const SignupScreen = ({ navigation }) => {
         <View style={styles.btnContainer}>
           <Button
             mode="outlined"
+            onPress={() => {
+              setUser({
+                fname: "",
+                lname: "",
+                email: "",
+                password: "",
+                repassword: "",
+              });
+
+              setError({
+                fname: "",
+                lname: "",
+                email: "",
+                password: "",
+              });
+
+              setChecked(false);
+            }}
             style={{ flex: 1, marginHorizontal: horizontalScale(10) }}
           >
-            Cancel
+            Clear
           </Button>
           <Button
             mode="elevated"
             style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
-            onPress={onSignup}
             onPress={handleSignUpWithEmail}
           >
             Create Account

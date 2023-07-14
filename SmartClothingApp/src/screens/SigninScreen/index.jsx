@@ -24,6 +24,10 @@ const SigninScreen = ({ navigation }) => {
   }, []);
 
   const handleSignInWithEmail = () => {
+    if (!isValid()) {
+      console.log("Invalid user info!");
+    }
+
     signInWithEmailAndPassword(auth, user.email, user.password)
       .then((userCredential) => {
         const user = userCredential.user;
@@ -43,9 +47,11 @@ const SigninScreen = ({ navigation }) => {
     email: "",
     password: "",
   });
+
   const isValid = () => {
-    let flag = false;
+    let flag = true;
     let errors = error;
+
     if (user.email.length < 1) {
       errors.email = "Enter valid email/username";
       flag = false;
@@ -54,17 +60,10 @@ const SigninScreen = ({ navigation }) => {
       errors.password = "Password cannot be empty";
       flag = false;
     }
-    setError({ ...errors });
-    return flag;
-  };
 
-  const onLogin = () => {
-    console.log(error);
-    if (isValid()) {
-      //login api call
-    } else {
-      //handle error
-    }
+    setError({ ...errors });
+
+    return flag;
   };
 
   return (
@@ -85,7 +84,7 @@ const SigninScreen = ({ navigation }) => {
         </Text>
         <View>
           <TextInput
-            label="Username/Email"
+            label="Email"
             value={user.email}
             mode="outlined"
             onChangeText={(text) => setUser({ ...user, email: text })}
@@ -123,7 +122,7 @@ const SigninScreen = ({ navigation }) => {
           Sign In
         </Button>
       </View>
-      <GoogleButton />
+      {/* <GoogleButton /> */}
       <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
         Don't have an account? Sign Up
       </Button>
@@ -145,4 +144,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 });
+
 export default SigninScreen;
