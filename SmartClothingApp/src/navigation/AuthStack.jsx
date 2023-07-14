@@ -28,13 +28,4 @@ const AuthStack = () => {
   );
 };
 
-export function MainTabNavigator() {
-  return (
-    <Tab.Navigator initialRouteName="Home">
-      <Tab.Screen name="HomeScreen" component={HomeScreen} />
-      <Tab.Screen name="ViewHealthData" component={ViewHealthData} />
-      <Tab.Screen name="ViewInsights" component={ViewInsights} />
-      <Tab.Screen name="MyDevices" component={MyDevices} />
-    </Tab.Navigator>
-  );
-}
+export default AuthStack;
