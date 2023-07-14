@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
-import { Button, Text, TextInput } from "react-native-paper";
-import { GoogleButton } from "../../components";
+import { Button, HelperText, Text, TextInput } from "react-native-paper";
+import { GoogleButton, HeroSection } from "../../components";
+import { AppColor, AppStyle } from "../../constants/themes";
 
 import { auth } from "../../../firebaseConfig.js";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -38,28 +39,75 @@ const SigninScreen = ({ navigation }) => {
         console.log(errorMessage);
       });
   };
+  const [error, setError] = useState({
+    email: "",
+    password: "",
+  });
+  const isValid = () => {
+    let flag = false;
+    let errors = error;
+    if (user.email.length < 1) {
+      errors.email = "Enter valid email/username";
+      flag = false;
+    }
+    if (user.password.length < 1) {
+      errors.password = "Password cannot be empty";
+      flag = false;
+    }
+    setError({ ...errors });
+    return flag;
+  };
+
+  const onLogin = () => {
+    console.log(error);
+    if (isValid()) {
+      //login api call
+    } else {
+      //handle error
+    }
+  };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.image}></View>
-      <View style={styles.title}>
-        <Text variant="headlineMedium">Sign In</Text>
-        <Text variant="titleMedium">Welcome back. Login to continue</Text>
-      </View>
-      <View>
-        <TextInput
-          label="Username/Email"
-          value={user.email}
-          mode="outlined"
-          onChangeText={(text) => setUser({ ...user, email: text })}
-        />
-        <TextInput
-          label="Password"
-          secureTextEntry
-          value={user.password}
-          mode="outlined"
-          onChangeText={(text) => setUser({ ...user, password: text })}
-        />
+      <HeroSection />
+      <View style={styles.content}>
+        <Text
+          variant="headlineMedium"
+          style={[AppStyle.title, { marginBottom: verticalScale(10) }]}
+        >
+          Sign In
+        </Text>
+        <Text
+          variant="titleMedium"
+          style={[AppStyle.subTitle, { marginBottom: verticalScale(10) }]}
+        >
+          Welcome back. Login to continue
+        </Text>
+        <View>
+          <TextInput
+            label="Username/Email"
+            value={user.email}
+            mode="outlined"
+            onChangeText={(text) => setUser({ ...user, email: text })}
+            error={error.email.length > 1}
+          />
+          <HelperText type="error" visible={error.email.length > 1}>
+            Email/Username is invalid!
+          </HelperText>
+        </View>
+        <View>
+          <TextInput
+            label="Password"
+            secureTextEntry
+            value={user.password}
+            mode="outlined"
+            onChangeText={(text) => setUser({ ...user, password: text })}
+            error={error.password.length > 1}
+          />
+          <HelperText type="error" visible={error.password.length > 1}>
+            Password cannot be empty
+          </HelperText>
+        </View>
         <View style={styles.checkbox}>
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
             Forgot your Username/Password ?
@@ -84,24 +132,13 @@ const SigninScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
+    backgroundColor: AppColor.background,
     paddingHorizontal: horizontalScale(20),
-    marginBottom: verticalScale(20),
-  },
-  title: {
-    alignItems: "center",
-    marginVertical: verticalScale(20),
-  },
-  image: {
-    marginTop: verticalScale(20),
-    alignSelf: "center",
-    backgroundColor: "#00000050",
-    borderRadius: 5,
-    height: verticalScale(150),
-    width: verticalScale(150),
-  },
-  checkbox: {
-    justifyContent: "center",
+    borderTopLeftRadius: horizontalScale(25),
+    borderTopRightRadius: horizontalScale(25),
+    transform: [{ translateY: verticalScale(-25) }],
+    paddingTop: verticalScale(25),
   },
   btnContainer: {
     marginVertical: verticalScale(10),

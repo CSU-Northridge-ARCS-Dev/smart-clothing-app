@@ -15,6 +15,8 @@
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
     "expo": "~48.0.18",
+    "expo-app-loading": "^2.1.1",
+    "expo-font": "^11.1.1",
     "expo-google-app-auth": "^10.0.0",
     "expo-status-bar": "~1.4.4",
     "firebase": "^10.0.0",
