@@ -16,7 +16,12 @@ import { HeroSection } from "../../components";
 import { auth } from "../../../firebaseConfig.js";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
+import { useDispatch } from "react-redux";
+import { signupWithEmail } from "../../actions/userActions.js";
+
 const SignupScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const [user, setUser] = useState({
     fname: "",
     lname: "",
@@ -35,7 +40,7 @@ const SignupScreen = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.navigate("HomeScreen");
+        // navigation.navigate("HomeScreen");
       }
     });
 
@@ -49,6 +54,15 @@ const SignupScreen = ({ navigation }) => {
           const user = userCredential.user;
           console.log("User created successfully!");
           console.log(user);
+
+          dispatch(
+            signupWithEmail({
+              uuid: user.uid,
+              firstName: user.displayName?.split(" ")[0],
+              lastName: user.displayName?.split(" ")[1],
+              email: user.email,
+            })
+          );
         })
         .catch((error) => {
           const errorCode = error.code;

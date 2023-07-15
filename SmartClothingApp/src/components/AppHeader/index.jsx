@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { Platform } from "react-native";
 import { Appbar, Menu } from "react-native-paper";
+import { useDispatch } from "react-redux";
+
+import { logout } from "../../actions/userActions.js";
+
 const AppHeader = (props) => {
+  const dispatch = useDispatch();
+
   const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
   const [visible, setVisible] = useState(false);
   return (
@@ -19,7 +25,7 @@ const AppHeader = (props) => {
           <Menu.Item onPress={() => {}} title="Edit Profile" />
           <Menu.Item onPress={() => {}} title="Settings & Privacy" />
           <Menu.Item onPress={() => {}} title="Accessibility" />
-          <Menu.Item onPress={() => {}} title="Logout" />
+          <Menu.Item onPress={() => dispatch(logout())} title="Logout" />
         </Menu>
       </Appbar.Header>
     </>
