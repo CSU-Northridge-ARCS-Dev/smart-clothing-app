@@ -3,17 +3,27 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { AppImages } from "../../../assets";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button } from "react-native-paper";
-const GoogleButton = ({ onPress, style }) => {
+
+//import { TEZ } from '@env';
+
+const handleGoogleSignUp = async () => {
+  try {
+    console.log("Google Sign Up");
+    console.log(TEZ);
+  } catch (error) {
+    console.log("Error signing up with Google:", error);
+  }
+};
+
+const GoogleButton = ({ style }) => {
   return (
     <Button
       mode="contained"
-      onPress={onPress}
+      onPress={handleGoogleSignUp}
       style={[styles.container, style]}
     >
-      <View style={styles.button}>
-        <Image style={styles.image} source={AppImages.googleIcon} />
-        <Text style={styles.buttonText}>Sign in with Google</Text>
-      </View>
+      <Image style={styles.image} source={AppImages.googleIcon} />
+      <Text style={styles.buttonText}>Sign in with Google</Text>
     </Button>
   );
 };
