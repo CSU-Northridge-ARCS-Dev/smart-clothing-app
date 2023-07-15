@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import AuthStack from "./AuthStack";
 import MainTabNavigator from "./HomeStack";
 
-// TODO: Implement Redux to manage user authentication state
-const AppRouter = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false); //modify useState value to simulate userAuthentication
+import { useSelector } from "react-redux";
 
-  return isAuthenticated ? <MainTabNavigator /> : <AuthStack />;
+const AppRouter = () => {
+  const uuid = useSelector((state) => state.user.uuid);
+
+  console.log("from AuthStack --> UUID is ...", uuid);
+
+  return uuid ? <MainTabNavigator /> : <AuthStack />;
 };
+
 export default AppRouter;

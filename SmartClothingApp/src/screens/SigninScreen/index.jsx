@@ -8,7 +8,12 @@ import { AppColor, AppStyle } from "../../constants/themes";
 import { auth } from "../../../firebaseConfig.js";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
+import { useDispatch } from "react-redux";
+import { loginWithEmail } from "../../actions/userActions.js";
+
 const SigninScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const [user, setUser] = useState({
     email: "",
     password: "",
@@ -17,7 +22,7 @@ const SigninScreen = ({ navigation }) => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.navigate("Home");
+        // navigation.navigate("Home");
       }
     });
     return unsubscribe;
@@ -33,7 +38,15 @@ const SigninScreen = ({ navigation }) => {
         const user = userCredential.user;
         console.log("Logged in successfully!");
         console.log(user);
-        navigation.navigate("HomeScreen");
+
+        dispatch(
+          loginWithEmail({
+            uuid: user.uid,
+            firstName: user.displayName?.split(" ")[0],
+            lastName: user.displayName?.split(" ")[1],
+            email: user.email,
+          })
+        );
       })
       .catch((error) => {
         const errorCode = error.code;
