@@ -4,11 +4,14 @@ import { Appbar, Menu } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { AppFonts } from "../../constants/themes";
 import { useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
+
 import { logout } from "../../actions/userActions.js";
 
 const AppHeader = (props) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+
   const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
   const [visible, setVisible] = useState(false);
   const navigate = (screen) => {
