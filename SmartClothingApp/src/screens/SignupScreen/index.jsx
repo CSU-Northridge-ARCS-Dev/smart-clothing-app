@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import {
   Button,
@@ -10,7 +10,18 @@ import {
 } from "react-native-paper";
 import { AppColor, AppStyle } from "../../constants/themes";
 import { HeroSection } from "../../components";
+
+// import GoogleButton from "../../components/GoogleButton";
+
+import { auth } from "../../../firebaseConfig.js";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+
+import { useDispatch } from "react-redux";
+import { signupWithEmail } from "../../actions/userActions.js";
+
 const SignupScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const [user, setUser] = useState({
     fname: "",
     lname: "",
@@ -25,8 +36,47 @@ const SignupScreen = ({ navigation }) => {
     password: "",
   });
   const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // navigation.navigate("HomeScreen");
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const handleSignUpWithEmail = () => {
+    if (isValid()) {
+      createUserWithEmailAndPassword(auth, user.email, user.password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log("User created successfully!");
+          console.log(user);
+
+          dispatch(
+            signupWithEmail({
+              uuid: user.uid,
+              firstName: user.displayName?.split(" ")[0],
+              lastName: user.displayName?.split(" ")[1],
+              email: user.email,
+            })
+          );
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log("Error creating user!");
+          console.log(errorCode);
+          console.log(errorMessage);
+        });
+    } else {
+      console.log("Invalid user details!");
+    }
+  };
   const isValid = () => {
-    let flag = false;
+    let flag = true;
     let errors = error;
     if (user.email.length < 1 || !user.email.includes("@")) {
       errors.email = "Enter valid email";
@@ -47,13 +97,7 @@ const SignupScreen = ({ navigation }) => {
     setError({ ...errors });
     return flag;
   };
-  const onSignup = () => {
-    if (isValid()) {
-      //signup function
-    } else {
-      //show error
-    }
-  };
+
   return (
     <ScrollView>
       <HeroSection />
@@ -146,18 +190,37 @@ const SignupScreen = ({ navigation }) => {
         <View style={styles.btnContainer}>
           <Button
             mode="outlined"
+            onPress={() => {
+              setUser({
+                fname: "",
+                lname: "",
+                email: "",
+                password: "",
+                repassword: "",
+              });
+
+              setError({
+                fname: "",
+                lname: "",
+                email: "",
+                password: "",
+              });
+
+              setChecked(false);
+            }}
             style={{ flex: 1, marginHorizontal: horizontalScale(10) }}
           >
-            Cancel
+            Clear
           </Button>
           <Button
             mode="elevated"
             style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
-            onPress={onSignup}
+            onPress={handleSignUpWithEmail}
           >
             Create Account
           </Button>
         </View>
+        {/* <GoogleButton /> */}
         <View style={{ marginVertical: verticalScale(10) }}>
           <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
             Already have an account? Sign In
