@@ -1,21 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
+
+import { auth } from "../../../firebaseConfig.js";
+import { signInWithEmailAndPassword } from "firebase/auth";
+
+import { useDispatch } from "react-redux";
+import { loginWithEmail } from "../../actions/userActions.js";
+
 const SigninScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // navigation.navigate("Home");
+      }
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleSignInWithEmail = () => {
+    if (!isValid()) {
+      console.log("Invalid user info!");
+    }
+
+    signInWithEmailAndPassword(auth, user.email, user.password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log("Logged in successfully!");
+        console.log(user);
+
+        dispatch(
+          loginWithEmail({
+            uuid: user.uid,
+            firstName: user.displayName?.split(" ")[0],
+            lastName: user.displayName?.split(" ")[1],
+            email: user.email,
+          })
+        );
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log("Error login user!");
+        console.log(errorCode);
+        console.log(errorMessage);
+      });
+  };
   const [error, setError] = useState({
     email: "",
     password: "",
   });
+
   const isValid = () => {
-    let flag = false;
+    let flag = true;
     let errors = error;
+
     if (user.email.length < 1) {
       errors.email = "Enter valid email/username";
       flag = false;
@@ -24,17 +73,10 @@ const SigninScreen = ({ navigation }) => {
       errors.password = "Password cannot be empty";
       flag = false;
     }
-    setError({ ...errors });
-    return flag;
-  };
 
-  const onLogin = () => {
-    console.log(error);
-    if (isValid()) {
-      //login api call
-    } else {
-      //handle error
-    }
+    setError({ ...errors });
+
+    return flag;
   };
 
   return (
@@ -55,7 +97,7 @@ const SigninScreen = ({ navigation }) => {
         </Text>
         <View>
           <TextInput
-            label="Username/Email"
+            label="Email"
             value={user.email}
             mode="outlined"
             onChangeText={(text) => setUser({ ...user, email: text })}
@@ -83,23 +125,24 @@ const SigninScreen = ({ navigation }) => {
             Forgot your Username/Password ?
           </Button>
         </View>
-        <View style={styles.btnContainer}>
-          <Button
-            mode="elevated"
-            onPress={onLogin}
-            style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
-          >
-            Sign In
-          </Button>
-        </View>
-        <GoogleButton />
-        <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
-          Don't have an account? Sign Up
+      </View>
+      <View style={styles.btnContainer}>
+        <Button
+          mode="elevated"
+          onPress={handleSignInWithEmail}
+          style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
+        >
+          Sign In
         </Button>
       </View>
+      {/* <GoogleButton /> */}
+      <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
+        Don't have an account? Sign Up
+      </Button>
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
   content: {
     backgroundColor: AppColor.background,
@@ -114,4 +157,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 });
+
 export default SigninScreen;
