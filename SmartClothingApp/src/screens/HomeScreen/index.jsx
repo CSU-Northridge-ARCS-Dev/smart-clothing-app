@@ -10,15 +10,6 @@ export default function HomeScreen({ navigation }) {
       <AppHeader title={"Dashboard"} />
       <Text>Home Screen</Text>
       <Text>Email: {auth.currentUser?.email}</Text>
-      <TouchableOpacity
-        onPress={() => {
-          auth.signOut().then(() => {
-            navigation.navigate("SignIn"); //TODO: Not working because of the AuthStack implementation which is incomplete and needs Redux setup
-          });
-        }}
-      >
-        <Text>Log Out</Text>
-      </TouchableOpacity>
     </View>
   );
 }
