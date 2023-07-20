@@ -68,7 +68,9 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
-    dispatch(startSignupWithEmail(user.email, user.password));
+    dispatch(
+      startSignupWithEmail(user.email, user.password, user.fname, user.lname)
+    );
   };
 
   const isValid = () => {

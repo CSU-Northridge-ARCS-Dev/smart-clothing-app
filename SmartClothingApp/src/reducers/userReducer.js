@@ -3,6 +3,7 @@ import {
   SIGNUP_WITH_EMAIL,
   LOGOUT,
   AUTH_ERROR,
+  UPDATE_PROFILE,
 } from "../actions/types";
 
 const initialState = {
@@ -45,6 +46,12 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         authError: action.payload,
+      };
+    case UPDATE_PROFILE:
+      return {
+        ...state,
+        firstName: action.payload[0],
+        lastName: action.payload[1],
       };
     default:
       return state;
