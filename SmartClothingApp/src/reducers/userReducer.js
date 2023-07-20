@@ -1,10 +1,16 @@
-import { LOGIN_WITH_EMAIL, SIGNUP_WITH_EMAIL, LOGOUT } from "../actions/types";
+import {
+  LOGIN_WITH_EMAIL,
+  SIGNUP_WITH_EMAIL,
+  LOGOUT,
+  AUTH_ERROR,
+} from "../actions/types";
 
 const initialState = {
   uuid: null,
   firstName: null,
   lastName: null,
   email: null,
+  authError: null,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -34,6 +40,11 @@ const userReducer = (state = initialState, action) => {
         firstName: null,
         lastName: null,
         email: null,
+      };
+    case AUTH_ERROR:
+      return {
+        ...state,
+        authError: action.payload,
       };
     default:
       return state;

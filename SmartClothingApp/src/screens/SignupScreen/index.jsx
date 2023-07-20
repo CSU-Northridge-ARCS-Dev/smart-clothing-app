@@ -13,14 +13,16 @@ import { HeroSection } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { auth } from "../../../firebaseConfig.js";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-
 import { useDispatch } from "react-redux";
-import { signupWithEmail } from "../../actions/userActions.js";
+import { useSelector } from "react-redux";
+import {
+  startSignupWithEmail,
+  setAuthError,
+} from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const authError = useSelector((state) => state.user.authError);
 
   const [user, setUser] = useState({
     fname: "",
@@ -37,61 +39,61 @@ const SignupScreen = ({ navigation }) => {
   });
   const [checked, setChecked] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // navigation.navigate("HomeScreen");
-      }
+  const handleClear = () => {
+    setUser({
+      fname: "",
+      lname: "",
+      email: "",
+      password: "",
+      repassword: "",
     });
 
-    return unsubscribe;
-  }, []);
+    setChecked(false);
+
+    handleClearErrors();
+  };
+
+  const handleClearErrors = () => {
+    setError({
+      fname: "",
+      lname: "",
+      email: "",
+      password: "",
+    });
+    authError && dispatch(setAuthError(null));
+  };
 
   const handleSignUpWithEmail = () => {
-    if (isValid()) {
-      createUserWithEmailAndPassword(auth, user.email, user.password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          console.log("User created successfully!");
-          console.log(user);
-
-          dispatch(
-            signupWithEmail({
-              uuid: user.uid,
-              firstName: user.displayName?.split(" ")[0],
-              lastName: user.displayName?.split(" ")[1],
-              email: user.email,
-            })
-          );
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log("Error creating user!");
-          console.log(errorCode);
-          console.log(errorMessage);
-        });
-    } else {
+    if (!isValid()) {
       console.log("Invalid user details!");
+      return;
     }
+
+    console.log(" ##### Calling the Dispatch function ##### ");
+    dispatch(startSignupWithEmail(user.email, user.password));
   };
+
   const isValid = () => {
     let flag = true;
     let errors = error;
     if (user.email.length < 1 || !user.email.includes("@")) {
-      errors.email = "Enter valid email";
+      errors.email = "Enter valid email!";
       flag = false;
     }
     if (user.password.length < 1) {
-      errors.password = "Password cannot be empty";
+      errors.password = "Password cannot be empty!";
+      flag = false;
+    }
+    if (user.password.length < 6) {
+      errors.password = "Password length cannot be less than 6!";
       flag = false;
     }
     if (user.fname.length < 1) {
-      errors.fname = "Firstname cannot be empty";
+      errors.fname = "Firstname cannot be empty!";
       flag = false;
     }
     if (user.lname.length < 1) {
-      errors.lname = "Lastname cannot be empty";
+      errors.lname = "Lastname cannot be empty!";
       flag = false;
     }
     setError({ ...errors });
@@ -119,7 +121,10 @@ const SignupScreen = ({ navigation }) => {
             label="First Name"
             value={user.fname}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, fname: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, fname: text });
+              handleClearErrors();
+            }}
             error={error.fname.length > 1}
           />
           <HelperText type="error" visible={error.fname.length > 1}>
@@ -131,7 +136,10 @@ const SignupScreen = ({ navigation }) => {
             label="Last Name"
             value={user.lname}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, lname: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, lname: text });
+              handleClearErrors();
+            }}
             error={error.lname.length > 1}
           />
           <HelperText type="error" visible={error.lname.length > 1}>
@@ -143,7 +151,10 @@ const SignupScreen = ({ navigation }) => {
             label="Email"
             value={user.email}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, email: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, email: text });
+              handleClearErrors();
+            }}
             error={error.email.length > 1}
           />
           <HelperText type="error" visible={error.email.length > 1}>
@@ -156,13 +167,16 @@ const SignupScreen = ({ navigation }) => {
             secureTextEntry
             value={user.password}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, password: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, password: text });
+              handleClearErrors();
+            }}
             error={
               error.password.length > 1 || user.password != user.repassword
             }
           />
           <HelperText type="error" visible={error.password.length > 1}>
-            Please enter Password!
+            {error.password}
           </HelperText>
         </View>
         <View>
@@ -171,7 +185,10 @@ const SignupScreen = ({ navigation }) => {
             label="Confirm Password"
             value={user.repassword}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, repassword: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, repassword: text });
+              handleClearErrors();
+            }}
             error={user.password != user.repassword}
           />
           <HelperText type="error" visible={user.password != user.repassword}>
@@ -187,27 +204,17 @@ const SignupScreen = ({ navigation }) => {
           />
           <Text>User Agreement</Text>
         </View>
+        <View>
+          {authError && (
+            <HelperText type="error" visible={authError}>
+              {authError}
+            </HelperText>
+          )}
+        </View>
         <View style={styles.btnContainer}>
           <Button
             mode="outlined"
-            onPress={() => {
-              setUser({
-                fname: "",
-                lname: "",
-                email: "",
-                password: "",
-                repassword: "",
-              });
-
-              setError({
-                fname: "",
-                lname: "",
-                email: "",
-                password: "",
-              });
-
-              setChecked(false);
-            }}
+            onPress={handleClear}
             style={{ flex: 1, marginHorizontal: horizontalScale(10) }}
           >
             Clear
