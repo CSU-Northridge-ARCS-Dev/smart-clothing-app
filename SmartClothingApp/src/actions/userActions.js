@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 
 import {
@@ -120,4 +121,15 @@ export const startLoginWithEmail = (email, password) => {
         dispatch(setAuthError(error.message));
       });
   };
+};
+
+export const startSnedPasswordReserEmail = (email) => {
+  sendPasswordResetEmail(auth, email)
+    .then(() => {
+      console.log("###### Password reset email sent!");
+    })
+    .catch((error) => {
+      console.log(error);
+      // console.log("###### Error sending password reset email!");
+    });
 };
