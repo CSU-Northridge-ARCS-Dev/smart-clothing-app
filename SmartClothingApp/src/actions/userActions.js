@@ -1,7 +1,8 @@
-import { auth } from "../../firebaseConfig.js";
+import { auth, database } from "../../firebaseConfig.js";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 
 import {
@@ -9,12 +10,20 @@ import {
   SIGNUP_WITH_EMAIL,
   LOGOUT,
   AUTH_ERROR,
+  UPDATE_PROFILE,
 } from "./types";
 
 const loginWithEmail = (user) => {
   return {
     type: LOGIN_WITH_EMAIL,
     payload: user,
+  };
+};
+
+const updateProfileInfo = (firstName, lastName) => {
+  return {
+    type: UPDATE_PROFILE,
+    payload: [firstName, lastName],
   };
 };
 
@@ -44,18 +53,36 @@ export const setAuthError = (errorMessage) => {
 //     }
 //   });
 
-export const startSignupWithEmail = (email, password) => {
+export const startUpdateProfile = (firstName, lastName) => {
+  return (dispatch) => {
+    updateProfile(auth.currentUser, {
+      displayName: `${firstName} ${lastName}`,
+    })
+      .then(() => {
+        console.log(auth.currentUser);
+        dispatch(updateProfileInfo(firstName, lastName));
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+};
+
+export const startSignupWithEmail = (email, password, firstName, lastName) => {
   return (dispatch) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         // console.log("User created successfully!");
         // console.log(user);
+
+        dispatch(startUpdateProfile(firstName, lastName));
+
         dispatch(
           signupWithEmail({
             uuid: user.uid,
-            firstName: user.displayName?.split(" ")[0],
-            lastName: user.displayName?.split(" ")[1],
+            firstName: firstName,
+            lastName: lastName,
             email: user.email,
           })
         );
