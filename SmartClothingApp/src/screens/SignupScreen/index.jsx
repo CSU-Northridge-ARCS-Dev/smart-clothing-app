@@ -13,8 +13,7 @@ import { HeroSection } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   startSignupWithEmail,
   setAuthError,
@@ -69,7 +68,6 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
-    console.log(" ##### Calling the Dispatch function ##### ");
     dispatch(startSignupWithEmail(user.email, user.password));
   };
 
