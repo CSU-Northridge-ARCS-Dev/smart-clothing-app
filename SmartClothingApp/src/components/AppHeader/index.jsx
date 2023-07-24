@@ -4,7 +4,6 @@ import { Appbar, Menu } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { AppFonts } from "../../constants/themes";
 import { useDispatch } from "react-redux";
-import { useDispatch } from "react-redux";
 
 import { logout } from "../../actions/userActions.js";
 
