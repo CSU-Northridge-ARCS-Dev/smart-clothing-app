@@ -91,6 +91,7 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
         // console.log("User created successfully!");
         // console.log(user);
 
+        // After creating User, Adding First and Last Name to User Profile
         dispatch(startUpdateProfile(firstName, lastName));
 
         dispatch(
