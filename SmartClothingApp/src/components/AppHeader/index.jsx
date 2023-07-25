@@ -54,7 +54,7 @@ const AppHeader = (props) => {
             />
             <Menu.Item
               onPress={() => {
-                dispatch(logout());
+                dispatch(startLogout());
               }}
               title="Logout"
             />
