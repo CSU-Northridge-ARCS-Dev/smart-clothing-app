@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import { Appbar, Menu } from "react-native-paper";
 import { useDispatch } from "react-redux";
 
-import { logout } from "../../actions/userActions.js";
+import { startLogout } from "../../actions/userActions.js";
 
 const AppHeader = (props) => {
   const dispatch = useDispatch();
@@ -25,7 +25,7 @@ const AppHeader = (props) => {
           <Menu.Item onPress={() => {}} title="Edit Profile" />
           <Menu.Item onPress={() => {}} title="Settings & Privacy" />
           <Menu.Item onPress={() => {}} title="Accessibility" />
-          <Menu.Item onPress={() => dispatch(logout())} title="Logout" />
+          <Menu.Item onPress={() => dispatch(startLogout())} title="Logout" />
         </Menu>
       </Appbar.Header>
     </>

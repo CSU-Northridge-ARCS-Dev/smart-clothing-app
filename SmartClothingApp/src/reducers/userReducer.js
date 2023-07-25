@@ -41,6 +41,7 @@ const userReducer = (state = initialState, action) => {
         firstName: null,
         lastName: null,
         email: null,
+        authError: null,
       };
     case AUTH_ERROR:
       return {

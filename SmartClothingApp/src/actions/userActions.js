@@ -35,9 +35,23 @@ const signupWithEmail = (user) => {
   };
 };
 
-export const logout = () => {
+const logout = () => {
   return {
     type: LOGOUT,
+  };
+};
+
+export const startLogout = () => {
+  return (dispatch) => {
+    auth
+      .signOut()
+      .then(() => {
+        dispatch(logout());
+      })
+      .catch((error) => {
+        console.log("Error logging out!");
+        console.log(error);
+      });
   };
 };
 
