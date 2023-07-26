@@ -5,7 +5,7 @@ import { AppHeader } from "../../components";
 export default function ViewInsights({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
-      <AppHeader title={"Insights"} />
+      <AppHeader title={"Insights"} back={true} />
       <Text>Insights</Text>
     </View>
   );
