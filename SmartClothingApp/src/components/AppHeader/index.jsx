@@ -4,13 +4,12 @@ import { Appbar, Menu } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { AppFonts } from "../../constants/themes";
 import { useDispatch } from "react-redux";
-import { logout } from "../../actions/userActions.js";
-//header 
+import { logout } from "../../actions/userActions";
+import Icon from "react-native-vector-icons/FontAwesome5";
 
 const AppHeader = (props) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
   const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
   const [visible, setVisible] = useState(false);
   const navigate = (screen) => {
@@ -42,20 +41,33 @@ const AppHeader = (props) => {
               onPress={() => {
                 navigate("Profile");
               }}
+              leadingIcon={() => <Icon name="user" size={18} color="black" />}
               title="Edit Profile"
             />
             <Menu.Item
               onPress={() => navigate("Settings")}
+              leadingIcon={() => <Icon name="cog" size={18} color="black" />}
               title="Settings & Privacy"
             />
             <Menu.Item
               onPress={() => navigate("Accessibility")}
+              leadingIcon={() => (
+                <Icon name="universal-access" size={18} color="black" />
+              )}
               title="Accessibility"
             />
             <Menu.Item
               onPress={() => {
                 dispatch(logout());
               }}
+              leadingIcon={() => (
+                <Icon
+                  name="sign-out-alt"
+                  size={18}
+                  style={{ width: "18" }}
+                  color="black"
+                />
+              )}
               title="Logout"
             />
           </Menu>
