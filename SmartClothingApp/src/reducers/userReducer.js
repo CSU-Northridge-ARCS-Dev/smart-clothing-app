@@ -1,10 +1,17 @@
-import { LOGIN_WITH_EMAIL, SIGNUP_WITH_EMAIL, LOGOUT } from "../actions/types";
+import {
+  LOGIN_WITH_EMAIL,
+  SIGNUP_WITH_EMAIL,
+  LOGOUT,
+  AUTH_ERROR,
+  UPDATE_PROFILE,
+} from "../actions/types";
 
 const initialState = {
   uuid: null,
   firstName: null,
   lastName: null,
   email: null,
+  authError: null,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -34,6 +41,18 @@ const userReducer = (state = initialState, action) => {
         firstName: null,
         lastName: null,
         email: null,
+        authError: null,
+      };
+    case AUTH_ERROR:
+      return {
+        ...state,
+        authError: action.payload,
+      };
+    case UPDATE_PROFILE:
+      return {
+        ...state,
+        firstName: action.payload[0],
+        lastName: action.payload[1],
       };
     default:
       return state;

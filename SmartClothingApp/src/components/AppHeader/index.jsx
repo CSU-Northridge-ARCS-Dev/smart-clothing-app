@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { AppFonts } from "../../constants/themes";
 import { useDispatch } from "react-redux";
 
-import { logout } from "../../actions/userActions.js";
+import { startLogout } from "../../actions/userActions.js";
 
 const AppHeader = (props) => {
   const dispatch = useDispatch();
@@ -54,7 +54,7 @@ const AppHeader = (props) => {
             />
             <Menu.Item
               onPress={() => {
-                dispatch(logout());
+                dispatch(startLogout());
               }}
               title="Logout"
             />
