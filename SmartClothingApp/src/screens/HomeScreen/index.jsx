@@ -1,9 +1,12 @@
-import React from "react";
-import { View, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
-
-import { AppHeader } from "../../components";
+import React, { useEffect } from "react";
+import { View, ScrollView, StyleSheet } from "react-native";
+import {
+  AppHeader,
+  BreathingRateChart,
+  HeartRateChart,
+  VentilationChart,
+} from "../../components";
 import { Button, Text } from "react-native-paper";
-import Icon from "react-native-vector-icons/MaterialIcons.js";
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
@@ -29,6 +32,18 @@ export default function HomeScreen({ navigation }) {
             View
           </Button>
         </View>
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Breath Rate
+        </Text>
+        <BreathingRateChart />
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Ventilation Rate
+        </Text>
+        <VentilationChart />
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Heartbeat Rate
+        </Text>
+        <HeartRateChart />
       </View>
     </ScrollView>
   );
@@ -37,6 +52,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: 60,
   },
   body: {
     padding: 10,
