@@ -7,15 +7,24 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../actions/userActions";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { startLogout } from "../../actions/userActions.js";
+import PromptModal from "../Dialogs/PromptModal";
 
 const AppHeader = (props) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
   const [visible, setVisible] = useState(false);
+  const [showPrompt, setPrompt] = useState(false);
   const navigate = (screen) => {
     navigation.navigate(screen);
     setVisible(false);
+  };
+  const onPressLogout = (res) => {
+    if (res) {
+      dispatch(startLogout());
+    } else {
+      setPrompt(false);
+    }
   };
   return (
     <>
@@ -59,7 +68,8 @@ const AppHeader = (props) => {
             />
             <Menu.Item
               onPress={() => {
-                dispatch(startLogout());
+                setPrompt(true);
+                setVisible(false);
               }}
               leadingIcon={() => (
                 <Icon
@@ -74,6 +84,12 @@ const AppHeader = (props) => {
           </Menu>
         )}
       </Appbar.Header>
+      <PromptModal
+        title="Logout"
+        message="Do you really want to Logout?"
+        visible={showPrompt}
+        prompt={onPressLogout}
+      />
     </>
   );
 };
