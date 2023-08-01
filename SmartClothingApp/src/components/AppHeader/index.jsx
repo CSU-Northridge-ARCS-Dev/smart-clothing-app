@@ -6,6 +6,7 @@ import { AppFonts } from "../../constants/themes";
 import { useDispatch } from "react-redux";
 import { logout } from "../../actions/userActions";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import { startLogout } from "../../actions/userActions.js";
 
 const AppHeader = (props) => {
   const dispatch = useDispatch();
@@ -58,7 +59,7 @@ const AppHeader = (props) => {
             />
             <Menu.Item
               onPress={() => {
-                dispatch(logout());
+                dispatch(startLogout());
               }}
               leadingIcon={() => (
                 <Icon

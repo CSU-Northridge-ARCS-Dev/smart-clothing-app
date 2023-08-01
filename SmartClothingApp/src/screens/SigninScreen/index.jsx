@@ -5,56 +5,38 @@ import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
 
-import { auth } from "../../../firebaseConfig.js";
-import { signInWithEmailAndPassword } from "firebase/auth";
-
-import { useDispatch } from "react-redux";
-import { loginWithEmail } from "../../actions/userActions.js";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  startLoginWithEmail,
+  setAuthError,
+} from "../../actions/userActions.js";
 
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const authError = useSelector((state) => state.user.authError);
 
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        // navigation.navigate("Home");
-      }
+  const handleClearErrors = () => {
+    setError({
+      fname: "",
+      lname: "",
+      email: "",
+      password: "",
     });
-    return unsubscribe;
-  }, []);
+    authError && dispatch(setAuthError(null));
+  };
 
   const handleSignInWithEmail = () => {
     if (!isValid()) {
       console.log("Invalid user info!");
+      return;
     }
 
-    signInWithEmailAndPassword(auth, user.email, user.password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log("Logged in successfully!");
-        console.log(user);
-
-        dispatch(
-          loginWithEmail({
-            uuid: user.uid,
-            firstName: user.displayName?.split(" ")[0],
-            lastName: user.displayName?.split(" ")[1],
-            email: user.email,
-          })
-        );
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log("Error login user!");
-        console.log(errorCode);
-        console.log(errorMessage);
-      });
+    dispatch(startLoginWithEmail(user.email, user.password));
   };
   const [error, setError] = useState({
     email: "",
@@ -65,12 +47,16 @@ const SigninScreen = ({ navigation }) => {
     let flag = true;
     let errors = error;
 
-    if (user.email.length < 1) {
-      errors.email = "Enter valid email/username";
+    if (user.email.length < 1 || !user.email.includes("@")) {
+      errors.email = "Enter valid email!";
       flag = false;
     }
     if (user.password.length < 1) {
       errors.password = "Password cannot be empty";
+      flag = false;
+    }
+    if (user.password.length > 1 && user.password.length < 6) {
+      errors.password = "Password length cannot be less than 6!";
       flag = false;
     }
 
@@ -100,11 +86,14 @@ const SigninScreen = ({ navigation }) => {
             label="Email"
             value={user.email}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, email: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, email: text });
+              handleClearErrors();
+            }}
             error={error.email.length > 1}
           />
           <HelperText type="error" visible={error.email.length > 1}>
-            Email/Username is invalid!
+            Email is invalid!
           </HelperText>
         </View>
         <View>
@@ -113,17 +102,27 @@ const SigninScreen = ({ navigation }) => {
             secureTextEntry
             value={user.password}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, password: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, password: text });
+              handleClearErrors();
+            }}
             error={error.password.length > 1}
           />
           <HelperText type="error" visible={error.password.length > 1}>
-            Password cannot be empty
+            {error.password}
           </HelperText>
         </View>
         <View style={styles.checkbox}>
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
             Forgot your Username/Password ?
           </Button>
+        </View>
+        <View>
+          {authError && (
+            <HelperText type="error" visible={authError}>
+              {authError}
+            </HelperText>
+          )}
         </View>
       </View>
       <View style={styles.btnContainer}>

@@ -1,7 +1,6 @@
 import React from "react";
 import { View, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 
-import { auth } from "../../../firebaseConfig.js";
 import { AppHeader } from "../../components";
 import { Button, Text } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialIcons.js";

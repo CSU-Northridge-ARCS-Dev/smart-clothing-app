@@ -4,6 +4,9 @@ import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
+
+import { startSnedPasswordReserEmail } from "../../actions/userActions.js";
+
 const ForgotPasswordScreen = ({ navigation }) => {
   const [user, setUser] = useState({
     email: "",
@@ -12,7 +15,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
     email: "",
   });
   const isValid = () => {
-    let flag = false;
+    let flag = true;
     let errors = error;
     if (user.email.length < 1 || !user.email.includes("@")) {
       errors.email = "Enter valid email";
@@ -22,12 +25,14 @@ const ForgotPasswordScreen = ({ navigation }) => {
     return flag;
   };
   const onResetPasssword = () => {
-    if (isValid()) {
-      //forgot pass logic
-    } else {
-      // handle error
+    if (!isValid()) {
+      console.log("Invalid user info!");
+      return;
     }
+
+    startSnedPasswordReserEmail(user.email);
   };
+
   return (
     <ScrollView>
       <HeroSection />
@@ -49,7 +54,10 @@ const ForgotPasswordScreen = ({ navigation }) => {
             label="email"
             value={user.email}
             mode="outlined"
-            onChangeText={(text) => setUser({ ...user, email: text })}
+            onChangeText={(text) => {
+              setUser({ ...user, email: text });
+              setError({ ...error, email: "" });
+            }}
             error={error.email.length > 1}
           />
           <HelperText type="error" visible={error.email.length > 0}>
@@ -59,9 +67,12 @@ const ForgotPasswordScreen = ({ navigation }) => {
         <View style={styles.btnContainer}>
           <Button
             mode="outlined"
+            onPress={() => {
+              setUser({ email: "" });
+            }}
             style={{ flex: 1, marginHorizontal: horizontalScale(10) }}
           >
-            Cancel
+            Clear
           </Button>
           <Button
             mode="elevated"
