@@ -104,4 +104,11 @@ export const AppStyle = StyleSheet.create({
     fontSize: 16,
     color: AppColor.primary,
   },
+  cardElevated: {
+    elevation: 3,
+    shadowColor: AppColor.secondary,
+    shadowOffset: { height: 5, width: 5 },
+    shadowRadius: 10,
+    shadowOpacity: 0.2,
+  },
 });
