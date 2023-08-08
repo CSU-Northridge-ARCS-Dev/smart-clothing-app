@@ -1,4 +1,5 @@
 import AccessibilityScreen from "./Accessibility";
+import DeviceDetails from "./DeviceDetails";
 import ForgotPasswordScreen from "./ForgotPasswordScreen";
 import HomeScreen from "./HomeScreen";
 import MyDevices from "./MyDevices";
@@ -20,4 +21,5 @@ export {
   ProfileScreen,
   SettingsScreen,
   AccessibilityScreen,
+  DeviceDetails,
 };

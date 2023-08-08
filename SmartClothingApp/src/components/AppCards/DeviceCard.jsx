@@ -28,7 +28,13 @@ const DeviceCard = (props) => {
         <Button mode="elevated" compact uppercase style={{ flex: 1 }}>
           Enable
         </Button>
-        <Button mode="elevated" compact uppercase style={{ flex: 1 }}>
+        <Button
+          mode="elevated"
+          compact
+          uppercase
+          style={{ flex: 1 }}
+          onPress={props.onPress}
+        >
           View
         </Button>
         <Button mode="contained" compact uppercase style={{ flex: 2 }}>

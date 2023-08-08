@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import {
+  ActivityCard,
   AppHeader,
   BreathingRateChart,
   HeartRateChart,
@@ -32,6 +33,28 @@ export default function HomeScreen({ navigation }) {
             View
           </Button>
         </View>
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Today Status
+        </Text>
+        <ActivityCard
+          style={{ marginTop: 10 }}
+          icon="directions-run"
+          title="Activity"
+          value="8H 25Min"
+        />
+        <ActivityCard
+          style={{ marginTop: 10 }}
+          icon="transfer-within-a-station"
+          title="Steps"
+          value="8000"
+        />
+        <ActivityCard
+          style={{ marginTop: 10 }}
+          icon="fitness-center"
+          title="Calories"
+          value="2000 Kcal"
+        />
+
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Breath Rate
         </Text>

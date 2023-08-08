@@ -2,6 +2,7 @@ import * as React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   AccessibilityScreen,
+  DeviceDetails,
   HomeScreen,
   MyDevices,
   ProfileScreen,
@@ -112,6 +113,7 @@ const DevicesNavigationStack = () => {
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Devices" component={MyDevices} />
+      <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />

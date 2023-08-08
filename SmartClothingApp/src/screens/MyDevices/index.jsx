@@ -13,7 +13,9 @@ const MyDevices = ({ navigation }) => {
             key={index}
             style={{ margin: 5 }}
             device={item}
-            onPress={(e) => console.log(e)}
+            onPress={(e) =>
+              navigation.navigate("DeviceDetails", { id: item.id })
+            }
           />
         ))}
       </View>
