@@ -1,3 +1,4 @@
+import ActivityCard from "./AppCards/ActivityCard";
 import DeviceCard from "./AppCards/DeviceCard";
 import AppHeader from "./AppHeader";
 import AppToast from "./Dialogs/AppToast";
@@ -18,4 +19,5 @@ export {
   VentilationChart,
   BreathingRateChart,
   HeartRateChart,
+  ActivityCard,
 };
