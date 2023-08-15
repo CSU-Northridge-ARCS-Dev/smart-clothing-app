@@ -95,13 +95,20 @@ export const AppStyle = StyleSheet.create({
     borderLeftWidth: horizontalScale(5),
     borderLeftColor: AppColor.primary,
     color: AppColor.primary,
-    fontSize: horizontalScale(28),
+    fontSize: 28,
     fontFamily: AppFonts.chakraBoldItalic,
-    paddingLeft: horizontalScale(10),
+    paddingLeft: 10,
   },
   subTitle: {
     fontFamily: AppFonts.poppinsBold,
-    fontSize: horizontalScale(16),
+    fontSize: 16,
     color: AppColor.primary,
+  },
+  cardElevated: {
+    elevation: 3,
+    shadowColor: AppColor.secondary,
+    shadowOffset: { height: 5, width: 5 },
+    shadowRadius: 10,
+    shadowOpacity: 0.2,
   },
 });

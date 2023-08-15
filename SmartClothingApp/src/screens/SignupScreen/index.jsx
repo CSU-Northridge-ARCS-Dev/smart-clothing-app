@@ -240,20 +240,20 @@ const SignupScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   content: {
     backgroundColor: AppColor.background,
-    paddingHorizontal: horizontalScale(20),
-    borderTopLeftRadius: horizontalScale(25),
-    borderTopRightRadius: horizontalScale(25),
-    transform: [{ translateY: verticalScale(-25) }],
-    paddingTop: verticalScale(25),
+    paddingHorizontal: 20,
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    transform: [{ translateY: -25 }],
+    paddingTop: 25,
   },
   checkbox: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: verticalScale(10),
+    marginVertical: 10,
   },
   btnContainer: {
-    marginVertical: verticalScale(10),
+    marginVertical: 10,
     flexDirection: "row",
   },
 });
