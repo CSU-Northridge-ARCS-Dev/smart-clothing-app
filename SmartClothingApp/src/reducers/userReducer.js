@@ -7,7 +7,7 @@ import {
 } from "../actions/types";
 
 const initialState = {
-  uuid: null,
+  uuid: "123",
   firstName: null,
   lastName: null,
   email: null,

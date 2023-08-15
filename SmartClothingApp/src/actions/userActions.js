@@ -13,6 +13,7 @@ import {
   AUTH_ERROR,
   UPDATE_PROFILE,
 } from "./types";
+import { toastError } from "./toastActions.js";
 
 const loginWithEmail = (user) => {
   return {
@@ -47,9 +48,11 @@ export const startLogout = () => {
       .signOut()
       .then(() => {
         dispatch(logout());
+        dispatch(toastError("User logged out!"));
       })
       .catch((error) => {
         console.log("Error logging out!");
+
         console.log(error);
       });
   };
