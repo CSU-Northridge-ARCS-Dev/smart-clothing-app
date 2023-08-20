@@ -2,6 +2,7 @@ import React from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { Button, Text } from "react-native-paper";
+
 const DeviceCard = (props) => {
   return (
     <View style={[styles.container, props.style]}>
@@ -44,6 +45,7 @@ const DeviceCard = (props) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     padding: 10,
@@ -55,6 +57,9 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 5,
     marginRight: 10,
+    width: undefined,
+    height: undefined,
+    resizeMode: "contain",
   },
   body: {
     flex: 3,
