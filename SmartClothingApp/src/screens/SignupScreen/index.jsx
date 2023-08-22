@@ -22,6 +22,7 @@ import {
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.user.authError);
+  const [isSubmitting, setIsSubmitting] = useState(true);
 
   const [user, setUser] = useState({
     fname: "",
@@ -49,6 +50,8 @@ const SignupScreen = ({ navigation }) => {
 
     setChecked(false);
 
+    setIsSubmitting(false);
+
     handleClearErrors();
   };
 
@@ -59,6 +62,7 @@ const SignupScreen = ({ navigation }) => {
       email: "",
       password: "",
     });
+    setIsSubmitting(false);
     authError && dispatch(setAuthError(null));
   };
 
@@ -68,6 +72,7 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
+    setIsSubmitting(true);
     dispatch(
       startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
@@ -220,6 +225,7 @@ const SignupScreen = ({ navigation }) => {
             Clear
           </Button>
           <Button
+            disabled={isSubmitting}
             mode="elevated"
             style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
             onPress={handleSignUpWithEmail}

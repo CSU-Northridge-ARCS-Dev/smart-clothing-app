@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
+import { useSelector } from "react-redux";
 import {
   ActivityCard,
   AppHeader,
@@ -11,11 +12,12 @@ import { Button, Text } from "react-native-paper";
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
+  const firstName = useSelector((state) => state.user.firstName);
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <View style={styles.body}>
-        <Text style={AppStyle.title}>Hello, User</Text>
+        <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <View style={styles.insights}>
           <Text
             style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold }]}
