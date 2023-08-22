@@ -14,6 +14,7 @@ import {
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.user.authError);
+  const [isSubmitting, setIsSubmitting] = useState(true);
 
   const [user, setUser] = useState({
     email: "",
@@ -27,6 +28,9 @@ const SigninScreen = ({ navigation }) => {
       email: "",
       password: "",
     });
+
+    setIsSubmitting(false);
+
     authError && dispatch(setAuthError(null));
   };
 
@@ -36,8 +40,10 @@ const SigninScreen = ({ navigation }) => {
       return;
     }
 
+    setIsSubmitting(true);
     dispatch(startLoginWithEmail(user.email, user.password));
   };
+
   const [error, setError] = useState({
     email: "",
     password: "",
@@ -127,6 +133,7 @@ const SigninScreen = ({ navigation }) => {
       </View>
       <View style={styles.btnContainer}>
         <Button
+          disabled={isSubmitting}
           mode="elevated"
           onPress={handleSignInWithEmail}
           style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
