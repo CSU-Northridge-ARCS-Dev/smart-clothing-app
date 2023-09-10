@@ -1,4 +1,6 @@
-export const devices = [
+import { GET_DEVICES } from "./../actions/types";
+
+const dummyDevicesData = [
   {
     id: 1,
     name: "Smart Sock",
@@ -16,3 +18,18 @@ export const devices = [
       "The Hexoskin Smart Garments include textile sensors embedded into comfortable garments for precise and continuous cardiac, respiratory, and activity monitoring. Hexoskin users can visualize, report, and analyse their data with the leading Hexoskin Connected Health Platform. The Hexoskin Smart Garments have been used in over 180 scientific publications, more than all the smart clothing competition combined. Order Today! ",
   },
 ];
+
+const initialState = {
+  devicesData: dummyDevicesData,
+};
+
+const deviceReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case GET_DEVICES:
+      return state.devicesData;
+    default:
+      return state;
+  }
+};
+
+export default deviceReducer;

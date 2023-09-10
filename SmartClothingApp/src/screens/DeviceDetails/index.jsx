@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, Image } from "react-native";
-import { AppHeader } from "../../components";
-import { devices } from "../../constants/data";
+import { useSelector } from "react-redux";
 import { Text, Button } from "react-native-paper";
+
+import { AppHeader } from "../../components";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes";
 
 const DeviceDetails = ({ route, navigation }) => {
   const { id } = route.params;
-  const [device, setDevice] = useState(devices[0]);
+  const devicesData = useSelector((state) => state.device.devicesData);
+  const [device, setDevice] = useState(devicesData[0]);
 
   useEffect(() => {
     console.log(id);
-    const x = devices.find((i) => i.id === id);
+    const x = devicesData.find((i) => i.id === id);
     setDevice(x);
   }, [id]);
 
