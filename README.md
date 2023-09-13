@@ -3,10 +3,10 @@
 - Ensure node version is up to date
 - Contact admin for setting up .env file
 - Download Expo Go app on your mobile device.
-To start application: 
+- To start application: 
     - cd SmartClothingApp
     - npx expo start
-To bypass user login/sign-up
+- To bypass user login/sign-up
     - Go to redurcers->userredurces.js
     - under initialState change uuid to true
 # Resorces
