@@ -6,7 +6,7 @@
 To start application: 
     - cd SmartClothingApp
     - npx expo start
- To bypass user login/sign-up
+To bypass user login/sign-up
     - Go to redurcers->userredurces.js
     - under initialState change uuid to true
 # Resorces
