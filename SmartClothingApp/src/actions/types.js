@@ -17,3 +17,11 @@ export const ToastTypes = {
   SHOW_ERROR_TOAST: "showErrorToast",
   DISCARD_TOAST: "discardToast",
 };
+
+export const DeviceActionTypes = {
+  GET_DEVICES: "GET_DEVICES",
+  GET_DEVICE: "GET_DEVICE",
+  ADD_DEVICE: "ADD_DEVICE",
+  UPDATE_DEVICE: "UPDATE_DEVICE",
+  DELETE_DEVICE: "DELETE_DEVICE",
+};
