@@ -1,14 +1,14 @@
 # smart-clothing-app
 # Environment
 - Ensure node version is up to date
+- Contact admin for setting up .env file
 - Download Expo Go app on your mobile device.
 To start application: 
     - cd SmartClothingApp
-    - npm install
-    - npm install @react-navigation/native
-    - npx expo install react-native-screens react-native-safe-area-context
-    - npm install @react-navigation/bottom-tabs
     - npx expo start
+ To bypass user login/sign-up
+    - Go to redurcers->userredurces.js
+    - under initialState change uuid to true
 # Resorces
  Expo Doc link: https://docs.expo.dev/get-started/installation/
  React Bootstrap doc: https://react-bootstrap.netlify.app/docs/getting-started/introduction
