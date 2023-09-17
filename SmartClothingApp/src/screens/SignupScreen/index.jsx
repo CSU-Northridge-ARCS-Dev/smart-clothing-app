@@ -14,14 +14,10 @@ import { HeroSection } from "../../components";
 // import GoogleButton from "../../components/GoogleButton";
 
 import { useSelector, useDispatch } from "react-redux";
-import {
-  startSignupWithEmail,
-  setAuthError,
-} from "../../actions/userActions.js";
+import { startSignupWithEmail } from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.user.authError);
   const [isSubmitting, setIsSubmitting] = useState(true);
 
   const [user, setUser] = useState({
@@ -63,7 +59,6 @@ const SignupScreen = ({ navigation }) => {
       password: "",
     });
     setIsSubmitting(false);
-    authError && dispatch(setAuthError(null));
   };
 
   const handleSignUpWithEmail = () => {
@@ -208,13 +203,6 @@ const SignupScreen = ({ navigation }) => {
             }}
           />
           <Text>User Agreement</Text>
-        </View>
-        <View>
-          {authError && (
-            <HelperText type="error" visible={authError}>
-              {authError}
-            </HelperText>
-          )}
         </View>
         <View style={styles.btnContainer}>
           <Button
