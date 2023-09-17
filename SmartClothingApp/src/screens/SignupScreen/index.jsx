@@ -15,10 +15,12 @@ import { HeroSection } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
+import { useSelector, useDispatch } from "react-redux";
 import { startSignupWithEmail } from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const [isSubmitting, setIsSubmitting] = useState(true);
 
   const [isSubmitting, setIsSubmitting] = useState(true);
   
