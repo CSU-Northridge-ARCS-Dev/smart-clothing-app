@@ -1,4 +1,6 @@
 import { auth, database } from "../../firebaseConfig.js";
+import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -10,7 +12,6 @@ import {
   LOGIN_WITH_EMAIL,
   SIGNUP_WITH_EMAIL,
   LOGOUT,
-  AUTH_ERROR,
   UPDATE_PROFILE,
 } from "./types";
 import { toastError } from "./toastActions.js";
@@ -58,13 +59,6 @@ export const startLogout = () => {
   };
 };
 
-export const setAuthError = (errorMessage) => {
-  return {
-    type: AUTH_ERROR,
-    payload: errorMessage,
-  };
-};
-
 //   const unsubscribe = auth.onAuthStateChanged((user) => {
 //     if (user) {
 //       // navigation.navigate("HomeScreen");
@@ -82,6 +76,7 @@ export const startUpdateProfile = (firstName, lastName) => {
       })
       .catch((error) => {
         console.log(error);
+        dispatch(toastError("Error updating profile!"));
       });
   };
 };
@@ -107,10 +102,7 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
         );
       })
       .catch((error) => {
-        //TODO: Setup Good Error Message (https://firebase.google.com/docs/auth/admin/errors)
-        // console.log("Error creating user!");
-        // console.log(error);
-        dispatch(setAuthError(error.message));
+        dispatch(toastError(firebaseErrorsMessages[error.code]));
       });
   };
 };
@@ -133,10 +125,7 @@ export const startLoginWithEmail = (email, password) => {
         );
       })
       .catch((error) => {
-        //TODO: Setup Good Error Message (https://firebase.google.com/docs/auth/admin/errors)
-        // console.log("Error login user!");
-        // console.log(error);
-        dispatch(setAuthError(error.message));
+        dispatch(toastError(firebaseErrorsMessages[error.code]));
       });
   };
 };
