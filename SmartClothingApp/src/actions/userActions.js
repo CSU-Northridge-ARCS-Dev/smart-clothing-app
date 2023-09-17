@@ -1,3 +1,5 @@
+import { collection, addDoc } from "firebase/firestore";
+
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
 
@@ -81,7 +83,13 @@ export const startUpdateProfile = (firstName, lastName) => {
   };
 };
 
-export const startSignupWithEmail = (email, password, firstName, lastName) => {
+export const startSignupWithEmail = (
+  email,
+  password,
+  firstName,
+  lastName,
+  userData
+) => {
   return (dispatch) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -91,6 +99,16 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
 
         // After creating User, Adding First and Last Name to User Profile
         dispatch(startUpdateProfile(firstName, lastName));
+
+        // After creating User, Adding User Data to Database
+        addDoc(collection(database, "Users"), userData)
+          .then((docRef) => {
+            console.log("Document written with ID: ", docRef.id);
+          })
+          .catch((error) => {
+            console.log(error);
+            console.log("Error adding user data to database!");
+          });
 
         dispatch(
           signupWithEmail({
