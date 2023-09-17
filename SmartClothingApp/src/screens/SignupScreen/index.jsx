@@ -22,8 +22,13 @@ const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(true);
 
-  const [isSubmitting, setIsSubmitting] = useState(true);
-  
+  const [userData, setUserData] = useState({
+    gender: "",
+    dob: "",
+    height: "",
+    weight: "",
+  });
+
   const [user, setUser] = useState({
     fname: "",
     lname: "",
@@ -87,7 +92,13 @@ const SignupScreen = ({ navigation }) => {
 
     console.log("User is ...", user);
     dispatch(
-      startSignupWithEmail(user.email, user.password, user.fname, user.lname)
+      startSignupWithEmail(
+        user.email,
+        user.password,
+        user.fname,
+        user.lname,
+        userData
+      )
     );
   };
 
@@ -220,6 +231,75 @@ const SignupScreen = ({ navigation }) => {
             Passwords do not match.
           </HelperText>
         </View>
+
+        {/* ====data start==== */}
+
+        <View>
+          <TextInput
+            label="Gender"
+            value={userData.gender}
+            mode="outlined"
+            onChangeText={(text) => {
+              setUserData({ ...userData, gender: text });
+              handleClearErrors();
+            }}
+            error={false}
+          />
+          <HelperText type="error" visible={false}>
+            Please enter Gender!
+          </HelperText>
+        </View>
+
+        <View>
+          <TextInput
+            label="Birth Date"
+            value={userData.dob}
+            mode="outlined"
+            onChangeText={(text) => {
+              setUserData({ ...userData, dob: text });
+              handleClearErrors();
+            }}
+            error={false}
+          />
+          <HelperText type="error" visible={false}>
+            Please enter Birth Date!
+          </HelperText>
+        </View>
+
+        <View>
+          <TextInput
+            label="Height"
+            value={userData.height}
+            mode="outlined"
+            onChangeText={(text) => {
+              setUserData({ ...userData, height: text });
+              handleClearErrors();
+            }}
+            error={false}
+          />
+          <HelperText type="error" visible={false}>
+            Please enter Height!
+          </HelperText>
+        </View>
+
+        <View>
+          <TextInput
+            label="Weight"
+            value={userData.weight}
+            mode="outlined"
+            onChangeText={(text) => {
+              setUserData({ ...userData, weight: text });
+              handleClearErrors();
+            }}
+            error={false}
+          />
+          <HelperText type="error" visible={false}>
+            Please enter Weight!
+          </HelperText>
+        </View>
+
+        {/* ====data end==== */}
+
         <View style={styles.checkbox}>
           <Checkbox
             status={checked ? "checked" : "unchecked"}
