@@ -17,12 +17,15 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
+import { useSelector, useDispatch } from "react-redux";
 import { startSignupWithEmail } from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.user.authError);
   const [isSubmitting, setIsSubmitting] = useState(true);
+
+
   const [lockStatusPassword, setLockStatusPassword] = useState("locked");
   const [lockStatusRepassword, setLockStatusRepassword] = useState("locked");
   const [modalVisible, setModalVisible] = useState(false);

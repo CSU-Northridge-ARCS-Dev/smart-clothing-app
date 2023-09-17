@@ -26,7 +26,6 @@ export const ToastTypes = {
   DISCARD_TOAST: "discardToast",
 };
 
-// Device
 export const GET_DEVICES = "GET_DEVICES";
 export const GET_DEVICE = "GET_DEVICE";
 export const ADD_DEVICE = "ADD_DEVICE";
