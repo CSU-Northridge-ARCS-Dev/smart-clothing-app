@@ -2,7 +2,6 @@ import {
   LOGIN_WITH_EMAIL,
   SIGNUP_WITH_EMAIL,
   LOGOUT,
-  AUTH_ERROR,
   UPDATE_PROFILE,
 } from "../actions/types";
 
@@ -42,11 +41,6 @@ const userReducer = (state = initialState, action) => {
         lastName: null,
         email: null,
         authError: null,
-      };
-    case AUTH_ERROR:
-      return {
-        ...state,
-        authError: action.payload,
       };
     case UPDATE_PROFILE:
       return {
