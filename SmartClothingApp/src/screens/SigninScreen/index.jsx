@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
+import { ErrorMessages } from "../../constants/errors";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -11,16 +12,28 @@ import {
   setAuthError,
 } from "../../actions/userActions.js";
 
+// SigninScreen functional component that receives a 'navigation' prop as an argument
 const SigninScreen = ({ navigation }) => {
+  // useDispatch and useSelector are react-redux hooks used to connect component to Redux store
+  //    authError is a state from Redux store to dispatch actions (trigger event that changes app state)
+  // useState hook manages local state including: 'isSubmitting', 'user', and 'error' states.
+  //    isSubmitting is boolean used to track whether or not a form submission is in progress 
+  //    setIsSubmitting a function used to update isSubmitting state.
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.user.authError);
   const [isSubmitting, setIsSubmitting] = useState(true);
 
+  //    user holds the user's email and password 
+  //    setUser is a function that allows you to update the 'user' state -> called in View-TextInput when user submits email and password
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
 
+  // handleClearErrors is a function that resets or clears states and error messages
+  //    setError function updates error state by setting properties to empty strings ""
+  //    setIsSubmitting is set to false which indicates the form is not in the process of being submitted
+  //    authError - checks for truthy and then dispatches setAuthError.
   const handleClearErrors = () => {
     setError({
       fname: "",
@@ -34,7 +47,11 @@ const SigninScreen = ({ navigation }) => {
     authError && dispatch(setAuthError(null));
   };
 
+  // handleSignInWithEmail is a function that handles signing in process
   const handleSignInWithEmail = () => {
+    // - !isValid performs sign in validation - email and password
+    // setIsSubmitting(true) - after validating, isSubmitting state is set to true to indicate form submission is in progress
+    // then asynchronous sign-in process is dispatched. 
     if (!isValid()) {
       console.log("Invalid user info!");
       return;
@@ -44,11 +61,15 @@ const SigninScreen = ({ navigation }) => {
     dispatch(startLoginWithEmail(user.email, user.password));
   };
 
+  //    error is state with two properties: email and password. initially empty strings ""
+  //    setError sets email and password error message from isValid function
   const [error, setError] = useState({
     email: "",
     password: "",
   });
 
+  // isValid function validates user inputs: email and password. if error, then error message is returned.
+  //    if error, false boolean is returned, if valid then true boolean is returned.
   const isValid = () => {
     let flag = true;
     let errors = error;
@@ -71,6 +92,26 @@ const SigninScreen = ({ navigation }) => {
     return flag;
   };
 
+  // if authError present then alert is displayed to user with error message.
+  if (authError) {
+    let errorMessage = "";
+
+    switch (authError) {
+      case ErrorMessages.messages.internalError:
+        errorMessage =
+          "There was an unexpected internal error. Please try again.";
+        break;
+      case ErrorMessages.messages.wrongPass:
+        errorMessage = "Incorrect password.";
+        break;
+      default:
+        errorMessage = "Unknown error.";
+    }
+
+    Alert.alert("Login Error", errorMessage);
+  }
+
+  // SigninScreen component in JSX code to be rendered.
   return (
     <ScrollView style={styles.container}>
       <HeroSection />
@@ -149,6 +190,7 @@ const SigninScreen = ({ navigation }) => {
   );
 };
 
+// Defines component style - NOT CSS
 const styles = StyleSheet.create({
   content: {
     backgroundColor: AppColor.background,
