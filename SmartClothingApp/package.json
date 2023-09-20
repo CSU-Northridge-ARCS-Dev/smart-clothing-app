@@ -13,8 +13,16 @@
     "preset": "jest-expo",
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
-    ]
+    ],
+    "transform": {
+      "^.+.jsx?$": "babel-jest"
+      }
   },
+  "moduleFileExtensions": [
+    "js",
+    "jsx",
+    "json"
+    ],
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
     "@react-native-async-storage/async-storage": "^1.19.2",
@@ -22,6 +30,7 @@
     "@react-navigation/material-bottom-tabs": "^6.2.16",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
+    "@testing-library/react": "^14.0.0",
     "axios": "^1.4.0",
     "expo": "~48.0.18",
     "expo-app-loading": "^2.1.1",
