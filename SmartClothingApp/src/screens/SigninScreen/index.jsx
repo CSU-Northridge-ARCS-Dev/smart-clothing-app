@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
+import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -36,7 +37,12 @@ const SigninScreen = ({ navigation }) => {
 
   const handleSignInWithEmail = () => {
     if (!isValid()) {
-      console.log("Invalid user info!");
+      Alert.alert(
+        "Authentication Error",
+        "Please correct the following errors:\n\n" +
+          (error.email && `${error.email}\n`) +
+          (error.password && `${error.password}`)
+      );
       return;
     }
 
@@ -54,7 +60,7 @@ const SigninScreen = ({ navigation }) => {
     let errors = error;
 
     if (user.email.length < 1 || !user.email.includes("@")) {
-      errors.email = "Enter valid email!";
+      errors.email = "Enter valid email.";
       flag = false;
     }
     if (user.password.length < 1) {
@@ -62,7 +68,7 @@ const SigninScreen = ({ navigation }) => {
       flag = false;
     }
     if (user.password.length > 1 && user.password.length < 6) {
-      errors.password = "Password length cannot be less than 6!";
+      errors.password = "Password length cannot be less than 6.";
       flag = false;
     }
 
@@ -70,6 +76,12 @@ const SigninScreen = ({ navigation }) => {
 
     return flag;
   };
+
+  if (firebaseErrorMessages.hasOwnProperty(authError)) {
+    const errorMessage = firebaseErrorMessages[authError];
+
+    Alert.alert("Authentication Error", errorMessage);
+  }
 
   return (
     <ScrollView style={styles.container}>
