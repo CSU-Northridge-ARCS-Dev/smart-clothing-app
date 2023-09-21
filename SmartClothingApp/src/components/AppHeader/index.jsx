@@ -75,7 +75,7 @@ const AppHeader = (props) => {
                 <Icon
                   name="sign-out-alt"
                   size={18}
-                  style={{ width: "18" }}
+                  style={{ width: 18 }}
                   color="black"
                 />
               )}
