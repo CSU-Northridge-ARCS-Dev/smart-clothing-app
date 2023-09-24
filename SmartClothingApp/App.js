@@ -3,7 +3,9 @@ import { SafeAreaView } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as StoreProvider } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+//import AsyncStorage from "@react-native-async-storage/async-storage";
+//import AsyncStorage from '@react-native-community/async-storage';
+import {AsyncStorage} from 'react-native';
 
 import AppRouter from "./src/navigation";
 import { useAppFonts } from "./src/hooks/useAppFonts";

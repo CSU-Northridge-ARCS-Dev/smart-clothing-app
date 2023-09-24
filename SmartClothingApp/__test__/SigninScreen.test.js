@@ -1,5 +1,9 @@
+jest.useFakeTimers()
+
+import { act } from 'react-test-renderer'; 
 import React from 'react';
 import { Text, TextInput, ScrollView } from 'react-native';
+import { HelperText } from 'react-native-paper';
 import renderer from 'react-test-renderer';
 import SigninScreen from '../src/screens/SigninScreen/index.jsx';
 
@@ -15,7 +19,7 @@ jest.mock('../src/actions/userActions.js', () => ({
   setAuthError: jest.fn(),
 }));
 
-// test Suite
+// Test Suite
 describe('SigninScreen Component', () => {
   // Test Case 1: if component renders correctly
   it('renders correctly', () => {
@@ -24,18 +28,47 @@ describe('SigninScreen Component', () => {
     expect(tree).toMatchSnapshot(); // compares last Snapshot to detect changes in component code
   });
 
-  // Test Case 2: Tests if SigninScreen component handles user input correctly
-  it('handles user input correctly', () => {
-    // renders SigninScreen with mock navigation prop and get instance of component's rendered tree
-    const component = renderer.create(<SigninScreen navigation={{ navigate: jest.fn() }} />);
-    const instance = component.root;
 
+  // renders SigninScreen with mock navigation prop and get instance of component's rendered tree
+  const component = renderer.create(<SigninScreen navigation={{ navigate: jest.fn() }} />);
+  const instance = component.root;
+
+  // Test Case 2: 
+  it('displays an error message for an invalid email input', () => {
+
+    // Find the TextInput components based on their labels
+    const emailInput = instance.findByProps({ label: 'Email' });
+    const passwordInput = instance.findByProps({ label: 'Password' });
+    
     // Simulate user input for email and password
-    instance.findByType(TextInput).props.onChangeText('test@example.com', 'email');
-    instance.findByType(TextInput).props.onChangeText('password123', 'password');
+    act(() => {
+      emailInput.props.onChangeText('invalid-email');
+      passwordInput.props.onChangeText('password123');
+    });
+    
+    // Ensure that the error message is displayed
+    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
+    expect(emailErrorText).toEqual('Email is invalid!');
 
-    // Ensure state is updated correctly
-    expect(component.getInstance().state.user.email).toEqual('test@example.com');
-    expect(component.getInstance().state.user.password).toEqual('password123');
+  });
+
+
+  // Test Case 3:
+  it('displays an error message for an invalid password input', () => {
+
+    // Find the TextInput components based on their labels
+    const emailInput = instance.findByProps({ label: 'Email' });
+    const passwordInput = instance.findByProps({ label: 'Password' });
+    
+    // Simulate user input for email and password
+    act(() => {
+      emailInput.props.onChangeText('test@example.com');
+      passwordInput.props.onChangeText('');
+    });
+    
+    // Ensure that the error message is displayed for the password input
+    const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
+    expect(passwordErrorText).toEqual('Password cannot be empty');
+
   });
 });

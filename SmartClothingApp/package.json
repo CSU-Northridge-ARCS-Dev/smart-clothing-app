@@ -1,6 +1,7 @@
 {
   "name": "smartclothingapp",
   "version": "1.0.0",
+  "type": "commonjs",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -16,13 +17,17 @@
     ],
     "transform": {
       "^.+.jsx?$": "babel-jest"
-      }
+    }
   },
   "moduleFileExtensions": [
     "js",
     "jsx",
-    "json"
-    ],
+    "json",
+    "esm5",
+    "esm",
+    "mts",
+    "cts"
+  ],
   "dependencies": {
     "@expo/webpack-config": "^18.0.1",
     "@react-native-async-storage/async-storage": "^1.19.2",
@@ -55,7 +60,10 @@
     "redux-thunk": "^2.4.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.22.20",
+    "@babel/preset-env": "^7.22.20",
+    "babel-jest": "^29.7.0",
+    "esm": "^3.2.25"
   },
   "private": true
 }

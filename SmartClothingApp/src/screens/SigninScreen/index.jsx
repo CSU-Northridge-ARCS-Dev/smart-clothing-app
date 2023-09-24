@@ -4,7 +4,7 @@ import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
-import { ErrorMessages } from "../../constants/errors";
+import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -14,7 +14,7 @@ import {
 
 // SigninScreen functional component that receives a 'navigation' prop as an argument
 const SigninScreen = ({ navigation }) => {
-  // useDispatch and useSelector are react-redux hooks used to connect component to Redux store
+    // useDispatch and useSelector are react-redux hooks used to connect component to Redux store
   //    authError is a state from Redux store to dispatch actions (trigger event that changes app state)
   // useState hook manages local state including: 'isSubmitting', 'user', and 'error' states.
   //    isSubmitting is boolean used to track whether or not a form submission is in progress 
@@ -53,7 +53,12 @@ const SigninScreen = ({ navigation }) => {
     // setIsSubmitting(true) - after validating, isSubmitting state is set to true to indicate form submission is in progress
     // then asynchronous sign-in process is dispatched. 
     if (!isValid()) {
-      console.log("Invalid user info!");
+      Alert.alert(
+        "Authentication Error",
+        "Please correct the following errors:\n\n" +
+          (error.email && `${error.email}\n`) +
+          (error.password && `${error.password}`)
+      );
       return;
     }
 
@@ -75,7 +80,7 @@ const SigninScreen = ({ navigation }) => {
     let errors = error;
 
     if (user.email.length < 1 || !user.email.includes("@")) {
-      errors.email = "Enter valid email!";
+      errors.email = "Enter valid email.";
       flag = false;
     }
     if (user.password.length < 1) {
@@ -83,7 +88,7 @@ const SigninScreen = ({ navigation }) => {
       flag = false;
     }
     if (user.password.length > 1 && user.password.length < 6) {
-      errors.password = "Password length cannot be less than 6!";
+      errors.password = "Password length cannot be less than 6.";
       flag = false;
     }
 
@@ -92,26 +97,13 @@ const SigninScreen = ({ navigation }) => {
     return flag;
   };
 
-  // if authError present then alert is displayed to user with error message.
-  if (authError) {
-    let errorMessage = "";
+  // Display an alert to the user with an error message if an authentication error (authError) is present.
+  if (firebaseErrorMessages.hasOwnProperty(authError)) {
+    const errorMessage = firebaseErrorMessages[authError];
 
-    switch (authError) {
-      case ErrorMessages.messages.internalError:
-        errorMessage =
-          "There was an unexpected internal error. Please try again.";
-        break;
-      case ErrorMessages.messages.wrongPass:
-        errorMessage = "Incorrect password.";
-        break;
-      default:
-        errorMessage = "Unknown error.";
-    }
-
-    Alert.alert("Login Error", errorMessage);
+    Alert.alert("Authentication Error", errorMessage);
   }
 
-  // SigninScreen component in JSX code to be rendered.
   return (
     <ScrollView style={styles.container}>
       <HeroSection />
@@ -139,7 +131,7 @@ const SigninScreen = ({ navigation }) => {
             }}
             error={error.email.length > 1}
           />
-          <HelperText type="error" visible={error.email.length > 1}>
+          <HelperText type="error" visible={error.email.length > 1} testID="emailError">
             Email is invalid!
           </HelperText>
         </View>
@@ -155,7 +147,7 @@ const SigninScreen = ({ navigation }) => {
             }}
             error={error.password.length > 1}
           />
-          <HelperText type="error" visible={error.password.length > 1}>
+          <HelperText type="error" visible={error.password.length > 1} testID="passwordError">
             {error.password}
           </HelperText>
         </View>
@@ -190,7 +182,6 @@ const SigninScreen = ({ navigation }) => {
   );
 };
 
-// Defines component style - NOT CSS
 const styles = StyleSheet.create({
   content: {
     backgroundColor: AppColor.background,
