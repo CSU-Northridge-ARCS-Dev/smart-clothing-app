@@ -13,12 +13,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arcs.smartclothingapp"
+      "bundleIdentifier": "com.arcs.smartclothingapp",
+      "config": {
+        "healthSharePermission": "Custom health share permission",
+        "healthUpdatePermission": "Custom health update permission",
+        "isClinicalDataEnabled": true,
+        "healthClinicalDescription": "Custom health share permission for clinical data"
+      }
     },
     "android": {
       "package": "com.arcs.smartclothingapp",

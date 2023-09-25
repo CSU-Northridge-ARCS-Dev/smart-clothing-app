@@ -3,7 +3,7 @@
 //  SmartClothingApp
 //
 //  Created by Emi Jr Anyakpor on 9/20/23.
-#import "RCTBridgeModule.h"
+#import "MyHealthKitModule.h"
 #import <HealthKit/HealthKit.h>
 
 @implementation MyHealthKitModule

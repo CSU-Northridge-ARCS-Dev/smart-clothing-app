@@ -10,6 +10,7 @@ import { useAppFonts } from "./src/hooks/useAppFonts";
 import { AppTheme } from "./src/constants/themes";
 import configureStore from "./src/store";
 import { AppToast } from "./src/components";
+import { checkHealthKitAvailability } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 
 const store = configureStore();
 
@@ -17,12 +18,20 @@ export default function App() {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
+
+    
     // Loading fonts
     const loadFont = async () => {
       const res = await useAppFonts();
       setLoading(false);
     };
     loadFont();
+
+    checkHealthKitAvailability()
+      .catch(error => {
+        console.error(error);
+      });
+ }, []);
 
     // // Check if there's a stored token on app launch
     // const checkToken = async () => {
@@ -51,7 +60,7 @@ export default function App() {
     // });
 
     // return () => unsubscribe();
-  }, []);
+
 
   return (
     <>
