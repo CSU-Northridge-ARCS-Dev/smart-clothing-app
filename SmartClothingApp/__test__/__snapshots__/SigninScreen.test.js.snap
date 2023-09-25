@@ -372,9 +372,7 @@ exports[`SigninScreen Component renders correctly 1`] = `
             }
           }
           testID="emailError"
-        >
-          Email is invalid!
-        </Text>
+        />
       </View>
       <View>
         <View

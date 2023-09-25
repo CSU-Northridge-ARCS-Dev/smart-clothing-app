@@ -7,6 +7,7 @@ import { Text, TextInput, ScrollView } from 'react-native';
 import { HelperText } from 'react-native-paper';
 import renderer from 'react-test-renderer';
 import { Button } from 'react-native-paper';
+import { waitFor } from '@testing-library/react-native';
 import SigninScreen from '../src/screens/SigninScreen/index.jsx';
 
 // Mock dependencies or Redux actions as needed
@@ -65,20 +66,20 @@ describe('SigninScreen Component', () => {
 
 
   // Test Case 2: 
-  it('displays HelperText error for an invalid email input', () => {
+  it('displays HelperText and Alert error for an invalid email input', async () => {
     // Find the TextInput components based on their labels
-    const emailInput = instance.findByProps({ label: 'Email' });
-    const passwordInput = instance.findByProps({ label: 'Password' });
+    let emailInput = instance.findByProps({ label: 'Email' });
+    let passwordInput = instance.findByProps({ label: 'Password' });
     
     // Simulate user input for email and password
-    act(() => {
+    await waitFor(() => {
       emailInput.props.onChangeText('invalid-email'); 
       passwordInput.props.onChangeText('password123');
     });
 
     jest.spyOn(Alert, 'alert');
     act(() => {
-      const button = instance.findByProps({ ID: 'signInButton' });
+      let button = instance.findByProps({ ID: 'signInButton' });
       button.props.onPress();
     });
 
@@ -89,29 +90,47 @@ describe('SigninScreen Component', () => {
       ); 
 
     // Ensure that the error message is displayed
-    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
-    const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
-    expect(emailErrorText).toEqual('Email is invalid!');
+    let emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
+    let passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
+    expect(emailErrorText).toEqual('Enter valid email.');
+    console.log(passwordErrorText)
     expect(passwordErrorText).toEqual('');
   });
 
+   
 
   // Test Case 3:
-  it('displays HelperText error for an invalid empty password input', () => {
-
+  it('displays HelperText error for an invalid empty password input', async() => {
     // Find the TextInput components based on their labels
-    const emailInput = instance.findByProps({ label: 'Email' });
-    const passwordInput = instance.findByProps({ label: 'Password' });
+    let emailInput = instance.findByProps({ label: 'Email' });
+    let passwordInput = instance.findByProps({ label: 'Password' });
     
     // Simulate user input for email and password
-    act(() => {
-      emailInput.props.onChangeText('test@example.com');
+    await waitFor(() => {
+      emailInput.props.onChangeText("Invalid@gmail.com");
       passwordInput.props.onChangeText('');
     });
+
+    jest.spyOn(Alert, 'alert');
+    act(() => {
+      let button = instance.findByProps({ ID: 'signInButton' });
+      button.props.onPress();
+    });
+
+    // Check if Alert.alert was called with the expected arguments
+    expect(Alert.alert).toHaveBeenCalledWith("Authentication Error", // Expected title
+    "Please correct the following errors:\n\n" + ""+// Expected message
+    "Password cannot be empty"
+    ); 
     
     // Ensure that the error message is displayed for the password input
+
+    // Ensure that the error message is displayed for the password input
+    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
     const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
+    expect(emailErrorText).toEqual('');
     expect(passwordErrorText).toEqual('Password cannot be empty');
+
 
   });
 });

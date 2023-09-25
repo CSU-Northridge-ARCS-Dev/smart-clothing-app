@@ -132,7 +132,7 @@ const SigninScreen = ({ navigation }) => {
             error={error.email.length > 1}
           />
           <HelperText type="error" visible={error.email.length > 1} testID="emailError">
-            Email is invalid!
+            {error.email}
           </HelperText>
         </View>
         <View>

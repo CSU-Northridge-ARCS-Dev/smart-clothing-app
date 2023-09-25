@@ -62,6 +62,7 @@
   "devDependencies": {
     "@babel/core": "^7.22.20",
     "@babel/preset-env": "^7.22.20",
+    "@testing-library/react-native": "^12.3.0",
     "babel-jest": "^29.7.0",
     "esm": "^3.2.25"
   },
