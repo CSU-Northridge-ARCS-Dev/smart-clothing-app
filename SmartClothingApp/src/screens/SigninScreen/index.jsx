@@ -166,6 +166,7 @@ const SigninScreen = ({ navigation }) => {
       </View>
       <View style={styles.btnContainer}>
         <Button
+          ID="signInButton"
           disabled={isSubmitting}
           mode="elevated"
           onPress={handleSignInWithEmail}

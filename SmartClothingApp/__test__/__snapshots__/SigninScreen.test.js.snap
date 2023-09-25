@@ -799,6 +799,7 @@ exports[`SigninScreen Component renders correctly 1`] = `
         testID="button-container-outer-layer"
       >
         <View
+          ID="signInButton"
           collapsable={false}
           style={
             {
