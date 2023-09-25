@@ -25,4 +25,3 @@ export const checkHealthKitAvailability = () => {
     return false;
   }
 };
-//export default checkHealthKitAvailability;
