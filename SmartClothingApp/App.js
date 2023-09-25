@@ -27,12 +27,6 @@ export default function App() {
     };
     loadFont();
 
-    checkHealthKitAvailability()
-      .catch(error => {
-        console.error(error);
-      });
- }, []);
-
     // // Check if there's a stored token on app launch
     // const checkToken = async () => {
     //   try {
@@ -60,7 +54,14 @@ export default function App() {
     // });
 
     // return () => unsubscribe();
+    
+    // checks whether AppleHealthKit has been configured correctly
+    // checkHealthKitAvailability()
+    //   .catch(error => {
+    //     console.error(error);
+    //   });
 
+  }, []);
 
   return (
     <>
