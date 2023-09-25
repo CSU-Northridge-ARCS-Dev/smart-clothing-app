@@ -32,30 +32,22 @@ jest.mock('../src/actions/userActions.js', () => ({
 
 // Test Suite
 describe('SigninScreen Component', () => {
-  // Mock Alert.alert to spy on it
-  // jest.mock('react-native', () => {
-  //   return {
-  //     ...jest.requireActual('react-native'),
-  //     Alert: {
-  //       alert: jest.fn()
-  //     },
-  //   };
-  // });
-
   // renders SigninScreen with mock navigation prop and get instance of component's rendered tree
   let component;
   let instance;
 
+  // Render SigninScreen with mock navigation prop and get the instance of the component's rendered tree
   beforeEach(() => {
-    // Render SigninScreen with mock navigation prop and get the instance of the component's rendered tree
     component = renderer.create(<SigninScreen navigation={{ navigate: jest.fn() }} />);
     instance = component.root;
   });
 
+  // Clean up after each test by resetting the alert spy
   afterEach(() => {
-    // Clean up after each test by resetting the alert spy
     jest.clearAllMocks();
   });
+
+
 
   // Test Case 1: if component renders correctly
   it('renders correctly', () => {
@@ -63,6 +55,7 @@ describe('SigninScreen Component', () => {
     const tree = renderer.create(<SigninScreen navigation={{ navigate: jest.fn() }} />).toJSON();
     expect(tree).toMatchSnapshot(); // compares last Snapshot to detect changes in component code
   });
+
 
 
   // Test Case 2: 
@@ -77,37 +70,36 @@ describe('SigninScreen Component', () => {
       passwordInput.props.onChangeText('password123');
     });
 
+    // Track for any Alerts
     jest.spyOn(Alert, 'alert');
+    // Simulate pressing sign in button
     act(() => {
       let button = instance.findByProps({ ID: 'signInButton' });
       button.props.onPress();
     });
 
-    // Check if Alert.alert was called with the expected arguments
-    expect(Alert.alert).toHaveBeenCalledWith("Authentication Error", // Expected title
-    "Please correct the following errors:\n\n" + // Expected message
+    // Ensure expected alert error message is displayed
+    expect(Alert.alert).toHaveBeenCalledWith("Authentication Error", 
+    "Please correct the following errors:\n\n" + 
     "Enter valid email.\n"+""
       ); 
 
-    // Ensure that the error message is displayed
+    // Ensure appropriate error message is displayed in HelperText
     let emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
     let passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
     expect(emailErrorText).toEqual('Enter valid email.');
-    console.log(passwordErrorText)
     expect(passwordErrorText).toEqual('');
   });
 
    
 
   // Test Case 3:
-  it('displays HelperText error for an invalid empty password input', async() => {
-    // Find the TextInput components based on their labels
+  it('displays HelperText and Alert error for an invalid empty password input', async() => {
     let emailInput = instance.findByProps({ label: 'Email' });
     let passwordInput = instance.findByProps({ label: 'Password' });
     
-    // Simulate user input for email and password
     await waitFor(() => {
-      emailInput.props.onChangeText("Invalid@gmail.com");
+      emailInput.props.onChangeText("Example@gmail.com");
       passwordInput.props.onChangeText('');
     });
 
@@ -117,20 +109,75 @@ describe('SigninScreen Component', () => {
       button.props.onPress();
     });
 
-    // Check if Alert.alert was called with the expected arguments
-    expect(Alert.alert).toHaveBeenCalledWith("Authentication Error", // Expected title
-    "Please correct the following errors:\n\n" + ""+// Expected message
+    expect(Alert.alert).toHaveBeenCalledWith("Authentication Error", 
+    "Please correct the following errors:\n\n" + ""+
     "Password cannot be empty"
     ); 
     
-    // Ensure that the error message is displayed for the password input
-
-    // Ensure that the error message is displayed for the password input
     const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
     const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
     expect(emailErrorText).toEqual('');
     expect(passwordErrorText).toEqual('Password cannot be empty');
-
-
   });
+
+
+
+  // Test Case 4:
+  it('displays HelperText and Alert error for an invalid passowrd below 6 characters', async () => {
+    let emailInput = instance.findByProps({ label: 'Email' });
+    let passwordInput = instance.findByProps({ label: 'Password' });
+
+    await waitFor(() => {
+      emailInput.props.onChangeText("Example@gmail.com");
+      passwordInput.props.onChangeText('short');
+    });
+
+    jest.spyOn(Alert, 'alert');
+    act(() => {
+       let button = instance.findByProps({ ID: 'signInButton' });
+       button.props.onPress();
+    });
+
+    expect(Alert.alert).toHaveBeenCalledWith("Authentication Error", 
+    "Please correct the following errors:\n\n" + ""+
+    "Password length cannot be less than 6."
+    ); 
+
+    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
+    const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
+    expect(emailErrorText).toEqual('');
+    expect(passwordErrorText).toEqual('Password length cannot be less than 6.');
+  });
+
+
+
+  // Test Case 5:
+  it('displays HelperText and Alert error for both invalid passowrd and invalid email', async () => {
+    let emailInput = instance.findByProps({ label: 'Email' });
+    let passwordInput = instance.findByProps({ label: 'Password' });
+    
+    await waitFor(() => {
+      emailInput.props.onChangeText("Invalid-Email");
+      passwordInput.props.onChangeText('short');
+    });
+
+    jest.spyOn(Alert, 'alert');
+    act(() => {
+       let button = instance.findByProps({ ID: 'signInButton' });
+       button.props.onPress();
+    });
+
+    expect(Alert.alert).toHaveBeenCalledWith("Authentication Error", 
+    "Please correct the following errors:\n\n" + 
+    "Enter valid email.\n" +
+    "Password length cannot be less than 6."
+    ); 
+
+    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
+    const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
+    expect(emailErrorText).toEqual('Enter valid email.');
+    expect(passwordErrorText).toEqual('Password length cannot be less than 6.');
+  });
+
+
 });
