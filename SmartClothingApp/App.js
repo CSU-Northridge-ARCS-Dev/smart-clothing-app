@@ -108,6 +108,13 @@ export default function App() {
     // });
 
     // return () => unsubscribe();
+
+    // check if AppleHealthKit is Avaliable for use in the app
+    // checkHealthKitAvailability()
+    //   .catch(error => {
+    //     console.error(error);
+    //   });
+    
   }, []);
 
   return (
