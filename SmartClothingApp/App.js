@@ -10,6 +10,7 @@ import { useAppFonts } from "./src/hooks/useAppFonts";
 import { AppTheme } from "./src/constants/themes";
 import configureStore from "./src/store";
 import { AppToast } from "./src/components";
+import { checkHealthKitAvailability } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 
 const store = configureStore();
 
@@ -51,6 +52,13 @@ export default function App() {
     // });
 
     // return () => unsubscribe();
+
+    // check if AppleHealthKit is Avaliable for use in the app
+    // checkHealthKitAvailability()
+    //   .catch(error => {
+    //     console.error(error);
+    //   });
+    
   }, []);
 
   return (
