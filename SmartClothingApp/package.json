@@ -1,9 +1,8 @@
 {
   "name": "smartclothingapp",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
@@ -48,7 +47,8 @@
     "react-redux": "^8.1.1",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
-    "victory-native": "40.0.2"
+    "victory-native": "40.0.2",
+    "expo-splash-screen": "~0.18.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
