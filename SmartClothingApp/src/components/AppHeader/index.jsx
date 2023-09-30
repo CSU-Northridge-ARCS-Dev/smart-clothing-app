@@ -56,8 +56,6 @@ const AppHeader = (props) => {
               onPress={() => {
                 dispatch(startLogout());
               }}
-<<<<<<< HEAD
-=======
               leadingIcon={() => (
                 <Icon
                   name="sign-out-alt"
@@ -66,7 +64,6 @@ const AppHeader = (props) => {
                   color="black"
                 />
               )}
->>>>>>> iss25
               title="Logout"
             />
           </Menu>
