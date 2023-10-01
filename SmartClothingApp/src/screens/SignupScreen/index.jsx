@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Image, ScrollView } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import {
   Button,
@@ -9,23 +11,20 @@ import {
   TextInput,
 } from "react-native-paper";
 import { AppColor, AppStyle } from "../../constants/themes";
-import { HeroSection } from "../../components";
+import { HeroSection, DataCollectModal } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { useSelector, useDispatch } from "react-redux";
-import { startSignupWithEmail } from "../../actions/userActions.js";
+import {
+  startSignupWithEmail,
+  startUpdateUserData,
+} from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const [isSubmitting, setIsSubmitting] = useState(true);
 
-  const [userData, setUserData] = useState({
-    gender: "",
-    dob: "",
-    height: "",
-    weight: "",
-  });
+  const [isSubmitting, setIsSubmitting] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const [user, setUser] = useState({
     fname: "",
@@ -34,6 +33,7 @@ const SignupScreen = ({ navigation }) => {
     password: "",
     repassword: "",
   });
+
   const [error, setError] = useState({
     fname: "",
     lname: "",
@@ -68,20 +68,33 @@ const SignupScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
-  const handleSignUpWithEmail = () => {
+  const handleCollectUserData = () => {
     if (!isValid()) {
       console.log("Invalid user details!");
       return;
     }
 
+    setModalVisible(true);
+  };
+
+  const handleSignUpWithEmail = (newUserData) => {
+    if (!isValid()) {
+      console.log("Invalid user details!");
+      return;
+    }
+
+    console.log("signupwithemail called with", newUserData);
+
     setIsSubmitting(true);
+
+    console.log("User is ...", user);
     dispatch(
       startSignupWithEmail(
         user.email,
         user.password,
         user.fname,
         user.lname,
-        userData
+        newUserData
       )
     );
   };
@@ -209,73 +222,16 @@ const SignupScreen = ({ navigation }) => {
           </HelperText>
         </View>
 
-        {/* ====data start==== */}
-
-        <View>
-          <TextInput
-            label="Gender"
-            value={userData.gender}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, gender: text });
-              handleClearErrors();
-            }}
-            error={false}
-          />
-          <HelperText type="error" visible={false}>
-            Please enter Gender!
-          </HelperText>
-        </View>
-
-        <View>
-          <TextInput
-            label="Birth Date"
-            value={userData.dob}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, dob: text });
-              handleClearErrors();
-            }}
-            error={false}
-          />
-          <HelperText type="error" visible={false}>
-            Please enter Birth Date!
-          </HelperText>
-        </View>
-
-        <View>
-          <TextInput
-            label="Height"
-            value={userData.height}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, height: text });
-              handleClearErrors();
-            }}
-            error={false}
-          />
-          <HelperText type="error" visible={false}>
-            Please enter Height!
-          </HelperText>
-        </View>
-
-        <View>
-          <TextInput
-            label="Weight"
-            value={userData.weight}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, weight: text });
-              handleClearErrors();
-            }}
-            error={false}
-          />
-          <HelperText type="error" visible={false}>
-            Please enter Weight!
-          </HelperText>
-        </View>
-
-        {/* ====data end==== */}
+        <DataCollectModal
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          givenUserData={false}
+          save={handleSignUpWithEmail}
+          later={() => {
+            handleSignUpWithEmail();
+            setModalVisible(false);
+          }}
+        />
 
         <View style={styles.checkbox}>
           <Checkbox
@@ -298,7 +254,7 @@ const SignupScreen = ({ navigation }) => {
             disabled={isSubmitting}
             mode="elevated"
             style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
-            onPress={handleSignUpWithEmail}
+            onPress={handleCollectUserData}
           >
             Create Account
           </Button>
