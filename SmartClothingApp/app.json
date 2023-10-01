@@ -3,6 +3,7 @@
     "name": "SmartClothingApp",
     "slug": "SmartClothingApp",
     "version": "1.0.0",
+    "owner": "arcs",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Image, ScrollView } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 
 import { horizontalScale, verticalScale } from "../../utils/scale";
@@ -39,6 +39,7 @@ const SignupScreen = ({ navigation }) => {
     lname: "",
     email: "",
     password: "",
+    repassword: "",
   });
   const [checked, setChecked] = useState(false);
 
@@ -64,13 +65,23 @@ const SignupScreen = ({ navigation }) => {
       lname: "",
       email: "",
       password: "",
+      repassword: "",
     });
     setIsSubmitting(false);
   };
 
   const handleCollectUserData = () => {
     if (!isValid()) {
-      console.log("Invalid user details!");
+      Alert.alert(
+        "Sign-up Error",
+        "Please correct the following errors:\n\n" +
+          (error.fname && `${error.fname}\n`) +
+          (error.lname && `${error.lname}\n`) +
+          (error.email && `${error.email}\n`) +
+          (error.password && `${error.password}\n`) +
+          (error.repassword && `${error.repassword}`)
+      );
+
       return;
     }
 
@@ -79,7 +90,16 @@ const SignupScreen = ({ navigation }) => {
 
   const handleSignUpWithEmail = (newUserData) => {
     if (!isValid()) {
-      console.log("Invalid user details!");
+      Alert.alert(
+        "Sign-up Error",
+        "Please correct the following errors:\n\n" +
+          (error.fname && `${error.fname}\n`) +
+          (error.lname && `${error.lname}\n`) +
+          (error.email && `${error.email}\n`) +
+          (error.password && `${error.password}\n`) +
+          (error.repassword && `${error.repassword}`)
+      );
+
       return;
     }
 
@@ -102,24 +122,31 @@ const SignupScreen = ({ navigation }) => {
   const isValid = () => {
     let flag = true;
     let errors = error;
-    if (user.email.length < 1 || !user.email.includes("@")) {
-      errors.email = "Enter valid email!";
+
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
+    if (!emailRegex.test(user.email)) {
+      errors.email = "Enter valid email.";
       flag = false;
     }
     if (user.password.length < 1) {
-      errors.password = "Password cannot be empty!";
+      errors.password = "Password cannot be empty.";
       flag = false;
     }
     if (user.password.length < 6) {
-      errors.password = "Password length cannot be less than 6!";
+      errors.password = "Password length cannot be less than 6.";
       flag = false;
     }
     if (user.fname.length < 1) {
-      errors.fname = "Firstname cannot be empty!";
+      errors.fname = "First name cannot be empty.";
       flag = false;
     }
     if (user.lname.length < 1) {
-      errors.lname = "Lastname cannot be empty!";
+      errors.lname = "Last name cannot be empty.";
+      flag = false;
+    }
+    if (user.password !== user.repassword) {
+      errors.repassword = "Passwords did not match.";
       flag = false;
     }
     setError({ ...errors });
@@ -154,7 +181,7 @@ const SignupScreen = ({ navigation }) => {
             error={error.fname.length > 1}
           />
           <HelperText type="error" visible={error.fname.length > 1}>
-            Please enter Firstname!
+            Please enter first name.
           </HelperText>
         </View>
         <View>
@@ -169,7 +196,7 @@ const SignupScreen = ({ navigation }) => {
             error={error.lname.length > 1}
           />
           <HelperText type="error" visible={error.lname.length > 1}>
-            Please enter Lastname!
+            Please enter last name.
           </HelperText>
         </View>
         <View>
@@ -184,7 +211,7 @@ const SignupScreen = ({ navigation }) => {
             error={error.email.length > 1}
           />
           <HelperText type="error" visible={error.email.length > 1}>
-            Please enter Valid Email!
+            Please enter a valid email.
           </HelperText>
         </View>
         <View>
@@ -218,7 +245,7 @@ const SignupScreen = ({ navigation }) => {
             error={user.password != user.repassword}
           />
           <HelperText type="error" visible={user.password != user.repassword}>
-            Passwords do not Match!
+            Passwords do not match.
           </HelperText>
         </View>
 
@@ -262,7 +289,7 @@ const SignupScreen = ({ navigation }) => {
         {/* <GoogleButton /> */}
         <View style={{ marginVertical: verticalScale(10) }}>
           <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
-            Already have an account? Sign In
+            Already have an account? Sign in.
           </Button>
         </View>
       </View>
