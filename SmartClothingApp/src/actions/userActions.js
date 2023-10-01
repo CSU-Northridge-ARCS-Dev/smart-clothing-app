@@ -1,4 +1,4 @@
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc } from "firebase/firestore";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -83,6 +83,19 @@ export const startUpdateProfile = (firstName, lastName) => {
   };
 };
 
+export const startUpdateUserData = (userData, uid) => {
+  console.log("startUpdateUserData called with", userData, "and uid", uid);
+  return async (dispatch) => {
+    try {
+      await setDoc(doc(database, "Users", uid), userData);
+      console.log("User data added to database successfully!");
+    } catch (e) {
+      console.log("Error adding user data to database!");
+      console.log(e);
+    }
+  };
+};
+
 export const startSignupWithEmail = (
   email,
   password,
@@ -101,14 +114,12 @@ export const startSignupWithEmail = (
         dispatch(startUpdateProfile(firstName, lastName));
 
         // After creating User, Adding User Data to Database
-        addDoc(collection(database, "Users"), userData)
-          .then((docRef) => {
-            console.log("Document written with ID: ", docRef.id);
-          })
-          .catch((error) => {
-            console.log(error);
-            console.log("Error adding user data to database!");
-          });
+        if (userData) {
+          console.log("user Id is for DB ...", user.uid);
+          dispatch(startUpdateUserData(userData, user.uid));
+        } else {
+          console.log("No user data to add to database!");
+        }
 
         dispatch(
           signupWithEmail({
