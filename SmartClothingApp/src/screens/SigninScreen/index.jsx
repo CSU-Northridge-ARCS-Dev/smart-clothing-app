@@ -71,7 +71,7 @@ const SigninScreen = ({ navigation }) => {
     return flag;
   };
 
-  if (firebaseErrorMessages.hasOwnProperty(authError)) {
+  if (firebaseErrorMessages.hasOwnProperty("authError")) {
     const errorMessage = firebaseErrorMessages[authError];
 
     Alert.alert("Authentication Error", errorMessage);
