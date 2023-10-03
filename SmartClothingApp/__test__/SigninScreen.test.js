@@ -31,7 +31,7 @@ jest.mock('../src/actions/userActions.js', () => ({
 
 
 // Test Suite
-describe('SigninScreen Component', () => {
+describe('SigninScreen Error Alerts', () => {
   // renders SigninScreen with mock navigation prop and get instance of component's rendered tree
   let component;
   let instance;
@@ -180,4 +180,17 @@ describe('SigninScreen Component', () => {
   });
 
 
+  // Test Case 6: Successful sign-in without errors
+  it('successfully signs in without errors', async () => {
+    // Find the TextInput components based on their labels
+    let emailInput = instance.findByProps({ label: 'Email' });
+    let passwordInput = instance.findByProps({ label: 'Password' });
+    // Simulate user input for email and password
+    await waitFor(() => {
+      emailInput.props.onChangeText('valid@gmail.com');
+      passwordInput.props.onChangeText('password123');
+    });
+    // Ensure that Alert.alert is not called (no errors expected)
+    expect(Alert.alert).not.toHaveBeenCalled();
+  });
 });
