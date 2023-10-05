@@ -32,6 +32,7 @@ const DataCollectModal = ({
 
   const [isSubmitting, setIsSubmitting] = useState(true);
 
+
   const [error, setError] = useState({
     fname: "",
     lname: "",
@@ -139,7 +140,7 @@ const DataCollectModal = ({
               error={false}
             />
             <HelperText type="error" visible={false}>
-              Please enter Gender!
+              Please enter your gender.
             </HelperText>
 
             <TextInput
@@ -154,7 +155,7 @@ const DataCollectModal = ({
               error={false}
             />
             <HelperText type="error" visible={false}>
-              Please enter Birth Date!
+              Please enter the date of birth.
             </HelperText>
 
             <TextInput
@@ -169,7 +170,7 @@ const DataCollectModal = ({
               error={false}
             />
             <HelperText type="error" visible={false}>
-              Please enter Height!
+              Please enter your height.
             </HelperText>
 
             <TextInput
@@ -184,7 +185,7 @@ const DataCollectModal = ({
               error={false}
             />
             <HelperText type="error" visible={false}>
-              Please enter Weight!
+              Please enter your weight.
             </HelperText>
 
             <View style={styles.btnContainer}>
