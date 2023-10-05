@@ -9,6 +9,10 @@ import renderer from 'react-test-renderer';
 import { Button } from 'react-native-paper';
 import { waitFor } from '@testing-library/react-native';
 import SigninScreen from '../src/screens/SigninScreen/index.jsx';
+import { useDispatch } from 'react-redux';
+import { startLoginWithEmail } from '../src/actions/userActions.js';
+
+
 
 // Mock dependencies or Redux actions as needed
 jest.mock('react-redux', () => ({
@@ -25,6 +29,12 @@ jest.mock('../src/actions/userActions.js', () => ({
 // Mock userActions.js module functions: startLoginWithEmail and setAuthError
 jest.mock('../src/actions/userActions.js', () => ({
   startLoginWithEmail: jest.fn(),
+  setAuthError: jest.fn(),
+}));
+
+// Mock userActions.js module functions: startLoginWithEmail and setAuthError
+jest.mock('../src/actions/userActions.js', () => ({
+  startLoginWithEmail: jest.fn().mockResolvedValueOnce(), // Mock to resolve (successful sign-in)
   setAuthError: jest.fn(),
 }));
 
@@ -178,6 +188,90 @@ describe('SigninScreen Component', () => {
     expect(emailErrorText).toEqual('Enter valid email.');
     expect(passwordErrorText).toEqual('Password length cannot be less than 6.');
   });
+
+// Test Case 6: Successful sign-in without errors
+it('successfully signs in without errors', async () => {
+  // Find the TextInput components based on their labels
+  let emailInput = instance.findByProps({ label: 'Email' });
+  let passwordInput = instance.findByProps({ label: 'Password' });
+  
+  // Simulate user input for email and password
+  await waitFor(() => {
+    emailInput.props.onChangeText('valid@gmail.com'); 
+    passwordInput.props.onChangeText('password123');
+  });
+
+  // Ensure that Alert.alert is not called (no errors expected)
+  expect(Alert.alert).not.toHaveBeenCalled();  
+});  
+
+//Test Case 7:
+it('navigates to Forgot Password screen when "Forgot" button is pressed', async () => {
+  // Mock the navigation object
+  const mockNavigate = jest.fn();
+  const navigation = { navigate: mockNavigate };
+
+  // Render the component with the mocked navigation prop
+  component = renderer.create(<SigninScreen navigation={navigation} />);
+  instance = component.root;
+
+  // Find the "Forgot" button by its label
+  const forgotButton = instance.findByProps({ children: "Forgot your Username/Password ?" });
+
+  // Simulate pressing the "Forgot" button
+  act(() => {
+    forgotButton.props.onPress();
+  });
+
+  // Ensure that navigation.navigate was called with the correct screen name
+  expect(mockNavigate).toHaveBeenCalledWith('Forgot');
+});
+
+
+//Testcase 8
+it('successfully signs in without errors', async () => {
+  // Mock the navigation object
+  const mockNavigate = jest.fn();
+  const navigation = { navigate: mockNavigate };
+
+  // Mock the useDispatch function
+  const mockDispatch = jest.fn();
+  const mockStartLoginWithEmail = jest.fn(); // Mock the startLoginWithEmail function
+
+  // Set up useDispatch to return the mockDispatch function
+  useDispatch.mockReturnValueOnce(mockDispatch);
+
+  // Render the component with the mocked navigation prop
+  component = renderer.create(<SigninScreen navigation={navigation} />);
+  instance = component.root;
+
+  // Find the TextInput components based on their labels
+  const emailInput = instance.findByProps({ label: 'Email' });
+  const passwordInput = instance.findByProps({ label: 'Password' });
+
+  // Simulate user input for email and password
+  await act(async () => {
+    emailInput.props.onChangeText('valid@gmail.com');
+    passwordInput.props.onChangeText('password123');
+  });
+
+  // Find the "Sign In" button
+  const signInButton = instance.findByProps({ ID: 'signInButton' });
+
+  // Mock the startLoginWithEmail function to resolve (successful sign-in)
+  startLoginWithEmail.mockResolvedValueOnce();
+
+  // Simulate pressing the "Sign In" button
+  await act(async () => {
+    signInButton.props.onPress();
+  });
+
+  // Ensure that navigation.navigate was not called (no navigation after successful sign-in)
+  expect(mockNavigate).not.toHaveBeenCalled();
+
+});
+
+
 
 
 });
