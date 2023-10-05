@@ -18,7 +18,9 @@ import { HeroSection, DataCollectModal } from "../../components";
 import {
   startSignupWithEmail,
   startUpdateUserData,
+  checkEmailExists,
 } from "../../actions/userActions.js";
+import { toastError } from "../../actions/toastActions";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -70,7 +72,8 @@ const SignupScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
-  const handleCollectUserData = () => {
+  const handleCollectUserData = async () => {
+    const emailExists = await checkEmailExists(user.email);
     if (!isValid()) {
       Alert.alert(
         "Sign-up Error",
@@ -82,6 +85,10 @@ const SignupScreen = ({ navigation }) => {
           (error.repassword && `${error.repassword}`)
       );
 
+      return;
+    }
+    if (emailExists) {
+      dispatch(toastError("Email address already in use."));
       return;
     }
 
