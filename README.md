@@ -40,3 +40,9 @@ To bypass login/signup page:
 - Stable branch will be used to store the most stable version of the application. This branch must have a functioning and running application all the time.
 - Main branch can be used to work together and for implementation and testing etc. Code must be able to run.
 - All the other branches will be used for development and testing. Etiquette to be decided.
+
+## Troubleshooting
+- Error Code: "Main" has not been registered.
+    Run: ```npx expo start --clear```
+
+- Android Studio Build, PATH variable: 
