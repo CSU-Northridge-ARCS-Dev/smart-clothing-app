@@ -150,12 +150,8 @@ const SignupScreen = ({ navigation }) => {
             }}
             error={error.fname.length > 1}
           />
-          <HelperText
-            type="error"
-            visible={error.fname.length > 1}
-            testID="firstNameError"
-          >
-            Please enter first name.
+          <HelperText type="error" visible={error.fname.length > 1}>
+            Please enter Firstname!
           </HelperText>
         </View>
         <View>
@@ -169,12 +165,8 @@ const SignupScreen = ({ navigation }) => {
             }}
             error={error.lname.length > 1}
           />
-          <HelperText
-            type="error"
-            visible={error.lname.length > 1}
-            testID="lastNameError"
-          >
-            Please enter last name.
+          <HelperText type="error" visible={error.lname.length > 1}>
+            Please enter Lastname!
           </HelperText>
         </View>
         <View>
@@ -188,12 +180,8 @@ const SignupScreen = ({ navigation }) => {
             }}
             error={error.email.length > 1}
           />
-          <HelperText
-            type="error"
-            visible={error.email.length > 1}
-            testID="emailError"
-          >
-            Please enter a valid email.
+          <HelperText type="error" visible={error.email.length > 1}>
+            Please enter Valid Email!
           </HelperText>
         </View>
         <View>
@@ -230,12 +218,8 @@ const SignupScreen = ({ navigation }) => {
             }}
             error={user.password != user.repassword}
           />
-          <HelperText
-            type="error"
-            visible={user.password != user.repassword}
-            testID="matchError"
-          >
-            Passwords do not match.
+          <HelperText type="error" visible={user.password != user.repassword}>
+            Passwords do not Match!
           </HelperText>
         </View>
         <View style={styles.checkbox}>

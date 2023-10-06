@@ -97,7 +97,7 @@ const SigninScreen = ({ navigation }) => {
     return flag;
   };
 
-  // Display an alert to the user with an error message if an authentication error (authError) is present.
+
   if (firebaseErrorMessages.hasOwnProperty(authError)) {
     const errorMessage = firebaseErrorMessages[authError];
 
