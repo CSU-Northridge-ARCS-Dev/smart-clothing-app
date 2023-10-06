@@ -1,3 +1,5 @@
+// Mock auth module
+import { auth } from '../firebaseConfig.js';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { startLogout } from '../src/actions/userActions.js'; // Adjust the path accordingly
@@ -5,7 +7,6 @@ import { startLogout } from '../src/actions/userActions.js'; // Adjust the path 
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
-// Mock auth module
 jest.mock('../firebaseConfig.js', () => ({
   auth: {
     signOut: jest.fn(() => Promise.resolve()),
@@ -13,9 +14,22 @@ jest.mock('../firebaseConfig.js', () => ({
   },
 }));
 
+jest.mock('firebase/auth', () => ({
+  createUserWithEmailAndPassword: jest.fn(),
+  signInWithEmailAndPassword: jest.fn(),
+  updateProfile: jest.fn(),
+  sendPasswordResetEmail: jest.fn(),
+}))
+
+
 describe('Async Auth Actions', () => {
   it('dispatches LOGOUT action when startLogout is called', async () => {
-    const expectedActions = [{ type: 'LOGOUT' }];
+    const expectedActions = [{ 
+      type: 'LOGOUT'
+    },{
+      payload: 'User logged out!',
+      type: 'showErrorToast',
+    },];
 
     const store = mockStore({});
     await store.dispatch(startLogout());
