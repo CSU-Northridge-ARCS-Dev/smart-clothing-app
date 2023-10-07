@@ -1,4 +1,4 @@
-import { collection, addDoc, setDoc, doc } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc, updateDoc } from "firebase/firestore";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -90,6 +90,19 @@ export const startUpdateUserData = (userData, uid) => {
     try {
       await setDoc(doc(database, "Users", uid), userData);
       console.log("User data added to database successfully!");
+    } catch (e) {
+      console.log("Error adding user data to database!");
+      console.log(e);
+    }
+  };
+};
+
+export const updateUserData = (userData, uid) => {
+  console.log("updateUserData called with", userData, "and uid", uid);
+  return async (dispatch) => {
+    try {
+      await updateDoc(doc(database, "Users", uid), userData);
+      console.log("User data edited in the database successfully!");
     } catch (e) {
       console.log("Error adding user data to database!");
       console.log(e);

@@ -1,29 +1,82 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { TextInput, Button, Text } from "react-native-paper";
+import { HelperText, TextInput, Button, Text } from "react-native-paper";
 import { AppHeader } from "../../components";
 import { AppFonts, AppStyle } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
+import { useDispatch } from "react-redux";
 
-const ProfileScreen = ({ navigation }) => {
-  const [user, setUser] = useState({
+import { auth } from "../../../firebaseConfig";
+import { updateUserData } from "../../actions/userActions";
+// import { getDoc, doc } from "firebase/firestore"; // Import Firebase Firestore functions
+
+const ProfileScreen = ({ navigation, route }) => {
+  const dispatch = useDispatch();
+  const { previousScreenTitle } = route.params;
+  const [isSubmitting, setIsSubmitting] = useState(true);
+
+  const [userData, setUserData] = useState({
     fname: "",
     lname: "",
-    email: "",
-    password: "",
-    repassword: "",
+    age: "",
+    gender: "",
+    height: "",
+    weight: "",
+    sports: "",
   });
+
   const [error, setError] = useState({
     fname: "",
     lname: "",
-    email: "",
-    password: "",
-    repassword: "",
+    age: "",
+    gender: "",
+    height: "",
+    weight: "",
+    sports: "",
   });
+
+  // const [uid, setUid] = useState("");
+
+  // useEffect(() => {
+  //   const userData = auth.currentUser;
+  //   if (userData) {
+  //     setUid(userData.uid);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const userDocRef = doc(database, "Users", auth.currentUser.uid);
+  //       const userDoc = await getDoc(userDocRef);
+
+  //       if (userDoc.exists()) {
+  //         const userDataFromFirebase = userDoc.data();
+  //         setUserData(userDataFromFirebase);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //     }
+  //   };
+
+  //   fetchUserData();
+  // }, []);
+
+  const handleSaveProfile = () => {
+    const filteredUserData = {};
+    for (const key in userData) {
+      if (userData[key] !== "") {
+        filteredUserData[key] = userData[key];
+      }
+    }
+    if (Object.values(filteredUserData).length > 0) {
+      dispatch(updateUserData(filteredUserData, auth.currentUser.uid));
+    }
+  };
 
   return (
     <ScrollView>
-      <AppHeader title={"Profile"} back={true} menu={false} />
+      <AppHeader title={previousScreenTitle} back={true} menu={false} />
       <View style={styles.content}>
         <Text
           style={[
@@ -37,78 +90,72 @@ const ProfileScreen = ({ navigation }) => {
         <View>
           <TextInput
             label="First Name"
-            value={user.fname}
+            value={userData.fname}
             mode="outlined"
             onChangeText={(text) => {
-              setUser({ ...user, fname: text });
+              setUserData({ ...userData, fname: text });
+              console.log(userData.fname);
             }}
-            error={error.fname.length > 1}
           />
         </View>
         <View>
           <TextInput
             label="Last Name"
-            value={user.lname}
+            value={userData.lname}
             mode="outlined"
             onChangeText={(text) => {
-              setUser({ ...user, lname: text });
+              setUserData({ ...userData, lname: text });
             }}
-            error={error.fname.length > 1}
           />
         </View>
         <View>
           <TextInput
             label="Age"
-            value={user.fname}
+            value={userData.age}
             mode="outlined"
             onChangeText={(text) => {
-              setUser({ ...user, fname: text });
+              setUserData({ ...userData, age: text });
             }}
-            error={error.fname.length > 1}
           />
         </View>
         <View>
           <TextInput
             label="Gender"
-            value={user.fname}
+            value={userData.gender}
             mode="outlined"
             onChangeText={(text) => {
-              setUser({ ...user, fname: text });
+              setUserData({ ...userData, gender: text });
             }}
-            error={error.fname.length > 1}
           />
         </View>
         <View>
           <TextInput
             label="Height"
-            value={user.fname}
+            value={userData.height}
             mode="outlined"
             onChangeText={(text) => {
-              setUser({ ...user, fname: text });
+              setUserData({ ...userData, height: text });
             }}
-            error={error.fname.length > 1}
           />
         </View>
         <View>
           <TextInput
             label="Weight"
-            value={user.fname}
+            value={userData.weight}
             mode="outlined"
             onChangeText={(text) => {
-              setUser({ ...user, fname: text });
+              setUserData({ ...userData, weight: text });
             }}
-            error={error.fname.length > 1}
           />
         </View>
         <View>
           <TextInput
             label="Sports"
-            value={user.fname}
+            value={userData.sports}
             mode="outlined"
             onChangeText={(text) => {
-              setUser({ ...user, fname: text });
+              setUserData({ ...userData, sports: text });
             }}
-            error={error.fname.length > 1}
           />
         </View>
         <View style={styles.btnContainer}>
@@ -118,6 +165,9 @@ const ProfileScreen = ({ navigation }) => {
               flex: 2,
               marginHorizontal: horizontalScale(10),
               marginVertical: verticalScale(10),
+            }}
+            onPress={() => {
+              handleSaveProfile(userData);
             }}
           >
             Save
@@ -146,6 +196,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 });
-
 
 export default ProfileScreen;
