@@ -32,7 +32,6 @@ const DataCollectModal = ({
 
   const [isSubmitting, setIsSubmitting] = useState(true);
 
-
   const [error, setError] = useState({
     fname: "",
     lname: "",
@@ -110,6 +109,13 @@ const DataCollectModal = ({
   //   return flag;
   // };
 
+  function isMMDDYYYYFormat(value) {
+    const pattern = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+
+    return pattern.test(value);
+  }
+  const isDOBValid = isMMDDYYYYFormat(userData.dob);
+
   return (
     <View style={styles.container}>
       <Modal
@@ -142,9 +148,9 @@ const DataCollectModal = ({
             <HelperText type="error" visible={false}>
               Please enter your gender.
             </HelperText>
-
             <TextInput
               label="Birth Date"
+              placeholder="MM/DD/YYYY"
               value={userData.dob}
               mode="outlined"
               style={styles.input}
@@ -152,10 +158,10 @@ const DataCollectModal = ({
                 setUserData({ ...userData, dob: text });
                 handleClearErrors();
               }}
-              error={false}
+              error={!isDOBValid}
             />
-            <HelperText type="error" visible={false}>
-              Please enter the date of birth.
+            <HelperText type="error" visible={!isDOBValid}>
+              Please enter in correct format.
             </HelperText>
 
             <TextInput
@@ -172,7 +178,6 @@ const DataCollectModal = ({
             <HelperText type="error" visible={false}>
               Please enter your height.
             </HelperText>
-
             <TextInput
               label="Weight"
               value={userData.weight}
@@ -187,13 +192,12 @@ const DataCollectModal = ({
             <HelperText type="error" visible={false}>
               Please enter your weight.
             </HelperText>
-
             <View style={styles.btnContainer}>
               <Button mode="outlined" onPress={later} style={styles.button}>
                 Later
               </Button>
               <Button
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isDOBValid}
                 mode="elevated"
                 onPress={() => {
                   setModalVisible(!modalVisible);

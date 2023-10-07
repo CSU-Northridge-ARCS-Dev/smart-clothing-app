@@ -17,7 +17,6 @@ import { HeroSection, DataCollectModal } from "../../components";
 
 import {
   startSignupWithEmail,
-  startUpdateUserData,
   checkEmailExists,
 } from "../../actions/userActions.js";
 import { toastError } from "../../actions/toastActions";
