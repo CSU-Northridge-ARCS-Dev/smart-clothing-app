@@ -39,7 +39,7 @@
     "react-redux": "^8.1.1",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2",
-    "expo-splash-screen": "~0.18.2"
+    "@react-native-community/datetimepicker": "6.7.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

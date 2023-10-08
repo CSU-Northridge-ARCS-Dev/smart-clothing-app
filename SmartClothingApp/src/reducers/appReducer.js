@@ -8,7 +8,7 @@ import {
 
 const initialState = {
   darkTheme: false,
-  userMetricsDataModalVisible: false,
+  userMetricsDataModalVisible: true, // by deault, show the modal after signup
   measurementSystem: "imperial", // "imperial" (US) or "metric"
 };
 

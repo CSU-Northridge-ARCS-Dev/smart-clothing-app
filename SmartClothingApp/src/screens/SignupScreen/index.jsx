@@ -24,7 +24,7 @@ const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(true);
 
   const [user, setUser] = useState({
     fname: "",
@@ -70,7 +70,7 @@ const SignupScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
-  const handleCollectUserData = () => {
+  const handleSignUpWithEmail = () => {
     if (!isValid()) {
       Alert.alert(
         "Sign-up Error",
@@ -85,28 +85,11 @@ const SignupScreen = ({ navigation }) => {
       return;
     }
 
-    setModalVisible(true);
-  };
-
-  const handleSignUpWithEmail = (newUserData) => {
-    if (!isValid()) {
-      console.log("Invalid user details!");
-      return;
-    }
-
-    console.log("signupwithemail called with", newUserData);
-
     setIsSubmitting(true);
 
     console.log("User is ...", user);
     dispatch(
-      startSignupWithEmail(
-        user.email,
-        user.password,
-        user.fname,
-        user.lname,
-        newUserData
-      )
+      startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
   };
 
@@ -239,18 +222,6 @@ const SignupScreen = ({ navigation }) => {
             Passwords do not match.
           </HelperText>
         </View>
-
-        <DataCollectModal
-          modalVisible={modalVisible}
-          setModalVisible={setModalVisible}
-          givenUserData={false}
-          save={handleSignUpWithEmail}
-          later={() => {
-            handleSignUpWithEmail();
-            setModalVisible(false);
-          }}
-        />
-
         <View style={styles.checkbox}>
           <Checkbox
             status={checked ? "checked" : "unchecked"}
@@ -272,7 +243,7 @@ const SignupScreen = ({ navigation }) => {
             disabled={isSubmitting}
             mode="elevated"
             style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
-            onPress={handleCollectUserData}
+            onPress={handleSignUpWithEmail}
           >
             Create Account
           </Button>

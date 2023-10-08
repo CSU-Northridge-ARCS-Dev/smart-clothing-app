@@ -20,8 +20,15 @@ export const ToastTypes = {
   DISCARD_TOAST: "discardToast",
 };
 
+// Device
 export const GET_DEVICES = "GET_DEVICES";
 export const GET_DEVICE = "GET_DEVICE";
 export const ADD_DEVICE = "ADD_DEVICE";
 export const UPDATE_DEVICE = "UPDATE_DEVICE";
 export const DELETE_DEVICE = "DELETE_DEVICE";
+
+// Settings
+export const USER_METRICS_DATA_MODAL_VISIBLE =
+  "USER_METRICS_DATA_MODAL_VISIBLE";
+export const DARK_THEME = "DARK_THEME";
+export const MEASUREMENT_SYSTEM = "MEASUREMENT_SYSTEM"; // US or Metric

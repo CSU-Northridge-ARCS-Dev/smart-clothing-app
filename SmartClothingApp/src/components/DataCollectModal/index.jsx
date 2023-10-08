@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Modal } from "react-native";
+import { View, StyleSheet, Modal, SafeAreaView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import {
   Button,
@@ -8,6 +8,10 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
+import DateTimePicker, {
+  DateTimePickerAndroid,
+} from "@react-native-community/datetimepicker";
+
 import { AppColor, AppStyle } from "../../constants/themes";
 
 const DataCollectModal = ({
@@ -23,6 +27,29 @@ const DataCollectModal = ({
     height: "",
     weight: "",
   });
+
+  const [date, setDate] = useState(new Date());
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode) => {
+    DateTimePickerAndroid.open({
+      value: date,
+      onChange,
+      mode: currentMode,
+      is24Hour: true,
+    });
+  };
+
+  const showDatepicker = () => {
+    showMode("date");
+  };
+
+  const showTimepicker = () => {
+    showMode("time");
+  };
 
   useEffect(() => {
     if (givenUserData) {
@@ -153,6 +180,10 @@ const DataCollectModal = ({
               }}
               error={false}
             />
+            <SafeAreaView>
+              <Button onPress={showDatepicker}>Show date picker!</Button>
+              <Text>selected: {date.toLocaleString()}</Text>
+            </SafeAreaView>
             <HelperText type="error" visible={false}>
               Please enter Birth Date!
             </HelperText>
