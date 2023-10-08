@@ -19,7 +19,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
-      <DataCollectModal visible={true} />
+      <DataCollectModal isFromSignupScreen={true} />
       <View style={styles.body}>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <View style={styles.insights}>
