@@ -97,7 +97,7 @@ export const startUpdateUserData = (userData) => {
   console.log("startUpdateUserData called with", userData);
   return async (dispatch) => {
     try {
-      await setDoc(doc(database, "Users", uid), userData);
+      await setDoc(doc(database, "Users", auth.currentUser.uid), userData);
       console.log("User data added to database successfully!");
       dispatch(updateUserMetricsData(userData));
     } catch (e) {
