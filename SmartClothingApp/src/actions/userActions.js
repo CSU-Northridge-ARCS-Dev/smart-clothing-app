@@ -24,7 +24,7 @@ import {
   LOGOUT,
   UPDATE_PROFILE,
 } from "./types";
-import { toastError } from "./toastActions.js";
+import { toastError, toastInfo } from "./toastActions.js";
 
 const loginWithEmail = (user) => {
   return {
@@ -108,11 +108,22 @@ export const updateUserData = (userData, uid) => {
   console.log("updateUserData called with", userData, "and uid", uid);
   return async (dispatch) => {
     try {
-      await updateDoc(doc(database, "Users", uid), userData);
-      console.log("User data edited in the database successfully!");
+      const userDocRef = doc(database, "Users", uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        // If the document exists, update it
+        await updateDoc(userDocRef, userData);
+        dispatch(toastInfo("Your edits have been saved."));
+        console.log("User data edited in the database successfully!");
+      } else {
+        // If the document doesn't exist, create it using setDoc
+        await setDoc(userDocRef, userData);
+        console.log("User data added to database successfully!");
+      }
     } catch (e) {
-      console.log("Error adding user data to database!");
-      console.log(e);
+      console.log("Error updating user data in the database!");
+      console.error(e);
     }
   };
 };
@@ -188,6 +199,8 @@ export const fetchUserData = async (database, uid) => {
     if (userDoc.exists()) {
       const userDataFromFirebase = userDoc.data();
       return userDataFromFirebase;
+    } else {
+      return null;
     }
   } catch (error) {
     console.error("Error fetching user data:", error);
