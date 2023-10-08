@@ -103,12 +103,20 @@ export const startUpdateProfile = (firstName, lastName) => {
   };
 };
 
-export const startUpdateUserData = (userData, uid) => {
-  console.log("startUpdateUserData called with", userData, "and uid", uid);
+export const updateUserMetricsData = (userMetricsData) => {
+  return {
+    type: UPDATE_USER_METRICS_DATA,
+    payload: userMetricsData,
+  };
+};
+
+export const startUpdateUserData = (userData) => {
+  console.log("startUpdateUserData called with", userData);
   return async (dispatch) => {
     try {
       await setDoc(doc(database, "Users", uid), userData);
       console.log("User data added to database successfully!");
+      dispatch(updateUserMetricsData(userData));
     } catch (e) {
       console.log("Error adding user data to database!");
       console.log(e);
@@ -116,13 +124,7 @@ export const startUpdateUserData = (userData, uid) => {
   };
 };
 
-export const startSignupWithEmail = (
-  email,
-  password,
-  firstName,
-  lastName,
-  userData
-) => {
+export const startSignupWithEmail = (email, password, firstName, lastName) => {
   return (dispatch) => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
@@ -133,13 +135,9 @@ export const startSignupWithEmail = (
         // After creating User, Adding First and Last Name to User Profile
         dispatch(startUpdateProfile(firstName, lastName));
 
-        // After creating User, Adding User Data to Database
-        if (userData) {
-          console.log("user Id is for DB ...", user.uid);
-          dispatch(startUpdateUserData(userData, user.uid));
-        } else {
-          console.log("No user data to add to database!");
-        }
+        // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
+        //ToDo: dispatch to show userMetricsDataModal component
+        dispatch(userMetricsDataModalVisible(true));
 
         dispatch(
           signupWithEmail({

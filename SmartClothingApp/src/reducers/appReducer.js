@@ -11,10 +11,7 @@ import {
 
 const initialState = {
   darkTheme: false,
-
-  // userMetricsData Modal sub-states
-  userMetricsDataModalVisible: false,
-  isFromSignUpScreen: false,
+  userMetricsDataModalVisible: true, // by deault, show the modal after signup
   measurementSystem: "imperial", // "imperial" (US) or "metric"
   activityRingsData: {
     Sunday: {
