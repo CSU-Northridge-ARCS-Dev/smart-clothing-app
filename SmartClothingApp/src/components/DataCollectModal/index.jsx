@@ -194,22 +194,6 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
             <HelperText type="error" visible={false}>
               Please enter your gender.
             </HelperText>
-<<<<<<< HEAD
-            <TextInput
-              label="Birth Date"
-              placeholder="MM/DD/YYYY"
-              value={userData.dob}
-              mode="outlined"
-              style={styles.input}
-              onChangeText={(text) => {
-                setUserData({ ...userData, dob: text });
-                handleClearErrors();
-              }}
-              error={!isDOBValid}
-            />
-            <HelperText type="error" visible={!isDOBValid}>
-              Please enter in correct format.
-=======
 
             <View
               style={{
@@ -227,7 +211,6 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
             </View>
             <HelperText type="error" visible={false}>
               Please enter Birth Date!
->>>>>>> jeel-firebase-auth
             </HelperText>
 
             <TextInput
