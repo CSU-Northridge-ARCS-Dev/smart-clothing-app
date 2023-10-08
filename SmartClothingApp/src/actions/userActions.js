@@ -15,7 +15,6 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
   sendPasswordResetEmail,
-  fetchSignInMethodsForEmail,
 } from "firebase/auth";
 
 import {
@@ -216,14 +215,4 @@ export const startSnedPasswordReserEmail = (email) => {
       console.log(error);
       // console.log("###### Error sending password reset email!");
     });
-};
-
-export const checkEmailExists = async (email) => {
-  try {
-    const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-    return signInMethods.length > 0;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
 };
