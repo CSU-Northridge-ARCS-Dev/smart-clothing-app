@@ -152,7 +152,7 @@ const AllNavigationStack = () => {
       screenOptions={{ headerShown: false }}
       initialRouteName="Home"
     >
-      <Stack.Screen name="Home" component={MainTabNavigator} />
+      <Stack.Screen name="Main" component={MainTabNavigator} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
