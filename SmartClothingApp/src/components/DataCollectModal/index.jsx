@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Modal } from "react-native";
-import { horizontalScale, verticalScale } from "../../utils/scale";
+import { View, StyleSheet, Modal, SafeAreaView } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+
 import {
   Button,
   Checkbox,
@@ -8,29 +9,59 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
-import { AppColor, AppStyle } from "../../constants/themes";
 
-const DataCollectModal = ({
-  modalVisible,
-  setModalVisible,
-  givenUserData,
-  save,
-  later,
-}) => {
-  const [userData, setUserData] = useState({
+import DateTimePicker, {
+  DateTimePickerAndroid,
+} from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+
+import { AppColor, AppStyle } from "../../constants/themes";
+import { Gender } from "../../utils/gender";
+import { horizontalScale, verticalScale } from "../../utils/scale";
+import { userMetricsDataModalVisible } from "../../actions/appActions";
+import { startUpdateUserData } from "../../actions/userActions";
+
+const DataCollectModal = ({ isFromSignupScreen = false }) => {
+  const dispatch = useDispatch();
+  const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
+
+  /*
+    userData: {
     gender: "",
     dob: "",
     height: "",
     weight: "",
-  });
+  }
+  */
 
-  useEffect(() => {
-    if (givenUserData) {
-      setUserData(givenUserData);
-    }
-  }, [givenUserData]);
+  const [gender, setGender] = useState();
+  const [date, setDate] = useState(new Date());
+  const [height, setHeight] = useState();
+  const [weight, setWeight] = useState();
 
-  const [isSubmitting, setIsSubmitting] = useState(true);
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate;
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode) => {
+    DateTimePickerAndroid.open({
+      value: date,
+      onChange,
+      mode: currentMode,
+      is24Hour: true,
+    });
+  };
+
+  const showDatepicker = () => {
+    showMode("date");
+  };
+
+  const showTimepicker = () => {
+    showMode("time");
+  };
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [error, setError] = useState({
     fname: "",
@@ -121,9 +152,9 @@ const DataCollectModal = ({
       <Modal
         animationType="slide"
         transparent={true}
-        visible={modalVisible}
+        visible={visible}
         onRequestClose={() => {
-          setModalVisible(!modalVisible);
+          dispatch(userMetricsDataModalVisible(false));
         }}
       >
         <View style={styles.modalBackground}>
@@ -131,23 +162,39 @@ const DataCollectModal = ({
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
               Welcome. Please enter your details.
             </Text>
-            <Text style={{ fontSize: 16, marginVertical: 10 }}>
-              This information can be changed later in your profile tab.
-            </Text>
-            <TextInput
-              label="Gender"
-              value={userData.gender}
-              mode="outlined"
-              style={styles.input}
-              onChangeText={(text) => {
-                setUserData({ ...userData, gender: text });
-                handleClearErrors();
+
+            {isFromSignupScreen && (
+              <Text style={{ fontSize: 16, marginVertical: 10 }}>
+                This information can be changed later in your profile tab.
+              </Text>
+            )}
+
+            <View
+              style={{
+                flexDirection: "row",
+                // justifyContent: "flex-end",
+                alignItems: "center",
               }}
-              error={false}
-            />
+            >
+              <Text>Gender</Text>
+              <Picker
+                selectedValue={gender}
+                onValueChange={(itemValue, itemIndex) => setGender(itemValue)}
+                mode={"dropdown"}
+                style={{
+                  // flex: 1,
+                  width: 150,
+                }}
+              >
+                {Object.entries(Gender).map(([key, value]) => (
+                  <Picker.Item key={key} label={key} value={value} />
+                ))}
+              </Picker>
+            </View>
             <HelperText type="error" visible={false}>
               Please enter your gender.
             </HelperText>
+<<<<<<< HEAD
             <TextInput
               label="Birth Date"
               placeholder="MM/DD/YYYY"
@@ -162,16 +209,37 @@ const DataCollectModal = ({
             />
             <HelperText type="error" visible={!isDOBValid}>
               Please enter in correct format.
+=======
+
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text>Date of Birth</Text>
+              <SafeAreaView>
+                <Button onPress={showDatepicker}>
+                  {date.toLocaleString()}
+                </Button>
+              </SafeAreaView>
+            </View>
+            <HelperText type="error" visible={false}>
+              Please enter Birth Date!
+>>>>>>> jeel-firebase-auth
             </HelperText>
 
             <TextInput
               label="Height"
-              value={userData.height}
+              value={height}
               mode="outlined"
+              keyboardType="numeric"
+              inputMode="numeric"
               style={styles.input}
               onChangeText={(text) => {
-                setUserData({ ...userData, height: text });
-                handleClearErrors();
+                setHeight(text);
+                // handleClearErrors();
               }}
               error={false}
             />
@@ -180,11 +248,13 @@ const DataCollectModal = ({
             </HelperText>
             <TextInput
               label="Weight"
-              value={userData.weight}
+              value={weight}
               mode="outlined"
+              keyboardType="numeric"
+              inputMode="numeric"
               style={styles.input}
               onChangeText={(text) => {
-                setUserData({ ...userData, weight: text });
+                setWeight(text);
                 handleClearErrors();
               }}
               error={false}
@@ -193,15 +263,26 @@ const DataCollectModal = ({
               Please enter your weight.
             </HelperText>
             <View style={styles.btnContainer}>
-              <Button mode="outlined" onPress={later} style={styles.button}>
-                Later
+              <Button
+                mode="outlined"
+                onPress={() => dispatch(userMetricsDataModalVisible(false))}
+                style={styles.button}
+              >
+                {isFromSignupScreen ? "Skip" : "Cancel"}
               </Button>
               <Button
                 disabled={isSubmitting || !isDOBValid}
                 mode="elevated"
                 onPress={() => {
-                  setModalVisible(!modalVisible);
-                  save(userData);
+                  dispatch(
+                    startUpdateUserData({
+                      gender,
+                      dob: date,
+                      height,
+                      weight,
+                    })
+                  );
+                  dispatch(userMetricsDataModalVisible(false));
                 }}
                 style={[
                   styles.button,
