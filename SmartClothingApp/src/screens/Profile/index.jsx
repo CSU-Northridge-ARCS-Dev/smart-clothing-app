@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { HelperText, TextInput, Button, Text } from "react-native-paper";
 import { AppHeader } from "../../components";
 import { AppFonts, AppStyle } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useDispatch } from "react-redux";
 
-import { auth } from "../../../firebaseConfig";
-import { updateUserData } from "../../actions/userActions";
-// import { getDoc, doc } from "firebase/firestore"; // Import Firebase Firestore functions
+import { auth, database } from "../../../firebaseConfig";
+import { updateUserData, fetchUserData } from "../../actions/userActions";
 
 const ProfileScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { previousScreenTitle } = route.params;
-  const [isSubmitting, setIsSubmitting] = useState(true);
+  const [isLoading, setisLoading] = useState(true);
 
   const [userData, setUserData] = useState({
     fname: "",
@@ -35,8 +34,6 @@ const ProfileScreen = ({ navigation, route }) => {
     sports: "",
   });
 
-  // const [uid, setUid] = useState("");
-
   // useEffect(() => {
   //   const userData = auth.currentUser;
   //   if (userData) {
@@ -53,25 +50,42 @@ const ProfileScreen = ({ navigation, route }) => {
   //       if (userDoc.exists()) {
   //         const userDataFromFirebase = userDoc.data();
   //         setUserData(userDataFromFirebase);
+  //         setisLoading(false);
   //       }
   //     } catch (error) {
   //       console.error("Error fetching user data:", error);
+  //       setisLoading(false);
   //     }
   //   };
 
-  //   fetchUserData();
-  // }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userDataFromFirebase = await fetchUserData(
+          database,
+          auth.currentUser.uid
+        );
+        setUserData(userDataFromFirebase);
+        setisLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setisLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSaveProfile = () => {
-    const filteredUserData = {};
-    for (const key in userData) {
-      if (userData[key] !== "") {
-        filteredUserData[key] = userData[key];
-      }
-    }
-    if (Object.values(filteredUserData).length > 0) {
-      dispatch(updateUserData(filteredUserData, auth.currentUser.uid));
-    }
+    // const filteredUserData = {};
+    // for (const key in userData) {
+    //   if (userData[key] !== "") {
+    //     filteredUserData[key] = userData[key];
+    //   }
+    // }
+    // if (Object.values(filteredUserData).length > 0) {
+      dispatch(updateUserData(userData, auth.currentUser.uid));
+    // }
   };
 
   return (
@@ -87,92 +101,109 @@ const ProfileScreen = ({ navigation, route }) => {
         >
           Edit Profile
         </Text>
-        <View>
-          <TextInput
-            label="First Name"
-            value={userData.fname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, fname: text });
-              console.log(userData.fname);
-            }}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Last Name"
-            value={userData.lname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, lname: text });
-            }}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Age"
-            value={userData.age}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, age: text });
-            }}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Gender"
-            value={userData.gender}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, gender: text });
-            }}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Height"
-            value={userData.height}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, height: text });
-            }}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Weight"
-            value={userData.weight}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, weight: text });
-            }}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Sports"
-            value={userData.sports}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUserData({ ...userData, sports: text });
-            }}
-          />
-        </View>
-        <View style={styles.btnContainer}>
-          <Button
-            mode="elevated"
-            style={{
-              flex: 2,
-              marginHorizontal: horizontalScale(10),
-              marginVertical: verticalScale(10),
-            }}
-            onPress={() => {
-              handleSaveProfile(userData);
-            }}
-          >
-            Save
-          </Button>
-        </View>
+
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <View>
+            <View>
+              <TextInput
+                label="First Name"
+                value={userData.fname}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setUserData({ ...userData, fname: text });
+                }}
+              />
+              <HelperText type="error" visible={error.fname.length > 1}>
+                Please enter first name.
+              </HelperText>
+            </View>
+            <View>
+              <TextInput
+                label="Last Name"
+                value={userData.lname}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setUserData({ ...userData, lname: text });
+                }}
+              />
+              <HelperText type="error" visible={error.lname.length > 1}>
+                Please enter last name.
+              </HelperText>
+            </View>
+            <View>
+              <TextInput
+                label="Age"
+                value={userData.age}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setUserData({ ...userData, age: text });
+                }}
+                style={{ marginBottom: 28 }}
+              />
+            </View>
+            <View>
+              <TextInput
+                label="Gender"
+                value={userData.gender}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setUserData({ ...userData, gender: text });
+                }}
+                style={{ marginBottom: 28 }}
+              />
+            </View>
+            <View>
+              <TextInput
+                label="Height"
+                value={userData.height}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setUserData({ ...userData, height: text });
+                }}
+                style={{ marginBottom: 28 }}
+              />
+            </View>
+            <View>
+              <TextInput
+                label="Weight"
+                value={userData.weight}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setUserData({ ...userData, weight: text });
+                }}
+                style={{ marginBottom: 28 }}
+              />
+            </View>
+            <View>
+              <TextInput
+                label="Sports"
+                value={userData.sports}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setUserData({ ...userData, sports: text });
+                }}
+                style={{ marginBottom: 16 }} // Add marginBottom for spacing
+              />
+            </View>
+            <View style={styles.btnContainer}>
+              <Button
+                mode="elevated"
+                style={{
+                  flex: 2,
+                  marginHorizontal: horizontalScale(10),
+                  marginVertical: verticalScale(10),
+                }}
+                onPress={() => {
+                  handleSaveProfile(userData);
+                }}
+              >
+                Save
+              </Button>
+            </View>
+          </View>
+        )}
       </View>
     </ScrollView>
   );

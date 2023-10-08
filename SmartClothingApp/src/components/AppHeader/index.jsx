@@ -15,8 +15,14 @@ const AppHeader = (props) => {
   const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
   const [visible, setVisible] = useState(false);
   const [showPrompt, setPrompt] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+
   const navigate = (screen) => {
-    navigation.navigate(screen, { previousScreenTitle: route.name });
+    navigation.navigate(screen, {
+      previousScreenTitle: route.name,
+    });
+
     setVisible(false);
   };
   const onPressLogout = (res) => {

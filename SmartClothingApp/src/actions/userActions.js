@@ -1,4 +1,11 @@
-import { collection, addDoc, setDoc, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -171,6 +178,20 @@ export const startLoginWithEmail = (email, password) => {
         dispatch(toastError(firebaseErrorsMessages[error.code]));
       });
   };
+};
+
+export const fetchUserData = async (database, uid) => {
+  try {
+    const userDocRef = doc(database, "Users", uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+      const userDataFromFirebase = userDoc.data();
+      return userDataFromFirebase;
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
 };
 
 export const startSnedPasswordReserEmail = (email) => {
