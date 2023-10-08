@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native";
 import { useState } from "react";
 
 const MyDropdown = (props) => {
-  const [selectedItem, setSelectedItem] = useState(null);
   const [isFocus, setIsFocus] = useState(false);
 
   return (

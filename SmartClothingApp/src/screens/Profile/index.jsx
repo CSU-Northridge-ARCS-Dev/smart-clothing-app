@@ -13,8 +13,8 @@ import {
   startUpdateProfile,
 } from "../../actions/userActions";
 
-import MyDropdown from "../../components/UI/Dropdown/dropdown";
-import { Dropdown } from "react-native-element-dropdown";
+import MyDropdown from "../../components/UI/dropdown";
+import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 const ProfileScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -48,8 +48,8 @@ const ProfileScreen = ({ navigation, route }) => {
   ]);
 
   const [userData, setUserData] = useState({
-    fname: "",
-    lname: "",
+    fname: auth.currentUser.displayName.split(" ")[0],
+    lname: auth.currentUser.displayName.split(" ")[1],
     age: "",
     gender: "",
     height: "",
@@ -78,6 +78,25 @@ const ProfileScreen = ({ navigation, route }) => {
 
     setError({ ...errors });
     return flag;
+  };
+
+  const handleClearErrors = () => {
+    setError({
+      fname: "",
+      lname: "",
+    });
+  };
+
+  const handleClear = () => {
+    setUserData({
+      fname: "",
+      lname: "",
+      age: "",
+      gender: "",
+      height: "",
+      weight: "",
+      sports: "",
+    });
   };
 
   // useEffect(() => {
@@ -113,8 +132,8 @@ const ProfileScreen = ({ navigation, route }) => {
         );
         setUserData(
           userDataFromFirebase || {
-            fname: "",
-            lname: "",
+            fname: auth.currentUser.displayName.split(" ")[0],
+            lname: auth.currentUser.displayName.split(" ")[1],
             age: "",
             gender: "",
             height: "",
@@ -150,7 +169,7 @@ const ProfileScreen = ({ navigation, route }) => {
     }
 
     dispatch(startUpdateProfile(userData.fname, userData.lname));
-    dispatch(updateUserData(userData, auth.currentUser.uid));
+    dispatch(updateUserData(filteredUserData, auth.currentUser.uid));
     // }
   };
 
@@ -181,6 +200,7 @@ const ProfileScreen = ({ navigation, route }) => {
               mode="outlined"
               onChangeText={(text) => {
                 setUserData({ ...userData, fname: text });
+                handleClearErrors();
               }}
               error={error.fname.length > 1}
             />
@@ -195,6 +215,7 @@ const ProfileScreen = ({ navigation, route }) => {
               mode="outlined"
               onChangeText={(text) => {
                 setUserData({ ...userData, lname: text });
+                handleClearErrors();
               }}
               error={error.lname.length > 1}
             />
@@ -285,11 +306,20 @@ const ProfileScreen = ({ navigation, route }) => {
           />
           <View style={styles.btnContainer}>
             <Button
+              mode="outlined"
+              onPress={handleClear}
+              style={{
+                flex: 1,
+                marginRight: 20,
+              }}
+            >
+              Clear
+            </Button>
+            <Button
               mode="elevated"
               style={{
                 flex: 2,
-                marginHorizontal: horizontalScale(10),
-                marginVertical: verticalScale(10),
+                marginRight: 1,
               }}
               onPress={() => {
                 handleSaveProfile(userData);
