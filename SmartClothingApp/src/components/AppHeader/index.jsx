@@ -4,7 +4,7 @@ import { Appbar, Menu } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { AppFonts } from "../../constants/themes";
 import { useDispatch } from "react-redux";
-
+import Icon from "react-native-vector-icons/FontAwesome5";
 import { startLogout } from "../../actions/userActions.js";
 import PromptModal from "../Dialogs/PromptModal";
 
