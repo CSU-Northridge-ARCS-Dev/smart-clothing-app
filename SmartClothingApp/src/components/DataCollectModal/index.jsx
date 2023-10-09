@@ -16,10 +16,11 @@ import DateTimePicker, {
 import { Picker } from "@react-native-picker/picker";
 
 import { AppColor, AppStyle } from "../../constants/themes";
-import { Gender } from "../../utils/gender";
+import { Gender, Sports } from "../../utils/metrics";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
+import MyDropdown from "../UI/dropdown";
 
 const DataCollectModal = ({ isFromSignupScreen = false }) => {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   const [date, setDate] = useState(new Date());
   const [height, setHeight] = useState();
   const [weight, setWeight] = useState();
+  const [sports, setSports] = useState();
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -53,11 +55,11 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     });
   };
 
-  const showDatepicker = () => {
+  const showDatePicker = () => {
     showMode("date");
   };
 
-  const showTimepicker = () => {
+  const showTimePicker = () => {
     showMode("time");
   };
 
@@ -69,7 +71,6 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     email: "",
     password: "",
   });
-  const [checked, setChecked] = useState(false);
 
   const handleClear = () => {
     setUser({
@@ -89,8 +90,6 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     setError({
       fname: "",
       lname: "",
-      email: "",
-      password: "",
     });
     setIsSubmitting(false);
   };
@@ -140,13 +139,6 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   //   return flag;
   // };
 
-  function isMMDDYYYYFormat(value) {
-    const pattern = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-
-    return pattern.test(value);
-  }
-  const isDOBValid = isMMDDYYYYFormat(userData.dob);
-
   return (
     <View style={styles.container}>
       <Modal
@@ -169,6 +161,30 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               </Text>
             )}
 
+            <MyDropdown
+              data={Object.entries(Gender).map(([key, value]) => ({
+                label: key,
+                value: value,
+              }))}
+              value={gender}
+              placeholder={"Gender"}
+              onChange={(item) => {
+                setGender(item);
+              }}
+            />
+
+            <MyDropdown
+              data={Object.entries(Sports).map(([key, value]) => ({
+                label: key,
+                value: value,
+              }))}
+              value={sports}
+              placeholder={"Sports"}
+              onChange={(item) => {
+                setSports(item);
+              }}
+            />
+
             <View
               style={{
                 flexDirection: "row",
@@ -176,7 +192,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 alignItems: "center",
               }}
             >
-              <Text>Gender</Text>
+              {/* <Text>Gender</Text>
               <Picker
                 selectedValue={gender}
                 onValueChange={(itemValue, itemIndex) => setGender(itemValue)}
@@ -189,29 +205,37 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 {Object.entries(Gender).map(([key, value]) => (
                   <Picker.Item key={key} label={key} value={value} />
                 ))}
-              </Picker>
+              </Picker> */}
             </View>
-            <HelperText type="error" visible={false}>
+            {/* <HelperText type="error" visible={false}>
               Please enter your gender.
-            </HelperText>
+            </HelperText> */}
 
             <View
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
+                borderColor: "gray",
+                borderWidth: 1,
+                backgroundColor: "white",
+                fontFamily: "sans-serif",
+                height: 51,
+                marginBottom: 12,
               }}
             >
-              <Text>Date of Birth</Text>
+              <Text style={{ marginLeft: 14, fontSize: 17 }}>
+                Date of Birth
+              </Text>
               <SafeAreaView>
-                <Button onPress={showDatepicker}>
-                  {date.toLocaleString()}
+                <Button onPress={showDatePicker}>
+                  {date.toLocaleDateString()}
                 </Button>
               </SafeAreaView>
             </View>
-            <HelperText type="error" visible={false}>
+            {/* <HelperText type="error" visible={false}>
               Please enter Birth Date!
-            </HelperText>
+            </HelperText> */}
 
             <TextInput
               label="Height"
@@ -226,9 +250,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               }}
               error={false}
             />
-            <HelperText type="error" visible={false}>
+            {/* <HelperText type="error" visible={false}>
               Please enter your height.
-            </HelperText>
+            </HelperText> */}
             <TextInput
               label="Weight"
               value={weight}
@@ -242,9 +266,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               }}
               error={false}
             />
-            <HelperText type="error" visible={false}>
+            {/* <HelperText type="error" visible={false}>
               Please enter your weight.
-            </HelperText>
+            </HelperText> */}
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
@@ -254,7 +278,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 {isFromSignupScreen ? "Skip" : "Cancel"}
               </Button>
               <Button
-                disabled={isSubmitting || !isDOBValid}
+                disabled={isSubmitting}
                 mode="elevated"
                 onPress={() => {
                   dispatch(
@@ -271,6 +295,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   styles.button,
                   { backgroundColor: isSubmitting ? "#ccc" : "#007bff" },
                 ]}
+                textColor="white"
               >
                 Save
               </Button>
@@ -282,7 +307,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
@@ -314,6 +339,12 @@ const styles = {
     flex: 1,
     marginHorizontal: 10,
   },
-};
+  calendar: {
+    borderColor: "gray",
+    borderWidth: 1,
+    backgroundColor: "white",
+    fontFamily: "sans-serif",
+  },
+});
 
 export default DataCollectModal;

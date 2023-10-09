@@ -12,23 +12,26 @@ import {
   fetchUserData,
   startUpdateProfile,
 } from "../../actions/userActions";
-
-import MyDropdown from "../../components/UI/dropdown";
+import { userMetricsDataModalVisible } from "../../actions/appActions";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 const ProfileScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
   const { previousScreenTitle } = route.params;
   const [isLoading, setisLoading] = useState(true);
-  const [age, setAge] = useState([
-    { label: "Under 18", value: "Under 18" },
-    { label: "18-24", value: "18-24" },
-    { label: "25-34", value: "25-34" },
-    { label: "35-44", value: "35-44" },
-    { label: "45-54", value: "45-54" },
-    { label: "55-64", value: "55-64" },
-    { label: "65 or over", value: "65 or over" },
-  ]);
+
+  const [firstName, setFirstName] = useState();
+  const [lastName, setLastName] = useState();
+
+  // const [age, setAge] = useState([
+  //   { label: "Under 18", value: "Under 18" },
+  //   { label: "18-24", value: "18-24" },
+  //   { label: "25-34", value: "25-34" },
+  //   { label: "35-44", value: "35-44" },
+  //   { label: "45-54", value: "45-54" },
+  //   { label: "55-64", value: "55-64" },
+  //   { label: "65 or over", value: "65 or over" },
+  // ]);
   const [gender, setGender] = useState([
     { label: "Male", value: "Male" },
     { label: "Female", value: "Female" },
@@ -99,6 +102,15 @@ const ProfileScreen = ({ navigation, route }) => {
     });
   };
 
+  const handleUpdateProfile = () => {
+    if (!isValid()) {
+      return;
+    }
+    setIsSubmitting(true);
+
+    dispatch(startUpdateProfile(firstName, lastName));
+  };
+
   // useEffect(() => {
   //   const userData = auth.currentUser;
   //   if (userData) {
@@ -123,33 +135,33 @@ const ProfileScreen = ({ navigation, route }) => {
   //     }
   //   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const userDataFromFirebase = await fetchUserData(
-          database,
-          auth.currentUser.uid
-        );
-        setUserData(
-          userDataFromFirebase || {
-            fname: auth.currentUser.displayName.split(" ")[0],
-            lname: auth.currentUser.displayName.split(" ")[1],
-            age: "",
-            gender: "",
-            height: "",
-            weight: "",
-            sports: "",
-          }
-        );
-        setisLoading(false);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        setisLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const userDataFromFirebase = await fetchUserData(
+  //         database,
+  //         auth.currentUser.uid
+  //       );
+  //       setUserData(
+  //         userDataFromFirebase || {
+  //           fname: auth.currentUser.displayName.split(" ")[0],
+  //           lname: auth.currentUser.displayName.split(" ")[1],
+  //           age: "",
+  //           gender: "",
+  //           height: "",
+  //           weight: "",
+  //           sports: "",
+  //         }
+  //       );
+  //       setisLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //       setisLoading(false);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   const handleSaveProfile = () => {
     // const filteredUserData = {};
@@ -173,14 +185,13 @@ const ProfileScreen = ({ navigation, route }) => {
     // }
   };
 
-  if (isLoading) {
-    return <LoadingOverlay />;
-  }
+  // if (isLoading) {
+  //   return <LoadingOverlay />;
+  // }
 
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
-
       <View style={styles.content}>
         <Text
           style={[
@@ -191,8 +202,87 @@ const ProfileScreen = ({ navigation, route }) => {
         >
           Edit Profile
         </Text>
+        <View
+          style={{
+            borderBottomColor: "black",
+            borderBottomWidth: StyleSheet.hairlineWidth,
+          }}
+        />
+      </View>
+      <View style={styles.content}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={[styles.subTitle, { flex: 3 }]}>Personal</Text>
+          <View style={styles.btnContainer}>
+            <Button mode="elevated" buttonColor="#1560a4" textColor="white">
+              EDIT
+            </Button>
+          </View>
+        </View>
+        <View
+          style={{
+            borderBottomColor: "black",
+            borderBottomWidth: StyleSheet.hairlineWidth,
+          }}
+        />
+      </View>
+      <View style={{ marginLeft: 20 }}>
+        <Text variant="titleMedium">First Name</Text>
+        <Text>{userData.fname}</Text>
 
-        <View>
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Last Name
+        </Text>
+        <Text>{userData.lname}</Text>
+      </View>
+      <View style={[styles.content, { paddingTop: 65 }]}>
+        <View
+          style={{
+            borderBottomColor: "black",
+            borderBottomWidth: StyleSheet.hairlineWidth,
+          }}
+        />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={styles.subTitle}>Metrics Data</Text>
+          <View style={styles.btnContainer}>
+            <Button
+              mode="elevated"
+              buttonColor="#1560a4"
+              textColor="white"
+              onPress={() => dispatch(userMetricsDataModalVisible(true))}
+            >
+              EDIT
+            </Button>
+          </View>
+        </View>
+        <View
+          style={{
+            borderBottomColor: "black",
+            borderBottomWidth: StyleSheet.hairlineWidth,
+          }}
+        />
+      </View>
+
+      <View style={{ marginLeft: 20, marginBottom: 40 }}>
+        <Text variant="titleMedium">Age</Text>
+        <Text>64</Text>
+
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Height
+        </Text>
+        <Text>bibash</Text>
+
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Weight
+        </Text>
+        <Text>bibash</Text>
+
+        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+          Sports
+        </Text>
+        <Text>bibash</Text>
+      </View>
+
+      {/* <View>
           <View>
             <TextInput
               label="First Name *"
@@ -255,16 +345,16 @@ const ProfileScreen = ({ navigation, route }) => {
               />
             </> */}
 
-          <MyDropdown
+      {/* <MyDropdown
             data={age}
             value={userData.age}
             placeholder={"Age"}
             onChange={(item) => {
               setUserData({ ...userData, age: item.value });
             }}
-          />
+          /> */}
 
-          <MyDropdown
+      {/* <MyDropdown
             data={gender}
             value={userData.gender}
             placeholder={"Gender"}
@@ -327,9 +417,9 @@ const ProfileScreen = ({ navigation, route }) => {
             >
               Save
             </Button>
-          </View>
-        </View>
-      </View>
+          </View> 
+        </View> 
+      </View>*/}
     </ScrollView>
   );
 };
@@ -339,18 +429,22 @@ const styles = StyleSheet.create({
     fontSize: 36,
     marginVertical: 24,
     textAlign: "center",
+    paddingTop: 45,
+  },
+  subTitle: {
+    fontSize: 24,
+    marginVertical: 24,
+    fontFamily: AppFonts.chakraBold,
+    flex: 1,
+    marginLeft: 15,
   },
   content: {
     paddingHorizontal: 20,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     transform: [{ translateY: -25 }],
-    paddingTop: 25,
   },
-  btnContainer: {
-    marginVertical: 10,
-    flexDirection: "row",
-  },
+  btnContainer: { flex: 1, alignItems: "flex-end", marginRight: 20 },
 });
 
 export default ProfileScreen;

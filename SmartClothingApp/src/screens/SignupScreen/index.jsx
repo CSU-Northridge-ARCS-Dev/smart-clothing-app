@@ -11,7 +11,7 @@ import {
   TextInput,
 } from "react-native-paper";
 import { AppColor, AppStyle } from "../../constants/themes";
-import { HeroSection, DataCollectModal } from "../../components";
+import { HeroSection } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
@@ -21,8 +21,7 @@ const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
 
   const [isSubmitting, setIsSubmitting] = useState(true);
-  const [modalVisible, setModalVisible] = useState(true);
-
+  
   const [user, setUser] = useState({
     fname: "",
     lname: "",
