@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { HelperText, TextInput, Button, Text } from "react-native-paper";
 import { AppHeader } from "../../components";
-import { AppFonts, AppStyle } from "../../constants/themes.js";
+import { AppFonts, AppStyle, AppColor } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useDispatch } from "react-redux";
 
@@ -202,224 +202,94 @@ const ProfileScreen = ({ navigation, route }) => {
         >
           Edit Profile
         </Text>
-        <View
-          style={{
-            borderBottomColor: "black",
-            borderBottomWidth: StyleSheet.hairlineWidth,
-          }}
-        />
       </View>
-      <View style={styles.content}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={[styles.subTitle, { flex: 3 }]}>Personal</Text>
-          <View style={styles.btnContainer}>
-            <Button mode="elevated" buttonColor="#1560a4" textColor="white">
-              EDIT
-            </Button>
+
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={[styles.subTitle, AppStyle.textPrimary]}>
+              Personal
+            </Text>
+            <View style={styles.btnContainer}>
+              <Button
+                mode="elevated"
+                buttonColor="#1560a4"
+                textColor="white"
+                style={{ borderRadius: 10 }}
+              >
+                EDIT
+              </Button>
+            </View>
           </View>
-        </View>
-        <View
-          style={{
-            borderBottomColor: "black",
-            borderBottomWidth: StyleSheet.hairlineWidth,
-          }}
-        />
-      </View>
-      <View style={{ marginLeft: 20 }}>
-        <Text variant="titleMedium">First Name</Text>
-        <Text>{userData.fname}</Text>
-
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Last Name
-        </Text>
-        <Text>{userData.lname}</Text>
-      </View>
-      <View style={[styles.content, { paddingTop: 65 }]}>
-        <View
-          style={{
-            borderBottomColor: "black",
-            borderBottomWidth: StyleSheet.hairlineWidth,
-          }}
-        />
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={styles.subTitle}>Metrics Data</Text>
-          <View style={styles.btnContainer}>
-            <Button
-              mode="elevated"
-              buttonColor="#1560a4"
-              textColor="white"
-              onPress={() => dispatch(userMetricsDataModalVisible(true))}
-            >
-              EDIT
-            </Button>
-          </View>
-        </View>
-        <View
-          style={{
-            borderBottomColor: "black",
-            borderBottomWidth: StyleSheet.hairlineWidth,
-          }}
-        />
-      </View>
-
-      <View style={{ marginLeft: 20, marginBottom: 40 }}>
-        <Text variant="titleMedium">Age</Text>
-        <Text>64</Text>
-
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Height
-        </Text>
-        <Text>bibash</Text>
-
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Weight
-        </Text>
-        <Text>bibash</Text>
-
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Sports
-        </Text>
-        <Text>bibash</Text>
-      </View>
-
-      {/* <View>
-          <View>
-            <TextInput
-              label="First Name *"
-              value={userData.fname}
-              mode="outlined"
-              onChangeText={(text) => {
-                setUserData({ ...userData, fname: text });
-                handleClearErrors();
-              }}
-              error={error.fname.length > 1}
-            />
-            <HelperText type="error" visible={error.fname.length > 1}>
-              Please enter first name.
-            </HelperText>
-          </View>
-          <View>
-            <TextInput
-              label="Last Name *"
-              value={userData.lname}
-              mode="outlined"
-              onChangeText={(text) => {
-                setUserData({ ...userData, lname: text });
-                handleClearErrors();
-              }}
-              error={error.lname.length > 1}
-            />
-            <HelperText type="error" visible={error.lname.length > 1}>
-              Please enter last name.
-            </HelperText>
-          </View>
-
-          {/* <>
-              <DropDownPicker
-                open={open}
-                value={value}
-                items={items}
-                setOpen={setOpen}
-                setValue={setValue}
-                setItems={setItems}
-                listMode="SCROLLVIEW"
-                zIndex={1000}
-                containerStyle={{
-                  zIndex: 1000,
-                  elevation: 1000,
-                }}
-                style={{
-                  marginBottom: 28,
-                  borderRadius: 0,
-                  height: 40,
-                  borderColor: "gray",
-                  paddingLeft: 15,
-                }}
-                placeholderStyle={{ fontSize: 17, fontFamily: "sans-serif" }}
-                placeholder={"Age"}
-                searchable={true}
-                scrollViewProps={{
-                  nestedScrollEnabled: true,
-                  persistentScrollbar: true,
-                }}
-              />
-            </> */}
-
-      {/* <MyDropdown
-            data={age}
-            value={userData.age}
-            placeholder={"Age"}
-            onChange={(item) => {
-              setUserData({ ...userData, age: item.value });
-            }}
-          /> */}
-
-      {/* <MyDropdown
-            data={gender}
-            value={userData.gender}
-            placeholder={"Gender"}
-            onChange={(item) => {
-              setUserData({ ...userData, gender: item.value });
+          <View
+            style={{
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
             }}
           />
-
+        </View>
+        <View style={{ marginLeft: 18 }}>
           <View>
-            <TextInput
-              label="Height"
-              value={userData.height}
-              mode="outlined"
-              onChangeText={(text) => {
-                setUserData({ ...userData, height: text });
-              }}
-              style={{ marginBottom: 28 }}
-            />
-          </View>
-          <View>
-            <TextInput
-              label="Weight"
-              value={userData.weight}
-              mode="outlined"
-              onChangeText={(text) => {
-                setUserData({ ...userData, weight: text });
-              }}
-              style={{ marginBottom: 28 }}
-            />
+            <Text variant="titleMedium">First Name</Text>
+            <Text style={{ fontSize: 18 }}>{userData.fname}</Text>
           </View>
 
-          <MyDropdown
-            data={sports}
-            value={userData.sports}
-            placeholder={"Sports"}
-            onChange={(item) => {
-              setUserData({ ...userData, sports: item.value });
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Last Name
+          </Text>
+          <Text style={{ fontSize: 18 }}>{userData.lname}</Text>
+        </View>
+        <View style={[styles.content, { paddingTop: 25 }]}>
+          <View
+            style={{
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
             }}
           />
-          <View style={styles.btnContainer}>
-            <Button
-              mode="outlined"
-              onPress={handleClear}
-              style={{
-                flex: 1,
-                marginRight: 20,
-              }}
-            >
-              Clear
-            </Button>
-            <Button
-              mode="elevated"
-              style={{
-                flex: 2,
-                marginRight: 1,
-              }}
-              onPress={() => {
-                handleSaveProfile(userData);
-              }}
-            >
-              Save
-            </Button>
-          </View> 
-        </View> 
-      </View>*/}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={[styles.subTitle, AppStyle.textPrimary]}>
+              Metrics Data
+            </Text>
+            <View style={styles.btnContainer}>
+              <Button
+                mode="elevated"
+                buttonColor="#1560a4"
+                textColor="white"
+                onPress={() => dispatch(userMetricsDataModalVisible(true))}
+                style={{ borderRadius: 10 }}
+              >
+                EDIT
+              </Button>
+            </View>
+          </View>
+          <View
+            style={{
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
+            }}
+          />
+        </View>
+
+        <View style={{ marginLeft: 20, marginBottom: 40 }}>
+          <Text variant="titleMedium">Age</Text>
+          <Text style={{ fontSize: 18 }}>64</Text>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Height
+          </Text>
+          <Text style={{ fontSize: 18 }}>bibash</Text>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Weight
+          </Text>
+          <Text style={{ fontSize: 18 }}>bibash</Text>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Sports
+          </Text>
+          <Text style={{ fontSize: 18 }}>bibash</Text>
+        </View>
+      </View>
     </ScrollView>
   );
 };
@@ -442,9 +312,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-    transform: [{ translateY: -25 }],
+    marginBottom: 20,
   },
   btnContainer: { flex: 1, alignItems: "flex-end", marginRight: 20 },
+  container: {
+    backgroundColor: AppColor.primaryContainer,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 2,
+    elevation: 8,
+  },
 });
 
 export default ProfileScreen;
