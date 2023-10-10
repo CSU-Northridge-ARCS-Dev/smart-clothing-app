@@ -169,7 +169,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               value={gender}
               placeholder={"Gender"}
               onChange={(item) => {
-                setGender(item);
+                setGender(item.value);
               }}
             />
 
