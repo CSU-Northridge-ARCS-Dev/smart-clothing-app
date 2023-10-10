@@ -37,6 +37,14 @@ const PersonalModal = (props) => {
     return flag;
   };
 
+  const handleClear = () => {
+    setFirstName("");
+    setLastName("");
+
+    handleClearErrors();
+    props.closeModal();
+  };
+
   const handleClearErrors = () => {
     setError({
       fname: "",
@@ -52,8 +60,7 @@ const PersonalModal = (props) => {
     setIsSubmitting(true);
 
     dispatch(startUpdateProfile(firstName, lastName));
-    props.closeModal();
-    setIsSubmitting(false);
+    handleClear();
   };
 
   return (
@@ -104,7 +111,7 @@ const PersonalModal = (props) => {
               <Button
                 mode="outlined"
                 onPress={() => {
-                  props.closeModal();
+                  handleClear();
                 }}
                 style={styles.button}
               >
