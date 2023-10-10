@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { HelperText, TextInput, Button, Text } from "react-native-paper";
-import { AppHeader } from "../../components";
+import { AppHeader, DataCollectModal } from "../../components";
 import { AppFonts, AppStyle, AppColor } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useDispatch } from "react-redux";
@@ -12,6 +12,7 @@ import {
   fetchUserData,
   startUpdateProfile,
 } from "../../actions/userActions";
+import PersonalModal from "../../components/PersonalModal/PersonalModal";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
@@ -23,32 +24,15 @@ const ProfileScreen = ({ navigation, route }) => {
   const [firstName, setFirstName] = useState();
   const [lastName, setLastName] = useState();
 
-  // const [age, setAge] = useState([
-  //   { label: "Under 18", value: "Under 18" },
-  //   { label: "18-24", value: "18-24" },
-  //   { label: "25-34", value: "25-34" },
-  //   { label: "35-44", value: "35-44" },
-  //   { label: "45-54", value: "45-54" },
-  //   { label: "55-64", value: "55-64" },
-  //   { label: "65 or over", value: "65 or over" },
-  // ]);
-  const [gender, setGender] = useState([
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-    { label: "Other", value: "Other" },
-  ]);
-  const [sports, setSports] = useState([
-    { label: "Volleyball", value: "Volleyball" },
-    { label: "Basketball", value: "Basketball" },
-    { label: "Baseball", value: "Baseball" },
-    { label: "American Football", value: "American Football" },
-    { label: "Rugby", value: "Rugby" },
-    { label: "Tennis", value: "Tennis" },
-    { label: "Badminton", value: "Badminton" },
-    { label: "Running", value: "Running" },
-    { label: "Soccer", value: "Soccer" },
-    { label: "Table Tennis", value: "Table Tennis" },
-  ]);
+  const [isPersonalModalVisible, setPersonalModalVisible] = useState(false);
+
+  const openPersonalModal = () => {
+    setPersonalModalVisible(true);
+  };
+
+  const closePersonalModal = () => {
+    setPersonalModalVisible(false);
+  };
 
   const [userData, setUserData] = useState({
     fname: auth.currentUser.displayName.split(" ")[0],
@@ -192,6 +176,10 @@ const ProfileScreen = ({ navigation, route }) => {
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
+      <PersonalModal
+        visible={isPersonalModalVisible}
+        closeModal={closePersonalModal}
+      />
       <View style={styles.content}>
         <Text
           style={[
@@ -216,6 +204,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 buttonColor="#1560a4"
                 textColor="white"
                 style={{ borderRadius: 10 }}
+                onPress={openPersonalModal}
               >
                 EDIT
               </Button>

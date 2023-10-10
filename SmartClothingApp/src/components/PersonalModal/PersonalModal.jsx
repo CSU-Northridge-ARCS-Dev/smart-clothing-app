@@ -4,14 +4,13 @@ import { useDispatch } from "react-redux";
 
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 
-import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateProfile } from "../../actions/userActions";
 
 const PersonalModal = (props) => {
   const dispatch = useDispatch();
 
-  const [firstName, setFirstName] = useState();
-  const [lastName, setLastName] = useState();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,6 +37,14 @@ const PersonalModal = (props) => {
     return flag;
   };
 
+  const handleClearErrors = () => {
+    setError({
+      fname: "",
+      lname: "",
+    });
+    setIsSubmitting(false);
+  };
+
   const handleUpdateProfile = () => {
     if (!isValid()) {
       return;
@@ -45,6 +52,8 @@ const PersonalModal = (props) => {
     setIsSubmitting(true);
 
     dispatch(startUpdateProfile(firstName, lastName));
+    props.closeModal();
+    setIsSubmitting(false);
   };
 
   return (
@@ -52,45 +61,50 @@ const PersonalModal = (props) => {
       <Modal animationType="slide" transparent={true} visible={props.visible}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+            <Text
+              style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               Change first name and last name.
             </Text>
+            <View>
+              <TextInput
+                label="First Name"
+                value={firstName}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setFirstName(text);
+                  handleClearErrors();
+                }}
+                error={error.fname.length > 1}
+              />
+              <HelperText type="error" visible={error.fname.length > 1}>
+                Please enter first name.
+              </HelperText>
+            </View>
 
-            <TextInput
-              label="First Name"
-              value={firstName}
-              mode="outlined"
-              onChangeText={(text) => {
-                setFirstName(text);
-                // handleClearErrors();
-              }}
-              error={error.fname.length > 1}
-            />
-            <HelperText type="error" visible={error.fname.length > 1}>
-              Please enter first name.
-            </HelperText>
-
-            <TextInput
-              label="Last Name"
-              value={lastName}
-              mode="outlined"
-              onChangeText={(text) => {
-                setLastName(text);
-                // handleClearErrors();
-              }}
-              error={error.lname.length > 1}
-            />
-            <HelperText type="error" visible={error.lname.length > 1}>
-              Please enter last name.
-            </HelperText>
+            <View>
+              <TextInput
+                label="Last Name"
+                value={lastName}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setLastName(text);
+                  handleClearErrors();
+                }}
+                error={error.lname.length > 1}
+              />
+              <HelperText type="error" visible={error.lname.length > 1}>
+                Please enter last name.
+              </HelperText>
+            </View>
 
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
                 onPress={() => {
-                  if (props.visible) {
-                    props.visible = false;
-                  }
+                  props.closeModal();
                 }}
                 style={styles.button}
               >
@@ -132,7 +146,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
-    width: "80%",
+    width: "85%",
     alignSelf: "center",
     elevation: 5,
   },
