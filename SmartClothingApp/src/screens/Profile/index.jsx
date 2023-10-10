@@ -4,7 +4,7 @@ import { HelperText, TextInput, Button, Text } from "react-native-paper";
 import { AppHeader } from "../../components";
 import { AppFonts, AppStyle, AppColor } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { auth, database } from "../../../firebaseConfig";
 import {
@@ -16,49 +16,16 @@ import { userMetricsDataModalVisible } from "../../actions/appActions";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 const ProfileScreen = ({ navigation, route }) => {
+  const { gender, dob, height, weight } = useSelector(
+    (state) => state.user.userMetricsData
+  );
+  const { firstName, lastName } = useSelector((state) => state.user);
+
+  const [age, setAge] = useState();
+
   const dispatch = useDispatch();
   const { previousScreenTitle } = route.params;
   const [isLoading, setisLoading] = useState(true);
-
-  const [firstName, setFirstName] = useState();
-  const [lastName, setLastName] = useState();
-
-  // const [age, setAge] = useState([
-  //   { label: "Under 18", value: "Under 18" },
-  //   { label: "18-24", value: "18-24" },
-  //   { label: "25-34", value: "25-34" },
-  //   { label: "35-44", value: "35-44" },
-  //   { label: "45-54", value: "45-54" },
-  //   { label: "55-64", value: "55-64" },
-  //   { label: "65 or over", value: "65 or over" },
-  // ]);
-  const [gender, setGender] = useState([
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-    { label: "Other", value: "Other" },
-  ]);
-  const [sports, setSports] = useState([
-    { label: "Volleyball", value: "Volleyball" },
-    { label: "Basketball", value: "Basketball" },
-    { label: "Baseball", value: "Baseball" },
-    { label: "American Football", value: "American Football" },
-    { label: "Rugby", value: "Rugby" },
-    { label: "Tennis", value: "Tennis" },
-    { label: "Badminton", value: "Badminton" },
-    { label: "Running", value: "Running" },
-    { label: "Soccer", value: "Soccer" },
-    { label: "Table Tennis", value: "Table Tennis" },
-  ]);
-
-  const [userData, setUserData] = useState({
-    fname: auth.currentUser.displayName.split(" ")[0],
-    lname: auth.currentUser.displayName.split(" ")[1],
-    age: "",
-    gender: "",
-    height: "",
-    weight: "",
-    sports: "",
-  });
 
   const [error, setError] = useState({
     fname: "",
@@ -189,6 +156,15 @@ const ProfileScreen = ({ navigation, route }) => {
   //   return <LoadingOverlay />;
   // }
 
+  // useEffect to calculate age fomr dob
+  useEffect(() => {
+    if (dob) {
+      const age = new Date().getFullYear() - new Date(dob).getFullYear();
+      console.log("calculated age = ", age);
+      setAge(age);
+    }
+  }, [dob]);
+
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
@@ -231,13 +207,13 @@ const ProfileScreen = ({ navigation, route }) => {
         <View style={{ marginLeft: 18 }}>
           <View>
             <Text variant="titleMedium">First Name</Text>
-            <Text style={{ fontSize: 18 }}>{userData.fname}</Text>
+            <Text style={{ fontSize: 18 }}>{firstName}</Text>
           </View>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Last Name
           </Text>
-          <Text style={{ fontSize: 18 }}>{userData.lname}</Text>
+          <Text style={{ fontSize: 18 }}>{lastName}</Text>
         </View>
         <View style={[styles.content, { paddingTop: 25 }]}>
           <View
@@ -272,22 +248,22 @@ const ProfileScreen = ({ navigation, route }) => {
 
         <View style={{ marginLeft: 20, marginBottom: 40 }}>
           <Text variant="titleMedium">Age</Text>
-          <Text style={{ fontSize: 18 }}>64</Text>
+          <Text style={{ fontSize: 18 }}>{age}</Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Height
           </Text>
-          <Text style={{ fontSize: 18 }}>bibash</Text>
+          <Text style={{ fontSize: 18 }}>{height}</Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Weight
           </Text>
-          <Text style={{ fontSize: 18 }}>bibash</Text>
+          <Text style={{ fontSize: 18 }}>{weight}</Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
-            Sports
+            Gender
           </Text>
-          <Text style={{ fontSize: 18 }}>bibash</Text>
+          <Text style={{ fontSize: 18 }}>{gender}</Text>
         </View>
       </View>
     </ScrollView>
