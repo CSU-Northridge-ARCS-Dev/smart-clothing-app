@@ -152,7 +152,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-              Welcome. Please enter your details.
+              Please enter your details.
             </Text>
 
             {isFromSignupScreen && (
