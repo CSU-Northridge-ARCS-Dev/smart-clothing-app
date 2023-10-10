@@ -35,11 +35,12 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   }
   */
 
-  const [gender, setGender] = useState();
+  const [gender, setGender] = useState("");
   const [date, setDate] = useState(new Date());
-  const [height, setHeight] = useState();
-  const [weight, setWeight] = useState();
-  const [sports, setSports] = useState();
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [sports, setSports] = useState("");
+  const [age, setAge] = useState("");
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
@@ -93,6 +94,15 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     });
     setIsSubmitting(false);
   };
+
+  useEffect(() => {
+    if (date) {
+      const age = new Date().getFullYear() - new Date(date).getFullYear();
+      console.log(date);
+      console.log("calculated age = ", age);
+      setAge(age);
+    }
+  }, [date]);
 
   // const handleSignUpWithEmail = () => {
   //   if (!isValid()) {
@@ -181,7 +191,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               value={sports}
               placeholder={"Sports"}
               onChange={(item) => {
-                setSports(item);
+                setSports(item.value);
               }}
             />
 
@@ -284,9 +294,10 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   dispatch(
                     startUpdateUserData({
                       gender,
-                      dob: date,
+                      age,
                       height,
                       weight,
+                      sports,
                     })
                   );
                   dispatch(userMetricsDataModalVisible(false));

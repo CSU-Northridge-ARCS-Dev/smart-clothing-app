@@ -17,12 +17,10 @@ import { userMetricsDataModalVisible } from "../../actions/appActions";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 const ProfileScreen = ({ navigation, route }) => {
-  const { gender, dob, height, weight } = useSelector(
+  const { gender, age, height, weight, sports } = useSelector(
     (state) => state.user.userMetricsData
   );
   const { firstName, lastName } = useSelector((state) => state.user);
-
-  const [age, setAge] = useState();
 
   const dispatch = useDispatch();
   const { previousScreenTitle } = route.params;
@@ -38,15 +36,15 @@ const ProfileScreen = ({ navigation, route }) => {
     setPersonalModalVisible(false);
   };
 
-  const [userData, setUserData] = useState({
-    fname: auth.currentUser.displayName.split(" ")[0],
-    lname: auth.currentUser.displayName.split(" ")[1],
-    age: "",
-    gender: "",
-    height: "",
-    weight: "",
-    sports: "",
-  });
+  // const [userData, setUserData] = useState({
+  //   fname: auth.currentUser.displayName.split(" ")[0],
+  //   lname: auth.currentUser.displayName.split(" ")[1],
+  //   age: "",
+  //   gender: "",
+  //   height: "",
+  //   weight: "",
+  //   sports: "",
+  // });
 
   const [error, setError] = useState({
     fname: "",
@@ -78,17 +76,17 @@ const ProfileScreen = ({ navigation, route }) => {
     });
   };
 
-  const handleClear = () => {
-    setUserData({
-      fname: "",
-      lname: "",
-      age: "",
-      gender: "",
-      height: "",
-      weight: "",
-      sports: "",
-    });
-  };
+  // const handleClear = () => {
+  //   setUserData({
+  //     fname: "",
+  //     lname: "",
+  //     age: "",
+  //     gender: "",
+  //     height: "",
+  //     weight: "",
+  //     sports: "",
+  //   });
+  // };
 
   const handleUpdateProfile = () => {
     if (!isValid()) {
@@ -178,13 +176,7 @@ const ProfileScreen = ({ navigation, route }) => {
   // }
 
   // useEffect to calculate age fomr dob
-  useEffect(() => {
-    if (dob) {
-      const age = new Date().getFullYear() - new Date(dob).getFullYear();
-      console.log("calculated age = ", age);
-      setAge(age);
-    }
-  }, [dob]);
+
 
   return (
     <ScrollView>
@@ -290,6 +282,11 @@ const ProfileScreen = ({ navigation, route }) => {
             Gender
           </Text>
           <Text style={{ fontSize: 18 }}>{gender}</Text>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Sports
+          </Text>
+          <Text style={{ fontSize: 18 }}>{sports}</Text>
         </View>
       </View>
     </ScrollView>

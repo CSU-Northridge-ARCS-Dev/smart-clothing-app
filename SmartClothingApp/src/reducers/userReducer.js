@@ -12,7 +12,7 @@ const initialState = {
   lastName: null,
   email: null,
   authError: null,
-  userMetricsData: "",
+  userMetricsData: null,
 };
 
 const userReducer = (state = initialState, action) => {
