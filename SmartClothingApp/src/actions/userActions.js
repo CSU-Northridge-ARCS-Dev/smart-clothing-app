@@ -114,29 +114,56 @@ export const startUpdateUserData = (userData) => {
   };
 };
 
-export const updateUserData = (userData, uid) => {
-  console.log("updateUserData called with", userData, "and uid", uid);
+export const startLoadUserData = () => {
   return async (dispatch) => {
     try {
-      const userDocRef = doc(database, "Users", uid);
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
-        // If the document exists, update it
-        await updateDoc(userDocRef, userData);
-        dispatch(toastInfo("Your edits have been saved."));
-        console.log("User data edited in the database successfully!");
+        const userDataFromFirebase = userDoc.data();
+        dispatch(updateUserMetricsData(userDataFromFirebase));
+        console.log("User data loaded from database successfully!");
       } else {
-        // If the document doesn't exist, create it using setDoc
-        await setDoc(userDocRef, userData);
-        console.log("User data added to database successfully!");
+        console.log("User data doesn't exist in the database!");
+        const defaultUserData = {
+          height: "",
+          weight: "",
+          dob: "",
+          gender: "",
+        };
+        dispatch(startUpdateUserData(defaultUserData, auth.currentUser.uid));
       }
     } catch (e) {
-      console.log("Error updating user data in the database!");
-      console.error(e);
+      console.log("Error loading user data from database!");
+      console.log(e);
     }
   };
 };
+
+// export const updateUserData = (userData, uid) => {
+//   console.log("updateUserData called with", userData, "and uid", uid);
+//   return async (dispatch) => {
+//     try {
+//       const userDocRef = doc(database, "Users", uid);
+//       const userDoc = await getDoc(userDocRef);
+
+//       if (userDoc.exists()) {
+//         // If the document exists, update it
+//         await updateDoc(userDocRef, userData);
+//         dispatch(toastInfo("Your edits have been saved."));
+//         console.log("User data edited in the database successfully!");
+//       } else {
+//         // If the document doesn't exist, create it using setDoc
+//         await setDoc(userDocRef, userData);
+//         console.log("User data added to database successfully!");
+//       }
+//     } catch (e) {
+//       console.log("Error updating user data in the database!");
+//       console.error(e);
+//     }
+//   };
+// };
 
 export const startSignupWithEmail = (email, password, firstName, lastName) => {
   return (dispatch) => {
@@ -150,7 +177,6 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
         dispatch(startUpdateProfile(firstName, lastName));
 
         // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
-        //ToDo: dispatch to show userMetricsDataModal component
         dispatch(userMetricsDataModalVisible(true));
 
         dispatch(
@@ -175,6 +201,9 @@ export const startLoginWithEmail = (email, password) => {
         const user = userCredential.user;
         // console.log("Logged in successfully!");
         // console.log(user);
+
+        // load the user data from the database
+        dispatch(startLoadUserData());
 
         dispatch(
           loginWithEmail({
