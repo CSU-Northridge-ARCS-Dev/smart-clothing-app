@@ -162,6 +162,30 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               </Text>
             )}
 
+            <MyDropdown
+              data={Object.entries(Gender).map(([key, value]) => ({
+                label: key,
+                value: value,
+              }))}
+              value={gender}
+              placeholder={"Gender"}
+              onChange={(item) => {
+                setGender(item.value);
+              }}
+            />
+
+            <MyDropdown
+              data={Object.entries(Sports).map(([key, value]) => ({
+                label: key,
+                value: value,
+              }))}
+              value={sports}
+              placeholder={"Sports"}
+              onChange={(item) => {
+                setSports(item);
+              }}
+            />
+
             <View
               style={{
                 flexDirection: "row",
