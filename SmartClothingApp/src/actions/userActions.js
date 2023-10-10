@@ -139,8 +139,9 @@ export const startLoadUserData = () => {
         const defaultUserData = {
           height: "",
           weight: "",
-          dob: "",
+          age: "",
           gender: "",
+          sports: "",
         };
         dispatch(startUpdateUserData(defaultUserData, auth.currentUser.uid));
       }
