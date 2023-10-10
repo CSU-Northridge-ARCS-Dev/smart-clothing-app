@@ -4,15 +4,30 @@ import { TextInput, Button, Text } from "react-native-paper";
 import { AppHeader } from "../../components";
 import { AppFonts, AppStyle } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
+import { useDispatch, useSelector } from "react-redux";
 
-const ProfileScreen = ({ navigation }) => {
-  const [user, setUser] = useState({
-    fname: "",
-    lname: "",
-    email: "",
-    password: "",
-    repassword: "",
-  });
+import { auth, database } from "../../../firebaseConfig";
+import {
+  updateUserData,
+  fetchUserData,
+  startUpdateProfile,
+} from "../../actions/userActions";
+import PersonalModal from "../../components/PersonalModal/PersonalModal";
+import { userMetricsDataModalVisible } from "../../actions/appActions";
+import LoadingOverlay from "../../components/UI/LoadingOverlay";
+
+const ProfileScreen = ({ navigation, route }) => {
+  const { gender, dob, height, weight } = useSelector(
+    (state) => state.user.userMetricsData
+  );
+  const { firstName, lastName } = useSelector((state) => state.user);
+
+  const [age, setAge] = useState();
+
+  const dispatch = useDispatch();
+  const { previousScreenTitle } = route.params;
+  const [isLoading, setisLoading] = useState(true);
+
   const [error, setError] = useState({
     fname: "",
     lname: "",
@@ -20,6 +35,139 @@ const ProfileScreen = ({ navigation }) => {
     password: "",
     repassword: "",
   });
+
+  const isValid = () => {
+    let flag = true;
+    let errors = error;
+
+    if (userData.fname.length < 1) {
+      errors.fname = "Must have a first name.";
+      flag = false;
+    }
+
+    if (userData.lname.length < 1) {
+      errors.lname = "Must have a last name.";
+      flag = false;
+    }
+
+    setError({ ...errors });
+    return flag;
+  };
+
+  const handleClearErrors = () => {
+    setError({
+      fname: "",
+      lname: "",
+    });
+  };
+
+  const handleClear = () => {
+    setUserData({
+      fname: "",
+      lname: "",
+      age: "",
+      gender: "",
+      height: "",
+      weight: "",
+      sports: "",
+    });
+  };
+
+  const handleUpdateProfile = () => {
+    if (!isValid()) {
+      return;
+    }
+    setIsSubmitting(true);
+
+    dispatch(startUpdateProfile(firstName, lastName));
+  };
+
+  // useEffect(() => {
+  //   const userData = auth.currentUser;
+  //   if (userData) {
+  //     setUid(userData.uid);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const userDocRef = doc(database, "Users", auth.currentUser.uid);
+  //       const userDoc = await getDoc(userDocRef);
+
+  //       if (userDoc.exists()) {
+  //         const userDataFromFirebase = userDoc.data();
+  //         setUserData(userDataFromFirebase);
+  //         setisLoading(false);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //       setisLoading(false);
+  //     }
+  //   };
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const userDataFromFirebase = await fetchUserData(
+  //         database,
+  //         auth.currentUser.uid
+  //       );
+  //       setUserData(
+  //         userDataFromFirebase || {
+  //           fname: auth.currentUser.displayName.split(" ")[0],
+  //           lname: auth.currentUser.displayName.split(" ")[1],
+  //           age: "",
+  //           gender: "",
+  //           height: "",
+  //           weight: "",
+  //           sports: "",
+  //         }
+  //       );
+  //       setisLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error);
+  //       setisLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+
+  const handleSaveProfile = () => {
+    // const filteredUserData = {};
+    // for (const key in userData) {
+    //   if (userData[key] !== "") {
+    //     filteredUserData[key] = userData[key];
+    //   }
+    // }
+    // if (Object.values(filteredUserData).length > 0) {
+
+    const filteredUserData = { ...userData };
+    delete filteredUserData.fname;
+    delete filteredUserData.lname;
+
+    if (!isValid()) {
+      return;
+    }
+
+    dispatch(startUpdateProfile(userData.fname, userData.lname));
+    dispatch(updateUserData(filteredUserData, auth.currentUser.uid));
+    // }
+  };
+
+  // if (isLoading) {
+  //   return <LoadingOverlay />;
+  // }
+
+  // useEffect to calculate age fomr dob
+  useEffect(() => {
+    if (dob) {
+      const age = new Date().getFullYear() - new Date(dob).getFullYear();
+      console.log("calculated age = ", age);
+      setAge(age);
+    }
+  }, [dob]);
 
   return (
     <ScrollView>
@@ -45,83 +193,67 @@ const ProfileScreen = ({ navigation }) => {
             error={error.fname.length > 1}
           />
         </View>
-        <View>
-          <TextInput
-            label="Last Name"
-            value={user.lname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUser({ ...user, lname: text });
-            }}
-            error={error.fname.length > 1}
-          />
+        <View style={{ marginLeft: 18 }}>
+          <View>
+            <Text variant="titleMedium">First Name</Text>
+            <Text style={{ fontSize: 18 }}>{firstName}</Text>
+          </View>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Last Name
+          </Text>
+          <Text style={{ fontSize: 18 }}>{lastName}</Text>
         </View>
-        <View>
-          <TextInput
-            label="Age"
-            value={user.fname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUser({ ...user, fname: text });
-            }}
-            error={error.fname.length > 1}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Gender"
-            value={user.fname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUser({ ...user, fname: text });
-            }}
-            error={error.fname.length > 1}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Height"
-            value={user.fname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUser({ ...user, fname: text });
-            }}
-            error={error.fname.length > 1}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Weight"
-            value={user.fname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUser({ ...user, fname: text });
-            }}
-            error={error.fname.length > 1}
-          />
-        </View>
-        <View>
-          <TextInput
-            label="Sports"
-            value={user.fname}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUser({ ...user, fname: text });
-            }}
-            error={error.fname.length > 1}
-          />
-        </View>
-        <View style={styles.btnContainer}>
-          <Button
-            mode="elevated"
+        <View style={[styles.content, { paddingTop: 25 }]}>
+          <View
             style={{
-              flex: 2,
-              marginHorizontal: horizontalScale(10),
-              marginVertical: verticalScale(10),
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
             }}
-          >
-            Save
-          </Button>
+          />
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={[styles.subTitle, AppStyle.textPrimary]}>
+              Metrics Data
+            </Text>
+            <View style={styles.btnContainer}>
+              <Button
+                mode="elevated"
+                buttonColor="#1560a4"
+                textColor="white"
+                onPress={() => dispatch(userMetricsDataModalVisible(true))}
+                style={{ borderRadius: 10 }}
+              >
+                EDIT
+              </Button>
+            </View>
+          </View>
+          <View
+            style={{
+              borderBottomColor: "black",
+              borderBottomWidth: StyleSheet.hairlineWidth,
+            }}
+            error={error.fname.length > 1}
+          />
+        </View>
+
+        <View style={{ marginLeft: 20, marginBottom: 40 }}>
+          <Text variant="titleMedium">Age</Text>
+          <Text style={{ fontSize: 18 }}>{age}</Text>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Height
+          </Text>
+          <Text style={{ fontSize: 18 }}>{height}</Text>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Weight
+          </Text>
+          <Text style={{ fontSize: 18 }}>{weight}</Text>
+
+          <Text variant="titleMedium" style={{ marginTop: 20 }}>
+            Gender
+          </Text>
+          <Text style={{ fontSize: 18 }}>{gender}</Text>
         </View>
       </View>
     </ScrollView>
