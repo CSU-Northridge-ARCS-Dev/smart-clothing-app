@@ -182,7 +182,7 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
         dispatch(startUpdateProfile(firstName, lastName));
 
         // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
-        dispatch(userMetricsDataModalVisible(true));
+        dispatch(userMetricsDataModalVisible(true, true));
 
         dispatch(
           signupWithEmail({
