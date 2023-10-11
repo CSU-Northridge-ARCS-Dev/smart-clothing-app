@@ -22,9 +22,12 @@ import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
 import MyDropdown from "../UI/dropdown";
 
-const DataCollectModal = ({ isFromSignupScreen = false }) => {
+const DataCollectModal = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
+  const isFromSignupScreen = useSelector(
+    (state) => state.app.isFromSignUpScreen
+  );
 
   /*
     userData: {
@@ -156,7 +159,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
         transparent={true}
         visible={visible}
         onRequestClose={() => {
-          dispatch(userMetricsDataModalVisible(false));
+          dispatch(userMetricsDataModalVisible(false, false));
         }}
       >
         <View style={styles.modalBackground}>
@@ -282,7 +285,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
-                onPress={() => dispatch(userMetricsDataModalVisible(false))}
+                onPress={() =>
+                  dispatch(userMetricsDataModalVisible(false, false))
+                }
                 style={styles.button}
               >
                 {isFromSignupScreen ? "Skip" : "Cancel"}
@@ -300,7 +305,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                       sports,
                     })
                   );
-                  dispatch(userMetricsDataModalVisible(false));
+                  dispatch(userMetricsDataModalVisible(false, false));
                 }}
                 style={[
                   styles.button,

@@ -9,8 +9,8 @@ import { startUpdateProfile } from "../../actions/userActions";
 const PersonalModal = (props) => {
   const dispatch = useDispatch();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState(props.firstName);
+  const [lastName, setLastName] = useState(props.lastName);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,7 +60,7 @@ const PersonalModal = (props) => {
     setIsSubmitting(true);
 
     dispatch(startUpdateProfile(firstName, lastName));
-    handleClear();
+    props.closeModal();
   };
 
   return (
@@ -111,7 +111,7 @@ const PersonalModal = (props) => {
               <Button
                 mode="outlined"
                 onPress={() => {
-                  handleClear();
+                  props.closeModal();
                 }}
                 style={styles.button}
               >

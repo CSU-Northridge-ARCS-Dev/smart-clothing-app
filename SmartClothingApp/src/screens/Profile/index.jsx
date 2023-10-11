@@ -177,13 +177,14 @@ const ProfileScreen = ({ navigation, route }) => {
 
   // useEffect to calculate age fomr dob
 
-
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
       <PersonalModal
         visible={isPersonalModalVisible}
         closeModal={closePersonalModal}
+        firstName={firstName}
+        lastName={lastName}
       />
       <View style={styles.content}>
         <Text
