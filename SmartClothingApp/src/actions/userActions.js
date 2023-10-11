@@ -78,6 +78,10 @@ export const startLogout = () => {
 //   });
 
 export const startUpdateProfile = (firstName, lastName) => {
+  // remove spaces from first and last name
+  firstName = firstName.replace(/\s/g, "");
+  lastName = lastName.replace(/\s/g, "");
+
   return (dispatch) => {
     updateProfile(auth.currentUser, {
       displayName: `${firstName} ${lastName}`,
