@@ -7,14 +7,10 @@ import { AppColor, AppStyle } from "../../constants/themes";
 import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 
 import { useSelector, useDispatch } from "react-redux";
-import {
-  startLoginWithEmail,
-  setAuthError,
-} from "../../actions/userActions.js";
+import { startLoginWithEmail } from "../../actions/userActions.js";
 
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.user.authError);
   const [isSubmitting, setIsSubmitting] = useState(true);
 
   const [user, setUser] = useState({
@@ -31,8 +27,6 @@ const SigninScreen = ({ navigation }) => {
     });
 
     setIsSubmitting(false);
-
-    authError && dispatch(setAuthError(null));
   };
 
   const handleSignInWithEmail = () => {
@@ -77,7 +71,7 @@ const SigninScreen = ({ navigation }) => {
     return flag;
   };
 
-  if (firebaseErrorMessages.hasOwnProperty(authError)) {
+  if (firebaseErrorMessages.hasOwnProperty("authError")) {
     const errorMessage = firebaseErrorMessages[authError];
 
     Alert.alert("Authentication Error", errorMessage);
@@ -134,13 +128,6 @@ const SigninScreen = ({ navigation }) => {
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
             Forgot your Username/Password ?
           </Button>
-        </View>
-        <View>
-          {authError && (
-            <HelperText type="error" visible={authError}>
-              {authError}
-            </HelperText>
-          )}
         </View>
       </View>
       <View style={styles.btnContainer}>
