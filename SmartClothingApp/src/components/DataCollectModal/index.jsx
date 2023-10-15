@@ -42,8 +42,14 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   };
 
   const showMode = (currentMode) => {
+    const selectedDate = date.set({
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    });
     DateTimePickerAndroid.open({
-      value: date,
+      value: selectedDate,
       onChange,
       mode: currentMode,
       is24Hour: true,
@@ -54,54 +60,74 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     showMode("date");
   };
 
-  const showTimePicker = () => {
-    showMode("time");
-  };
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [error, setError] = useState({
-    fname: "",
-    lname: "",
-    email: "",
-    password: "",
+    height: "",
+    weight: "",
+    feet: "",
+    inches: "",
   });
 
-  const handleClear = () => {
-    setUser({
-      fname: "",
-      lname: "",
-      email: "",
-      password: "",
-      repassword: "",
-    });
+  const isValid = () => {
+    let flag = true;
+    let errors = error;
 
-    setIsSubmitting(false);
+    if (feet.length > 1) {
+      errors.feet = "Enter a single integer.";
+      flag = false;
+    }
+    if ((inches < 0 || inches > 11) && feet !== "") {
+      errors.inches = "Enter between 0-11.";
+      flag = false;
+    }
 
-    handleClearErrors();
+    setError({ ...errors });
+    return flag;
   };
 
   const handleClearErrors = () => {
     setError({
-      fname: "",
-      lname: "",
+      height: "",
+      weight: "",
+      feet: "",
+      inches: "",
     });
     setIsSubmitting(false);
   };
 
   const handleHeightChange = (value) => {
-    if (/^\d*$/.test(value)) {
+    heightRegex = /^\d*$/;
+    if (heightRegex.test(value)) {
       setHeight(value);
     }
   };
 
   const handleFeetInches = (value, field) => {
-    if (/^\d*$/.test(value) && field === "feet") {
+    heightRegex = /^\d*$/;
+    if (heightRegex.test(value) && field === "feet") {
       setFeet(value);
     }
-    if (/^\d*$/.test(value) && field === "inches") {
+    if (heightRegex.test(value) && field === "inches") {
       setInches(value);
     }
+  };
+
+  const handleSubmit = () => {
+    if (!isValid()) {
+      return;
+    }
+
+    dispatch(
+      startUpdateUserData({
+        gender,
+        age,
+        height,
+        weight,
+        sports,
+      })
+    );
+    dispatch(userMetricsDataModalVisible(false));
   };
 
   useEffect(() => {
@@ -219,35 +245,40 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   inputMode="numeric"
                   style={{ flex: 1.3 }}
                   onChangeText={handleHeightChange}
-                  error={false}
+                  error={error.height.length > 1}
                 />
               )}
               {selectedUnit === "ft" && (
                 <>
-                  <TextInput
-                    label="feet"
-                    value={feet}
-                    mode="outlined"
-                    keyboardType="numeric"
-                    inputMode="numeric"
-                    style={{ flex: 1.3 }}
-                    onChangeText={(item) => {
-                      handleFeetInches(item, "feet");
-                    }}
-                    error={false}
-                  />
-                  <TextInput
-                    label="inches"
-                    value={inches}
-                    mode="outlined"
-                    keyboardType="numeric"
-                    inputMode="numeric"
-                    style={{ flex: 1.3 }}
-                    onChangeText={(item) => {
-                      handleFeetInches(item, "inches");
-                    }}
-                    error={false}
-                  />
+                  <View style={{ flex: 1.3 }}>
+                    <TextInput
+                      label="feet"
+                      value={feet}
+                      mode="outlined"
+                      keyboardType="numeric"
+                      inputMode="numeric"
+                      onChangeText={(item) => {
+                        handleFeetInches(item, "feet");
+                        handleClearErrors();
+                      }}
+                      error={error.feet.length > 1}
+                    />
+                  </View>
+                  <View style={{ flex: 1.3 }}>
+                    <TextInput
+                      label="inches"
+                      value={inches}
+                      mode="outlined"
+                      keyboardType="numeric"
+                      inputMode="numeric"
+                      style={{ flex: 1.3 }}
+                      onChangeText={(item) => {
+                        handleFeetInches(item, "inches");
+                        handleClearErrors();
+                      }}
+                      error={error.inches.length > 1}
+                    />
+                  </View>
                 </>
               )}
               <MyDropdown
@@ -263,10 +294,26 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 }}
               />
             </View>
+            {error.feet.length > 1 && !(error.inches.length > 1) && (
+              <HelperText type="error" visible={error.feet.length > 1}>
+                Please enter a single integer.
+              </HelperText>
+            )}
+            {error.inches.length > 1 && !(error.feet.length > 1) && (
+              <HelperText type="error" visible={error.inches.length > 1}>
+                Please enter between 0-11.
+              </HelperText>
+            )}
 
-            {/* <HelperText type="error" visible={false}>
-              Please enter your height.
-            </HelperText> */}
+            {error.feet.length > 1 && error.inches.length > 1 && (
+              <HelperText
+                type="error"
+                visible={error.feet.length > 1 && error.inches.length > 1}
+              >
+                Both feet and inches are invalid.
+              </HelperText>
+            )}
+
             <TextInput
               label="Weight"
               value={weight}
@@ -295,16 +342,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 disabled={isSubmitting}
                 mode="elevated"
                 onPress={() => {
-                  dispatch(
-                    startUpdateUserData({
-                      gender,
-                      age,
-                      height,
-                      weight,
-                      sports,
-                    })
-                  );
-                  dispatch(userMetricsDataModalVisible(false));
+                  handleSubmit();
                 }}
                 style={[
                   styles.button,
