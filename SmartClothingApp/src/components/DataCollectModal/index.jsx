@@ -25,7 +25,8 @@ import MyDropdown from "../UI/dropdown";
 const DataCollectModal = ({ isFromSignupScreen = false }) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
-  const [selectedUnit, setSelectedUnit] = useState("");
+  const [selectedHeight, setSelectedHeight] = useState("");
+  const [selectedWeight, setSelectedWeight] = useState("");
   const [feet, setFeet] = useState("");
   const [inches, setInches] = useState("");
 
@@ -73,6 +74,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     let flag = true;
     let errors = error;
 
+    integerRegex = /^\d*$/;
+    numberRegex = /^[0-9.]*$/;
+
     if (feet.length > 1) {
       errors.feet = "Enter a single integer.";
       flag = false;
@@ -81,7 +85,22 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
       errors.inches = "Enter between 0-11.";
       flag = false;
     }
-
+    if (!integerRegex.test(feet)) {
+      errors.feet = "Only numbers allowed.";
+      flag = false;
+    }
+    if (!integerRegex.test(inches)) {
+      errors.inches = "Only numbers allowed.";
+      flag = false;
+    }
+    if (!numberRegex.test(weight)) {
+      errors.weight = "Only numbers allowed.";
+      flag = false;
+    }
+    if (!integerRegex.test(height)) {
+      errors.height = "Only numbers allowed.";
+      flag = false;
+    }
     setError({ ...errors });
     return flag;
   };
@@ -96,21 +115,8 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     setIsSubmitting(false);
   };
 
-  const handleHeightChange = (value) => {
-    heightRegex = /^\d*$/;
-    if (heightRegex.test(value)) {
-      setHeight(value);
-    }
-  };
-
-  const handleFeetInches = (value, field) => {
-    heightRegex = /^\d*$/;
-    if (heightRegex.test(value) && field === "feet") {
-      setFeet(value);
-    }
-    if (heightRegex.test(value) && field === "inches") {
-      setInches(value);
-    }
+  const kilogramsToPounds = (kilograms) => {
+    return kilograms * 2.20462;
   };
 
   const handleSubmit = () => {
@@ -140,13 +146,13 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   }, [date]);
 
   useEffect(() => {
-    if (selectedUnit === "ft") {
+    if (selectedHeight === "ft") {
       const feetValue = parseInt(feet) || 0;
       const inchesValue = parseInt(inches) || 0;
       const totalInches = feetValue * 12 + inchesValue;
       setHeight(totalInches);
     }
-  }, [selectedUnit, feet, inches]);
+  }, [selectedHeight, feet, inches]);
 
   return (
     <View style={styles.container}>
@@ -236,21 +242,24 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 },
               ]}
             >
-              {selectedUnit !== "ft" && (
+              {selectedHeight !== "ft" && (
                 <TextInput
                   label="Height"
                   value={height}
                   mode="outlined"
                   keyboardType="numeric"
                   inputMode="numeric"
-                  style={{ flex: 1.3 }}
-                  onChangeText={handleHeightChange}
+                  style={{ flex: 1 }}
+                  onChangeText={(item) => {
+                    setHeight(item);
+                    handleClearErrors();
+                  }}
                   error={error.height.length > 1}
                 />
               )}
-              {selectedUnit === "ft" && (
+              {selectedHeight === "ft" && (
                 <>
-                  <View style={{ flex: 1.3 }}>
+                  <View style={{ flex: 1 }}>
                     <TextInput
                       label="feet"
                       value={feet}
@@ -258,22 +267,21 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                       keyboardType="numeric"
                       inputMode="numeric"
                       onChangeText={(item) => {
-                        handleFeetInches(item, "feet");
+                        setFeet(item);
                         handleClearErrors();
                       }}
                       error={error.feet.length > 1}
                     />
                   </View>
-                  <View style={{ flex: 1.3 }}>
+                  <View style={{ flex: 1 }}>
                     <TextInput
                       label="inches"
                       value={inches}
                       mode="outlined"
                       keyboardType="numeric"
                       inputMode="numeric"
-                      style={{ flex: 1.3 }}
                       onChangeText={(item) => {
-                        handleFeetInches(item, "inches");
+                        setInches(item);
                         handleClearErrors();
                       }}
                       error={error.inches.length > 1}
@@ -286,50 +294,77 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   { label: "CM", value: "cm" },
                   { label: "FT", value: "ft" },
                 ]}
-                value={selectedUnit}
+                value={selectedHeight}
                 style={{ width: 80, marginBottom: 0 }}
                 placeholder={"unit"}
                 onChange={(item) => {
-                  setSelectedUnit(item.value);
+                  setSelectedHeight(item.value);
                 }}
               />
             </View>
             {error.feet.length > 1 && !(error.inches.length > 1) && (
               <HelperText type="error" visible={error.feet.length > 1}>
-                Please enter a single integer.
+                {error.feet}
               </HelperText>
             )}
             {error.inches.length > 1 && !(error.feet.length > 1) && (
               <HelperText type="error" visible={error.inches.length > 1}>
-                Please enter between 0-11.
+                {error.inches}
               </HelperText>
             )}
-
             {error.feet.length > 1 && error.inches.length > 1 && (
               <HelperText
                 type="error"
                 visible={error.feet.length > 1 && error.inches.length > 1}
               >
-                Both feet and inches are invalid.
+                Both inputs are invalid.
               </HelperText>
             )}
-
-            <TextInput
-              label="Weight"
-              value={weight}
-              mode="outlined"
-              keyboardType="numeric"
-              inputMode="numeric"
-              style={styles.input}
-              onChangeText={(text) => {
-                setWeight(text);
-                //handleClearErrors();
-              }}
-              error={false}
-            />
-            {/* <HelperText type="error" visible={false}>
-              Please enter your weight.
-            </HelperText> */}
+            <View
+              style={[
+                styles.input,
+                {
+                  flexDirection: "row",
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  gap: 10,
+                },
+              ]}
+            >
+              <TextInput
+                label="Weight"
+                value={weight}
+                mode="outlined"
+                keyboardType="numeric"
+                inputMode="numeric"
+                style={{ flex: 1 }}
+                onChangeText={(item) => {
+                  if (selectedWeight === "kg" && isValid()) {
+                    item = kilogramsToPounds(item);
+                  }
+                  setWeight(item);
+                  handleClearErrors();
+                }}
+                error={error.weight.length > 1}
+              />
+              <MyDropdown
+                data={[
+                  { label: "LB", value: "lbs" },
+                  { label: "KG", value: "kg" },
+                ]}
+                value={selectedWeight}
+                style={{ width: 80, marginBottom: 0 }}
+                placeholder={"unit"}
+                onChange={(item) => {
+                  setSelectedWeight(item.value);
+                }}
+              />
+            </View>
+            {error.weight.length > 1 && (
+              <HelperText type="error" visible={error.weight.length > 1}>
+                {error.weight}
+              </HelperText>
+            )}
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
