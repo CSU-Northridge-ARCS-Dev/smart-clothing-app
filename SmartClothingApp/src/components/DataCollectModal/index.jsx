@@ -119,6 +119,12 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     return kilograms * 2.20462;
   };
 
+  const convertCentToFeet = (values) => {
+    var realFeet = (values * 0.3937) / 12;
+    var inches = Math.round((realFeet) * 12);
+    return inches;
+  };
+
   const handleSubmit = () => {
     if (!isValid()) {
       return;
@@ -251,6 +257,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   inputMode="numeric"
                   style={{ flex: 1 }}
                   onChangeText={(item) => {
+                    if (isValid()) {
+                      item = convertCentToFeet(item);
+                    }
                     setHeight(item);
                     handleClearErrors();
                   }}
