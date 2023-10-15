@@ -157,6 +157,7 @@ const AllNavigationStack = () => {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
+      <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
     </Stack.Navigator>
   );
 };
