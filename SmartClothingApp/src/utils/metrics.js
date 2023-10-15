@@ -16,3 +16,8 @@ export const Sports = {
   Soccer: "soccer",
   "Table Tennis": "table tennis",
 };
+
+export const Height = {
+  CM: "cm",
+  FT: "ft",
+};

@@ -16,7 +16,7 @@ import DateTimePicker, {
 import { Picker } from "@react-native-picker/picker";
 
 import { AppColor, AppStyle } from "../../constants/themes";
-import { Gender, Sports } from "../../utils/metrics";
+import { Gender, Sports, Height } from "../../utils/metrics";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
@@ -25,15 +25,7 @@ import MyDropdown from "../UI/dropdown";
 const DataCollectModal = ({ isFromSignupScreen = false }) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
-
-  /*
-    userData: {
-    gender: "",
-    dob: "",
-    height: "",
-    weight: "",
-  }
-  */
+  const [selectedUnit, setSelectedUnit] = useState("");
 
   const [gender, setGender] = useState("");
   const [date, setDate] = useState(new Date());
@@ -201,25 +193,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 // justifyContent: "flex-end",
                 alignItems: "center",
               }}
-            >
-              {/* <Text>Gender</Text>
-              <Picker
-                selectedValue={gender}
-                onValueChange={(itemValue, itemIndex) => setGender(itemValue)}
-                mode={"dropdown"}
-                style={{
-                  // flex: 1,
-                  width: 150,
-                }}
-              >
-                {Object.entries(Gender).map(([key, value]) => (
-                  <Picker.Item key={key} label={key} value={value} />
-                ))}
-              </Picker> */}
-            </View>
-            {/* <HelperText type="error" visible={false}>
-              Please enter your gender.
-            </HelperText> */}
+            ></View>
 
             <View
               style={{
@@ -243,23 +217,77 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 </Button>
               </SafeAreaView>
             </View>
-            {/* <HelperText type="error" visible={false}>
-              Please enter Birth Date!
-            </HelperText> */}
 
-            <TextInput
-              label="Height"
-              value={height}
-              mode="outlined"
-              keyboardType="numeric"
-              inputMode="numeric"
-              style={styles.input}
-              onChangeText={(text) => {
-                setHeight(text);
-                // handleClearErrors();
-              }}
-              error={false}
-            />
+            <View
+              style={[
+                styles.input,
+                {
+                  flexDirection: "row",
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  gap: 10,
+                },
+              ]}
+            >
+              {selectedUnit !== "ft" && (
+                <TextInput
+                  label="Height"
+                  value={height}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  inputMode="numeric"
+                  style={{ flex: 1.3 }}
+                  onChangeText={(text) => {
+                    setHeight(text);
+                    // handleClearErrors();
+                  }}
+                  error={false}
+                />
+              )}
+              {selectedUnit === "ft" && (
+                <>
+                  <TextInput
+                    label="feet"
+                    value={height}
+                    mode="outlined"
+                    keyboardType="numeric"
+                    inputMode="numeric"
+                    style={{ flex: 1.3 }}
+                    onChangeText={(text) => {
+                      setHeight(text);
+                      // handleClearErrors();
+                    }}
+                    error={false}
+                  />
+                  <TextInput
+                    label="inches"
+                    value={height}
+                    mode="outlined"
+                    keyboardType="numeric"
+                    inputMode="numeric"
+                    style={{ flex: 1.3 }}
+                    onChangeText={(text) => {
+                      setHeight(text);
+                      // handleClearErrors();
+                    }}
+                    error={false}
+                  />
+                </>
+              )}
+              <MyDropdown
+                data={[
+                  { label: "CM", value: "cm" },
+                  { label: "FT", value: "ft" },
+                ]}
+                value={selectedUnit}
+                style={{ width: 80, marginBottom: 0 }}
+                placeholder={"unit"}
+                onChange={(item) => {
+                  setSelectedUnit(item.value);
+                }}
+              />
+            </View>
+
             {/* <HelperText type="error" visible={false}>
               Please enter your height.
             </HelperText> */}
