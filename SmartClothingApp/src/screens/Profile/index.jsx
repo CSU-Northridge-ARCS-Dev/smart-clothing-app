@@ -17,10 +17,12 @@ import { userMetricsDataModalVisible } from "../../actions/appActions";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 const ProfileScreen = ({ navigation, route }) => {
-  const { gender, age, height, weight, sports } = useSelector(
+  const { gender, dob, height, weight, sports } = useSelector(
     (state) => state.user.userMetricsData
   );
+
   const { firstName, lastName } = useSelector((state) => state.user);
+  const [age, setAge] = useState("");
 
   const dispatch = useDispatch();
   const { previousScreenTitle } = route.params;
@@ -37,10 +39,21 @@ const ProfileScreen = ({ navigation, route }) => {
   };
 
   const formatHeight = (height) => {
-    const feet = Math.floor(height / 12);
-    const inches = height % 12;
-    return `${feet}'${inches}"`;
+    if (height) {
+      const feet = Math.floor(height / 12);
+      const inches = height % 12;
+      return `${feet}'${inches}"`;
+    }
   };
+
+  useEffect(() => {
+    if (dob) {
+      let dobDate = dob.toDate();
+      const age = new Date().getFullYear() - new Date(dobDate).getFullYear();
+      console.log("calculated age = ", age);
+      setAge(age);
+    }
+  }, [dob]);
 
   return (
     <ScrollView>
@@ -140,8 +153,11 @@ const ProfileScreen = ({ navigation, route }) => {
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Weight
           </Text>
-          <Text style={{ fontSize: 18 }}>{weight}</Text>
-
+          {weight ? (
+            <Text style={{ fontSize: 18 }}>{weight} lbs</Text>
+          ) : (
+            <Text style={{ fontSize: 18 }}>No weight available</Text>
+          )}
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Gender
           </Text>
