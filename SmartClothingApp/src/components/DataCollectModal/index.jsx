@@ -31,26 +31,20 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   const [inches, setInches] = useState("");
 
   const [gender, setGender] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
+  const [dob, setDob] = useState(new Date());
+  const [height, setHeight] = useState(0);
+  const [weight, setWeight] = useState(0);
   const [sports, setSports] = useState("");
-  const [age, setAge] = useState("");
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setDate(currentDate);
+    setDob(currentDate);
   };
 
   const showMode = (currentMode) => {
-    const selectedDate = date.set({
-      hour: 0,
-      minute: 0,
-      second: 0,
-      millisecond: 0,
-    });
+    dob.setHours(0, 0, 0, 0);
     DateTimePickerAndroid.open({
-      value: selectedDate,
+      value: dob,
       onChange,
       mode: currentMode,
       is24Hour: true,
@@ -58,7 +52,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   };
 
   const showDatePicker = () => {
-    showMode("date");
+    showMode("dob");
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,12 +110,12 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   };
 
   const kilogramsToPounds = (kilograms) => {
-    return kilograms * 2.20462;
+    return Math.round(kilograms * 2.20462);
   };
 
   const convertCentToFeet = (values) => {
     var realFeet = (values * 0.3937) / 12;
-    var inches = Math.round((realFeet) * 12);
+    var inches = Math.round(realFeet * 12);
     return inches;
   };
 
@@ -133,7 +127,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     dispatch(
       startUpdateUserData({
         gender,
-        age,
+        dob,
         height,
         weight,
         sports,
@@ -141,15 +135,6 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     );
     dispatch(userMetricsDataModalVisible(false));
   };
-
-  useEffect(() => {
-    if (date) {
-      const age = new Date().getFullYear() - new Date(date).getFullYear();
-      console.log(date);
-      console.log("calculated age = ", age);
-      setAge(age);
-    }
-  }, [date]);
 
   useEffect(() => {
     if (selectedHeight === "ft") {
@@ -232,7 +217,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               </Text>
               <SafeAreaView>
                 <Button onPress={showDatePicker}>
-                  {date.toLocaleDateString()}
+                  {dob.toLocaleDateString()}
                 </Button>
               </SafeAreaView>
             </View>
@@ -351,7 +336,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   if (selectedWeight === "kg" && isValid()) {
                     item = kilogramsToPounds(item);
                   }
-                  setWeight(item);
+                  setWeight(item === "" ? 0 : parseFloat(item));
                   handleClearErrors();
                 }}
                 error={error.weight.length > 1}
