@@ -36,147 +36,11 @@ const ProfileScreen = ({ navigation, route }) => {
     setPersonalModalVisible(false);
   };
 
-  // const [userData, setUserData] = useState({
-  //   fname: auth.currentUser.displayName.split(" ")[0],
-  //   lname: auth.currentUser.displayName.split(" ")[1],
-  //   age: "",
-  //   gender: "",
-  //   height: "",
-  //   weight: "",
-  //   sports: "",
-  // });
-
-  const [error, setError] = useState({
-    fname: "",
-    lname: "",
-  });
-
-  const isValid = () => {
-    let flag = true;
-    let errors = error;
-
-    if (userData.fname.length < 1) {
-      errors.fname = "Must have a first name.";
-      flag = false;
-    }
-
-    if (userData.lname.length < 1) {
-      errors.lname = "Must have a last name.";
-      flag = false;
-    }
-
-    setError({ ...errors });
-    return flag;
+  const formatHeight = (height) => {
+    const feet = Math.floor(height / 12);
+    const inches = height % 12;
+    return `${feet}'${inches}"`;
   };
-
-  const handleClearErrors = () => {
-    setError({
-      fname: "",
-      lname: "",
-    });
-  };
-
-  // const handleClear = () => {
-  //   setUserData({
-  //     fname: "",
-  //     lname: "",
-  //     age: "",
-  //     gender: "",
-  //     height: "",
-  //     weight: "",
-  //     sports: "",
-  //   });
-  // };
-
-  const handleUpdateProfile = () => {
-    if (!isValid()) {
-      return;
-    }
-    setIsSubmitting(true);
-
-    dispatch(startUpdateProfile(firstName, lastName));
-  };
-
-  // useEffect(() => {
-  //   const userData = auth.currentUser;
-  //   if (userData) {
-  //     setUid(userData.uid);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       const userDocRef = doc(database, "Users", auth.currentUser.uid);
-  //       const userDoc = await getDoc(userDocRef);
-
-  //       if (userDoc.exists()) {
-  //         const userDataFromFirebase = userDoc.data();
-  //         setUserData(userDataFromFirebase);
-  //         setisLoading(false);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //       setisLoading(false);
-  //     }
-  //   };
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const userDataFromFirebase = await fetchUserData(
-  //         database,
-  //         auth.currentUser.uid
-  //       );
-  //       setUserData(
-  //         userDataFromFirebase || {
-  //           fname: auth.currentUser.displayName.split(" ")[0],
-  //           lname: auth.currentUser.displayName.split(" ")[1],
-  //           age: "",
-  //           gender: "",
-  //           height: "",
-  //           weight: "",
-  //           sports: "",
-  //         }
-  //       );
-  //       setisLoading(false);
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //       setisLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
-  const handleSaveProfile = () => {
-    // const filteredUserData = {};
-    // for (const key in userData) {
-    //   if (userData[key] !== "") {
-    //     filteredUserData[key] = userData[key];
-    //   }
-    // }
-    // if (Object.values(filteredUserData).length > 0) {
-
-    const filteredUserData = { ...userData };
-    delete filteredUserData.fname;
-    delete filteredUserData.lname;
-
-    if (!isValid()) {
-      return;
-    }
-
-    dispatch(startUpdateProfile(userData.fname, userData.lname));
-    dispatch(updateUserData(filteredUserData, auth.currentUser.uid));
-    // }
-  };
-
-  // if (isLoading) {
-  //   return <LoadingOverlay />;
-  // }
-
-  // useEffect to calculate age fomr dob
-
 
   return (
     <ScrollView>
@@ -271,7 +135,7 @@ const ProfileScreen = ({ navigation, route }) => {
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Height
           </Text>
-          <Text style={{ fontSize: 18 }}>{height}</Text>
+          <Text style={{ fontSize: 18 }}>{formatHeight(height)}</Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Weight

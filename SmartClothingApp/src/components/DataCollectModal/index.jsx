@@ -26,6 +26,8 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
   const [selectedUnit, setSelectedUnit] = useState("");
+  const [feet, setFeet] = useState("");
+  const [inches, setInches] = useState("");
 
   const [gender, setGender] = useState("");
   const [date, setDate] = useState(new Date());
@@ -87,6 +89,21 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     setIsSubmitting(false);
   };
 
+  const handleHeightChange = (value) => {
+    if (/^\d*$/.test(value)) {
+      setHeight(value);
+    }
+  };
+
+  const handleFeetInches = (value, field) => {
+    if (/^\d*$/.test(value) && field === "feet") {
+      setFeet(value);
+    }
+    if (/^\d*$/.test(value) && field === "inches") {
+      setInches(value);
+    }
+  };
+
   useEffect(() => {
     if (date) {
       const age = new Date().getFullYear() - new Date(date).getFullYear();
@@ -96,50 +113,14 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     }
   }, [date]);
 
-  // const handleSignUpWithEmail = () => {
-  //   if (!isValid()) {
-  //     console.log("Invalid user details!");
-  //     return;
-  //   }
-
-  //   setIsSubmitting(true);
-  //   dispatch(
-  //     startSignupWithEmail(
-  //       user.email,
-  //       user.password,
-  //       user.fname,
-  //       user.lname,
-  //       userData
-  //     )
-  //   );
-  // };
-
-  // const isValid = () => {
-  //   let flag = true;
-  //   let errors = error;
-  //   if (user.email.length < 1 || !user.email.includes("@")) {
-  //     errors.email = "Enter valid email!";
-  //     flag = false;
-  //   }
-  //   if (user.password.length < 1) {
-  //     errors.password = "Password cannot be empty!";
-  //     flag = false;
-  //   }
-  //   if (user.password.length < 6) {
-  //     errors.password = "Password length cannot be less than 6!";
-  //     flag = false;
-  //   }
-  //   if (user.fname.length < 1) {
-  //     errors.fname = "Firstname cannot be empty!";
-  //     flag = false;
-  //   }
-  //   if (user.lname.length < 1) {
-  //     errors.lname = "Lastname cannot be empty!";
-  //     flag = false;
-  //   }
-  //   setError({ ...errors });
-  //   return flag;
-  // };
+  useEffect(() => {
+    if (selectedUnit === "ft") {
+      const feetValue = parseInt(feet) || 0;
+      const inchesValue = parseInt(inches) || 0;
+      const totalInches = feetValue * 12 + inchesValue;
+      setHeight(totalInches);
+    }
+  }, [selectedUnit, feet, inches]);
 
   return (
     <View style={styles.container}>
@@ -204,7 +185,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 borderWidth: 1,
                 backgroundColor: "white",
                 fontFamily: "sans-serif",
-                height: 51,
+                height: 50,
                 marginBottom: 12,
               }}
             >
@@ -237,10 +218,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   keyboardType="numeric"
                   inputMode="numeric"
                   style={{ flex: 1.3 }}
-                  onChangeText={(text) => {
-                    setHeight(text);
-                    // handleClearErrors();
-                  }}
+                  onChangeText={handleHeightChange}
                   error={false}
                 />
               )}
@@ -248,27 +226,25 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 <>
                   <TextInput
                     label="feet"
-                    value={height}
+                    value={feet}
                     mode="outlined"
                     keyboardType="numeric"
                     inputMode="numeric"
                     style={{ flex: 1.3 }}
-                    onChangeText={(text) => {
-                      setHeight(text);
-                      // handleClearErrors();
+                    onChangeText={(item) => {
+                      handleFeetInches(item, "feet");
                     }}
                     error={false}
                   />
                   <TextInput
                     label="inches"
-                    value={height}
+                    value={inches}
                     mode="outlined"
                     keyboardType="numeric"
                     inputMode="numeric"
                     style={{ flex: 1.3 }}
-                    onChangeText={(text) => {
-                      setHeight(text);
-                      // handleClearErrors();
+                    onChangeText={(item) => {
+                      handleFeetInches(item, "inches");
                     }}
                     error={false}
                   />
