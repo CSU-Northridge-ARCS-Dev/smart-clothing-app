@@ -258,10 +258,8 @@ export const startSnedPasswordReserEmail = (email) => {
     });
 };
 
-export const updateUserEmail = () => {
+export const updateUserEmail = (newEmail) => {
   return (dispatch) => {
-    const newEmail = "buser@example.com"; // Replace with the new email
-
     // Get the current user from Firebase Authentication
     const user = auth.currentUser;
 

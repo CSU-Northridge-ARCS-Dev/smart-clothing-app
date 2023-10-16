@@ -1,20 +1,36 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, StatusBar } from "react-native";
 import { AppHeader } from "../../components";
 import { AppFonts, AppColor, AppStyle } from "../../constants/themes";
 import { useDispatch } from "react-redux";
 
 import { updateUserEmail } from "../../actions/userActions";
+import SettingModal from "../../components/SettingModal/SettingModal";
 
 import SettingsButton from "../../components/UI/SettingsButton";
 
 const SettingsScreen = ({ navigation, route }) => {
   const { previousScreenTitle } = route.params;
+  const [isModalVisible, setModalVisible] = useState(false);
   const dispatch = useDispatch();
+
+  const openModal = () => {
+    setModalVisible(true);
+    StatusBar.setBarStyle("dark-content");
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    StatusBar.setBarStyle("light-content");
+  };
 
   return (
     <View style>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
+      <SettingModal
+        visible={isModalVisible}
+        closeModal={closeModal}
+      ></SettingModal>
       <View style={styles.content}>
         <Text
           style={[
@@ -29,7 +45,8 @@ const SettingsScreen = ({ navigation, route }) => {
       <View style={{ alignItems: "center", gap: 30 }}>
         <SettingsButton
           title="UPDATE EMAIL"
-          onPress={() => dispatch(updateUserEmail())}
+          //onPress={() => dispatch(updateUserEmail())}
+          onPress={() => openModal()}
           description="Change your account email"
         />
         <SettingsButton
