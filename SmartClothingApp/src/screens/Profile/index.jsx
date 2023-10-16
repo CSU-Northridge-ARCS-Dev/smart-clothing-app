@@ -26,7 +26,6 @@ const ProfileScreen = ({ navigation, route }) => {
 
   const dispatch = useDispatch();
   const { previousScreenTitle } = route.params;
-  const [isLoading, setisLoading] = useState(true);
 
   const [isPersonalModalVisible, setPersonalModalVisible] = useState(false);
 
