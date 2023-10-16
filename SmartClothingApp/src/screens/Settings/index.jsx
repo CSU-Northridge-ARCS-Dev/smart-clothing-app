@@ -2,11 +2,15 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { AppHeader } from "../../components";
 import { AppFonts, AppColor, AppStyle } from "../../constants/themes";
+import { useDispatch } from "react-redux";
+
+import { updateUserEmail } from "../../actions/userActions";
 
 import SettingsButton from "../../components/UI/SettingsButton";
 
 const SettingsScreen = ({ navigation, route }) => {
   const { previousScreenTitle } = route.params;
+  const dispatch = useDispatch();
 
   return (
     <View style>
@@ -25,6 +29,7 @@ const SettingsScreen = ({ navigation, route }) => {
       <View style={{ alignItems: "center", gap: 30 }}>
         <SettingsButton
           title="UPDATE EMAIL"
+          onPress={() => dispatch(updateUserEmail())}
           description="Change your account email"
         />
         <SettingsButton

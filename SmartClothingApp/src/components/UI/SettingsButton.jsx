@@ -3,7 +3,10 @@ import { AppStyle } from "../../constants/themes";
 
 const SettingsButton = ({ onPress, title, description }) => {
   return (
-    <TouchableOpacity style={[styles.selectBtn, { justifyContent: "center" }]}>
+    <TouchableOpacity
+      style={[styles.selectBtn, { justifyContent: "center" }]}
+      onPress={onPress}
+    >
       <Text style={[styles.btnText, AppStyle.textPrimary]}>{title}</Text>
       <Text style={[styles.adnText]}>{description}</Text>
     </TouchableOpacity>

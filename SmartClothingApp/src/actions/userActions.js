@@ -17,12 +17,15 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 
+import { updateEmail } from "firebase/auth";
+
 import {
   LOGIN_WITH_EMAIL,
   SIGNUP_WITH_EMAIL,
   LOGOUT,
   UPDATE_PROFILE,
   UPDATE_USER_METRICS_DATA,
+  UPDATE_EMAIL_SUCCESS,
 } from "./types";
 
 import { toastError } from "./toastActions.js";
@@ -97,6 +100,13 @@ export const updateUserMetricsData = (userMetricsData) => {
   return {
     type: UPDATE_USER_METRICS_DATA,
     payload: userMetricsData,
+  };
+};
+
+export const updateEmailData = (newEmail) => {
+  return {
+    type: UPDATE_EMAIL_SUCCESS,
+    payload: newEmail,
   };
 };
 
@@ -246,4 +256,26 @@ export const startSnedPasswordReserEmail = (email) => {
       console.log(error);
       // console.log("###### Error sending password reset email!");
     });
+};
+
+export const updateUserEmail = () => {
+  return (dispatch) => {
+    const newEmail = "buser@example.com"; // Replace with the new email
+
+    // Get the current user from Firebase Authentication
+    const user = auth.currentUser;
+
+    if (user) {
+      updateEmail(user, newEmail)
+        .then(() => {
+          dispatch(updateEmailData(newEmail));
+          console.log("Email updated successfully.");
+        })
+        .catch((error) => {
+          console.error("Email update failure:", error);
+          dispatch(toastError(firebaseErrorsMessages[error.code]));
+          console.log(firebaseErrorsMessages[error.code]);
+        });
+    }
+  };
 };
