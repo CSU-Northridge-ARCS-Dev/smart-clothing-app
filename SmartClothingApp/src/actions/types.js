@@ -4,6 +4,7 @@ export const SIGNUP_WITH_EMAIL = "SIGNUP_WITH_EMAIL";
 export const LOGOUT = "LOGOUT";
 export const UPDATE_PROFILE = "UPDATE_PROFILE";
 export const UPDATE_USER_METRICS_DATA = "UPDATE_USER_METRICS_DATA";
+export const UPDATE_EMAIL_SUCCESS = "UPDATE_EMAIL_SUCCESS";
 
 // Auth
 export const AuthActionTypes = {
@@ -11,6 +12,7 @@ export const AuthActionTypes = {
   SIGNUP_WITH_EMAIL: "SIGNUP_WITH_EMAIL",
   LOGOUT: "LOGOUT",
   UPDATE_PROFILE: "UPDATE_PROFILE",
+  UPDATE_EMAIL_SUCCESS: "UPDATE_EMAIL_SUCCESS",
 };
 
 // Toast
