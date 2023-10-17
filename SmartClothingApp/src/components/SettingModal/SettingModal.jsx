@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Modal } from "react-native";
+import { View, StyleSheet, Modal, KeyboardAvoidingView } from "react-native";
 import { useDispatch } from "react-redux";
 import { updateUserEmail } from "../../actions/userActions";
 
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
+import { AppColor } from "../../constants/themes";
 
 const SettingModal = (props) => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,26 +45,32 @@ const SettingModal = (props) => {
     });
   };
 
+  const handleClear = () => {
+    setEmail("");
+    setConfirm("");
+  };
+
   const handleUpdateEmail = (newEmail) => {
     if (!isValid()) {
       return;
     }
 
     dispatch(updateUserEmail(newEmail));
-    props.closeModal();
+    setSuccess(true);
+    handleClear();
   };
 
   return (
-    <View style={styles.container}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={props.visible}
-        presentationStyle="overFullScreen"
-        statusBarTranslucent={true}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={props.visible}
+      presentationStyle="overFullScreen"
+      statusBarTranslucent={true}
+    >
+      <View style={styles.modalBackground}>
+        <View style={styles.modalContent}>
+          <KeyboardAvoidingView behavior="padding"  keyboardVerticalOffset={50}>
             <Text style={styles.title}>Update Email</Text>
             <View>
               <TextInput
@@ -73,7 +81,7 @@ const SettingModal = (props) => {
                   setEmail(text);
                   handleClearErrors();
                 }}
-                error={error.email.length > 1}
+                error={error.email.length > 1 || error.confirm.length > 1}
               />
               <HelperText type="error" visible={error.email.length > 1}>
                 {error.email}
@@ -92,6 +100,9 @@ const SettingModal = (props) => {
                 {error.confirm}
               </HelperText>
             </View>
+
+            {success && <Text>Success.</Text>}
+
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
@@ -112,11 +123,10 @@ const SettingModal = (props) => {
                 Update
               </Button>
             </View>
-          </View>
-          <View></View>
+          </KeyboardAvoidingView>
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -139,7 +149,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: AppColor.primaryContainer,
     padding: 20,
     borderRadius: 10,
     width: "100%",
@@ -159,6 +169,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     marginHorizontal: 10,
+    backgroundColor: "#fff",
   },
   calendar: {
     borderColor: "gray",
