@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { auth, database } from "../../../firebaseConfig";
 import {
-  updateUserData,
+  startUpdateUserData,
   fetchUserData,
   startUpdateProfile,
 } from "../../actions/userActions";
@@ -149,27 +149,27 @@ const ProfileScreen = ({ navigation, route }) => {
   //   fetchData();
   // }, []);
 
-  const handleSaveProfile = () => {
-    // const filteredUserData = {};
-    // for (const key in userData) {
-    //   if (userData[key] !== "") {
-    //     filteredUserData[key] = userData[key];
-    //   }
-    // }
-    // if (Object.values(filteredUserData).length > 0) {
+  // const handleSaveProfile = () => {
+  //   // const filteredUserData = {};
+  //   // for (const key in userData) {
+  //   //   if (userData[key] !== "") {
+  //   //     filteredUserData[key] = userData[key];
+  //   //   }
+  //   // }
+  //   // if (Object.values(filteredUserData).length > 0) {
 
-    const filteredUserData = { ...userData };
-    delete filteredUserData.fname;
-    delete filteredUserData.lname;
+  //   const filteredUserData = { ...userData };
+  //   delete filteredUserData.fname;
+  //   delete filteredUserData.lname;
 
-    if (!isValid()) {
-      return;
-    }
+  //   if (!isValid()) {
+  //     return;
+  //   }
 
-    dispatch(startUpdateProfile(userData.fname, userData.lname));
-    dispatch(updateUserData(filteredUserData, auth.currentUser.uid));
-    // }
-  };
+  //   dispatch(startUpdateProfile(userData.fname, userData.lname));
+  //   dispatch(startUpdateUserData(filteredUserData, auth.currentUser.uid));
+  //   // }
+  // };
 
   // if (isLoading) {
   //   return <LoadingOverlay />;
@@ -250,7 +250,16 @@ const ProfileScreen = ({ navigation, route }) => {
                 mode="elevated"
                 buttonColor="#1560a4"
                 textColor="white"
-                onPress={() => dispatch(userMetricsDataModalVisible(true))}
+                onPress={() =>
+                  dispatch(userMetricsDataModalVisible(true, false))
+                }
+                currentUserData={{
+                  gender,
+                  age,
+                  height,
+                  weight,
+                  sports,
+                }}
                 style={{ borderRadius: 10 }}
               >
                 EDIT

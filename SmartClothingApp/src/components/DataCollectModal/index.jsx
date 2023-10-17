@@ -25,6 +25,9 @@ import MyDropdown from "../UI/dropdown";
 const DataCollectModal = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
+  const currentUserMetricsData = useSelector(
+    (state) => state.user.userMetricsData
+  );
   const isFromSignupScreen = useSelector(
     (state) => state.app.isFromSignUpScreen
   );
@@ -106,6 +109,34 @@ const DataCollectModal = (props) => {
       setAge(age);
     }
   }, [date]);
+
+  // if this not is from signup screen, then display current user data
+  // useEffect(() => {
+  //   if (!isFromSignupScreen) {
+  //     if (userData) {
+  //       setGender(userData.gender);
+  //       setDate(userData.dob);
+  //       setHeight(userData.height);
+  //       setWeight(userData.weight);
+  //       // setSports(userData.sports)
+  //     }
+  //   }
+  // }, []);
+
+  // runs this function everytime the modal is opened
+  useEffect(() => {
+    if (
+      visible &&
+      currentUserMetricsData.gender != "No Data" &&
+      !isFromSignupScreen
+    ) {
+      setGender(currentUserMetricsData.gender);
+      setDate(currentUserMetricsData.dob);
+      setHeight(currentUserMetricsData.height);
+      setWeight(currentUserMetricsData.weight);
+      setSports(currentUserMetricsData.sports);
+    }
+  }, [visible]);
 
   // const handleSignUpWithEmail = () => {
   //   if (!isValid()) {
@@ -242,7 +273,7 @@ const DataCollectModal = (props) => {
               </Text>
               <SafeAreaView>
                 <Button onPress={showDatePicker}>
-                  {date.toLocaleDateString()}
+                  {date ? date.toLocaleDateString() : "No Data"}
                 </Button>
               </SafeAreaView>
             </View>
