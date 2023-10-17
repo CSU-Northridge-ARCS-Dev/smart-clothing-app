@@ -306,7 +306,7 @@ const DataCollectModal = (props) => {
               style={styles.input}
               onChangeText={(text) => {
                 setWeight(text);
-                handleClearErrors();
+                //handleClearErrors();
               }}
               error={false}
             />
