@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   AccessibilityScreen,
@@ -40,8 +41,8 @@ const MainTabNavigator = () => {
       }}
     >
       <Tab.Screen
-        name="HomeTab"
-        component={HomeNavigationStack}
+        name="Home"
+        component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <>
@@ -56,8 +57,8 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="HealthTab"
-        component={HealthNavigationStack}
+        name="Health"
+        component={ViewHealthData}
         options={{
           tabBarIcon: ({ focused }) => (
             <>
@@ -72,8 +73,8 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="DeviceTab"
-        component={DevicesNavigationStack}
+        name="Device"
+        component={MyDevices}
         options={{
           tabBarIcon: ({ focused }) => (
             <>
@@ -97,11 +98,7 @@ const HomeNavigationStack = () => {
       initialRouteName="Home"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Insights" component={ViewInsights} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
     </Stack.Navigator>
   );
 };
@@ -149,6 +146,21 @@ const InsightsNavigationStack = () => {
   );
 };
 
+const AllNavigationStack = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="Home"
+    >
+      <Stack.Screen name="Main" component={MainTabNavigator} />
+      <Stack.Screen name="Insights" component={ViewInsights} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
+    </Stack.Navigator>
+  );
+};
+
 const styles = StyleSheet.create({
   label: {
     fontFamily: AppFonts.poppinsBold,
@@ -158,4 +170,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MainTabNavigator;
+export default AllNavigationStack;

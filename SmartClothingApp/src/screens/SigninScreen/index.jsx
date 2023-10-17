@@ -7,10 +7,7 @@ import { AppColor, AppStyle } from "../../constants/themes";
 import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 
 import { useSelector, useDispatch } from "react-redux";
-import {
-  startLoginWithEmail,
-  setAuthError,
-} from "../../actions/userActions.js";
+import { startLoginWithEmail } from "../../actions/userActions.js";
 
 // SigninScreen functional component that receives a 'navigation' prop as an argument
 const SigninScreen = ({ navigation }) => {
@@ -20,7 +17,6 @@ const SigninScreen = ({ navigation }) => {
   //    isSubmitting is boolean used to track whether or not a form submission is in progress 
   //    setIsSubmitting a function used to update isSubmitting state.
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.user.authError);
   const [isSubmitting, setIsSubmitting] = useState(true);
 
   //    user holds the user's email and password 
@@ -43,8 +39,6 @@ const SigninScreen = ({ navigation }) => {
     });
 
     setIsSubmitting(false);
-
-    authError && dispatch(setAuthError(null));
   };
 
   // handleSignInWithEmail is a function that handles signing in process
@@ -98,7 +92,7 @@ const SigninScreen = ({ navigation }) => {
   };
 
 
-  if (firebaseErrorMessages.hasOwnProperty(authError)) {
+  if (firebaseErrorMessages.hasOwnProperty("authError")) {
     const errorMessage = firebaseErrorMessages[authError];
 
     Alert.alert("Authentication Error", errorMessage);
@@ -155,13 +149,6 @@ const SigninScreen = ({ navigation }) => {
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
             Forgot your Username/Password ?
           </Button>
-        </View>
-        <View>
-          {authError && (
-            <HelperText type="error" visible={authError}>
-              {authError}
-            </HelperText>
-          )}
         </View>
       </View>
       <View style={styles.btnContainer}>
