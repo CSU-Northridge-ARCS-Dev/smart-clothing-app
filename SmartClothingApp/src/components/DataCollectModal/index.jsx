@@ -29,6 +29,8 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   const [selectedWeight, setSelectedWeight] = useState("");
   const [feet, setFeet] = useState("");
   const [inches, setInches] = useState("");
+  const [cent, setCent] = useState("");
+  const [kilograms, setKilograms] = useState("");
 
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState(new Date());
@@ -62,6 +64,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     weight: "",
     feet: "",
     inches: "",
+    cent: "",
   });
 
   const isValid = () => {
@@ -91,8 +94,8 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
       errors.weight = "Only numbers allowed.";
       flag = false;
     }
-    if (!integerRegex.test(height)) {
-      errors.height = "Only numbers allowed.";
+    if (!integerRegex.test(cent)) {
+      errors.cent = "Only numbers allowed.";
       flag = false;
     }
     if (selectedHeight === "") {
@@ -113,19 +116,19 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
       weight: "",
       feet: "",
       inches: "",
+      cent: "",
     });
     setIsSubmitting(false);
   };
 
-  const kilogramsToPounds = (kilograms) => {
-    var pounds = Math.round(kilograms * 2.20462);
+  const kilogramsToPounds = (value) => {
+    var pounds = Math.round(value * 2.20462);
     return pounds;
   };
 
-  const convertCentToFeet = (values) => {
-    var realFeet = (values * 0.3937) / 12;
-    var inches = Math.round(realFeet * 12);
-    return inches;
+  const poundsToKilograms = (value) => {
+    var kilograms = Math.round(value / 2.20462);
+    return kilograms;
   };
 
   const handleSubmit = () => {
@@ -151,8 +154,30 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
       const inchesValue = parseInt(inches) || 0;
       const totalInches = feetValue * 12 + inchesValue;
       setHeight(totalInches);
+      const centValue = Math.round(totalInches * 2.54);
+      setCent(centValue);
+    } else if (selectedHeight === "cm") {
+      const centValue = parseInt(cent) || 0;
+      const totalInches = Math.round(centValue / 2.54);
+      setHeight(totalInches);
+      const feetValue = Math.floor(totalInches / 12);
+      const inchesValue = totalInches % 12;
+      setFeet(feetValue);
+      setInches(inchesValue);
     }
-  }, [selectedHeight, feet, inches]);
+  }, [selectedHeight, feet, inches, cent]);
+
+  useEffect(() => {
+    if (selectedWeight === "lbs") {
+      const weightValue = parseInt(weight) || 0;
+      setWeight(weightValue);
+      const kilogramValue = poundsToKilograms(weight);
+      setKilograms(kilogramValue);
+    } else if (selectedWeight === "kg") {
+      const weightValue = kilogramsToPounds(kilograms);
+      setWeight(weightValue);
+    }
+  }, [selectedWeight, weight, kilograms]);
 
   return (
     <View style={styles.container}>
@@ -245,19 +270,16 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               {selectedHeight !== "ft" && (
                 <TextInput
                   label="Height"
-                  value={height}
+                  value={cent?.toString()}
                   mode="outlined"
                   keyboardType="numeric"
                   inputMode="numeric"
                   style={{ flex: 1 }}
                   onChangeText={(item) => {
-                    if (isValid()) {
-                      item = convertCentToFeet(item);
-                    }
-                    setHeight(item);
+                    setCent(item);
                     handleClearErrors();
                   }}
-                  error={error.height.length > 1}
+                  error={error.cent.length > 1}
                 />
               )}
               {selectedHeight === "ft" && (
@@ -265,7 +287,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   <View style={{ flex: 1 }}>
                     <TextInput
                       label="feet"
-                      value={feet}
+                      value={feet?.toString()}
                       mode="outlined"
                       keyboardType="numeric"
                       inputMode="numeric"
@@ -276,10 +298,11 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                       error={error.feet.length > 1}
                     />
                   </View>
+
                   <View style={{ flex: 1 }}>
                     <TextInput
                       label="inches"
-                      value={inches}
+                      value={inches?.toString()}
                       mode="outlined"
                       keyboardType="numeric"
                       inputMode="numeric"
@@ -334,22 +357,36 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 },
               ]}
             >
-              <TextInput
-                label="Weight"
-                value={weight}
-                mode="outlined"
-                keyboardType="numeric"
-                inputMode="numeric"
-                style={{ flex: 1 }}
-                onChangeText={(item) => {
-                  if (selectedWeight === "kg" && isValid()) {
-                    item = kilogramsToPounds(item);
-                  }
-                  setWeight(item);
-                  handleClearErrors();
-                }}
-                error={error.weight.length > 1}
-              />
+              {selectedWeight !== "kg" && (
+                <TextInput
+                  label="Weight"
+                  value={weight?.toString()}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  inputMode="numeric"
+                  style={{ flex: 1 }}
+                  onChangeText={(item) => {
+                    setWeight(item);
+                    handleClearErrors();
+                  }}
+                  error={error.weight.length > 1}
+                />
+              )}
+              {selectedWeight === "kg" && (
+                <TextInput
+                  label="Weight"
+                  value={kilograms?.toString()}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  inputMode="numeric"
+                  style={{ flex: 1 }}
+                  onChangeText={(item) => {
+                    setKilograms(item);
+                    handleClearErrors();
+                  }}
+                  error={error.weight.length > 1}
+                />
+              )}
               <MyDropdown
                 data={[
                   { label: "LB", value: "lbs" },
@@ -360,7 +397,6 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 placeholder={"unit"}
                 onChange={(item) => {
                   setSelectedWeight(item.value);
-                  setWeight("");
                 }}
               />
             </View>

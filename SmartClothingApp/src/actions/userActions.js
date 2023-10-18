@@ -138,8 +138,8 @@ export const startLoadUserData = () => {
       } else {
         console.log("User data doesn't exist in the database!");
         const defaultUserData = {
-          height: 0,
-          weight: 0,
+          height: "",
+          weight: "",
           dob: new Date(),
           gender: "",
           sports: "",
