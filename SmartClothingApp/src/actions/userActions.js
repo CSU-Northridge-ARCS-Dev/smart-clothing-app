@@ -122,6 +122,7 @@ export const startLoadUserData = () => {
       // console.log(auth.currentUser.uid)
       const userDocRef = doc(database, "Users", auth.currentUser.uid);
       console.log("doc works")
+      console.log("uid: " + auth.currentUser.uid)
       const userDoc = await getDoc(userDocRef);
       console.log("getDoc works")
       console.log(userDoc)

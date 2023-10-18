@@ -1,24 +1,20 @@
 jest.useFakeTimers()
 
-import React from 'react';
-//import { auth } from '../../firebaseConfig.js';
-import { auth } from '../firebaseConfig.js';
-import { render, fireEvent } from '@testing-library/react-native';
+import React, {useState} from 'react';
+import { render } from '@testing-library/react-native';
+import {fireEvent } from '@testing-library/react-native';
 import { act } from 'react-test-renderer';
-import { Provider } from 'react-redux'; 
 import { getByText, getByProps, waitFor } from '@testing-library/react-native';
-import { NavigationContainer } from '@react-navigation/native'; // Import NavigationContainer
-import { createStackNavigator } from '@react-navigation/stack'; // Import StackNavigator
-import SigninScreen from '../src/screens/SigninScreen/index.jsx'; // Import the component to be tested
-import HomeScreen from '../src/screens/HomeScreen/index.jsx';
-import { startLoginWithEmail } from '../src/actions/userActions.js'; 
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack'; 
 import configureStore from '../src/store.js';
+import rootReducer from '../src/store'; 
+import AppRouter from '../src/navigation/index.js';
+import {Provider as StoreProvider } from 'react-redux'; 
+import {PaperProvider}  from "react-native-paper";
 
-import configureMockStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 
-const middlewares = [thunk];
-const mockStore = configureMockStore(middlewares);
+
 
 // Mock Firebase Authentication
 jest.mock('../firebaseConfig.js', () => ({
@@ -29,12 +25,17 @@ jest.mock('../firebaseConfig.js', () => ({
     startUpdateUserData: jest.fn(() => Promise.resolve()),
     updateUserMetricsData: jest.fn(() => Promise.resolve()),
     currentUser: {
-      uid: null,
+      uid: {
+        "email": "test1@gmail.com", 
+        "firstName": "MisterTest",
+        "lastName": "Johnson", 
+        "uuid": "nvQpwMHj7eUKfsyEhVloGM7hvji2"
+        //uuid: null
+      },
       email: 'test1@gmail.com',
       password: 'password123'
     },
   },
-  //database:
 }));
 
 jest.mock('firebase/auth', () => ({
@@ -44,13 +45,13 @@ jest.mock('firebase/auth', () => ({
   getDatabase: jest.fn(),
   signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ 
     user: {
-          uid: null,
+          //uid: null,
+          uid: 'nvQpwMHj7eUKfsyEhVloGM7hvji2',
           email: 'test1@gmail.com',
           password: 'password123'
         } 
       })),
 }))
-
 
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(() => ({ add: jest.fn() })),
@@ -75,33 +76,36 @@ jest.mock('firebase/firestore', () => ({
 // Create a StackNavigator with your Sign-In and Dashboard screens
 const Stack = createStackNavigator();
 
-// A test component that includes navigation
-const TestComponent = () => (
-  <NavigationContainer>
-    <Stack.Navigator initialRouteName="SignIn">
-      <Stack.Screen name="SignIn" component={SigninScreen} />
-      <Stack.Screen name="Dashboard" component={HomeScreen} />
-    </Stack.Navigator>
-  </NavigationContainer>
-);
+// Create Test Component - Mimics App.js - no navigation, instead uses AuthStack to go between sign-in page and home-screen
+function TestComponent() {
+  return (
+    <NavigationContainer>
+      <AppRouter />
+    </NavigationContainer>
+  );
+}
 
 
 describe('MyComponent Integration Test', () => {
   it('should navigate from Sign-In to Dashboard', async () => {
 
-    const store = mockStore({});
+    // Configure Redux Store with Combined Reducer
+    const store = configureStore(rootReducer, {
+      user: {
+        "uuid": null
+      },
+    });
 
+    // Wrap TestComponent with Providers and render
     const { getAllByTestId, getByText } = render(
-      <Provider store={store}> {/* Wrap your component with the Redux Provider */}
-        <TestComponent />
-      </Provider>
+      <StoreProvider store={store}>
+        <PaperProvider >
+          <TestComponent />
+        </PaperProvider>
+      </StoreProvider>
     );
 
-    // Interaction code specific to the Sign-In screen
-    // const emailInput =  getByTestId('text-input-outlined', { index: 0 });
-    // const passwordInput =  getByTestId('text-input-outlined', { index: 1 });
-    // const signInButton =  getByTestId('button', { index: 1 });
-
+    // Find Inputs and Buttons 
     const inputFields = getAllByTestId('text-input-outlined');
     const buttons = getAllByTestId('button');
 
@@ -109,20 +113,18 @@ describe('MyComponent Integration Test', () => {
     const passwordInput =  inputFields[1];
     const signInButton =  buttons[1];
 
-    // Simulate user input for email and password
-    // await waitFor(() => {
-    //   emailInput.props.onChangeText('valid-email@gmail.com'); 
-    //   passwordInput.props.onChangeText('password123');
-    // });
-
-    fireEvent.changeText(emailInput, 'test1@gmail.com');
-    fireEvent.changeText(passwordInput, 'password123');
-
+    // Enter credentials and press Sign In Button
+    await act(() => {
+      fireEvent.changeText(emailInput, 'test1@gmail.com');
+    });
+    await act(() => {
+      fireEvent.changeText(passwordInput, 'password123');
+    });
     await act(() => {
       fireEvent.press(signInButton);
     });
 
-    //expect(getByText('Dashboard')).toBeTruthy();
+    // Navigates to Dashboard after successful login
     await waitFor(() => {
       expect(getByText('Dashboard')).toBeTruthy();
     });
