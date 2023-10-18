@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Platform } from "react-native";
 import { Appbar, Menu } from "react-native-paper";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { AppFonts } from "../../constants/themes";
 import { useDispatch } from "react-redux";
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -11,11 +11,18 @@ import PromptModal from "../Dialogs/PromptModal";
 const AppHeader = (props) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const route = useRoute();
   const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
   const [visible, setVisible] = useState(false);
   const [showPrompt, setPrompt] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(null);
+
   const navigate = (screen) => {
-    navigation.navigate(screen);
+    navigation.navigate(screen, {
+      previousScreenTitle: route.name,
+    });
+
     setVisible(false);
   };
   const onPressLogout = (res) => {
@@ -47,9 +54,7 @@ const AppHeader = (props) => {
             }
           >
             <Menu.Item
-              onPress={() => {
-                navigate("Profile");
-              }}
+              onPress={() => navigate("Profile")}
               leadingIcon={() => <Icon name="user" size={18} color="black" />}
               title="Edit Profile"
             />

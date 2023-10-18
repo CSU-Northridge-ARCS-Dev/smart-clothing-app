@@ -5,17 +5,15 @@ import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
 import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
+import Icon from "react-native-vector-icons/FontAwesome5";
 
 import { useSelector, useDispatch } from "react-redux";
-import {
-  startLoginWithEmail,
-  setAuthError,
-} from "../../actions/userActions.js";
+import { startLoginWithEmail } from "../../actions/userActions.js";
 
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.user.authError);
   const [isSubmitting, setIsSubmitting] = useState(true);
+  const [lockStatus, setLockStatus] = useState("locked");
 
   const [user, setUser] = useState({
     email: "",
@@ -31,8 +29,6 @@ const SigninScreen = ({ navigation }) => {
     });
 
     setIsSubmitting(false);
-
-    authError && dispatch(setAuthError(null));
   };
 
   const handleSignInWithEmail = () => {
@@ -40,14 +36,21 @@ const SigninScreen = ({ navigation }) => {
       Alert.alert(
         "Authentication Error",
         "Please correct the following errors:\n\n" +
-          (error.email && `${error.email}\n`) +
-          (error.password && `${error.password}`)
+        (error.email && `${error.email}\n`) +
+        (error.password && `${error.password}`)
       );
       return;
     }
 
     setIsSubmitting(true);
     dispatch(startLoginWithEmail(user.email, user.password));
+  };
+
+  // Toggle lock status when the lock icon is pressed
+  const toggleLockStatus = () => {
+    setLockStatus((prevStatus) =>
+      prevStatus === "locked" ? "unlocked" : "locked"
+    );
   };
 
   const [error, setError] = useState({
@@ -77,7 +80,7 @@ const SigninScreen = ({ navigation }) => {
     return flag;
   };
 
-  if (firebaseErrorMessages.hasOwnProperty(authError)) {
+  if (firebaseErrorMessages.hasOwnProperty("authError")) {
     const errorMessage = firebaseErrorMessages[authError];
 
     Alert.alert("Authentication Error", errorMessage);
@@ -99,25 +102,29 @@ const SigninScreen = ({ navigation }) => {
         >
           Welcome back. Login to continue
         </Text>
+
         <View>
-          <TextInput
-            label="Email"
-            value={user.email}
-            mode="outlined"
-            onChangeText={(text) => {
-              setUser({ ...user, email: text });
-              handleClearErrors();
-            }}
-            error={error.email.length > 1}
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              label="Email"
+              value={user.email}
+              mode="outlined"
+              onChangeText={(text) => {
+                setUser({ ...user, email: text });
+                handleClearErrors();
+              }}
+              error={error.email.length > 1}
+            />
+          </View>
           <HelperText type="error" visible={error.email.length > 1}>
             Email is invalid!
           </HelperText>
         </View>
-        <View>
+
+        <View style={styles.inputContainer}>
           <TextInput
             label="Password"
-            secureTextEntry
+            secureTextEntry={lockStatus === "locked"} 
             value={user.password}
             mode="outlined"
             onChangeText={(text) => {
@@ -125,22 +132,21 @@ const SigninScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={error.password.length > 1}
+            style={styles.textInput}
           />
-          <HelperText type="error" visible={error.password.length > 1}>
-            {error.password}
-          </HelperText>
+          <Icon
+            name={lockStatus === "locked" ? "lock" : "unlock-alt"}
+            size={25} 
+            color="black"
+            style={styles.icon}
+            onPress={toggleLockStatus}
+          />
         </View>
+
         <View style={styles.checkbox}>
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
             Forgot your Username/Password ?
           </Button>
-        </View>
-        <View>
-          {authError && (
-            <HelperText type="error" visible={authError}>
-              {authError}
-            </HelperText>
-          )}
         </View>
       </View>
       <View style={styles.btnContainer}>
@@ -173,6 +179,12 @@ const styles = StyleSheet.create({
   btnContainer: {
     marginVertical: 10,
     flexDirection: "row",
+  },
+  icon: {
+    position: "absolute",
+    right: 10,
+    top: 16, 
+    transform: [{ translateY: 0 }], 
   },
 });
 

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import {
   Button,
@@ -13,17 +15,13 @@ import { HeroSection } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { useSelector, useDispatch } from "react-redux";
-import {
-  startSignupWithEmail,
-  setAuthError,
-} from "../../actions/userActions.js";
+import { startSignupWithEmail } from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.user.authError);
-  const [isSubmitting, setIsSubmitting] = useState(true);
 
+  const [isSubmitting, setIsSubmitting] = useState(true);
+  
   const [user, setUser] = useState({
     fname: "",
     lname: "",
@@ -31,6 +29,7 @@ const SignupScreen = ({ navigation }) => {
     password: "",
     repassword: "",
   });
+
   const [error, setError] = useState({
     fname: "",
     lname: "",
@@ -65,7 +64,6 @@ const SignupScreen = ({ navigation }) => {
       repassword: "",
     });
     setIsSubmitting(false);
-    authError && dispatch(setAuthError(null));
   };
 
   const handleSignUpWithEmail = () => {
@@ -84,6 +82,8 @@ const SignupScreen = ({ navigation }) => {
     }
 
     setIsSubmitting(true);
+
+    console.log("User is ...", user);
     dispatch(
       startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
@@ -226,13 +226,6 @@ const SignupScreen = ({ navigation }) => {
             }}
           />
           <Text>User Agreement</Text>
-        </View>
-        <View>
-          {authError && (
-            <HelperText type="error" visible={authError}>
-              {authError}
-            </HelperText>
-          )}
         </View>
         <View style={styles.btnContainer}>
           <Button
