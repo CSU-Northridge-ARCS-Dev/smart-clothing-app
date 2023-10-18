@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Modal, KeyboardAvoidingView } from "react-native";
-import { useDispatch } from "react-redux";
-import { updateUserEmail } from "../../actions/userActions";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUserEmail, reauthenticate } from "../../actions/userActions";
 
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { AppColor } from "../../constants/themes";
 import { toastInfo } from "../../actions/toastActions";
 import AppToast from "../Dialogs/AppToast";
 import PromptModal from "../Dialogs/PromptModal";
-import { reauthenticate } from "../../actions/userActions";
 import { auth } from "../../../firebaseConfig";
 
 const SettingModal = (props) => {
@@ -17,12 +16,14 @@ const SettingModal = (props) => {
   const [confirm, setConfirm] = useState("");
   const [showPrompt, setPrompt] = useState(false);
   const [password, setPassword] = useState("");
+  const reAuth = useSelector((state) => state.user.reAuth);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [error, setError] = useState({
     email: "",
     confirm: "",
+    password: "",
   });
 
   const isValid = () => {
@@ -53,28 +54,27 @@ const SettingModal = (props) => {
     setIsSubmitting(false);
   };
 
-  const onPressLogout = (res) => {
-    setPrompt(false);
-  };
-
   const handleClear = () => {
     setEmail("");
     setConfirm("");
+    setPassword("");
   };
 
-  const handleUpdateEmail = async (newEmail) => {
+  const handleUpdateEmail = async () => {
     if (!isValid()) {
       return;
     }
 
-    setPrompt(true);
-
-    await dispatch(reauthenticate(password));
     setIsSubmitting(true);
+    const reAuthResult = await dispatch(reauthenticate(password));
 
-    await dispatch(updateUserEmail(newEmail));
-    dispatch(toastInfo("Email updated successfully."));
-    handleClear();
+    console.log(reAuthResult);
+
+    if (reAuthResult) {
+      dispatch(updateUserEmail(email));
+      dispatch(toastInfo("Email updated successfully."));
+      handleClear();
+    }
   };
 
   return (
@@ -102,7 +102,7 @@ const SettingModal = (props) => {
           >
             <AppToast />
           </KeyboardAvoidingView>
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={50}>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={80}>
             <Text style={styles.title}>Update Email</Text>
             <View>
               <TextInput
@@ -164,7 +164,7 @@ const SettingModal = (props) => {
                 disabled={isSubmitting}
                 mode="outlined"
                 onPress={() => {
-                  handleUpdateEmail(email);
+                  handleUpdateEmail();
                 }}
                 style={styles.button}
               >

@@ -44,6 +44,7 @@ const userReducer = (state = initialState, action) => {
         lastName: null,
         email: null,
         authError: null,
+        reAuth: null,
       };
     case UPDATE_PROFILE:
       return {

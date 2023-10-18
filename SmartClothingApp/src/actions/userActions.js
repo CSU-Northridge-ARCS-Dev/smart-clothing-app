@@ -259,27 +259,38 @@ export const startSnedPasswordReserEmail = (email) => {
     });
 };
 
-export const reauthenticate = (currentPassword) => {
-  return (dispatch) => {
-    const user = auth.currentUser;
-    const cred = EmailAuthProvider.credential(user.email, currentPassword);
+// export const reauthenticate = (currentPassword) => {
+//   const user = auth.currentUser;
+//   const cred = EmailAuthProvider.credential(user.email, currentPassword);
+//   try {
+//     reauthenticateWithCredential(user, cred);
+//     dispatch(setReauthenticationStatus(true));
+//     console.log("Reauthentication success");
+//   } catch (error) {
+//     dispatch(toastError(firebaseErrorsMessages[error.code]));
+//     dispatch(setReauthenticationStatus(false));
+//   }
+// };
 
-    reauthenticateWithCredential(user, cred)
-      .then(() => {
-        console.log("Reauthentication success");
-        return true;
-      })
-      .catch((error) => {
-        dispatch(toastError(firebaseErrorsMessages[error.code]));
-        return false;
-      });
+export const reauthenticate = (currentPassword) => {
+  return async (dispatch) => {
+    try {
+      const user = auth.currentUser;
+      const cred = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, cred);
+      console.log("Reauthentication success");
+      return true;
+    } catch (error) {
+      dispatch(toastError(firebaseErrorsMessages[error.code]));
+      console.log("Reauthentication failure");
+      return false;
+    }
   };
 };
 
 export const updateUserEmail = (newEmail) => {
   return (dispatch) => {
     const user = auth.currentUser;
-
     if (user) {
       updateEmail(user, newEmail)
         .then(() => {
@@ -288,7 +299,7 @@ export const updateUserEmail = (newEmail) => {
         })
         .catch((error) => {
           dispatch(toastError(firebaseErrorsMessages[error.code]));
-          console.log(firebaseErrorsMessages[error.code]);
+          return false;
         });
     }
   };
