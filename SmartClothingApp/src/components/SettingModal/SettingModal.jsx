@@ -5,12 +5,18 @@ import { updateUserEmail } from "../../actions/userActions";
 
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { AppColor } from "../../constants/themes";
+import { toastInfo } from "../../actions/toastActions";
+import AppToast from "../Dialogs/AppToast";
+import PromptModal from "../Dialogs/PromptModal";
+import { reauthenticate } from "../../actions/userActions";
+import { auth } from "../../../firebaseConfig";
 
 const SettingModal = (props) => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [showPrompt, setPrompt] = useState(false);
+  const [password, setPassword] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,6 +49,12 @@ const SettingModal = (props) => {
       email: "",
       confirm: "",
     });
+
+    setIsSubmitting(false);
+  };
+
+  const onPressLogout = (res) => {
+    setPrompt(false);
   };
 
   const handleClear = () => {
@@ -50,27 +62,47 @@ const SettingModal = (props) => {
     setConfirm("");
   };
 
-  const handleUpdateEmail = (newEmail) => {
+  const handleUpdateEmail = async (newEmail) => {
     if (!isValid()) {
       return;
     }
 
-    dispatch(updateUserEmail(newEmail));
-    setSuccess(true);
+    setPrompt(true);
+
+    await dispatch(reauthenticate(password));
+    setIsSubmitting(true);
+
+    await dispatch(updateUserEmail(newEmail));
+    dispatch(toastInfo("Email updated successfully."));
     handleClear();
   };
 
   return (
     <Modal
       animationType="slide"
-      transparent={true}
+      transparent={false}
       visible={props.visible}
-      presentationStyle="overFullScreen"
+      presentationStyle="pageSheet"
       statusBarTranslucent={true}
     >
       <View style={styles.modalBackground}>
         <View style={styles.modalContent}>
-          <KeyboardAvoidingView behavior="padding"  keyboardVerticalOffset={50}>
+          {/* <Modal visible={showPrompt} style={styles.modalContainer}>
+            <PromptModal
+              style={{ zIndex: 9999 }}
+              title="Reauthentication"
+              message="Please provide your password"
+              visible={showPrompt}
+              prompt={onPressLogout}
+            />
+          </Modal> */}
+          <KeyboardAvoidingView
+            behavior="padding"
+            style={styles.toastContainer}
+          >
+            <AppToast />
+          </KeyboardAvoidingView>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={50}>
             <Text style={styles.title}>Update Email</Text>
             <View>
               <TextInput
@@ -86,6 +118,8 @@ const SettingModal = (props) => {
               <HelperText type="error" visible={error.email.length > 1}>
                 {error.email}
               </HelperText>
+            </View>
+            <View>
               <TextInput
                 label="Confirm Email"
                 value={confirm}
@@ -100,9 +134,22 @@ const SettingModal = (props) => {
                 {error.confirm}
               </HelperText>
             </View>
-
-            {success && <Text>Success.</Text>}
-
+            <View>
+              <TextInput
+                label="Password"
+                secureTextEntry
+                value={password}
+                mode="outlined"
+                onChangeText={(text) => {
+                  setPassword(text);
+                  handleClearErrors();
+                }}
+                error={false}
+              />
+              {/* <HelperText type="error" visible={error.password.length > 1}>
+                {error.password}
+              </HelperText> */}
+            </View>
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
@@ -114,6 +161,7 @@ const SettingModal = (props) => {
                 Cancel
               </Button>
               <Button
+                disabled={isSubmitting}
                 mode="outlined"
                 onPress={() => {
                   handleUpdateEmail(email);
@@ -141,6 +189,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 1,
   },
   modalBackground: {
     flex: 1,
@@ -176,6 +225,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     backgroundColor: "white",
     fontFamily: "sans-serif",
+  },
+  toastContainer: {
+    position: "absolute",
+    bottom: 20, // Adjust the positioning as needed
+    left: 0,
+    right: 0,
+    zIndex: 999, // Ensure the toast appears over the modal
+  },
+  modalContainer: {
+    backgroundColor: AppColor.primaryContainer,
+    padding: 20,
+    borderRadius: 10,
+    width: "50%",
+    height: "50%",
+    alignSelf: "center",
+    elevation: 5,
+    justifyContent: "center",
   },
 });
 

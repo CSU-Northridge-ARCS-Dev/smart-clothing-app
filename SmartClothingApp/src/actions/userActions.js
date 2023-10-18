@@ -15,9 +15,10 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
   sendPasswordResetEmail,
+  updateEmail,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
 } from "firebase/auth";
-
-import { updateEmail } from "firebase/auth";
 
 import {
   LOGIN_WITH_EMAIL,
@@ -258,19 +259,34 @@ export const startSnedPasswordReserEmail = (email) => {
     });
 };
 
+export const reauthenticate = (currentPassword) => {
+  return (dispatch) => {
+    const user = auth.currentUser;
+    const cred = EmailAuthProvider.credential(user.email, currentPassword);
+
+    reauthenticateWithCredential(user, cred)
+      .then(() => {
+        console.log("Reauthentication success");
+        return true;
+      })
+      .catch((error) => {
+        dispatch(toastError(firebaseErrorsMessages[error.code]));
+        return false;
+      });
+  };
+};
+
 export const updateUserEmail = (newEmail) => {
   return (dispatch) => {
-    // Get the current user from Firebase Authentication
     const user = auth.currentUser;
 
     if (user) {
       updateEmail(user, newEmail)
         .then(() => {
           dispatch(updateEmailData(newEmail));
-          console.log("Email updated successfully.");
+          console.log("Email update success.");
         })
         .catch((error) => {
-          console.error("Email update failure:", error);
           dispatch(toastError(firebaseErrorsMessages[error.code]));
           console.log(firebaseErrorsMessages[error.code]);
         });
