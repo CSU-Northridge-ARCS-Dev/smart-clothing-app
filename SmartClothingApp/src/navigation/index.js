@@ -12,7 +12,7 @@ const AppRouter = () => {
   useEffect(() => {
     dispatch(toastInfo("from AuthStack --> UUID is ... " + uuid));
   }, []);
-
+  console.log(uuid);
   return uuid ? <MainTabNavigator /> : <AuthStack />;
   // return true ? <MainTabNavigator /> : <AuthStack />;
 };
