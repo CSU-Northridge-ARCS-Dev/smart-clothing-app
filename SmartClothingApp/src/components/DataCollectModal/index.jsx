@@ -32,8 +32,8 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
 
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState(new Date());
-  const [height, setHeight] = useState(0);
-  const [weight, setWeight] = useState(0);
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
   const [sports, setSports] = useState("");
 
   const onChange = (event, selectedDate) => {
@@ -95,6 +95,14 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
       errors.height = "Only numbers allowed.";
       flag = false;
     }
+    if (selectedHeight === "") {
+      errors.height = "Select a unit.";
+      flag = false;
+    }
+    if (selectedWeight === "") {
+      errors.weight = "Select a unit.";
+      flag = false;
+    }
     setError({ ...errors });
     return flag;
   };
@@ -110,7 +118,8 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
   };
 
   const kilogramsToPounds = (kilograms) => {
-    return Math.round(kilograms * 2.20462);
+    var pounds = Math.round(kilograms * 2.20462);
+    return pounds;
   };
 
   const convertCentToFeet = (values) => {
@@ -336,7 +345,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                   if (selectedWeight === "kg" && isValid()) {
                     item = kilogramsToPounds(item);
                   }
-                  setWeight(item === "" ? 0 : parseFloat(item));
+                  setWeight(item);
                   handleClearErrors();
                 }}
                 error={error.weight.length > 1}
@@ -351,6 +360,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 placeholder={"unit"}
                 onChange={(item) => {
                   setSelectedWeight(item.value);
+                  setWeight("");
                 }}
               />
             </View>
