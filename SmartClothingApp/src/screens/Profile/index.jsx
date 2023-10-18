@@ -20,6 +20,8 @@ const ProfileScreen = ({ navigation, route }) => {
   const { gender, dob, height, weight, sports } = useSelector(
     (state) => state.user.userMetricsData
   );
+  console.log(dob);
+  let dobDate = dob;
 
   const { firstName, lastName } = useSelector((state) => state.user);
   const [age, setAge] = useState("");
@@ -47,7 +49,10 @@ const ProfileScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (dob) {
-      let dobDate = dob.toDate();
+      if (dob.seconds !== undefined && dob.nanoseconds !== undefined) {
+        console.log("boombayah");
+        dobDate = dob.toDate();
+      }
       const age = new Date().getFullYear() - new Date(dobDate).getFullYear();
       console.log("calculated age = ", age);
       setAge(age);

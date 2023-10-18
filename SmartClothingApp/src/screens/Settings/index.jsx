@@ -5,32 +5,43 @@ import { AppFonts, AppColor, AppStyle } from "../../constants/themes";
 import { useDispatch } from "react-redux";
 
 import { updateUserEmail } from "../../actions/userActions";
-import SettingModal from "../../components/SettingModal/SettingModal";
+import UpdateEmailModal from "../../components/UpdateEmailModal/UpdateEmailModal";
+import DeleteAccountModal from "../../components/DeleteAccountModal/DeleteAccountModal";
 
 import SettingsButton from "../../components/UI/SettingsButton";
 
 const SettingsScreen = ({ navigation, route }) => {
   const { previousScreenTitle } = route.params;
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setModalVisible] = useState({
+    modal1: false,
+    modal2: false,
+    modal3: false,
+    modal4: false,
+  });
   const dispatch = useDispatch();
 
-  const openModal = () => {
-    setModalVisible(true);
+  const openModal = (modal) => {
+    setModalVisible({ ...isModalVisible, [modal]: true });
     StatusBar.setBarStyle("dark-content");
   };
 
-  const closeModal = () => {
-    setModalVisible(false);
+  const closeModal = (modal) => {
+    setModalVisible({ ...isModalVisible, [modal]: false });
     StatusBar.setBarStyle("light-content");
   };
 
   return (
     <View style>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
-      <SettingModal
-        visible={isModalVisible}
-        closeModal={closeModal}
-      ></SettingModal>
+      <UpdateEmailModal
+        visible={isModalVisible.modal1}
+        closeModal={() => closeModal("modal1")}
+      ></UpdateEmailModal>
+      <DeleteAccountModal
+        visible={isModalVisible.modal4}
+        closeModal={() => closeModal("modal4")}
+      ></DeleteAccountModal>
+
       <View style={styles.content}>
         <Text
           style={[
@@ -45,8 +56,7 @@ const SettingsScreen = ({ navigation, route }) => {
       <View style={{ alignItems: "center", gap: 30 }}>
         <SettingsButton
           title="UPDATE EMAIL"
-          //onPress={() => dispatch(updateUserEmail())}
-          onPress={() => openModal()}
+          onPress={() => openModal("modal1")}
           description="Change your account email"
         />
         <SettingsButton
@@ -59,6 +69,7 @@ const SettingsScreen = ({ navigation, route }) => {
         />
         <SettingsButton
           title="DELETE ACCOUNT"
+          onPress={() => openModal("modal4")}
           description="Permanently delete your account"
         />
       </View>

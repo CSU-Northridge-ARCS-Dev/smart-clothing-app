@@ -10,13 +10,12 @@ import AppToast from "../Dialogs/AppToast";
 import PromptModal from "../Dialogs/PromptModal";
 import { auth } from "../../../firebaseConfig";
 
-const SettingModal = (props) => {
+const DeleteAccountModal = (props) => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPrompt, setPrompt] = useState(false);
   const [password, setPassword] = useState("");
-  const reAuth = useSelector((state) => state.user.reAuth);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -68,8 +67,6 @@ const SettingModal = (props) => {
     setIsSubmitting(true);
     const reAuthResult = await dispatch(reauthenticate(password));
 
-    console.log(reAuthResult);
-
     if (reAuthResult) {
       dispatch(updateUserEmail(email));
       dispatch(toastInfo("Email updated successfully."));
@@ -103,52 +100,12 @@ const SettingModal = (props) => {
             <AppToast />
           </KeyboardAvoidingView>
           <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={80}>
-            <Text style={styles.title}>Update Email</Text>
+            <Text style={styles.title}>Account Deletion</Text>
             <View>
-              <TextInput
-                label="New Email"
-                value={email}
-                mode="outlined"
-                onChangeText={(text) => {
-                  setEmail(text);
-                  handleClearErrors();
-                }}
-                error={error.email.length > 1 || error.confirm.length > 1}
-              />
-              <HelperText type="error" visible={error.email.length > 1}>
-                {error.email}
-              </HelperText>
-            </View>
-            <View>
-              <TextInput
-                label="Confirm Email"
-                value={confirm}
-                mode="outlined"
-                onChangeText={(text) => {
-                  setConfirm(text);
-                  handleClearErrors();
-                }}
-                error={error.confirm.length > 1}
-              />
-              <HelperText type="error" visible={error.confirm.length > 1}>
-                {error.confirm}
-              </HelperText>
-            </View>
-            <View>
-              <TextInput
-                label="Password"
-                secureTextEntry
-                value={password}
-                mode="outlined"
-                onChangeText={(text) => {
-                  setPassword(text);
-                  handleClearErrors();
-                }}
-                error={false}
-              />
-              {/* <HelperText type="error" visible={error.password.length > 1}>
-                {error.password}
-              </HelperText> */}
+              <Text style={styles.textContainer}>
+                Are you sure you want to delete your account? Once you delete
+                your account, you cannot recover it.
+              </Text>
             </View>
             <View style={styles.btnContainer}>
               <Button
@@ -158,17 +115,16 @@ const SettingModal = (props) => {
                 }}
                 style={styles.button}
               >
-                Cancel
+                Yes
               </Button>
               <Button
-                disabled={isSubmitting}
                 mode="outlined"
                 onPress={() => {
-                  handleUpdateEmail();
+                  props.closeModal();
                 }}
                 style={styles.button}
               >
-                Update
+                No
               </Button>
             </View>
           </KeyboardAvoidingView>
@@ -243,6 +199,12 @@ const styles = StyleSheet.create({
     elevation: 5,
     justifyContent: "center",
   },
+  textContainer: {
+    backgroundColor: AppColor.primary,
+    color: "white",
+    fontSize: 17,
+    elevation: 5,
+  },
 });
 
-export default SettingModal;
+export default DeleteAccountModal;
