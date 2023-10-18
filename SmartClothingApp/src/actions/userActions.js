@@ -117,11 +117,19 @@ export const startUpdateUserData = (userData) => {
 export const startLoadUserData = () => {
   return async (dispatch) => {
     try {
+      console.log("startLoadUserData - START")
+      // console.log(database)
+      // console.log(auth.currentUser.uid)
       const userDocRef = doc(database, "Users", auth.currentUser.uid);
+      console.log("doc works")
       const userDoc = await getDoc(userDocRef);
+      console.log("getDoc works")
+      console.log(userDoc)
 
       if (userDoc.exists()) {
+        console.log("userDoc exists")
         const userDataFromFirebase = userDoc.data();
+        console.log("useDoc.data() works")
         dispatch(updateUserMetricsData(userDataFromFirebase));
         console.log("User data loaded from database successfully!");
       } else {
@@ -196,12 +204,14 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
 };
 
 export const startLoginWithEmail = (email, password) => {
+  console.log(email)
+  console.log(password)
   return (dispatch) => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        // console.log("Logged in successfully!");
-        // console.log(user);
+        console.log("Logged in successfully!");
+        console.log(user);
 
         // load the user data from the database
         dispatch(startLoadUserData());
