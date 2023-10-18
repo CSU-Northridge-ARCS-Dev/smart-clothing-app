@@ -1,4 +1,4 @@
-jest.useFakeTimers()
+//jest.useFakeTimers()
 
 import React from 'react';
 import { Alert } from 'react-native';

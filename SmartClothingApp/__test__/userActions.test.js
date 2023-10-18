@@ -21,6 +21,15 @@ jest.mock('firebase/auth', () => ({
   sendPasswordResetEmail: jest.fn(),
 }))
 
+jest.mock('firebase/firestore', () => ({
+  collection: jest.fn(),
+  addDoc: jest.fn(),
+  setDoc: jest.fn(),
+  doc: jest.fn(),
+  updateDoc: jest.fn(),
+  getDoc: jest.fn(),
+}))
+
 
 describe('Async Auth Actions', () => {
   it('dispatches LOGOUT action when startLogout is called', async () => {

@@ -30,6 +30,16 @@ jest.mock('firebase/auth', () => ({
   getDatabase: jest.fn(),
 }))
 
+jest.mock('firebase/firestore', () => ({
+  collection: jest.fn(),
+  addDoc: jest.fn(),
+  setDoc: jest.fn(),
+  doc: jest.fn(),
+  updateDoc: jest.fn(),
+  getDoc: jest.fn(),
+}))
+
+
 
 // Create a StackNavigator with your Sign-In and Dashboard screens
 const Stack = createStackNavigator();
