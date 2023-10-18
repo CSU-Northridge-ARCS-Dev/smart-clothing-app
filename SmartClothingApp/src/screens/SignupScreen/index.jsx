@@ -151,7 +151,7 @@ const SignupScreen = ({ navigation }) => {
             error={error.fname.length > 1}
           />
           <HelperText type="error" visible={error.fname.length > 1}>
-            Please enter Firstname!
+            Please enter first name.
           </HelperText>
         </View>
         <View>
@@ -166,7 +166,7 @@ const SignupScreen = ({ navigation }) => {
             error={error.lname.length > 1}
           />
           <HelperText type="error" visible={error.lname.length > 1}>
-            Please enter Lastname!
+            Please enter last name.
           </HelperText>
         </View>
         <View>
@@ -181,7 +181,7 @@ const SignupScreen = ({ navigation }) => {
             error={error.email.length > 1}
           />
           <HelperText type="error" visible={error.email.length > 1}>
-            Please enter Valid Email!
+            Please enter a valid email.
           </HelperText>
         </View>
         <View>
@@ -198,11 +198,7 @@ const SignupScreen = ({ navigation }) => {
               error.password.length > 1 || user.password != user.repassword
             }
           />
-          <HelperText
-            type="error"
-            visible={error.password.length > 1}
-            testID="passwordError"
-          >
+          <HelperText type="error" visible={error.password.length > 1}>
             {error.password}
           </HelperText>
         </View>
@@ -219,7 +215,7 @@ const SignupScreen = ({ navigation }) => {
             error={user.password != user.repassword}
           />
           <HelperText type="error" visible={user.password != user.repassword}>
-            Passwords do not Match!
+            Passwords do not match.
           </HelperText>
         </View>
         <View style={styles.checkbox}>
@@ -230,13 +226,6 @@ const SignupScreen = ({ navigation }) => {
             }}
           />
           <Text>User Agreement</Text>
-        </View>
-        <View>
-          {authError && (
-            <HelperText type="error" visible={authError}>
-              {authError}
-            </HelperText>
-          )}
         </View>
         <View style={styles.btnContainer}>
           <Button
