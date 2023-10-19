@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, ScrollView, Alert, Modal, TouchableOpacity } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
   Checkbox,
