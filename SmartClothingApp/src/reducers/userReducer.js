@@ -2,8 +2,8 @@ import {
   LOGIN_WITH_EMAIL,
   SIGNUP_WITH_EMAIL,
   LOGOUT,
-  AUTH_ERROR,
   UPDATE_PROFILE,
+  UPDATE_USER_METRICS_DATA,
 } from "../actions/types";
 
 const initialState = {
@@ -12,6 +12,7 @@ const initialState = {
   lastName: null,
   email: null,
   authError: null,
+  userMetricsData: null,
 };
 
 const userReducer = (state = initialState, action) => {
@@ -43,16 +44,16 @@ const userReducer = (state = initialState, action) => {
         email: null,
         authError: null,
       };
-    case AUTH_ERROR:
-      return {
-        ...state,
-        authError: action.payload,
-      };
     case UPDATE_PROFILE:
       return {
         ...state,
         firstName: action.payload[0],
         lastName: action.payload[1],
+      };
+    case UPDATE_USER_METRICS_DATA:
+      return {
+        ...state,
+        userMetricsData: action.payload,
       };
     default:
       return state;
