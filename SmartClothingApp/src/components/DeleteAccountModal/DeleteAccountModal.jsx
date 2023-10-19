@@ -9,7 +9,7 @@ import { toastInfo } from "../../actions/toastActions";
 import AppToast from "../Dialogs/AppToast";
 import PromptModal from "../Dialogs/PromptModal";
 import { auth } from "../../../firebaseConfig";
-import { deleteAccount } from "../../actions/userActions";
+import { deleteAccount, startLogout } from "../../actions/userActions";
 
 const DeleteAccountModal = (props) => {
   const dispatch = useDispatch();

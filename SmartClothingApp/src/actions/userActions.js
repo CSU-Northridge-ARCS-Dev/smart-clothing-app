@@ -5,6 +5,8 @@ import {
   doc,
   updateDoc,
   getDoc,
+  getFirestore,
+  deleteDoc,
 } from "firebase/firestore";
 
 import { auth, database } from "../../firebaseConfig.js";
@@ -305,15 +307,28 @@ export const updateUserEmail = (newEmail) => {
   };
 };
 
-export const deleteAccount = async () => {
-  try {
+export const deleteAccount = () => {
+  return (dispatch) => {
     const user = auth.currentUser;
     const uid = auth.currentUser.uid;
-    console.log(uid);
+    const docRef = doc(database, "Users", uid);
 
-    await auth.currentUser.delete();
-    await database.collection("Users").doc(uid).delete();
-  } catch (error) {
-    console.log(error, "error");
-  }
+    user
+      .delete()
+      .then(() => {
+        deleteDoc(docRef)
+          .then(() => {
+            console.log("User and document deleted successfully.");
+            dispatch(startLogout());
+          })
+          .catch((error) => {
+            dispatch(toastError(firebaseErrorsMessages[error.code]));
+            console.log("Error deleting Firestore document:", error);
+          });
+      })
+      .catch((error) => {
+        dispatch(toastError(firebaseErrorsMessages[error.code]));
+        console.log("Error deleting user:", error);
+      });
+  };
 };
