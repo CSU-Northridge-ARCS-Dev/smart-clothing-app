@@ -9,6 +9,7 @@ import { toastInfo } from "../../actions/toastActions";
 import AppToast from "../Dialogs/AppToast";
 import PromptModal from "../Dialogs/PromptModal";
 import { auth } from "../../../firebaseConfig";
+import { deleteAccount } from "../../actions/userActions";
 
 const DeleteAccountModal = (props) => {
   const dispatch = useDispatch();
@@ -59,19 +60,8 @@ const DeleteAccountModal = (props) => {
     setPassword("");
   };
 
-  const handleUpdateEmail = async () => {
-    if (!isValid()) {
-      return;
-    }
-
-    setIsSubmitting(true);
-    const reAuthResult = await dispatch(reauthenticate(password));
-
-    if (reAuthResult) {
-      dispatch(updateUserEmail(email));
-      dispatch(toastInfo("Email updated successfully."));
-      handleClear();
-    }
+  const handleDelete = () => {
+    dispatch(deleteAccount());
   };
 
   return (
@@ -111,6 +101,7 @@ const DeleteAccountModal = (props) => {
               <Button
                 mode="outlined"
                 onPress={() => {
+                  handleDelete();
                   props.closeModal();
                 }}
                 style={styles.button}

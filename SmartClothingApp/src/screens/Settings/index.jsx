@@ -4,7 +4,6 @@ import { AppHeader } from "../../components";
 import { AppFonts, AppColor, AppStyle } from "../../constants/themes";
 import { useDispatch } from "react-redux";
 
-import { updateUserEmail } from "../../actions/userActions";
 import UpdateEmailModal from "../../components/UpdateEmailModal/UpdateEmailModal";
 import DeleteAccountModal from "../../components/DeleteAccountModal/DeleteAccountModal";
 
