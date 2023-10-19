@@ -304,3 +304,16 @@ export const updateUserEmail = (newEmail) => {
     }
   };
 };
+
+export const deleteAccount = async () => {
+  try {
+    const user = auth.currentUser;
+    const uid = auth.currentUser.uid;
+    console.log(uid);
+
+    await auth.currentUser.delete();
+    await database.collection("Users").doc(uid).delete();
+  } catch (error) {
+    console.log(error, "error");
+  }
+};
