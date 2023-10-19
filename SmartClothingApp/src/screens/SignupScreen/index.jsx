@@ -15,11 +15,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { useSelector, useDispatch } from "react-redux";
-import {
-  startSignupWithEmail,
-  setAuthError,
-} from "../../actions/userActions.js";
+import { startSignupWithEmail } from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -32,6 +28,7 @@ const SignupScreen = ({ navigation }) => {
   const [checked, setChecked] = useState(false);
   const [boxchecked, boxsetChecked] = useState(false);
 
+  
   const [user, setUser] = useState({
     fname: "",
     lname: "",
@@ -79,7 +76,6 @@ const SignupScreen = ({ navigation }) => {
       repassword: "",
     });
     setIsSubmitting(false);
-    authError && dispatch(setAuthError(null));
   };
 
   const handleSignUpWithEmail = () => {
@@ -104,6 +100,8 @@ const SignupScreen = ({ navigation }) => {
     }
 
     setIsSubmitting(true);
+
+    console.log("User is ...", user);
     dispatch(
       startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
