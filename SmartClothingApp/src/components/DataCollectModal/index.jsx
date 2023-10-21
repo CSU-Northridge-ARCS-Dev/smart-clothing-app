@@ -85,6 +85,8 @@ const DataCollectModal = (props) => {
     feet: "",
     inches: "",
     cent: "",
+    selectHeight: "",
+    selectWeight: "",
   });
 
   const handleClearErrors = () => {
@@ -94,6 +96,8 @@ const DataCollectModal = (props) => {
       feet: "",
       inches: "",
       cent: "",
+      selectHeight: "",
+      selectWeight: "",
     });
     setIsSubmitting(false);
   };
@@ -130,11 +134,11 @@ const DataCollectModal = (props) => {
       flag = false;
     }
     if (selectedHeight === "") {
-      errors.height = "Select a unit.";
+      errors.selectHeight = "Select a unit.";
       flag = false;
     }
     if (selectedWeight === "") {
-      errors.weight = "Select a unit.";
+      errors.selectWeight = "Select a unit.";
       flag = false;
     }
     setError({ ...errors });
@@ -142,12 +146,12 @@ const DataCollectModal = (props) => {
   };
 
   const kilogramsToPounds = (value) => {
-    var pounds = Math.round(value * 2.20462);
+    var pounds = value * 2.20462;
     return pounds;
   };
 
   const poundsToKilograms = (value) => {
-    var kilograms = Math.round(value / 2.20462);
+    var kilograms = value / 2.20462;
     return kilograms;
   };
 
@@ -206,10 +210,10 @@ const DataCollectModal = (props) => {
     if (selectedWeight === "lbs") {
       const weightValue = parseInt(weight) || 0;
       setWeight(weightValue);
-      const kilogramValue = poundsToKilograms(weight);
+      const kilogramValue = Math.round(poundsToKilograms(weight));
       setKilograms(kilogramValue);
     } else if (selectedWeight === "kg") {
-      const weightValue = kilogramsToPounds(kilograms);
+      const weightValue = Math.round(kilogramsToPounds(kilograms));
       setWeight(weightValue);
     }
   }, [selectedWeight, weight, kilograms]);
@@ -314,7 +318,7 @@ const DataCollectModal = (props) => {
                     setCent(item);
                     handleClearErrors();
                   }}
-                  error={error.cent.length > 1}
+                  error={error.cent.length > 1 || error.selectHeight.length > 1}
                 />
               )}
               {selectedHeight === "ft" && (
@@ -330,7 +334,9 @@ const DataCollectModal = (props) => {
                         setFeet(item);
                         handleClearErrors();
                       }}
-                      error={error.feet.length > 1}
+                      error={
+                        error.feet.length > 1 || error.selectHeight.length > 1
+                      }
                     />
                   </View>
 
@@ -345,7 +351,9 @@ const DataCollectModal = (props) => {
                         setInches(item);
                         handleClearErrors();
                       }}
-                      error={error.inches.length > 1}
+                      error={
+                        error.inches.length > 1 || error.selectHeight.length > 1
+                      }
                     />
                   </View>
                 </>
@@ -360,9 +368,16 @@ const DataCollectModal = (props) => {
                 placeholder={"unit"}
                 onChange={(item) => {
                   setSelectedHeight(item.value);
+                  handleClearErrors();
                 }}
+                error={error.selectHeight.length > 1}
               />
             </View>
+            {error.cent.length > 1 && (
+              <HelperText type="error" visible={error.cent.length > 1}>
+                {error.cent}
+              </HelperText>
+            )}
             {error.feet.length > 1 && !(error.inches.length > 1) && (
               <HelperText type="error" visible={error.feet.length > 1}>
                 {error.feet}
@@ -381,6 +396,12 @@ const DataCollectModal = (props) => {
                 Both inputs are invalid.
               </HelperText>
             )}
+            {error.selectHeight.length > 1 && (
+              <HelperText type="error" visible={error.selectHeight.length > 1}>
+                {error.selectHeight}
+              </HelperText>
+            )}
+
             <View
               style={[
                 styles.input,
@@ -404,7 +425,9 @@ const DataCollectModal = (props) => {
                     setWeight(item);
                     handleClearErrors();
                   }}
-                  error={error.weight.length > 1}
+                  error={
+                    error.weight.length > 1 || error.selectWeight.length > 1
+                  }
                 />
               )}
               {selectedWeight === "kg" && (
@@ -432,14 +455,22 @@ const DataCollectModal = (props) => {
                 placeholder={"unit"}
                 onChange={(item) => {
                   setSelectedWeight(item.value);
+                  handleClearErrors();
                 }}
+                error={error.selectWeight.length > 1}
               />
             </View>
-            {error.weight.length > 1 && (
+            {error.weight.length > 1 && !(error.selectWeight.length > 1) && (
               <HelperText type="error" visible={error.weight.length > 1}>
                 {error.weight}
               </HelperText>
             )}
+            {error.selectWeight.length > 1 && (
+              <HelperText type="error" visible={error.selectWeight.length > 1}>
+                {error.selectWeight}
+              </HelperText>
+            )}
+
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
