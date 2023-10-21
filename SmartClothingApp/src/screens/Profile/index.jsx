@@ -72,10 +72,17 @@ const ProfileScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (dob) {
       if (dob.seconds !== undefined && dob.nanoseconds !== undefined) {
-        console.log("boombayah");
         dobDate = dob.toDate();
       }
-      const age = new Date().getFullYear() - new Date(dobDate).getFullYear();
+      let age = new Date().getFullYear() - new Date(dobDate).getFullYear();
+
+      if (
+        new Date().getMonth() < new Date(dobDate).getMonth() ||
+        (new Date().getMonth() === new Date(dobDate).getMonth() &&
+          new Date().getDate() < new Date(dobDate).getDate())
+      ) {
+        age -= 1;
+      }
       console.log("calculated age = ", age);
       setAge(age);
     }
