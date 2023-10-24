@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUserEmail, reauthenticate } from "../../actions/userActions";
 
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
-import { AppColor } from "../../constants/themes";
+import { AppColor, AppFonts } from "../../constants/themes";
 import { toastInfo } from "../../actions/toastActions";
 import AppToast from "../Dialogs/AppToast";
 import PromptModal from "../Dialogs/PromptModal";
@@ -13,52 +13,6 @@ import { deleteAccount, startLogout } from "../../actions/userActions";
 
 const DeleteAccountModal = (props) => {
   const dispatch = useDispatch();
-  const [email, setEmail] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [showPrompt, setPrompt] = useState(false);
-  const [password, setPassword] = useState("");
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [error, setError] = useState({
-    email: "",
-    confirm: "",
-    password: "",
-  });
-
-  const isValid = () => {
-    let flag = true;
-    let errors = error;
-
-    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-
-    if (!emailRegex.test(email)) {
-      errors.email = "Enter valid email.";
-      flag = false;
-    }
-    if (confirm !== email) {
-      errors.confirm = "Emails do not match.";
-      flag = false;
-    }
-
-    setError({ ...errors });
-    return flag;
-  };
-
-  const handleClearErrors = () => {
-    setError({
-      email: "",
-      confirm: "",
-    });
-
-    setIsSubmitting(false);
-  };
-
-  const handleClear = () => {
-    setEmail("");
-    setConfirm("");
-    setPassword("");
-  };
 
   const handleDelete = () => {
     dispatch(deleteAccount());
@@ -89,7 +43,11 @@ const DeleteAccountModal = (props) => {
           >
             <AppToast />
           </KeyboardAvoidingView>
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={80}>
+          <KeyboardAvoidingView
+            behavior="padding"
+            keyboardVerticalOffset={80}
+            gap={50}
+          >
             <Text style={styles.title}>Account Deletion</Text>
             <View>
               <Text style={styles.textContainer}>
@@ -100,11 +58,12 @@ const DeleteAccountModal = (props) => {
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
+                textColor="#fff"
                 onPress={() => {
                   handleDelete();
                   props.closeModal();
                 }}
-                style={styles.button}
+                style={[styles.button, { backgroundColor: AppColor.primary }]}
               >
                 Yes
               </Button>
@@ -128,9 +87,9 @@ const DeleteAccountModal = (props) => {
 const styles = StyleSheet.create({
   title: {
     fontSize: 36,
-    marginVertical: 24,
     textAlign: "center",
-    paddingBottom: 10,
+    color: AppColor.primary,
+    fontFamily: AppFonts.chakraBold,
   },
   container: {
     flex: 1,
@@ -145,7 +104,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: AppColor.primaryContainer,
+    backgroundColor: AppColor.secondaryContainer,
     padding: 20,
     borderRadius: 10,
     width: "100%",
@@ -192,9 +151,11 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     backgroundColor: AppColor.primary,
+    padding: 10,
     color: "white",
     fontSize: 17,
     elevation: 5,
+    textAlign: "center",
   },
 });
 

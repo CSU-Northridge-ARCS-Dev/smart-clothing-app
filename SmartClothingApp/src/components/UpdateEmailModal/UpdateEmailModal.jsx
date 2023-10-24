@@ -4,17 +4,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateUserEmail, reauthenticate } from "../../actions/userActions";
 
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
-import { AppColor } from "../../constants/themes";
+import { AppColor, AppFonts } from "../../constants/themes";
 import { toastInfo } from "../../actions/toastActions";
 import AppToast from "../Dialogs/AppToast";
-import PromptModal from "../Dialogs/PromptModal";
-import { auth } from "../../../firebaseConfig";
 
 const UpdateEmailModal = (props) => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [showPrompt, setPrompt] = useState(false);
   const [password, setPassword] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,10 +157,11 @@ const UpdateEmailModal = (props) => {
               <Button
                 disabled={isSubmitting}
                 mode="outlined"
+                textColor="white"
                 onPress={() => {
                   handleUpdateEmail();
                 }}
-                style={styles.button}
+                style={[styles.button, { backgroundColor: AppColor.primary }]}
               >
                 Update
               </Button>
@@ -181,6 +179,8 @@ const styles = StyleSheet.create({
     marginVertical: 24,
     textAlign: "center",
     paddingBottom: 10,
+    color: AppColor.primary,
+    fontFamily: AppFonts.chakraBold,
   },
   container: {
     flex: 1,
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: AppColor.primaryContainer,
+    backgroundColor: AppColor.secondaryContainer,
     padding: 20,
     borderRadius: 10,
     width: "100%",
@@ -216,12 +216,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 10,
     backgroundColor: "#fff",
-  },
-  calendar: {
-    borderColor: "gray",
-    borderWidth: 1,
-    backgroundColor: "white",
-    fontFamily: "sans-serif",
   },
   toastContainer: {
     position: "absolute",
