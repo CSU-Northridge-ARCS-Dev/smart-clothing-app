@@ -7,80 +7,122 @@ import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { toastInfo } from "../../actions/toastActions";
 import AppToast from "../Dialogs/AppToast";
-import PromptModal from "../Dialogs/PromptModal";
-import { auth } from "../../../firebaseConfig";
-import { deleteAccount, startLogout } from "../../actions/userActions";
+import { deleteAccount } from "../../actions/userActions";
 
 const DeleteAccountModal = (props) => {
   const dispatch = useDispatch();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState({
+    password: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState();
 
-  const handleDelete = () => {
-    dispatch(deleteAccount());
+  const isValid = () => {
+    let flag = true;
+    let errors = error;
+
+    if (password.length < 1) {
+      errors.password = "Password cannot be empty.";
+      flag = false;
+    }
+
+    setError({ ...errors });
+    return flag;
+  };
+
+  const handleClearErrors = () => {
+    setError({
+      password: "",
+    });
+    setIsSubmitting(false);
+  };
+
+  const handleDelete = async () => {
+    if (!isValid()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    const reAuthResult = await dispatch(reauthenticate(password));
+
+    if (reAuthResult) {
+      dispatch(deleteAccount());
+      setPassword("");
+    }
   };
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={false}
-      visible={props.visible}
-      presentationStyle="pageSheet"
-      statusBarTranslucent={true}
-    >
-      <View style={styles.modalBackground}>
-        <View style={styles.modalContent}>
-          {/* <Modal visible={showPrompt} style={styles.modalContainer}>
-            <PromptModal
-              style={{ zIndex: 9999 }}
-              title="Reauthentication"
-              message="Please provide your password"
-              visible={showPrompt}
-              prompt={onPressLogout}
-            />
-          </Modal> */}
-          <KeyboardAvoidingView
-            behavior="padding"
-            style={styles.toastContainer}
-          >
-            <AppToast />
-          </KeyboardAvoidingView>
-          <KeyboardAvoidingView
-            behavior="padding"
-            keyboardVerticalOffset={80}
-            gap={50}
-          >
-            <Text style={styles.title}>Account Deletion</Text>
-            <View>
-              <Text style={styles.textContainer}>
-                Are you sure you want to delete your account? Once you delete
-                your account, you cannot recover it.
-              </Text>
-            </View>
-            <View style={styles.btnContainer}>
-              <Button
-                mode="outlined"
-                textColor="#fff"
-                onPress={() => {
-                  handleDelete();
-                  props.closeModal();
-                }}
-                style={[styles.button, { backgroundColor: AppColor.primary }]}
-              >
-                Yes
-              </Button>
-              <Button
-                mode="outlined"
-                onPress={() => {
-                  props.closeModal();
-                }}
-                style={styles.button}
-              >
-                No
-              </Button>
-            </View>
-          </KeyboardAvoidingView>
+    <>
+      <Modal
+        animationType="slide"
+        transparent={false}
+        visible={props.visible}
+        presentationStyle="pageSheet"
+        statusBarTranslucent={true}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContent}>
+            <KeyboardAvoidingView
+              behavior="padding"
+              style={styles.toastContainer}
+            >
+              <AppToast />
+            </KeyboardAvoidingView>
+            <KeyboardAvoidingView
+              behavior="padding"
+              keyboardVerticalOffset={90}
+              gap={30}
+            >
+              <Text style={styles.title}>Account Deletion</Text>
+              <View>
+                <Text style={styles.textContainer}>
+                  Are you sure you want to delete your account? Once you delete
+                  your account, you cannot recover it.
+                </Text>
+              </View>
+              <View>
+                <TextInput
+                  label="Password"
+                  secureTextEntry
+                  value={password}
+                  mode="outlined"
+                  onChangeText={(text) => {
+                    setPassword(text);
+                    handleClearErrors();
+                  }}
+                  error={error.password.length > 1}
+                />
+                <HelperText type="error" visible={error.password.length > 1}>
+                  {error.password}
+                </HelperText>
+              </View>
+              <View style={styles.btnContainer}>
+                <Button
+                  disabled={isSubmitting}
+                  mode="outlined"
+                  textColor="#fff"
+                  onPress={() => {
+                    handleDelete(password);
+                  }}
+                  style={[styles.button, { backgroundColor: AppColor.primary }]}
+                >
+                  Yes
+                </Button>
+                <Button
+                  mode="outlined"
+                  onPress={() => {
+                    props.closeModal();
+                  }}
+                  style={styles.button}
+                >
+                  No
+                </Button>
+              </View>
+            </KeyboardAvoidingView>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+    </>
   );
 };
 
@@ -119,7 +161,6 @@ const styles = StyleSheet.create({
   btnContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: 20,
   },
   button: {
     flex: 1,
