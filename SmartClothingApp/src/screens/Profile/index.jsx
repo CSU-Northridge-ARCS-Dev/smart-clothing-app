@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { auth, database } from "../../../firebaseConfig";
 import {
-  updateUserData,
+  startUpdateUserData,
   fetchUserData,
   startUpdateProfile,
 } from "../../actions/userActions";
@@ -20,7 +20,6 @@ const ProfileScreen = ({ navigation, route }) => {
   const { gender, dob, height, weight, sports } = useSelector(
     (state) => state.user.userMetricsData
   );
-  console.log(dob);
   let dobDate = dob;
 
   const { firstName, lastName } = useSelector((state) => state.user);
@@ -39,6 +38,21 @@ const ProfileScreen = ({ navigation, route }) => {
     setPersonalModalVisible(false);
   };
 
+  const [error, setError] = useState({
+    fname: "",
+    lname: "",
+  });
+
+  const isValid = () => {
+    let flag = true;
+    let errors = error;
+
+    if (userData.fname.length < 1) {
+      errors.fname = "Must have a first name.";
+      flag = false;
+    }
+  };
+
   const formatHeight = (height) => {
     if (height) {
       const feet = Math.floor(height / 12);
@@ -50,10 +64,17 @@ const ProfileScreen = ({ navigation, route }) => {
   useEffect(() => {
     if (dob) {
       if (dob.seconds !== undefined && dob.nanoseconds !== undefined) {
-        console.log("boombayah");
         dobDate = dob.toDate();
       }
-      const age = new Date().getFullYear() - new Date(dobDate).getFullYear();
+      let age = new Date().getFullYear() - new Date(dobDate).getFullYear();
+
+      if (
+        new Date().getMonth() < new Date(dobDate).getMonth() ||
+        (new Date().getMonth() === new Date(dobDate).getMonth() &&
+          new Date().getDate() < new Date(dobDate).getDate())
+      ) {
+        age -= 1;
+      }
       console.log("calculated age = ", age);
       setAge(age);
     }
@@ -65,6 +86,8 @@ const ProfileScreen = ({ navigation, route }) => {
       <PersonalModal
         visible={isPersonalModalVisible}
         closeModal={closePersonalModal}
+        firstName={firstName}
+        lastName={lastName}
       />
       <View style={styles.content}>
         <Text
@@ -130,7 +153,16 @@ const ProfileScreen = ({ navigation, route }) => {
                 mode="elevated"
                 buttonColor="#1560a4"
                 textColor="white"
-                onPress={() => dispatch(userMetricsDataModalVisible(true))}
+                onPress={() =>
+                  dispatch(userMetricsDataModalVisible(true, false))
+                }
+                currentUserData={{
+                  gender,
+                  dob,
+                  height,
+                  weight,
+                  sports,
+                }}
                 style={{ borderRadius: 10 }}
               >
                 EDIT
@@ -147,7 +179,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
         <View style={{ marginLeft: 20, marginBottom: 40 }}>
           <Text variant="titleMedium">Age</Text>
-          <Text style={{ fontSize: 18 }}>{age}</Text>
+          <Text style={{ fontSize: 18 }}>{dob ? `${age}` : "No Data"}</Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Height
@@ -157,11 +189,11 @@ const ProfileScreen = ({ navigation, route }) => {
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Weight
           </Text>
-          {weight ? (
-            <Text style={{ fontSize: 18 }}>{weight} lbs</Text>
-          ) : (
-            <Text style={{ fontSize: 18 }}>No weight available</Text>
-          )}
+
+          <Text style={{ fontSize: 18 }}>
+            {weight ? `${weight} lbs` : weight}
+          </Text>
+
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Gender
           </Text>

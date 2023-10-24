@@ -13,7 +13,13 @@ const initialState = {
   lastName: null,
   email: null,
   authError: null,
-  userMetricsData: null,
+  userMetricsData: {
+    gender: "No Data",
+    dob: new Date(),
+    height: "No Data",
+    weight: "No Data",
+    sports: "No Data",
+  },
 };
 
 const userReducer = (state = initialState, action) => {

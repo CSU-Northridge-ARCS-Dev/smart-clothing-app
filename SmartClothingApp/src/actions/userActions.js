@@ -84,6 +84,10 @@ export const startLogout = () => {
 //   });
 
 export const startUpdateProfile = (firstName, lastName) => {
+  // remove spaces from first and last name
+  firstName = firstName.replace(/\s/g, "");
+  lastName = lastName.replace(/\s/g, "");
+
   return (dispatch) => {
     updateProfile(auth.currentUser, {
       displayName: `${firstName} ${lastName}`,
@@ -139,6 +143,7 @@ export const startLoadUserData = () => {
         console.log("User data loaded from database successfully!");
       } else {
         console.log("User data doesn't exist in the database!");
+<<<<<<< HEAD
         const defaultUserData = {
           height: "",
           weight: "",
@@ -147,6 +152,8 @@ export const startLoadUserData = () => {
           sports: "",
         };
         dispatch(startUpdateUserData(defaultUserData, auth.currentUser.uid));
+=======
+>>>>>>> main
       }
     } catch (e) {
       console.log("Error loading user data from database!");
@@ -191,7 +198,7 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
         dispatch(startUpdateProfile(firstName, lastName));
 
         // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
-        dispatch(userMetricsDataModalVisible(true));
+        dispatch(userMetricsDataModalVisible(true, true));
 
         dispatch(
           signupWithEmail({
