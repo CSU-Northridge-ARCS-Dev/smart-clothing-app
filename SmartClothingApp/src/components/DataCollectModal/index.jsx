@@ -25,12 +25,6 @@ import MyDropdown from "../UI/dropdown";
 const DataCollectModal = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
-  const [selectedHeight, setSelectedHeight] = useState("");
-  const [selectedWeight, setSelectedWeight] = useState("");
-  const [feet, setFeet] = useState("");
-  const [inches, setInches] = useState("");
-  const [cent, setCent] = useState("");
-  const [kilograms, setKilograms] = useState("");
   const currentUserMetricsData = useSelector(
     (state) => state.user.userMetricsData
   );
