@@ -36,6 +36,10 @@ const UpdateEmailModal = (props) => {
       errors.confirm = "Emails do not match.";
       flag = false;
     }
+    if (password.length < 1) {
+      errors.password = "Password cannot be empty.";
+      flag = false;
+    }
 
     setError({ ...errors });
     return flag;
@@ -45,6 +49,7 @@ const UpdateEmailModal = (props) => {
     setError({
       email: "",
       confirm: "",
+      password: "",
     });
 
     setIsSubmitting(false);
@@ -96,7 +101,7 @@ const UpdateEmailModal = (props) => {
           >
             <AppToast />
           </KeyboardAvoidingView>
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={80}>
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
             <Text style={styles.title}>Update Email</Text>
             <View>
               <TextInput
@@ -138,11 +143,11 @@ const UpdateEmailModal = (props) => {
                   setPassword(text);
                   handleClearErrors();
                 }}
-                error={false}
+                error={error.password.length > 1}
               />
-              {/* <HelperText type="error" visible={error.password.length > 1}>
+              <HelperText type="error" visible={error.password.length > 1}>
                 {error.password}
-              </HelperText> */}
+              </HelperText>
             </View>
             <View style={styles.btnContainer}>
               <Button
