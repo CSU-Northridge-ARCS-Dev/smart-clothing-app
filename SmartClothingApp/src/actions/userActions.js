@@ -143,17 +143,6 @@ export const startLoadUserData = () => {
         console.log("User data loaded from database successfully!");
       } else {
         console.log("User data doesn't exist in the database!");
-<<<<<<< HEAD
-        const defaultUserData = {
-          height: "",
-          weight: "",
-          dob: new Date(),
-          gender: "",
-          sports: "",
-        };
-        dispatch(startUpdateUserData(defaultUserData, auth.currentUser.uid));
-=======
->>>>>>> main
       }
     } catch (e) {
       console.log("Error loading user data from database!");
