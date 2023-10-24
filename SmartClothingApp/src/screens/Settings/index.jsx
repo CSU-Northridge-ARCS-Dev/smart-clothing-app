@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     height: 90,
     alignItems: "flex-start",
     padding: 15,
-    backgroundColor: "#EAF0F8",
+    backgroundColor: AppColor.lightColor,
     elevation: 4,
   },
   btnText: {
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   },
   adnText: {
     fontSize: 14,
-    color: "#7D7A7A",
+    color: AppColor.secondary,
     paddingTop: 5,
   },
 });

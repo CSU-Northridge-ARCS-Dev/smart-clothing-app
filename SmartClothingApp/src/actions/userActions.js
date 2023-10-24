@@ -315,7 +315,17 @@ export const deleteAccount = () => {
         deleteDoc(docRef)
           .then(() => {
             console.log("User and document deleted successfully.");
-            dispatch(startLogout());
+            auth
+              .signOut()
+              .then(() => {
+                dispatch(logout());
+                dispatch(toastError("User account has been deleted"));
+              })
+              .catch((error) => {
+                console.log("Error logging out!");
+                dispatch(toastError("Error logging out"));
+                console.log(error);
+              });
           })
           .catch((error) => {
             dispatch(toastError(firebaseErrorsMessages[error.code]));
