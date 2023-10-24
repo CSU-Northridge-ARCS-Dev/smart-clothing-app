@@ -8,7 +8,10 @@ import {
 
 const initialState = {
   darkTheme: false,
+
+  // userMetricsData Modal sub-states
   userMetricsDataModalVisible: false,
+  isFromSignUpScreen: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
 };
 
@@ -18,7 +21,8 @@ const appReducer = (state = initialState, action) => {
       console.log(`Making user matricsModalVisible ${action.payload}`);
       return {
         ...state,
-        userMetricsDataModalVisible: action.payload,
+        userMetricsDataModalVisible: action.payload.visibility,
+        isFromSignUpScreen: action.payload.isFromSignUpScreen,
       };
 
     default:

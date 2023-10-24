@@ -22,9 +22,31 @@ import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
 import MyDropdown from "../UI/dropdown";
 
-const DataCollectModal = ({ isFromSignupScreen = false }) => {
+const DataCollectModal = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
+  const [selectedHeight, setSelectedHeight] = useState("");
+  const [selectedWeight, setSelectedWeight] = useState("");
+  const [feet, setFeet] = useState("");
+  const [inches, setInches] = useState("");
+  const [cent, setCent] = useState("");
+  const [kilograms, setKilograms] = useState("");
+  const currentUserMetricsData = useSelector(
+    (state) => state.user.userMetricsData
+  );
+  const isFromSignupScreen = useSelector(
+    (state) => state.app.isFromSignUpScreen
+  );
+
+  /*
+    userData: {
+    gender: "",
+    dob: "",
+    height: "",
+    weight: "",
+  }
+  */
+
   const [selectedHeight, setSelectedHeight] = useState("");
   const [selectedWeight, setSelectedWeight] = useState("");
   const [feet, setFeet] = useState("");
@@ -65,14 +87,29 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     feet: "",
     inches: "",
     cent: "",
+    selectHeight: "",
+    selectWeight: "",
   });
+
+  const handleClearErrors = () => {
+    setError({
+      height: "",
+      weight: "",
+      feet: "",
+      inches: "",
+      cent: "",
+      selectHeight: "",
+      selectWeight: "",
+    });
+    setIsSubmitting(false);
+  };
 
   const isValid = () => {
     let flag = true;
     let errors = error;
 
-    integerRegex = /^\d*$/;
-    numberRegex = /^[0-9.]*$/;
+    const integerRegex = /^\d*$/;
+    const numberRegex = /^[0-9.]*$/;
 
     if (feet.length > 1) {
       errors.feet = "Enter a single integer.";
@@ -99,35 +136,24 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
       flag = false;
     }
     if (selectedHeight === "") {
-      errors.height = "Select a unit.";
+      errors.selectHeight = "Select a unit.";
       flag = false;
     }
     if (selectedWeight === "") {
-      errors.weight = "Select a unit.";
+      errors.selectWeight = "Select a unit.";
       flag = false;
     }
     setError({ ...errors });
     return flag;
   };
 
-  const handleClearErrors = () => {
-    setError({
-      height: "",
-      weight: "",
-      feet: "",
-      inches: "",
-      cent: "",
-    });
-    setIsSubmitting(false);
-  };
-
   const kilogramsToPounds = (value) => {
-    var pounds = Math.round(value * 2.20462);
+    var pounds = value * 2.20462;
     return pounds;
   };
 
   const poundsToKilograms = (value) => {
-    var kilograms = Math.round(value / 2.20462);
+    var kilograms = value / 2.20462;
     return kilograms;
   };
 
@@ -145,8 +171,23 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
         sports,
       })
     );
-    dispatch(userMetricsDataModalVisible(false));
+    dispatch(userMetricsDataModalVisible(false, false));
   };
+
+  // runs this function everytime the modal is opened
+  useEffect(() => {
+    if (
+      visible &&
+      currentUserMetricsData.gender != "No Data" &&
+      !isFromSignupScreen
+    ) {
+      setGender(currentUserMetricsData.gender);
+      // setDob(currentUserMetricsData.dob.toDate());
+      setCent(Math.round(currentUserMetricsData.height * 2.54));
+      setWeight(currentUserMetricsData.weight?.toString());
+      setSports(currentUserMetricsData.sports);
+    }
+  }, [visible]);
 
   useEffect(() => {
     if (selectedHeight === "ft") {
@@ -171,10 +212,10 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
     if (selectedWeight === "lbs") {
       const weightValue = parseInt(weight) || 0;
       setWeight(weightValue);
-      const kilogramValue = poundsToKilograms(weight);
+      const kilogramValue = Math.round(poundsToKilograms(weight));
       setKilograms(kilogramValue);
     } else if (selectedWeight === "kg") {
-      const weightValue = kilogramsToPounds(kilograms);
+      const weightValue = Math.round(kilogramsToPounds(kilograms));
       setWeight(weightValue);
     }
   }, [selectedWeight, weight, kilograms]);
@@ -186,7 +227,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
         transparent={true}
         visible={visible}
         onRequestClose={() => {
-          dispatch(userMetricsDataModalVisible(false));
+          dispatch(userMetricsDataModalVisible(false, false));
         }}
       >
         <View style={styles.modalBackground}>
@@ -251,7 +292,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               </Text>
               <SafeAreaView>
                 <Button onPress={showDatePicker}>
-                  {dob.toLocaleDateString()}
+                  {dob ? dob.toLocaleDateString() : "No Data"}
                 </Button>
               </SafeAreaView>
             </View>
@@ -279,7 +320,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                     setCent(item);
                     handleClearErrors();
                   }}
-                  error={error.cent.length > 1}
+                  error={error.cent.length > 1 || error.selectHeight.length > 1}
                 />
               )}
               {selectedHeight === "ft" && (
@@ -295,7 +336,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                         setFeet(item);
                         handleClearErrors();
                       }}
-                      error={error.feet.length > 1}
+                      error={
+                        error.feet.length > 1 || error.selectHeight.length > 1
+                      }
                     />
                   </View>
 
@@ -310,7 +353,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                         setInches(item);
                         handleClearErrors();
                       }}
-                      error={error.inches.length > 1}
+                      error={
+                        error.inches.length > 1 || error.selectHeight.length > 1
+                      }
                     />
                   </View>
                 </>
@@ -325,9 +370,16 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 placeholder={"unit"}
                 onChange={(item) => {
                   setSelectedHeight(item.value);
+                  handleClearErrors();
                 }}
+                error={error.selectHeight.length > 1}
               />
             </View>
+            {error.cent.length > 1 && (
+              <HelperText type="error" visible={error.cent.length > 1}>
+                {error.cent}
+              </HelperText>
+            )}
             {error.feet.length > 1 && !(error.inches.length > 1) && (
               <HelperText type="error" visible={error.feet.length > 1}>
                 {error.feet}
@@ -346,6 +398,12 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 Both inputs are invalid.
               </HelperText>
             )}
+            {error.selectHeight.length > 1 && (
+              <HelperText type="error" visible={error.selectHeight.length > 1}>
+                {error.selectHeight}
+              </HelperText>
+            )}
+
             <View
               style={[
                 styles.input,
@@ -369,7 +427,9 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                     setWeight(item);
                     handleClearErrors();
                   }}
-                  error={error.weight.length > 1}
+                  error={
+                    error.weight.length > 1 || error.selectWeight.length > 1
+                  }
                 />
               )}
               {selectedWeight === "kg" && (
@@ -397,18 +457,28 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 placeholder={"unit"}
                 onChange={(item) => {
                   setSelectedWeight(item.value);
+                  handleClearErrors();
                 }}
+                error={error.selectWeight.length > 1}
               />
             </View>
-            {error.weight.length > 1 && (
+            {error.weight.length > 1 && !(error.selectWeight.length > 1) && (
               <HelperText type="error" visible={error.weight.length > 1}>
                 {error.weight}
               </HelperText>
             )}
+            {error.selectWeight.length > 1 && (
+              <HelperText type="error" visible={error.selectWeight.length > 1}>
+                {error.selectWeight}
+              </HelperText>
+            )}
+
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
-                onPress={() => dispatch(userMetricsDataModalVisible(false))}
+                onPress={() =>
+                  dispatch(userMetricsDataModalVisible(false, false))
+                }
                 style={styles.button}
               >
                 {isFromSignupScreen ? "Skip" : "Cancel"}
