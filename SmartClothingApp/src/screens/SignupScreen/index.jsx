@@ -59,7 +59,7 @@ const SignupScreen = ({ navigation }) => {
       repassword: "",
     });
 
-    setChecked(false);
+    setIsTermsAccepted(false);
 
     setIsSubmitting(false);
 
