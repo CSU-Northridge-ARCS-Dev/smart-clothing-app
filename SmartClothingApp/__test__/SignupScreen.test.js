@@ -76,7 +76,8 @@ describe('SignupScreen Error Alerts', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith("Sign-up Error",
-    "Please correct the following errors:\n\n" +
+    "You must agree to the user agreement to create an account.\n\n" +
+    "Please correct the following errors:\n" +
     "First name cannot be empty.\n"
     );
 
@@ -110,7 +111,8 @@ describe('SignupScreen Error Alerts', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith("Sign-up Error",
-    "Please correct the following errors:\n\n" +
+    "You must agree to the user agreement to create an account.\n\n" +
+    "Please correct the following errors:\n" +
     "Last name cannot be empty.\n"
     );
   });
@@ -139,7 +141,8 @@ describe('SignupScreen Error Alerts', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith("Sign-up Error",
-    "Please correct the following errors:\n\n" +
+    "You must agree to the user agreement to create an account.\n\n"+
+    "Please correct the following errors:\n" +
     "Enter valid email.\n"
     );
   });
@@ -168,7 +171,8 @@ describe('SignupScreen Error Alerts', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith("Sign-up Error",
-    "Please correct the following errors:\n\n" +
+    "You must agree to the user agreement to create an account.\n\n" +
+    "Please correct the following errors:\n" +
     "Password length cannot be less than 6.\n"
     );
   });
@@ -197,7 +201,8 @@ describe('SignupScreen Error Alerts', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith("Sign-up Error",
-    "Please correct the following errors:\n\n" +
+    "You must agree to the user agreement to create an account.\n\n" +
+    "Please correct the following errors:\n" +
     "Password length cannot be less than 6.\n"
     );
   });
@@ -226,7 +231,8 @@ describe('SignupScreen Error Alerts', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith("Sign-up Error",
-    "Please correct the following errors:\n\n" +
+    "You must agree to the user agreement to create an account.\n\n" +
+    "Please correct the following errors:\n" +
     "Passwords did not match."
     );
   });
@@ -255,7 +261,8 @@ describe('SignupScreen Error Alerts', () => {
     });
 
     expect(Alert.alert).toHaveBeenCalledWith("Sign-up Error",
-    "Please correct the following errors:\n\n" +
+    "You must agree to the user agreement to create an account.\n\n" +
+    "Please correct the following errors:\n" +
     "First name cannot be empty.\n" +
     "Last name cannot be empty.\n" +
     "Enter valid email.\n" +

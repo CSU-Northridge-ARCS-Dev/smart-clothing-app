@@ -94,11 +94,21 @@ describe('SigninScreen Error Alerts', () => {
     "Enter valid email.\n"+""
       ); 
 
+
     // Ensure appropriate error message is displayed in HelperText
-    let emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
-    let passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
-    expect(emailErrorText).toEqual('Enter valid email.');
-    expect(passwordErrorText).toEqual('');
+    const helperTextElement = instance.findByType(HelperText);
+    const errorElements = instance.findAllByProps({ type: 'error' });
+    const firstErrorElement = errorElements[0];
+    const firstEmailErrorText = firstErrorElement.props.children;
+
+    // Password Text Field doesn't have HelperText anymore 
+    // const secondErrorElement = errorElements[1];
+    // const secondEmailErrorText = secondErrorElement.props.children;
+    
+
+    expect(firstEmailErrorText).toEqual('Email is invalid!');
+    expect(helperTextElement.props.visible).toBe(true);
+    //expect(secondEmailErrorText).toEqual('');
   });
 
    
@@ -124,10 +134,19 @@ describe('SigninScreen Error Alerts', () => {
     "Password cannot be empty"
     ); 
     
-    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
-    const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
-    expect(emailErrorText).toEqual('');
-    expect(passwordErrorText).toEqual('Password cannot be empty');
+    // Ensure appropriate error message is displayed in HelperText
+    const helperTextElement = instance.findByType(HelperText);
+    const errorElements = instance.findAllByProps({ type: 'error' });
+    const firstErrorElement = errorElements[0];
+    const firstEmailErrorText = firstErrorElement.props.children;
+
+    // Password Text Field doesn't have HelperText anymore 
+    // const secondErrorElement = errorElements[1];
+    // const secondEmailErrorText = secondErrorElement.props.children;
+    
+    expect(firstEmailErrorText).toEqual('Email is invalid!');
+    expect(helperTextElement.props.visible).toBe(false);
+    //expect(secondEmailErrorText).toEqual('Password cannot be empty');
   });
 
 
@@ -153,10 +172,19 @@ describe('SigninScreen Error Alerts', () => {
     "Password length cannot be less than 6."
     ); 
 
-    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
-    const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
-    expect(emailErrorText).toEqual('');
-    expect(passwordErrorText).toEqual('Password length cannot be less than 6.');
+    // Ensure appropriate error message is displayed in HelperText
+    const helperTextElement = instance.findByType(HelperText);
+    const errorElements = instance.findAllByProps({ type: 'error' });
+    const firstErrorElement = errorElements[0];
+    const firstEmailErrorText = firstErrorElement.props.children;
+
+    // Password Text Field doesn't have HelperText anymore 
+    // const secondErrorElement = errorElements[1];
+    // const secondEmailErrorText = secondErrorElement.props.children;
+
+    expect(firstEmailErrorText).toEqual('Email is invalid!');
+    expect(helperTextElement.props.visible).toBe(false);
+    //expect(secondEmailErrorText).toEqual('Password cannot be empty');
   });
 
 
@@ -183,10 +211,19 @@ describe('SigninScreen Error Alerts', () => {
     "Password length cannot be less than 6."
     ); 
 
-    const emailErrorText = instance.findByProps({ testID: 'emailError' }).props.children;
-    const passwordErrorText = instance.findByProps({ testID: 'passwordError' }).props.children;
-    expect(emailErrorText).toEqual('Enter valid email.');
-    expect(passwordErrorText).toEqual('Password length cannot be less than 6.');
+    // Ensure appropriate error message is displayed in HelperText
+    const helperTextElement = instance.findByType(HelperText);
+    const errorElements = instance.findAllByProps({ type: 'error' });
+    const firstErrorElement = errorElements[0];
+    const firstEmailErrorText = firstErrorElement.props.children;
+
+    // Password Text Field doesn't have HelperText anymore 
+    // const secondErrorElement = errorElements[1];
+    // const secondEmailErrorText = secondErrorElement.props.children;
+
+    expect(firstEmailErrorText).toEqual('Email is invalid!');
+    expect(helperTextElement.props.visible).toBe(true);
+    //expect(secondEmailErrorText).toEqual('Password cannot be empty');
   });
 
 // Test Case 6: Successful sign-in without errors
