@@ -130,224 +130,226 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
         Welcome back. Login to continue
       </Text>
       <View>
-        <View
-          style={{}}
-        >
+        <View>
           <View
-            pointerEvents="none"
-            style={
-              [
-                {
-                  "bottom": 0,
-                  "left": 0,
-                  "position": "absolute",
-                  "right": 0,
-                  "top": 6,
-                },
-                {
-                  "backgroundColor": "rgba(255, 251, 254, 1)",
-                  "borderColor": "rgba(121, 116, 126, 1)",
-                  "borderRadius": 4,
-                  "borderWidth": 1,
-                },
-                undefined,
-              ]
-            }
-            testID="text-input-outline"
-          />
-          <View>
+            style={{}}
+          >
             <View
+              pointerEvents="none"
               style={
                 [
                   {
-                    "paddingBottom": 0,
-                  },
-                  {
-                    "minHeight": 56,
-                    "paddingTop": 8,
-                  },
-                ]
-              }
-            >
-              <View
-                collapsable={false}
-                pointerEvents="none"
-                style={
-                  {
                     "bottom": 0,
                     "left": 0,
-                    "opacity": 1,
                     "position": "absolute",
                     "right": 0,
-                    "top": 0,
-                    "transform": [
-                      {
-                        "translateX": 0,
-                      },
-                    ],
-                    "zIndex": 3,
-                  }
-                }
-              >
-                <Text
-                  collapsable={false}
-                  maxFontSizeMultiplier={1.5}
-                  numberOfLines={1}
-                  style={
-                    {
-                      "backgroundColor": "rgba(255, 251, 254, 1)",
-                      "color": "transparent",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "left": 8,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "opacity": -0.6666666666666667,
-                      "paddingHorizontal": 0,
-                      "position": "absolute",
-                      "textAlign": "left",
-                      "top": 33,
-                      "transform": [
-                        {
-                          "translateX": 0,
-                        },
-                        {
-                          "translateY": 0,
-                        },
-                        {
-                          "scale": 1,
-                        },
-                        {
-                          "scaleY": 1,
-                        },
-                      ],
-                      "width": -16,
-                      "writingDirection": "ltr",
-                    }
-                  }
-                >
-                  Email
-                </Text>
-                <Text
-                  collapsable={false}
-                  maxFontSizeMultiplier={1.5}
-                  numberOfLines={1}
-                  onLayout={[Function]}
-                  style={
-                    {
-                      "color": "rgba(103, 80, 164, 1)",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "left": 0,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "opacity": 0,
-                      "paddingHorizontal": 16,
-                      "position": "absolute",
-                      "textAlign": "left",
-                      "top": 32,
-                      "transform": [
-                        {
-                          "translateX": 0,
-                        },
-                        {
-                          "translateY": 0,
-                        },
-                        {
-                          "scale": 1,
-                        },
-                      ],
-                      "writingDirection": "ltr",
-                    }
-                  }
-                  testID="text-input-outlined-label-active"
-                >
-                  Email
-                </Text>
-                <Text
-                  collapsable={false}
-                  maxFontSizeMultiplier={1.5}
-                  numberOfLines={1}
-                  style={
-                    {
-                      "color": "rgba(73, 69, 79, 1)",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "left": 0,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "opacity": 0,
-                      "paddingHorizontal": 16,
-                      "position": "absolute",
-                      "textAlign": "left",
-                      "top": 32,
-                      "transform": [
-                        {
-                          "translateX": 0,
-                        },
-                        {
-                          "translateY": 0,
-                        },
-                        {
-                          "scale": 1,
-                        },
-                      ],
-                      "writingDirection": "ltr",
-                    }
-                  }
-                  testID="text-input-outlined-label-inactive"
-                >
-                  Email
-                </Text>
-              </View>
-              <TextInput
-                editable={true}
-                maxFontSizeMultiplier={1.5}
-                multiline={false}
-                onBlur={[Function]}
-                onChangeText={[Function]}
-                onFocus={[Function]}
-                placeholder=" "
-                placeholderTextColor="rgba(73, 69, 79, 1)"
-                selectionColor="rgba(103, 80, 164, 1)"
+                    "top": 6,
+                  },
+                  {
+                    "backgroundColor": "rgba(255, 251, 254, 1)",
+                    "borderColor": "rgba(121, 116, 126, 1)",
+                    "borderRadius": 4,
+                    "borderWidth": 1,
+                  },
+                  undefined,
+                ]
+              }
+              testID="text-input-outline"
+            />
+            <View>
+              <View
                 style={
                   [
                     {
-                      "margin": 0,
-                      "zIndex": 1,
-                    },
-                    {
-                      "height": 48,
-                    },
-                    {
                       "paddingBottom": 0,
-                      "paddingTop": 0,
                     },
                     {
-                      "color": "rgba(28, 27, 31, 1)",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "paddingHorizontal": 16,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
+                      "minHeight": 56,
+                      "paddingTop": 8,
                     },
-                    false,
-                    [
-                      {},
-                    ],
-                    undefined,
                   ]
                 }
-                testID="text-input-outlined"
-                underlineColorAndroid="transparent"
-                value=""
-              />
+              >
+                <View
+                  collapsable={false}
+                  pointerEvents="none"
+                  style={
+                    {
+                      "bottom": 0,
+                      "left": 0,
+                      "opacity": 1,
+                      "position": "absolute",
+                      "right": 0,
+                      "top": 0,
+                      "transform": [
+                        {
+                          "translateX": 0,
+                        },
+                      ],
+                      "zIndex": 3,
+                    }
+                  }
+                >
+                  <Text
+                    collapsable={false}
+                    maxFontSizeMultiplier={1.5}
+                    numberOfLines={1}
+                    style={
+                      {
+                        "backgroundColor": "rgba(255, 251, 254, 1)",
+                        "color": "transparent",
+                        "fontFamily": "Poppins_Regular",
+                        "fontSize": 16,
+                        "fontWeight": undefined,
+                        "left": 8,
+                        "letterSpacing": 0.15,
+                        "lineHeight": undefined,
+                        "opacity": -0.6666666666666667,
+                        "paddingHorizontal": 0,
+                        "position": "absolute",
+                        "textAlign": "left",
+                        "top": 33,
+                        "transform": [
+                          {
+                            "translateX": 0,
+                          },
+                          {
+                            "translateY": 0,
+                          },
+                          {
+                            "scale": 1,
+                          },
+                          {
+                            "scaleY": 1,
+                          },
+                        ],
+                        "width": -16,
+                        "writingDirection": "ltr",
+                      }
+                    }
+                  >
+                    Email
+                  </Text>
+                  <Text
+                    collapsable={false}
+                    maxFontSizeMultiplier={1.5}
+                    numberOfLines={1}
+                    onLayout={[Function]}
+                    style={
+                      {
+                        "color": "rgba(103, 80, 164, 1)",
+                        "fontFamily": "Poppins_Regular",
+                        "fontSize": 16,
+                        "fontWeight": undefined,
+                        "left": 0,
+                        "letterSpacing": 0.15,
+                        "lineHeight": undefined,
+                        "opacity": 0,
+                        "paddingHorizontal": 16,
+                        "position": "absolute",
+                        "textAlign": "left",
+                        "top": 32,
+                        "transform": [
+                          {
+                            "translateX": 0,
+                          },
+                          {
+                            "translateY": 0,
+                          },
+                          {
+                            "scale": 1,
+                          },
+                        ],
+                        "writingDirection": "ltr",
+                      }
+                    }
+                    testID="text-input-outlined-label-active"
+                  >
+                    Email
+                  </Text>
+                  <Text
+                    collapsable={false}
+                    maxFontSizeMultiplier={1.5}
+                    numberOfLines={1}
+                    style={
+                      {
+                        "color": "rgba(73, 69, 79, 1)",
+                        "fontFamily": "Poppins_Regular",
+                        "fontSize": 16,
+                        "fontWeight": undefined,
+                        "left": 0,
+                        "letterSpacing": 0.15,
+                        "lineHeight": undefined,
+                        "opacity": 0,
+                        "paddingHorizontal": 16,
+                        "position": "absolute",
+                        "textAlign": "left",
+                        "top": 32,
+                        "transform": [
+                          {
+                            "translateX": 0,
+                          },
+                          {
+                            "translateY": 0,
+                          },
+                          {
+                            "scale": 1,
+                          },
+                        ],
+                        "writingDirection": "ltr",
+                      }
+                    }
+                    testID="text-input-outlined-label-inactive"
+                  >
+                    Email
+                  </Text>
+                </View>
+                <TextInput
+                  editable={true}
+                  maxFontSizeMultiplier={1.5}
+                  multiline={false}
+                  onBlur={[Function]}
+                  onChangeText={[Function]}
+                  onFocus={[Function]}
+                  placeholder=" "
+                  placeholderTextColor="rgba(73, 69, 79, 1)"
+                  selectionColor="rgba(103, 80, 164, 1)"
+                  style={
+                    [
+                      {
+                        "margin": 0,
+                        "zIndex": 1,
+                      },
+                      {
+                        "height": 48,
+                      },
+                      {
+                        "paddingBottom": 0,
+                        "paddingTop": 0,
+                      },
+                      {
+                        "color": "rgba(28, 27, 31, 1)",
+                        "fontFamily": "Poppins_Regular",
+                        "fontSize": 16,
+                        "fontWeight": undefined,
+                        "letterSpacing": 0.15,
+                        "lineHeight": undefined,
+                        "paddingHorizontal": 16,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                      false,
+                      [
+                        {},
+                      ],
+                      undefined,
+                    ]
+                  }
+                  testID="text-input-outlined"
+                  underlineColorAndroid="transparent"
+                  value=""
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -371,8 +373,9 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
               "writingDirection": "ltr",
             }
           }
-          testID="emailError"
-        />
+        >
+          Email is invalid!
+        </Text>
       </View>
       <View>
         <View
@@ -598,27 +601,38 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
           </View>
         </View>
         <Text
-          collapsable={false}
-          maxFontSizeMultiplier={1.5}
-          onLayout={[Function]}
+          allowFontScaling={false}
+          onPress={[Function]}
+          selectable={false}
           style={
-            {
-              "color": "rgba(179, 38, 30, 1)",
-              "fontFamily": "Poppins_Regular",
-              "fontSize": 12,
-              "fontWeight": "400",
-              "letterSpacing": 0.25,
-              "lineHeight": 20,
-              "opacity": 0,
-              "paddingHorizontal": 12,
-              "paddingVertical": 4,
-              "textAlign": "left",
-              "transform": [],
-              "writingDirection": "ltr",
-            }
+            [
+              {
+                "color": "black",
+                "fontSize": 25,
+              },
+              {
+                "position": "absolute",
+                "right": 10,
+                "top": 16,
+                "transform": [
+                  {
+                    "translateY": 0,
+                  },
+                ],
+              },
+              {
+                "fontFamily": "FontAwesome5Free-Solid",
+                "fontStyle": "normal",
+                "fontWeight": "normal",
+              },
+              {
+                "fontWeight": "700",
+              },
+            ]
           }
-          testID="passwordError"
-        />
+        >
+          
+        </Text>
       </View>
       <View>
         <View
