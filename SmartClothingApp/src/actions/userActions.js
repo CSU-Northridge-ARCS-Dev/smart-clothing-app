@@ -20,6 +20,7 @@ import {
   updateEmail,
   EmailAuthProvider,
   reauthenticateWithCredential,
+  updatePassword,
 } from "firebase/auth";
 
 import {
@@ -29,6 +30,7 @@ import {
   UPDATE_PROFILE,
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
+  UPDATE_PASSWORD_SUCCESS
 } from "./types";
 
 import { toastError } from "./toastActions.js";
@@ -58,6 +60,13 @@ const signupWithEmail = (user) => {
 const logout = () => {
   return {
     type: LOGOUT,
+  };
+};
+
+// password
+export const updatePasswordSuccess = () => {
+  return {
+    type: UPDATE_PASSWORD_SUCCESS,
   };
 };
 
@@ -288,6 +297,18 @@ export const reauthenticate = (currentPassword) => {
       return false;
     }
   };
+};
+
+export const updateUserPassword = async (newPassword) => {
+  try {
+    const user = auth.currentUser;
+    await updatePassword(user, newPassword);
+    console.log('Password update success');
+    return true;
+  } catch (error) {
+    console.error('Error updating password:', error);
+    return false;
+  }
 };
 
 export const updateUserEmail = (newEmail) => {
