@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 
 import UpdateEmailModal from "../../components/UpdateEmailModal/UpdateEmailModal";
 import DeleteAccountModal from "../../components/DeleteAccountModal/DeleteAccountModal";
-
+import ChangePasswordModal from "../../components/ChangePasswordModal/ChangePasswordModal"
 import SettingsButton from "../../components/UI/SettingsButton";
 
 const SettingsScreen = ({ navigation, route }) => {
@@ -16,6 +16,7 @@ const SettingsScreen = ({ navigation, route }) => {
     modal2: false,
     modal3: false,
     modal4: false,
+    changePasswordModal: false,
   });
   const dispatch = useDispatch();
 
@@ -41,6 +42,11 @@ const SettingsScreen = ({ navigation, route }) => {
         closeModal={() => closeModal("modal4")}
       ></DeleteAccountModal>
 
+      <ChangePasswordModal
+        visible={isModalVisible.changePasswordModal}
+        closeModal={() => closeModal("changePasswordModal")} 
+      ></ChangePasswordModal>
+
       <View style={styles.content}>
         <Text
           style={[
@@ -60,6 +66,7 @@ const SettingsScreen = ({ navigation, route }) => {
         />
         <SettingsButton
           title="CHANGE PASSWORD"
+          onPress={() => openModal("changePasswordModal")}
           description="Change your account password"
         />
         <SettingsButton
