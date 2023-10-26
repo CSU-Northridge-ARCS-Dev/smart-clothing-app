@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 import { Button, Text } from "react-native-paper";
+import { useRoute } from "@react-navigation/native";
 
 import {
   ActivityCard,
@@ -15,6 +16,12 @@ import {
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
+  const route = useRoute();
+  const navigate = (screen) => {
+    navigation.navigate(screen, {
+      previousScreenTitle: route.name,
+    });
+  };
   const firstName = useSelector((state) => state.user.firstName);
   return (
     <ScrollView style={styles.container}>
@@ -30,7 +37,7 @@ export default function HomeScreen({ navigation }) {
           </Text>
           <Button
             mode="contained"
-            onPress={() => navigation.navigate("Insights")}
+            onPress={() => navigate("Insights")}
             icon={"arrow-right"}
             uppercase
             contentStyle={{ flexDirection: "row-reverse" }}
