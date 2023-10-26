@@ -30,7 +30,7 @@ import {
   UPDATE_PROFILE,
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
-  UPDATE_PASSWORD_SUCCESS
+  UPDATE_PASSWORD_SUCCESS,
 } from "./types";
 
 import { toastError } from "./toastActions.js";
@@ -295,16 +295,17 @@ export const reauthenticate = (currentPassword) => {
   };
 };
 
-export const updateUserPassword = async (newPassword) => {
-  try {
+export const updateUserPassword = (newPassword) => {
+  return (dispatch) => {
     const user = auth.currentUser;
-    await updatePassword(user, newPassword);
-    console.log('Password update success');
-    return true;
-  } catch (error) {
-    console.error('Error updating password:', error);
-    return false;
-  }
+    try {
+      updatePassword(user, newPassword);
+      console.log("Password update success");
+    } catch (error) {
+      dispatch(toastError(firebaseErrorsMessages[error.code]));
+      console.log("Password update failure");
+    }
+  };
 };
 
 export const updateUserEmail = (newEmail) => {
@@ -325,37 +326,25 @@ export const updateUserEmail = (newEmail) => {
 };
 
 export const deleteAccount = () => {
-  return (dispatch) => {
-    const user = auth.currentUser;
-    const uid = auth.currentUser.uid;
-    const docRef = doc(database, "Users", uid);
+  return async (dispatch) => {
+    try {
+      const user = auth.currentUser;
+      const uid = user.uid;
+      const docRef = doc(database, "Users", uid);
 
-    user
-      .delete()
-      .then(() => {
-        deleteDoc(docRef)
-          .then(() => {
-            console.log("User and document deleted successfully.");
-            auth
-              .signOut()
-              .then(() => {
-                dispatch(logout());
-                dispatch(toastError("User account has been deleted"));
-              })
-              .catch((error) => {
-                console.log("Error logging out!");
-                dispatch(toastError("Error logging out"));
-                console.log(error);
-              });
-          })
-          .catch((error) => {
-            dispatch(toastError(firebaseErrorsMessages[error.code]));
-            console.log("Error deleting Firestore document:", error);
-          });
-      })
-      .catch((error) => {
-        dispatch(toastError(firebaseErrorsMessages[error.code]));
-        console.log("Error deleting user:", error);
-      });
+      await user.delete();
+      console.log("User deleted successfully.");
+
+      await deleteDoc(docRef);
+      console.log("Document deleted successfully.");
+
+      await auth.signOut();
+      dispatch(logout());
+      dispatch(toastError("User account has been deleted"));
+      console.log("User signed out successfully.");
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      dispatch(toastError(error.message || "An error occurred."));
+    }
   };
 };
