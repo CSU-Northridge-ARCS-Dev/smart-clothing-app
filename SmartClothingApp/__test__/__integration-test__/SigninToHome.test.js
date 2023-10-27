@@ -7,9 +7,9 @@ import { act } from 'react-test-renderer';
 import { getByText, getByProps, waitFor } from '@testing-library/react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack'; 
-import configureStore from '../src/store.js';
-import rootReducer from '../src/store'; 
-import AppRouter from '../src/navigation/index.js';
+import configureStore from '../../src/store.js';
+import rootReducer from '../../src/store.js'; 
+import AppRouter from '../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
 
@@ -17,7 +17,7 @@ import {PaperProvider}  from "react-native-paper";
 
 
 // Mock Firebase Authentication
-jest.mock('../firebaseConfig.js', () => ({
+jest.mock('../../firebaseConfig.js', () => ({
   auth: {
     loginWithEmail: jest.fn(() => Promise.resolve()),
     startLoginWithEmail: jest.fn(() => Promise.resolve()),
@@ -86,7 +86,7 @@ function TestComponent() {
 }
 
 
-describe('MyComponent Integration Test', () => {
+describe('SignUpToHome Integration Test', () => {
   it('should navigate from Sign-In to Dashboard', async () => {
 
     // Configure Redux Store with Combined Reducer
