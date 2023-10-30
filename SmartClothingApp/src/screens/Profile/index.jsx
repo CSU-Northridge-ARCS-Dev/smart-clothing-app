@@ -51,14 +51,6 @@ const ProfileScreen = ({ navigation, route }) => {
       errors.fname = "Must have a first name.";
       flag = false;
     }
-
-    if (userData.lname.length < 1) {
-      errors.lname = "Must have a last name.";
-      flag = false;
-    }
-
-    setError({ ...errors });
-    return flag;
   };
 
   const formatHeight = (height) => {

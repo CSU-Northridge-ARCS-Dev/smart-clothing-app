@@ -4,6 +4,7 @@ import {
   LOGOUT,
   UPDATE_PROFILE,
   UPDATE_USER_METRICS_DATA,
+  UPDATE_EMAIL_SUCCESS,
 } from "../actions/types";
 
 const initialState = {
@@ -49,6 +50,7 @@ const userReducer = (state = initialState, action) => {
         lastName: null,
         email: null,
         authError: null,
+        reAuth: null,
       };
     case UPDATE_PROFILE:
       return {
@@ -60,6 +62,11 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         userMetricsData: action.payload,
+      };
+    case UPDATE_EMAIL_SUCCESS:
+      return {
+        ...state,
+        user: { ...state.user, email: action.payload },
       };
     default:
       return state;
