@@ -18,39 +18,70 @@ import {PaperProvider}  from "react-native-paper";
 // Mock Firebase Authentication
 jest.mock('../../firebaseConfig.js', () => ({
     auth: {
-      loginWithEmail: jest.fn(() => Promise.resolve()),
-      startLoginWithEmail: jest.fn(() => Promise.resolve()),
+      signupWithEmail: jest.fn(() => Promise.resolve()),
+      startUpdateProfile: jest.fn(() => Promise.resolve()),
       startLoadUserData: jest.fn(() => Promise.resolve()),
       startUpdateUserData: jest.fn(() => Promise.resolve()),
       updateUserMetricsData: jest.fn(() => Promise.resolve()),
-    //   currentUser: {
-    //     uid: {
-    //       "email": "test1@gmail.com", 
-    //       "firstName": "MisterTest",
-    //       "lastName": "Johnson", 
-    //       "uuid": "nvQpwMHj7eUKfsyEhVloGM7hvji2"
-    //       //uuid: null
-    //     },
-    //     email: 'test1@gmail.com',
-    //     password: 'password123'
-    //   },
+      currentUser: {
+        uid: {
+          "email": "test100@gmail.com", 
+          "firstName": "LordTest",
+          "lastName": "Smith", 
+          "uuid": "nvQpwMHj7eUKfsyEhVloGM7hvji2"
+          //uuid: null
+        },
+        email: 'test100@gmail.com',
+        password: 'password123'
+      },
     },
 }));
+
+// jest.mock('../../src/actions/toastActions.js', () => ({
+//     toastError: jest.fn(() => Promise.resolve()),
+// }))
   
 jest.mock('firebase/auth', () => ({
     initializeApp: jest.fn(),
+    updateProfile: jest.fn(() => Promise.resolve({ 
+        firstName: "LordTest",
+        lastName: "Smith", 
+      })),
     registerVersion: jest.fn(),
     getAuth: jest.fn(),
     getDatabase: jest.fn(),
-    signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ 
+    createUserWithEmailAndPassword: jest.fn(() => Promise.resolve({ 
       user: {
             //uid: null,
             uid: 'nvQpwMHj7eUKfsyEhVloGM7hvji2',
-            email: 'test1@gmail.com',
+            email: 'test100@gmail.com',
             password: 'password123'
           } 
     })),
 }))
+
+// jest.mock('../../src/actions/appActions', () => ({
+//     userMetricsDataModalVisible: jest.fn().mockReturnValue({
+//         visibility: true,
+//         isFromSignUpScreen: true,
+//     }),
+// }));
+jest.mock('../../src/actions/appActions.js', () => {
+    return {
+      ...jest.requireActual('../../src/actions/appActions.js'), // if you want to keep the original implementations of other functions
+      userMetricsDataModalVisible: jest.fn((visibility, isFromSignUpScreen = true) => {
+        return {
+          type: 'USER_METRICS_DATA_MODAL_VISIBLE',
+          payload: {
+            visibility,
+            isFromSignUpScreen,
+          },
+        };
+      })
+    };
+  });
+
+  
   
 jest.mock('firebase/firestore', () => ({
     collection: jest.fn(() => ({ add: jest.fn() })),
@@ -89,14 +120,21 @@ describe('SignUpToHome Integration Test', () => {
     it('should navigate from Sign-In to Sign-Up to Dashboard', async () => {
   
         // Configure Redux Store with Combined Reducer
-        const store = configureStore(rootReducer, {
-            user: {
-            "uuid": null
-            },
-        });
+        // const store = configureStore(rootReducer, {
+        //     user: {
+        //     "uuid": null
+        //     },
+        // });
+
+        // const store = createStore(
+        //     rootReducer,
+        //     applyMiddleware(thunk)
+        //   );
+
+        const store = configureStore();
     
         // Wrap TestComponent with Providers and render
-        const { getAllByTestId, getByText } = render(
+        const { getAllByTestId, getByText, getAllByRole } = render(
             <StoreProvider store={store}>
             <PaperProvider >
                 <TestComponent />
@@ -108,6 +146,7 @@ describe('SignUpToHome Integration Test', () => {
 
         // Find "Don't have an account? Sign Up"
         var buttons = getAllByTestId('button');
+        console.log(buttons.length);
         const dontHaveAccountLink =  buttons[2];
     
         // Click "Don't have an account? Sign Up"
@@ -125,17 +164,19 @@ describe('SignUpToHome Integration Test', () => {
 
         // Find Inputs
         const inputFields = getAllByTestId('text-input-outlined');
+        console.log(inputFields.length);
         const firstNameInput =  inputFields[0];
         const lastNameInput =  inputFields[1];
         const emailInput = inputFields[2]; 
         const passwordInput = inputFields[3];  
         const confirmPasswordInput =  inputFields[4];
 
-        // Find TOS Checkmark (Wait for Settings update to implement)
+
 
         // Find "Don't have an account? Sign Up"
         buttons = getAllByTestId('button');
-        const signUpButton =  buttons[1];
+        console.log(buttons.length);
+        var signUpButton =  buttons[1];
 
 
         // Enter credentials and press Sign In Button
@@ -146,7 +187,7 @@ describe('SignUpToHome Integration Test', () => {
             fireEvent.changeText(lastNameInput, 'Smith');
         });
         await act(() => {
-            fireEvent.changeText(emailInput, 'test1@gmail.com');
+            fireEvent.changeText(emailInput, 'test100@gmail.com');
         });
         await act(() => {
             fireEvent.changeText(passwordInput, 'password123');
@@ -154,6 +195,34 @@ describe('SignUpToHome Integration Test', () => {
         await act(() => {
             fireEvent.changeText(confirmPasswordInput, 'password123');
         });
+
+        // Find TOS Checkmark (Wait for Settings update to implement)
+        var userAgreements = getAllByRole('checkbox');
+        // console.log(userAgreements.length);
+        // await act(() => {
+        //     userAgreements.forEach(checkbox => fireEvent.press(checkbox));
+        // });
+        expect(userAgreements[0].props.accessibilityState.checked).toBe(false);
+        await act(() => {
+            fireEvent.press(userAgreements[0])
+        });
+        // console.log(userAgreements.length);
+
+        var userAgreements = getAllByRole('checkbox');
+        // console.log(userAgreements.length);
+        await act(() => {
+            fireEvent.press(userAgreements[0])
+        });
+        await waitFor(() => {
+            expect(userAgreements[0].props.accessibilityState.checked).toBe(true);
+        });
+        // await act(() => {
+        //     fireEvent.press(userAgreements[1])
+        // });
+        buttons = getAllByTestId('button');
+        console.log(buttons.length);
+        signUpButton =  buttons[1];
+
         await act(() => {
             fireEvent.press(signUpButton);
         });

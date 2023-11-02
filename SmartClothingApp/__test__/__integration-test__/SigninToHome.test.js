@@ -15,7 +15,6 @@ import {PaperProvider}  from "react-native-paper";
 
 
 
-
 // Mock Firebase Authentication
 jest.mock('../../firebaseConfig.js', () => ({
   auth: {
