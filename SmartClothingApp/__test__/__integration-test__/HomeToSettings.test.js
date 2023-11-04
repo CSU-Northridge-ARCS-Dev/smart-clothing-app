@@ -29,7 +29,6 @@ jest.mock('../../firebaseConfig.js', () => ({
           "firstName": "MisterTest",
           "lastName": "Johnson", 
           "uuid": "nvQpwMHj7eUKfsyEhVloGM7hvji2"
-          //uuid: null
         },
         email: 'test1@gmail.com',
         password: 'password123'
