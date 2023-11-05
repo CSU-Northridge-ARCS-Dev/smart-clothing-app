@@ -11,6 +11,7 @@ const MyDropdown = (props) => {
         style={[
           styles.dropdown,
           isFocus && { borderColor: "#1560a4", borderWidth: 2.3 },
+          props.style,
         ]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
@@ -34,11 +35,10 @@ const MyDropdown = (props) => {
 
 const styles = StyleSheet.create({
   dropdown: {
-    height: 51,
+    height: 50,
     borderColor: "gray",
     borderWidth: 1,
     paddingHorizontal: 8,
-    marginBottom: 28,
     backgroundColor: "white",
     paddingLeft: 15,
     fontFamily: "sans-serif",
