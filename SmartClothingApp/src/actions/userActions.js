@@ -7,6 +7,8 @@ import {
   getDoc,
 } from "firebase/firestore";
 
+import { storeUID } from "../utils/localStorage.js";
+
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
 
@@ -15,6 +17,7 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
   sendPasswordResetEmail,
+  getUser,
 } from "firebase/auth";
 
 import {
@@ -196,6 +199,9 @@ export const startLoginWithEmail = (email, password) => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
+
+        storeUID(user.uid); // store the user UID securely in local storages
+
         // console.log("Logged in successfully!");
         // console.log(user);
 
