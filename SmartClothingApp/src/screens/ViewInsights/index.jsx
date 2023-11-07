@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateActivityRingsData } from "../../actions/appActions";
 import { useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
+import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
 export default function ViewInsights({ route }) {
   const { previousScreenTitle } = route.params;
@@ -34,43 +35,7 @@ export default function ViewInsights({ route }) {
     <View style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={styles.body}>
-        <View style={styles.insights}>
-          <Text
-            style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold }]}
-          >
-            Daily Insights
-          </Text>
-          <View style={{ justifyContent: "center" }}>
-            <View style={styles.ringsRow}>
-              {daysOfWeek.map((day, index) => (
-                <View key={index} style={{ alignItems: "center" }}>
-                  <Text
-                    style={[
-                      AppStyle.subTitle,
-                      { fontFamily: AppFonts.chakraBold },
-                    ]}
-                  >
-                    {day}
-                  </Text>
-                  <TouchableOpacity
-                    key={day}
-                    style={{ width: 50, height: 50 }}
-                    onPress={() => handleRingPress(day)}
-                  >
-                    <ActivityRings
-                      scale={0.17}
-                      canvasWidth={50}
-                      canvasHeight={50}
-                      horiPos={2}
-                      vertPos={2}
-                      totalProgress={activityRingsData[day]}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          </View>
-        </View>
+        <DailyInsights handleRingPress={handleRingPress} />
       </View>
       <ActivityRings //big ring
         scale={1}
