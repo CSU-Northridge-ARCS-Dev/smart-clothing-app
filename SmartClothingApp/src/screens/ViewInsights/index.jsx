@@ -20,6 +20,8 @@ export default function ViewInsights({ route }) {
     ring3: 0,
   });
 
+  // console.log(activityRingsData);
+
   const handleRingPress = (day) => {
     // You can add your logic here to update the ring data as needed
     const currentRingData = {
@@ -35,7 +37,10 @@ export default function ViewInsights({ route }) {
     <View style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={styles.body}>
-        <DailyInsights handleRingPress={handleRingPress} />
+        <DailyInsights
+          fromDashboard={false}
+          handleRingPress={handleRingPress}
+        />
       </View>
       <ActivityRings //big ring
         scale={1}

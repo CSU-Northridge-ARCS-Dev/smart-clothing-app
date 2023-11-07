@@ -22,3 +22,17 @@ export const updateActivityRingsData = (day, ringData) => {
     payload: { day, rings: ringData },
   };
 };
+
+export const fetchActivityRingsData = () => {
+  return async (dispatch) => {
+    try {
+      const response = await fetch("your-api-endpoint-here");
+      const data = await response.json();
+
+
+      dispatch(updateActivityRingsData(data));
+    } catch (error) {
+
+    }
+  };
+};
