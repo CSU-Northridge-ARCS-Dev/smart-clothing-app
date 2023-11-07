@@ -33,6 +33,28 @@ export default function ViewInsights({ route }) {
     setCurrentRingData(currentRingData);
   };
 
+  const generateRandomValue = () => {
+    return Math.random() * 2;
+  };
+
+  useEffect(() => {
+    // Create an interval to update the data every 5 seconds
+    const intervalId = setInterval(() => {
+      // Update activity rings data with random values
+      daysOfWeek.forEach((day) => {
+        const randomData = {
+          ring1: generateRandomValue(),
+          ring2: generateRandomValue(),
+          ring3: generateRandomValue(),
+        };
+        dispatch(updateActivityRingsData(day, randomData));
+      });
+    }, 5000); // 5000 milliseconds = 5 seconds
+
+    // Cleanup the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, [dispatch]);
+
   return (
     <View style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
