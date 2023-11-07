@@ -1,15 +1,23 @@
-import React from "react";
-import { Button, View, Text, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Platform,
+} from "react-native";
 import { AppHeader } from "../../components";
 import ActivityRings from "../../components/visualizations/ActivityRings/ActivityRings";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
 import { updateActivityRingsData } from "../../actions/appActions";
-import { useEffect, useState } from "react";
 import { TouchableOpacity } from "react-native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
+import Icon from "react-native-vector-icons/FontAwesome5";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-export default function ViewInsights({ route }) {
+const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
   const daysOfWeek = ["U", "M", "T", "W", "R", "F", "S"];
   const dispatch = useDispatch();
@@ -19,6 +27,20 @@ export default function ViewInsights({ route }) {
     ring2: 0,
     ring3: 0,
   });
+
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  useEffect(() => {
+    setCurrentDate(currentDate);
+  }, []);
+
+  const onChangeDate = (event, selectedDate) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (selectedDate) {
+      setCurrentDate(selectedDate);
+    }
+  };
 
   // console.log(activityRingsData);
 
@@ -56,9 +78,27 @@ export default function ViewInsights({ route }) {
   }, [dispatch]);
 
   return (
-    <View style={[{ flex: 1 }]}>
+    <ScrollView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={styles.body}>
+        <View style={styles.dateContainer}>
+          <Text style={styles.title}>
+            Date:{" "}
+            {`${
+              currentDate.getMonth() + 1
+            }/${currentDate.getDate()}/${currentDate.getFullYear()}`}
+          </Text>
+          <View style={styles.iconContainer}>
+            <Icon
+              name="calendar-alt"
+              size={20}
+              style={styles.icon}
+              onPress={() => setShowDatePicker(true)}
+            />
+            <Icon name="sliders-h" size={20} style={styles.icon} />
+            <Icon name="upload" size={20} style={styles.icon} />
+          </View>
+        </View>
         <DailyInsights
           fromDashboard={false}
           handleRingPress={handleRingPress}
@@ -130,11 +170,24 @@ export default function ViewInsights({ route }) {
           );
         }}
       />
-    </View>
+      {showDatePicker && (
+        <DateTimePicker
+          value={currentDate}
+          mode="date"
+          display="default"
+          onChange={onChangeDate}
+        />
+      )}
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 24,
+    textAlign: "left",
+    color: "black",
+  },
   content: {
     paddingHorizontal: 20,
     borderTopLeftRadius: 25,
@@ -162,5 +215,16 @@ const styles = StyleSheet.create({
   ringsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  dateContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  iconContainer: {
+    flexDirection: "row",
+  },
+  icon: {
+    marginLeft: 25,
   },
 });
