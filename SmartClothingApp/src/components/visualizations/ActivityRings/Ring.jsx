@@ -31,7 +31,7 @@ uniform float scale;
 vec2 rotate(in vec2 coord, in float angle, vec2 origin) {
   vec2 coord1 = coord - origin;
   vec2 rotated = coord1 * mat2( cos(angle), -sin(angle),
-                       sin(angle),  cos(angle));
+  sin(angle),  cos(angle));
   return rotated + origin;
  }
 

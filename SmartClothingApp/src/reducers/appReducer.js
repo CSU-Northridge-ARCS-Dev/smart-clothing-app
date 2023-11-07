@@ -63,7 +63,6 @@ const appReducer = (state = initialState, action) => {
         isFromSignUpScreen: action.payload.isFromSignUpScreen,
       };
     case UPDATE_ACTIVITY_RINGS_DATA:
-      console.log(`Updating activity rings data for ${action.payload.day}`);
       return {
         ...state,
         activityRingsData: {

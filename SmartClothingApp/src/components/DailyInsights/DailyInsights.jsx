@@ -50,7 +50,6 @@ const DailyInsights = ({
                 />
               ) : (
                 <TouchableWithoutFeedback
-                  key={day}
                   onPress={() => {
                     handleRingPress(day);
                     setSelectedRing(day);
