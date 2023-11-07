@@ -58,7 +58,7 @@ export default function ViewInsights({ route }) {
                     onPress={() => handleRingPress(day)}
                   >
                     <ActivityRings
-                      scale={0.15}
+                      scale={0.17}
                       canvasWidth={50}
                       canvasHeight={50}
                       horiPos={2}
