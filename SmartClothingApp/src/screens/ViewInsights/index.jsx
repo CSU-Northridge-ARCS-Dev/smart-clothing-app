@@ -3,10 +3,17 @@ import { Button, View, Text, StyleSheet } from "react-native";
 import { AppHeader } from "../../components";
 import ActivityRings from "../../components/visualizations/ActivityRings/ActivityRings";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
+import { useSelector, useDispatch } from "react-redux";
+import { updateActivityRingsData } from "../../actions/appActions";
+import { useEffect } from "react";
 
 export default function ViewInsights({ route }) {
   const { previousScreenTitle } = route.params;
-  const daysOfWeek = ["S", "M", "T", "W", "R", "F", "S"];
+  const daysOfWeek = ["U", "M", "T", "W", "R", "F", "S"];
+  const dispatch = useDispatch();
+  const activityRingsBoo = useSelector((state) => state.app.activityRingsData);
+
+  // dispatch(activityRingsData({ day: "U", ring: "ring1", totalProgress: 2.8 }));
 
   return (
     <View style={[{ flex: 1 }]}>
@@ -20,29 +27,28 @@ export default function ViewInsights({ route }) {
           </Text>
           <View style={{ justifyContent: "center" }}>
             <View style={styles.ringsRow}>
-              {Array(7)
-                .fill()
-                .map((_, index) => (
-                  <View key={index} style={{ alignItems: "center" }}>
-                    <Text
-                      style={[
-                        AppStyle.subTitle,
-                        { fontFamily: AppFonts.chakraBold },
-                      ]}
-                    >
-                      {daysOfWeek[index]}
-                    </Text>
-                    <View style={{ width: 50, height: 50 }}>
-                      <ActivityRings
-                        scale={0.15}
-                        canvasWidth={50}
-                        canvasHeight={50}
-                        horiPos={2}
-                        vertPos={2}
-                      />
-                    </View>
+              {daysOfWeek.map((day, index) => (
+                <View key={index} style={{ alignItems: "center" }}>
+                  <Text
+                    style={[
+                      AppStyle.subTitle,
+                      { fontFamily: AppFonts.chakraBold },
+                    ]}
+                  >
+                    {day}
+                  </Text>
+                  <View style={{ width: 50, height: 50 }}>
+                    <ActivityRings
+                      scale={0.15}
+                      canvasWidth={50}
+                      canvasHeight={50}
+                      horiPos={2}
+                      vertPos={2}
+                      totalProgress={activityRingsBoo[day]}
+                    />
                   </View>
-                ))}
+                </View>
+              ))}
             </View>
           </View>
         </View>
@@ -53,6 +59,55 @@ export default function ViewInsights({ route }) {
         canvasHeight={300}
         horiPos={2}
         vertPos={2}
+        totalProgress={{ ring1: 2.8, ring2: 0.6, ring3: 0.5 }}
+      />
+      <Button
+        title="Update Activity Rings Data"
+        onPress={() => {
+          // Dispatch each action individually
+          dispatch(
+            updateActivityRingsData({
+              day: "U",
+              ring: "ring1",
+              totalProgress: 2.8,
+            })
+          );
+          dispatch(
+            updateActivityRingsData({
+              day: "U",
+              ring: "ring2",
+              totalProgress: 1.4,
+            })
+          );
+          dispatch(
+            updateActivityRingsData({
+              day: "U",
+              ring: "ring3",
+              totalProgress: 0.6,
+            })
+          );
+          dispatch(
+            updateActivityRingsData({
+              day: "T",
+              ring: "ring1",
+              totalProgress: 0.7,
+            })
+          );
+          dispatch(
+            updateActivityRingsData({
+              day: "T",
+              ring: "ring2",
+              totalProgress: 0.3,
+            })
+          );
+          dispatch(
+            updateActivityRingsData({
+              day: "T",
+              ring: "ring3",
+              totalProgress: 0.8,
+            })
+          );
+        }}
       />
     </View>
   );

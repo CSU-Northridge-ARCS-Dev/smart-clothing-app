@@ -1,4 +1,7 @@
-import { USER_METRICS_DATA_MODAL_VISIBLE } from "./types";
+import {
+  USER_METRICS_DATA_MODAL_VISIBLE,
+  UPDATE_ACTIVITY_RINGS_DATA,
+} from "./types";
 
 export const userMetricsDataModalVisible = (
   visibility,
@@ -10,5 +13,12 @@ export const userMetricsDataModalVisible = (
       visibility,
       isFromSignUpScreen,
     },
+  };
+};
+
+export const updateActivityRingsData = (progressData) => {
+  return {
+    type: UPDATE_ACTIVITY_RINGS_DATA,
+    payload: progressData,
   };
 };
