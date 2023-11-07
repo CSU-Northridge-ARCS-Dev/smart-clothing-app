@@ -69,12 +69,10 @@ const appReducer = (state = initialState, action) => {
         activityRingsData: {
           ...state.activityRingsData,
           [action.payload.day]: {
-            ...state.activityRingsData[action.payload.day],
-            [action.payload.ring]: action.payload.totalProgress,
+            ...action.payload.rings,
           },
         },
       };
-
     default:
       return state;
   }

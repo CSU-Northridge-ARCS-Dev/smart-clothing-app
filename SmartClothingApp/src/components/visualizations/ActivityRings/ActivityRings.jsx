@@ -40,7 +40,6 @@ const ActivityRings = ({
     background: color(0.196, 0.012, 0.063),
     size: SIZE,
   };
-  console.log(totalProgress);
 
   const ringProps = [
     {
