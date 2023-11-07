@@ -5,15 +5,30 @@ import ActivityRings from "../../components/visualizations/ActivityRings/Activit
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
 import { updateActivityRingsData } from "../../actions/appActions";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { TouchableOpacity } from "react-native";
 
 export default function ViewInsights({ route }) {
   const { previousScreenTitle } = route.params;
   const daysOfWeek = ["U", "M", "T", "W", "R", "F", "S"];
   const dispatch = useDispatch();
-  const activityRingsBoo = useSelector((state) => state.app.activityRingsData);
+  const activityRingsData = useSelector((state) => state.app.activityRingsData);
+  const [currentRingData, setCurrentRingData] = useState({
+    ring1: 0,
+    ring2: 0,
+    ring3: 0,
+  });
 
-  // dispatch(activityRingsData({ day: "U", ring: "ring1", totalProgress: 2.8 }));
+  const handleRingPress = (day) => {
+    // You can add your logic here to update the ring data as needed
+    const currentRingData = {
+      ring1: activityRingsData[day].ring1,
+      ring2: activityRingsData[day].ring2,
+      ring3: activityRingsData[day].ring3,
+    };
+
+    setCurrentRingData(currentRingData);
+  };
 
   return (
     <View style={[{ flex: 1 }]}>
@@ -37,74 +52,88 @@ export default function ViewInsights({ route }) {
                   >
                     {day}
                   </Text>
-                  <View style={{ width: 50, height: 50 }}>
+                  <TouchableOpacity
+                    key={day}
+                    style={{ width: 50, height: 50 }}
+                    onPress={() => handleRingPress(day)}
+                  >
                     <ActivityRings
                       scale={0.15}
                       canvasWidth={50}
                       canvasHeight={50}
                       horiPos={2}
                       vertPos={2}
-                      totalProgress={activityRingsBoo[day]}
+                      totalProgress={activityRingsData[day]}
                     />
-                  </View>
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
           </View>
         </View>
       </View>
-      <ActivityRings
+      <ActivityRings //big ring
         scale={1}
         canvasWidth={400}
         canvasHeight={300}
         horiPos={2}
         vertPos={2}
-        totalProgress={{ ring1: 2.8, ring2: 0.6, ring3: 0.5 }}
+        totalProgress={{ ...currentRingData }}
       />
       <Button
         title="Update Activity Rings Data"
         onPress={() => {
           // Dispatch each action individually
           dispatch(
-            updateActivityRingsData({
-              day: "U",
-              ring: "ring1",
-              totalProgress: 2.8,
+            updateActivityRingsData("U", {
+              ring1: 2.8,
+              ring2: 1.8,
+              ring3: 0.8,
             })
           );
           dispatch(
-            updateActivityRingsData({
-              day: "U",
-              ring: "ring2",
-              totalProgress: 1.4,
+            updateActivityRingsData("M", {
+              ring1: 1.5,
+              ring2: 1,
+              ring3: 0.6,
             })
           );
           dispatch(
-            updateActivityRingsData({
-              day: "U",
-              ring: "ring3",
-              totalProgress: 0.6,
+            updateActivityRingsData("T", {
+              ring1: 1.3,
+              ring2: 1.2,
+              ring3: 0.2,
             })
           );
           dispatch(
-            updateActivityRingsData({
-              day: "T",
-              ring: "ring1",
-              totalProgress: 0.7,
+            updateActivityRingsData("W", {
+              ring1: 0.7,
+              ring2: 0.4,
+              ring3: 1.8,
             })
           );
+
           dispatch(
-            updateActivityRingsData({
-              day: "T",
-              ring: "ring2",
-              totalProgress: 0.3,
+            updateActivityRingsData("R", {
+              ring1: 0.5,
+              ring2: 0.8,
+              ring3: 0.3,
             })
           );
+
           dispatch(
-            updateActivityRingsData({
-              day: "T",
-              ring: "ring3",
-              totalProgress: 0.8,
+            updateActivityRingsData("F", {
+              ring1: 1.3,
+              ring2: 0.4,
+              ring3: 0.9,
+            })
+          );
+
+          dispatch(
+            updateActivityRingsData("S", {
+              ring1: 0.6,
+              ring2: 0.7,
+              ring3: 0.8,
             })
           );
         }}

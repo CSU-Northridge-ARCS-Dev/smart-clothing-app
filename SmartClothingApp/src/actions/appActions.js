@@ -16,9 +16,9 @@ export const userMetricsDataModalVisible = (
   };
 };
 
-export const updateActivityRingsData = (progressData) => {
+export const updateActivityRingsData = (day, ringData) => {
   return {
     type: UPDATE_ACTIVITY_RINGS_DATA,
-    payload: progressData,
+    payload: { day, rings: ringData },
   };
 };
