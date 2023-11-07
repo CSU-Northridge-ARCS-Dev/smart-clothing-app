@@ -2,7 +2,7 @@ import { Canvas, Fill, vec } from "@shopify/react-native-skia";
 import React from "react";
 
 import Ring from "./Ring";
-import { useSelector } from "react-redux";
+import { AppColor } from "../../../constants/themes";
 
 const ActivityRings = ({
   scale,
@@ -24,20 +24,20 @@ const ActivityRings = ({
   const color = (r, g, b) => `rgb(${r * 255}, ${g * 255}, ${b * 255})`;
 
   const commonRing1 = {
-    colors: [color(0.008, 1, 0.659), color(0, 0.847, 1)],
-    background: color(0.016, 0.227, 0.212),
+    colors: [color(0.024, 0.737, 1), color(0.075, 0.953, 0.768)],
+    background: color(0.094, 0.49, 0.557),
     size: SIZE - strokeWidth * 4,
   };
 
   const commonRing2 = {
-    colors: [color(0.847, 1, 0), color(0.6, 1, 0.004)],
-    background: color(0.133, 0.2, 0),
+    colors: [color(0.129, 0.392, 0.706), color(0.184, 0.49, 0.851)],
+    background: color(0.22, 0.384, 0.576),
     size: SIZE - strokeWidth * 2,
   };
 
   const commonRing3 = {
-    colors: [color(0.98, 0.067, 0.31), color(0.976, 0.22, 0.522)],
-    background: color(0.196, 0.012, 0.063),
+    colors: [color(0.035, 0.055, 0.243), color(0.059, 0.09, 0.416)],
+    background: color(0.067, 0.078, 0.227),
     size: SIZE,
   };
 
