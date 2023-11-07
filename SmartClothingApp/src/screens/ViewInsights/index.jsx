@@ -6,6 +6,8 @@ import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 
 export default function ViewInsights({ route }) {
   const { previousScreenTitle } = route.params;
+  const daysOfWeek = ["S", "M", "T", "W", "R", "F", "S"];
+
   return (
     <View style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
@@ -21,14 +23,25 @@ export default function ViewInsights({ route }) {
               {Array(7)
                 .fill()
                 .map((_, index) => (
-                  <ActivityRings
-                    key={index}
-                    scale={0.15}
-                    canvasWidth={60}
-                    canvasHeight={60}
-                    horiPos={2.2}
-                    vertPos={2}
-                  />
+                  <View key={index} style={{ alignItems: "center" }}>
+                    <Text
+                      style={[
+                        AppStyle.subTitle,
+                        { fontFamily: AppFonts.chakraBold },
+                      ]}
+                    >
+                      {daysOfWeek[index]}
+                    </Text>
+                    <View style={{ width: 50, height: 50 }}>
+                      <ActivityRings
+                        scale={0.15}
+                        canvasWidth={50}
+                        canvasHeight={50}
+                        horiPos={2}
+                        vertPos={2}
+                      />
+                    </View>
+                  </View>
                 ))}
             </View>
           </View>
@@ -64,7 +77,8 @@ const styles = StyleSheet.create({
     backgroundColor: AppColor.primaryContainer,
     padding: 10,
     borderRadius: 10,
-    height: 100,
+    height: 130,
+    overflow: "hidden",
   },
   body: {
     padding: 10,
