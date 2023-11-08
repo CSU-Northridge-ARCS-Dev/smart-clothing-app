@@ -31,13 +31,12 @@ const ViewInsights = ({ route }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  useEffect(() => {
-    setCurrentDate(currentDate);
-  }, []);
+  let customDateString = new Date();
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
+      console.log(selectedDate);
       setCurrentDate(selectedDate);
     }
   };
@@ -59,8 +58,50 @@ const ViewInsights = ({ route }) => {
     return Math.random() * 2;
   };
 
+  function formatDateToCustomString(date) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    const suffix = getDaySuffix(day);
+
+    return `Today, ${month} ${day}${suffix}, ${year}`;
+  }
+
+  function getDaySuffix(day) {
+    if (day >= 11 && day <= 13) {
+      return "th";
+    }
+    const lastDigit = day % 10;
+    switch (lastDigit) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  }
+
   useEffect(() => {
-    // Create an interval to update the data every 5 seconds
+    // Create an interval to update the data every 10 seconds
     const intervalId = setInterval(() => {
       // Update activity rings data with random values
       daysOfWeek.forEach((day) => {
@@ -71,33 +112,32 @@ const ViewInsights = ({ route }) => {
         };
         dispatch(updateActivityRingsData(day, randomData));
       });
-    }, 5000); // 5000 milliseconds = 5 seconds
+    }, 10000); // 10000 milliseconds = 10 seconds
 
     // Cleanup the interval when the component unmounts
     return () => clearInterval(intervalId);
   }, [dispatch]);
 
+  useEffect(() => {
+    setCurrentDate(currentDate);
+  }, [currentDate]);
+
   return (
     <ScrollView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={styles.body}>
-        <View style={styles.dateContainer}>
+        <View style={styles.header}>
           <Text style={styles.title}>
-            Date:{" "}
-            {`${
-              currentDate.getMonth() + 1
-            }/${currentDate.getDate()}/${currentDate.getFullYear()}`}
+            {formatDateToCustomString(currentDate)}
           </Text>
-          <View style={styles.iconContainer}>
-            <Icon
-              name="calendar-alt"
-              size={20}
-              style={styles.icon}
-              onPress={() => setShowDatePicker(true)}
-            />
-            <Icon name="sliders-h" size={20} style={styles.icon} />
-            <Icon name="upload" size={20} style={styles.icon} />
-          </View>
+          <Icon
+            name="calendar-alt"
+            size={20}
+            style={styles.icon}
+            onPress={() => setShowDatePicker(true)}
+          />
+          <Icon name="sliders-h" size={20} style={styles.icon} />
+          <Icon name="upload" size={20} style={styles.icon} />
         </View>
         <DailyInsights
           fromDashboard={false}
@@ -105,14 +145,22 @@ const ViewInsights = ({ route }) => {
         />
       </View>
       <ActivityRings //big ring
-        scale={1}
+        scale={0.9}
         canvasWidth={400}
         canvasHeight={300}
         horiPos={2}
-        vertPos={2}
+        vertPos={2.7}
         totalProgress={{ ...currentRingData }}
       />
-      <Button
+      {showDatePicker && (
+        <DateTimePicker
+          value={currentDate}
+          mode="date"
+          display="default"
+          onChange={onChangeDate}
+        />
+      )}
+      {/* <Button
         title="Update Activity Rings Data"
         onPress={() => {
           // Dispatch each action individually
@@ -169,22 +217,14 @@ const ViewInsights = ({ route }) => {
             })
           );
         }}
-      />
-      {showDatePicker && (
-        <DateTimePicker
-          value={currentDate}
-          mode="date"
-          display="default"
-          onChange={onChangeDate}
-        />
-      )}
+      /> */}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 24,
+    fontSize: 20,
     textAlign: "left",
     color: "black",
   },
@@ -216,15 +256,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  dateContainer: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  iconContainer: {
-    flexDirection: "row",
   },
   icon: {
     marginLeft: 25,
   },
 });
+
+export default ViewInsights;
