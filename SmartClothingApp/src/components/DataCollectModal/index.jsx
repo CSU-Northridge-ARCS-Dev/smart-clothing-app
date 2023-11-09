@@ -11,6 +11,7 @@ import {
 
 import DateTimePicker, {
   DateTimePickerAndroid,
+  DateTimePickerA
 } from "@react-native-community/datetimepicker";
 import Slider from "@react-native-community/slider";
 
