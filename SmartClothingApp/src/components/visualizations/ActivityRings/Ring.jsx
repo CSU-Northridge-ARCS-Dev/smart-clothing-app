@@ -78,6 +78,7 @@ const Ring = ({
     innerCircle.addCircle(center.x, center.y, size / 2 - strokeWidth);
     return Skia.Path.MakeFromOp(outerCircle, innerCircle, PathOp.Difference);
   }, [center.x, center.y, size, strokeWidth]);
+
   const fullPath = useMemo(() => {
     const path = Skia.Path.Make();
     const fullRevolutions = Math.floor(totalProgress);
@@ -87,6 +88,7 @@ const Ring = ({
     path.addArc(fromCircle(center, r), 0, 360 * (totalProgress % 1));
     return path;
   }, [center, r, totalProgress]);
+
   const path = useDerivedValue(() => {
     if (trim.value < 1) {
       return fullPath.copy().trim(0, trim.value, false);

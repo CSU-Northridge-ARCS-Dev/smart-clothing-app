@@ -23,16 +23,26 @@ export const updateActivityRingsData = (day, ringData) => {
   };
 };
 
-export const fetchActivityRingsData = () => {
+const generateRandomValue = () => {
+  return Math.random() * 2;
+};
+
+export const updateActivityRings = () => {
   return async (dispatch) => {
-    try {
-      const response = await fetch("your-api-endpoint-here");
-      const data = await response.json();
+    const daysOfWeek = ["U", "M", "T", "W", "R", "F", "S"];
 
+    for (const day of daysOfWeek) {
+      const randomData = {
+        ring1: generateRandomValue().toFixed(1),
+        ring2: generateRandomValue().toFixed(1),
+        ring3: generateRandomValue().toFixed(1),
+      };
 
-      dispatch(updateActivityRingsData(data));
-    } catch (error) {
+      // Simulate an async operation (e.g., fetching data)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
+      // Dispatch the action to update the activity rings data
+      dispatch(updateActivityRingsData(day, randomData));
     }
   };
 };
