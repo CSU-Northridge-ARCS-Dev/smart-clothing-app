@@ -108,7 +108,8 @@ const Ring = ({
     return m;
   });
   const uniforms = useDerivedValue(() => {
-    const head = path.value.getLastPt();
+    const lastPt = path.value.getLastPt();
+    const head = lastPt ? lastPt : { x: 0, y: 0 };
     return {
       head,
       r: strokeWidth / 2,
