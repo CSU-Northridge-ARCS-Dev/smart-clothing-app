@@ -1,50 +1,79 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Platform,
-} from "react-native";
-import { AppHeader } from "../../components";
-import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
-import { useSelector, useDispatch } from "react-redux";
-import { updateActivityRings } from "../../actions/appActions";
-import DailyInsights from "../../components/DailyInsights/DailyInsights";
+import { View, Text, StyleSheet } from "react-native";
+import { AppColor, AppFonts, AppStyle } from "../../../constants/themes";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { CartesianChart, Line, Bar } from "victory-native";
 import { LinearGradient, vec } from "@shopify/react-native-skia";
 import { useFont } from "@shopify/react-native-skia";
+import inter from "../../../../assets/fonts/inter-medium.ttf";
 
-const ActivityChart = ({
-  scale,
-  canvasHeight,
-  canvasWidth,
-  horiPos,
-  vertPos,
-  totalProgress,
-}) => {
-  const width = 245;
-
-  const center = vec(canvasWidth / horiPos, canvasHeight / vertPos);
+const ActivityChart = ({ color, name, type }) => {
+  const font = useFont(inter, 14);
+  const data = Array.from({ length: 96 }, (_, index) => ({
+    month: index + 1,
+    listenCount: index === 4 ? 800 : 24,
+  }));
 
   return (
-    <Canvas style={[{ flex: 1, width: canvasWidth, height: canvasHeight }]}>
-      {ringProps.map((ring, index) => {
-        return (
-          <Ring
-            key={index}
-            ring={ring}
-            center={center}
-            strokeWidth={strokeWidth}
-            scale={scale}
-          />
-        );
-      })}
-    </Canvas>
+    <>
+      <View style={{ gap: -5, paddingLeft: 20 }}>
+        <Text style={styles.ringText}>{name}</Text>
+        <Text style={[styles.caloriesBurned, { color }]}>
+          <Text>314/800</Text>
+          <Text style={{ fontSize: 20 }}>{type}</Text>
+        </Text>
+      </View>
+      <View style={{ height: 90, paddingBottom: 5 }}>
+        <CartesianChart
+          data={data}
+          domain={{ y: [0, 800] }}
+          domainPadding={{ left: 40, right: 30, top: 0 }}
+          axisOptions={{
+            font,
+            tickCount: { x: 20, y: 0 },
+            formatXLabel(value) {
+              const index = value / 20;
+              if (value === 5 || value == 55) {
+                return "12:00";
+              } else if (value === 30 || value === 80) {
+                return "6:00";
+              } else {
+                return "";
+              }
+            },
+          }}
+          xKey="month"
+          yKeys={["listenCount"]}
+        >
+          {({ points, chartBounds }) => (
+            <Bar
+              color={color}
+              chartBounds={chartBounds}
+              points={points.listenCount}
+              roundedCorners={{
+                topLeft: 5,
+                topRight: 5,
+                bottomRight: 5,
+                bottomLeft: 5,
+              }}
+            ></Bar>
+          )}
+        </CartesianChart>
+      </View>
+    </>
   );
 };
 
-export default ActivityRings;
+const styles = StyleSheet.create({
+  ringText: {
+    fontSize: 20,
+    color: AppColor.primary,
+    fontWeight: "bold",
+  },
+  caloriesBurned: {
+    fontSize: 25,
+    fontWeight: "bold",
+  },
+});
+
+export default ActivityChart;

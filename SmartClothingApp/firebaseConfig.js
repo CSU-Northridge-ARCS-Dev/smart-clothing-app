@@ -38,20 +38,6 @@ const firebaseConfig = {
   measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
-let auth;
 const app = initializeApp(firebaseConfig);
-if (!getAuth(app)) {
-  // Firebase Authentication has not been initialized, so initialize it
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage),
-  });
-} else {
-  // Firebase Authentication has already been initialized
-  auth = getAuth(app);
-}
-// const database = getDatabase(app);
-const database = getFirestore(app);
-// For more information on how to access Firebase in your project,
-// see the Firebase documentation: https://firebase.google.com/docs/web/setup#access-firebase
-
+const auth = getAuth(app);
 export { auth, database };

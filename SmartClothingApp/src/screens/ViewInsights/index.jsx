@@ -19,6 +19,7 @@ import { CartesianChart, Line, Bar } from "victory-native";
 import { LinearGradient, vec } from "@shopify/react-native-skia";
 import { useFont } from "@shopify/react-native-skia";
 import inter from "../../../assets/fonts/inter-medium.ttf";
+import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -29,7 +30,6 @@ const ViewInsights = ({ route }) => {
     ring2: 0,
     ring3: 0,
   });
-  const font = useFont(inter, 12);
 
   const DATA = Array.from({ length: 31 }, (_, i) => ({
     day: i,
@@ -153,11 +153,6 @@ const ViewInsights = ({ route }) => {
     setCurrentDate(currentDate);
   }, [currentDate]);
 
-  const data = Array.from({ length: 96 }, (_, index) => ({
-    month: index + 1,
-    listenCount: index === 8 ? 800 : 24,
-  }));
-
   return (
     <ScrollView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
@@ -188,104 +183,8 @@ const ViewInsights = ({ route }) => {
         vertPos={2}
         totalProgress={{ ...currentRingData }}
       />
-      <View style={{ gap: -5, paddingLeft: 20 }}>
-        <Text style={styles.ringText}>Move</Text>
-        <Text style={[styles.caloriesBurned, { color: "darkgreen" }]}>
-          <Text>314/800</Text>
-          <Text style={{ fontSize: 20 }}>CAL</Text>
-        </Text>
-      </View>
-      <View style={{ height: 90, paddingBottom: 5 }}>
-        <CartesianChart
-          data={data}
-          domain={{ y: [0, 800] }}
-          domainPadding={{ left: 30, right: 40, top: 0 }}
-          axisOptions={{
-            font,
-            tickCount: { x: 4, y: 0 },
-            formatXLabel(value) {
-              const index = value / 20;
-              if (index < 4) {
-                return index % 2 === 0 ? "12:00" : "6:00";
-              } else {
-                return "";
-              }
-            },
-          }}
-          xKey="month"
-          yKeys={["listenCount"]}
-        >
-          {({ points, chartBounds }) => (
-            <Bar
-              color="darkgreen"
-              chartBounds={chartBounds}
-              points={points.listenCount}
-              roundedCorners={{
-                topLeft: 5,
-                topRight: 5,
-                bottomRight: 5,
-                bottomLeft: 5,
-              }}
-            >
-              {/* <LinearGradient
-                start={vec(0, 0)}
-                end={vec(0, 400)}
-                colors={["#a78bfa", "#a78bfa50"]}
-              /> */}
-            </Bar>
-          )}
-        </CartesianChart>
-      </View>
-
-      <View style={{ gap: -5, paddingLeft: 20 }}>
-        <Text style={styles.ringText}>Exercise</Text>
-        <Text style={[styles.caloriesBurned, { color: "purple" }]}>
-          <Text>15/30</Text>
-          <Text style={{ fontSize: 20 }}>MIN</Text>
-        </Text>
-      </View>
-      <View style={{ height: 90, paddingBottom: 5 }}>
-        <CartesianChart
-          data={data}
-          domain={{ y: [0, 800] }}
-          domainPadding={{ left: 30, right: 30, top: 0 }}
-          axisOptions={{
-            font,
-            tickCount: { x: 4, y: 0 },
-            formatXLabel(value) {
-              const index = value / 20;
-              if (index < 4) {
-                return index % 2 === 0 ? "12:00" : "6:00";
-              } else {
-                return "";
-              }
-            },
-          }}
-          xKey="month"
-          yKeys={["listenCount"]}
-        >
-          {({ points, chartBounds }) => (
-            <Bar
-              color="purple"
-              chartBounds={chartBounds}
-              points={points.listenCount}
-              roundedCorners={{
-                topLeft: 5,
-                topRight: 5,
-                bottomRight: 5,
-                bottomLeft: 5,
-              }}
-            >
-              {/* <LinearGradient
-                start={vec(0, 0)}
-                end={vec(0, 400)}
-                colors={["#a78bfa", "#a78bfa50"]}
-              /> */}
-            </Bar>
-          )}
-        </CartesianChart>
-      </View>
-
+      <ActivityChart color="darkgreen" name="Move" type="CAL"></ActivityChart>
+      <ActivityChart color="purple" name="Exercise" type="MIN"></ActivityChart>
       {showDatePicker && (
         <DateTimePicker
           value={currentDate}
@@ -294,13 +193,13 @@ const ViewInsights = ({ route }) => {
           onChange={onChangeDate}
         />
       )}
-      {/* <Button
+      <Button
         title="Update Activity Rings Data"
         onPress={() => {
           handleUpdate();
           // updateDataAtIndex(7, 5);
         }}
-      /> */}
+      />
     </ScrollView>
   );
 };
@@ -343,15 +242,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  ringText: {
-    fontSize: 20,
-    color: AppColor.primary,
-    fontWeight: "bold",
-  },
-  caloriesBurned: {
-    fontSize: 25,
-    fontWeight: "bold",
   },
 });
 
