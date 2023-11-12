@@ -12,12 +12,11 @@ import ActivityRings from "../../components/visualizations/ActivityRings/Activit
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
 import { updateActivityRings } from "../../actions/appActions";
-import { TouchableOpacity } from "react-native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { CartesianChart, Line } from "victory-native";
-import { useFont } from "@shopify/react-native-skia";
+import { CartesianChart, Line, Bar } from "victory-native";
+import { LinearGradient, vec } from "@shopify/react-native-skia";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -37,15 +36,6 @@ const ViewInsights = ({ route }) => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const tickPositions = [0, 24, 48, 72];
-
-  const [chartData, setChartData] = useState(
-    Array.from({ length: 96 }, (_, index) => ({
-      x: index + 1,
-      y: index === 99 ? 1 : 0.3,
-    }))
-  );
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");
@@ -114,22 +104,56 @@ const ViewInsights = ({ route }) => {
     await dispatch(updateActivityRings());
   };
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     const randomData = {
-  //       ring1: generateRandomValue(),
-  //       ring2: generateRandomValue(),
-  //       ring3: generateRandomValue(),
-  //     };
-  //     dispatch(updateActivityRingsData("U", randomData));
-  //   }, 10000);
+  function formatDateToCustomString(date) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
 
-  //   return () => clearInterval(intervalId);
-  // }, [dispatch]);
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
 
-  // useEffect(() => {
-  //   setCurrentDate(currentDate);
-  // }, [currentDate]);
+    const suffix = getDaySuffix(day);
+
+    return `Today, ${month} ${day}${suffix}, ${year}`;
+  }
+
+  function getDaySuffix(day) {
+    if (day >= 11 && day <= 13) {
+      return "th";
+    }
+    const lastDigit = day % 10;
+    switch (lastDigit) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  }
+
+  useEffect(() => {
+    setCurrentDate(currentDate);
+  }, [currentDate]);
+
+  const data = Array.from({ length: 96 }, (_, index) => ({
+    month: index + 1,
+    listenCount: index === 8 ? 800 : 24,
+  }));
 
   return (
     <ScrollView style={[{ flex: 1 }]}>
@@ -142,6 +166,7 @@ const ViewInsights = ({ route }) => {
           <Icon
             name="calendar-alt"
             size={20}
+            style={styles.icon}
             onPress={() => setShowDatePicker(true)}
           />
           <Icon name="sliders-h" size={20} style={styles.icon} />
@@ -160,16 +185,39 @@ const ViewInsights = ({ route }) => {
         vertPos={2}
         totalProgress={{ ...currentRingData }}
       />
-      <View style={{ height: 300 }}>
+      <View style={{ height: 130, paddingBottom: 5 }}>
         <CartesianChart
-          data={DATA} // 👈 specify your data
-          xKey="day" // 👈 specify data key for x-axis
-          yKeys={["lowTmp", "highTmp"]} // 👈 specify data keys used for y-axis
+          data={data}
+          domain={{ y: [0, 800] }}
+          domainPadding={{ left: 30, right: 30, top: 100 }}
+          /**
+           * 👇 the xKey should map to the property on data of you want on the x-axis
+           */
+          xKey="month"
+          /**
+           * 👇 the yKey is an array of strings that map to the data you want
+           * on the y-axis. In this case we only want the listenCount, but you could
+           * add additional if you wanted to show multiple song listen counts.
+           */
+          yKeys={["listenCount"]}
         >
-          {/* 👇 render function exposes various data, such as points. */}
-          {({ points }) => (
-            // 👇 and we'll use the Line component to render a line path.
-            <Line points={points.highTmp} color="red" strokeWidth={3} />
+          {({ points, chartBounds }) => (
+            <Bar
+              chartBounds={chartBounds}
+              points={points.listenCount}
+              roundedCorners={{
+                topLeft: 5,
+                topRight: 5,
+                bottomRight: 5,
+                bottomLeft: 5,
+              }}
+            >
+              {/* <LinearGradient
+                start={vec(0, 0)}
+                end={vec(0, 400)}
+                colors={["#a78bfa", "#a78bfa50"]}
+              /> */}
+            </Bar>
           )}
         </CartesianChart>
       </View>
