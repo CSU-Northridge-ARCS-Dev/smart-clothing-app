@@ -1,17 +1,26 @@
-import React from "react";
-import { Button, View, Text, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Platform,
+} from "react-native";
 import { AppHeader } from "../../components";
 import ActivityRings from "../../components/visualizations/ActivityRings/ActivityRings";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
-import { updateActivityRingsData } from "../../actions/appActions";
-import { useEffect, useState } from "react";
+import { updateActivityRings } from "../../actions/appActions";
 import { TouchableOpacity } from "react-native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
+import Icon from "react-native-vector-icons/FontAwesome5";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { CartesianChart, Line } from "victory-native";
+import { useFont } from "@shopify/react-native-skia";
 
-export default function ViewInsights({ route }) {
+const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
-  const daysOfWeek = ["U", "M", "T", "W", "R", "F", "S"];
   const dispatch = useDispatch();
   const activityRingsData = useSelector((state) => state.app.activityRingsData);
   const [currentRingData, setCurrentRingData] = useState({
@@ -19,6 +28,32 @@ export default function ViewInsights({ route }) {
     ring2: 0,
     ring3: 0,
   });
+
+  const DATA = Array.from({ length: 31 }, (_, i) => ({
+    day: i,
+    lowTmp: 20 + 10 * Math.random(),
+    highTmp: 40 + 30 * Math.random(),
+  }));
+
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const tickPositions = [0, 24, 48, 72];
+
+  const [chartData, setChartData] = useState(
+    Array.from({ length: 96 }, (_, index) => ({
+      x: index + 1,
+      y: index === 99 ? 1 : 0.3,
+    }))
+  );
+
+  const onChangeDate = (event, selectedDate) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (selectedDate) {
+      console.log(selectedDate);
+      setCurrentDate(selectedDate);
+    }
+  };
 
   // console.log(activityRingsData);
 
@@ -33,108 +68,137 @@ export default function ViewInsights({ route }) {
     setCurrentRingData(currentRingData);
   };
 
-  const generateRandomValue = () => {
-    return Math.random() * 2;
+  function formatDateToCustomString(date) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    const suffix = getDaySuffix(day);
+
+    return `Today, ${month} ${day}${suffix}, ${year}`;
+  }
+
+  function getDaySuffix(day) {
+    if (day >= 11 && day <= 13) {
+      return "th";
+    }
+    const lastDigit = day % 10;
+    switch (lastDigit) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  }
+
+  const handleUpdate = async () => {
+    await dispatch(updateActivityRings());
   };
 
-  useEffect(() => {
-    // Create an interval to update the data every 5 seconds
-    const intervalId = setInterval(() => {
-      // Update activity rings data with random values
-      daysOfWeek.forEach((day) => {
-        const randomData = {
-          ring1: generateRandomValue(),
-          ring2: generateRandomValue(),
-          ring3: generateRandomValue(),
-        };
-        dispatch(updateActivityRingsData(day, randomData));
-      });
-    }, 5000); // 5000 milliseconds = 5 seconds
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     const randomData = {
+  //       ring1: generateRandomValue(),
+  //       ring2: generateRandomValue(),
+  //       ring3: generateRandomValue(),
+  //     };
+  //     dispatch(updateActivityRingsData("U", randomData));
+  //   }, 10000);
 
-    // Cleanup the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, [dispatch]);
+  //   return () => clearInterval(intervalId);
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   setCurrentDate(currentDate);
+  // }, [currentDate]);
 
   return (
-    <View style={[{ flex: 1 }]}>
+    <ScrollView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={styles.body}>
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            {formatDateToCustomString(currentDate)}
+          </Text>
+          <Icon
+            name="calendar-alt"
+            size={20}
+            onPress={() => setShowDatePicker(true)}
+          />
+          <Icon name="sliders-h" size={20} style={styles.icon} />
+          <Icon name="upload" size={20} style={styles.icon} />
+        </View>
         <DailyInsights
           fromDashboard={false}
           handleRingPress={handleRingPress}
         />
       </View>
       <ActivityRings //big ring
-        scale={1}
+        scale={0.9}
         canvasWidth={400}
-        canvasHeight={300}
+        canvasHeight={220}
         horiPos={2}
         vertPos={2}
         totalProgress={{ ...currentRingData }}
       />
+      <View style={{ height: 300 }}>
+        <CartesianChart
+          data={DATA} // 👈 specify your data
+          xKey="day" // 👈 specify data key for x-axis
+          yKeys={["lowTmp", "highTmp"]} // 👈 specify data keys used for y-axis
+        >
+          {/* 👇 render function exposes various data, such as points. */}
+          {({ points }) => (
+            // 👇 and we'll use the Line component to render a line path.
+            <Line points={points.highTmp} color="red" strokeWidth={3} />
+          )}
+        </CartesianChart>
+      </View>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={currentDate}
+          mode="date"
+          display="default"
+          onChange={onChangeDate}
+        />
+      )}
       <Button
         title="Update Activity Rings Data"
         onPress={() => {
-          // Dispatch each action individually
-          dispatch(
-            updateActivityRingsData("U", {
-              ring1: 2.8,
-              ring2: 1.8,
-              ring3: 0.8,
-            })
-          );
-          dispatch(
-            updateActivityRingsData("M", {
-              ring1: 1.5,
-              ring2: 1,
-              ring3: 0.6,
-            })
-          );
-          dispatch(
-            updateActivityRingsData("T", {
-              ring1: 1.3,
-              ring2: 1.2,
-              ring3: 0.2,
-            })
-          );
-          dispatch(
-            updateActivityRingsData("W", {
-              ring1: 0.7,
-              ring2: 0.4,
-              ring3: 1.8,
-            })
-          );
-
-          dispatch(
-            updateActivityRingsData("R", {
-              ring1: 0.5,
-              ring2: 0.8,
-              ring3: 0.3,
-            })
-          );
-
-          dispatch(
-            updateActivityRingsData("F", {
-              ring1: 1.3,
-              ring2: 0.4,
-              ring3: 0.9,
-            })
-          );
-
-          dispatch(
-            updateActivityRingsData("S", {
-              ring1: 0.6,
-              ring2: 0.7,
-              ring3: 0.8,
-            })
-          );
+          handleUpdate();
+          // updateDataAtIndex(7, 5);
         }}
       />
-    </View>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 20,
+    textAlign: "left",
+    color: "black",
+  },
   content: {
     paddingHorizontal: 20,
     borderTopLeftRadius: 25,
@@ -163,4 +227,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
 });
+
+export default ViewInsights;
