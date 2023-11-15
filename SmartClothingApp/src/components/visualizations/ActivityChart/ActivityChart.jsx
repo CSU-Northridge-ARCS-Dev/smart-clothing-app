@@ -7,11 +7,12 @@ import { LinearGradient, vec } from "@shopify/react-native-skia";
 import { useFont } from "@shopify/react-native-skia";
 import inter from "../../../../assets/fonts/inter-medium.ttf";
 
-const ActivityChart = ({ color, name, type }) => {
+const ActivityChart = ({ color, name, type, goal, progress }) => {
   const font = useFont(inter, 14);
+  const defaultValue = goal * 0.03;
   const data = Array.from({ length: 96 }, (_, index) => ({
     month: index + 1,
-    listenCount: index === 4 ? 800 : 24,
+    listenCount: index === 4 ? goal : defaultValue,
   }));
 
   return (
@@ -19,20 +20,21 @@ const ActivityChart = ({ color, name, type }) => {
       <View style={{ gap: -5, paddingLeft: 20 }}>
         <Text style={styles.ringText}>{name}</Text>
         <Text style={[styles.caloriesBurned, { color }]}>
-          <Text>314/800</Text>
+          <Text>
+            {progress}/{goal}
+          </Text>
           <Text style={{ fontSize: 20 }}>{type}</Text>
         </Text>
       </View>
       <View style={{ height: 90, paddingBottom: 5 }}>
         <CartesianChart
           data={data}
-          domain={{ y: [0, 800] }}
+          domain={{ y: [0, goal] }}
           domainPadding={{ left: 40, right: 30, top: 0 }}
           axisOptions={{
             font,
             tickCount: { x: 20, y: 0 },
             formatXLabel(value) {
-              const index = value / 20;
               if (value === 5 || value == 55) {
                 return "12:00";
               } else if (value === 30 || value === 80) {
