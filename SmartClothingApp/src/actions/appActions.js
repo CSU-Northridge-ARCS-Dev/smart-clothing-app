@@ -3,6 +3,7 @@ import {
   UPDATE_ACTIVITY_RINGS_DATA,
 } from "./types";
 
+
 export const userMetricsDataModalVisible = (
   visibility,
   isFromSignUpScreen = false
@@ -29,7 +30,15 @@ const generateRandomValue = () => {
 
 export const updateActivityRings = () => {
   return async (dispatch) => {
-    const daysOfWeek = ["U", "M", "T", "W", "R", "F", "S"];
+    const daysOfWeek = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
 
     for (const day of daysOfWeek) {
       const randomData = {

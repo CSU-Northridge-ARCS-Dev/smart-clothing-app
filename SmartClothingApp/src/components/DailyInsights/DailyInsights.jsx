@@ -7,6 +7,7 @@ import { updateActivityRingsData } from "../../actions/appActions";
 import { useEffect, useState } from "react";
 import { useRoute } from "@react-navigation/native";
 import { Button } from "react-native-paper";
+import { daysOfWeek } from "../../utils/calendar";
 
 const DailyInsights = ({
   fromDashboard = false,
@@ -20,7 +21,6 @@ const DailyInsights = ({
     });
   };
 
-  const daysOfWeek = ["U", "M", "T", "W", "R", "F", "S"];
   const activityRingsData = useSelector((state) => state.app.activityRingsData);
 
   const [selectedRing, setSelectedRing] = useState(null);
@@ -32,12 +32,12 @@ const DailyInsights = ({
       </Text>
       <View style={{ justifyContent: "center" }}>
         <View style={styles.ringsRow}>
-          {daysOfWeek.map((day, index) => (
-            <View key={index} style={{ alignItems: "center" }}>
+          {Object.keys(daysOfWeek).map((dayName) => (
+            <View key={dayName} style={{ alignItems: "center" }}>
               <Text
                 style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold }]}
               >
-                {day}
+                {daysOfWeek[dayName]}
               </Text>
               {fromDashboard ? (
                 <ActivityRings
@@ -46,19 +46,19 @@ const DailyInsights = ({
                   canvasHeight={50}
                   horiPos={2}
                   vertPos={2}
-                  totalProgress={activityRingsData[day]}
+                  totalProgress={activityRingsData[dayName]}
                 />
               ) : (
                 <TouchableWithoutFeedback
                   onPress={() => {
-                    handleRingPress(day);
-                    setSelectedRing(day);
+                    handleRingPress(dayName);
+                    setSelectedRing(dayName);
                   }}
                 >
                   <View
                     style={[
                       { width: 50, height: 50 },
-                      selectedRing === day
+                      selectedRing === dayName
                         ? styles.selectedRing
                         : styles.fadedRing,
                     ]}
@@ -69,7 +69,7 @@ const DailyInsights = ({
                       canvasHeight={50}
                       horiPos={2}
                       vertPos={2}
-                      totalProgress={activityRingsData[day]}
+                      totalProgress={activityRingsData[dayName]}
                     />
                   </View>
                 </TouchableWithoutFeedback>

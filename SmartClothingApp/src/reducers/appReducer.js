@@ -15,37 +15,37 @@ const initialState = {
   isFromSignUpScreen: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
   activityRingsData: {
-    U: {
+    Sunday: {
       ring1: 0, // Default value for Sunday, Ring 1
       ring2: 0, // Default value for Sunday, Ring 2
       ring3: 0, // Default value for Sunday, Ring 3
     },
-    M: {
+    Monday: {
       ring1: 0, // Default value for Monday, Ring 1
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3
     },
-    T: {
+    Tuesday: {
       ring1: 0, // Default value for Monday, Ring 1
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3
     },
-    W: {
+    Wednesday: {
       ring1: 0, // Default value for Monday, Ring 1
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3
     },
-    R: {
+    Thursday: {
       ring1: 0, // Default value for Monday, Ring 1
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3
     },
-    F: {
+    Friday: {
       ring1: 0, // Default value for Monday, Ring 1
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3
     },
-    S: {
+    Saturday: {
       ring1: 0, // Default value for Monday, Ring 1
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3

@@ -15,11 +15,8 @@ import { updateActivityRings } from "../../actions/appActions";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { CartesianChart, Line, Bar } from "victory-native";
-import { LinearGradient, vec } from "@shopify/react-native-skia";
-import { useFont } from "@shopify/react-native-skia";
-import inter from "../../../assets/fonts/inter-medium.ttf";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
+import { daysOfWeek } from "../../utils/calendar";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -30,12 +27,6 @@ const ViewInsights = ({ route }) => {
     ring2: 0,
     ring3: 0,
   });
-
-  const DATA = Array.from({ length: 31 }, (_, i) => ({
-    day: i,
-    lowTmp: 20 + 10 * Math.random(),
-    highTmp: 40 + 30 * Math.random(),
-  }));
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -51,7 +42,6 @@ const ViewInsights = ({ route }) => {
   // console.log(activityRingsData);
 
   const handleRingPress = (day) => {
-    // You can add your logic here to update the ring data as needed
     const currentRingData = {
       ring1: activityRingsData[day].ring1,
       ring2: activityRingsData[day].ring2,
@@ -60,31 +50,6 @@ const ViewInsights = ({ route }) => {
 
     setCurrentRingData(currentRingData);
   };
-
-  function formatDateToCustomString(date) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    const suffix = getDaySuffix(day);
-
-    return `Today, ${month} ${day}${suffix}, ${year}`;
-  }
 
   function getDaySuffix(day) {
     if (day >= 11 && day <= 13) {
@@ -130,23 +95,6 @@ const ViewInsights = ({ route }) => {
     const suffix = getDaySuffix(day);
 
     return `Today, ${month} ${day}${suffix}, ${year}`;
-  }
-
-  function getDaySuffix(day) {
-    if (day >= 11 && day <= 13) {
-      return "th";
-    }
-    const lastDigit = day % 10;
-    switch (lastDigit) {
-      case 1:
-        return "st";
-      case 2:
-        return "nd";
-      case 3:
-        return "rd";
-      default:
-        return "th";
-    }
   }
 
   useEffect(() => {
