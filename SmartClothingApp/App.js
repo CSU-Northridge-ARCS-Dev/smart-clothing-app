@@ -11,11 +11,18 @@ import configureStore from "./src/store";
 import { AppToast } from "./src/components";
 import { auth } from "./firebaseConfig.js";
 import { getUID } from "./src/utils/localStorage.js";
+import SplashScreen from "react-native-splash-screen";
 
 const store = configureStore();
 
 export default function App() {
   const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      SplashScreen.hide();
+    }
+  }, []);
 
   useEffect(() => {
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);

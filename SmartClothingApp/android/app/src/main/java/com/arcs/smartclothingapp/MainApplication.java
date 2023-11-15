@@ -18,6 +18,8 @@ import expo.modules.ReactNativeHostWrapper;
 
 import java.util.List;
 
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
+
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
