@@ -18,11 +18,11 @@ const store = configureStore();
 export default function App() {
   const [isLoading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (Platform.OS === "android") {
-      SplashScreen.hide();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (Platform.OS === "android") {
+  //     SplashScreen.hide();
+  //   }
+  // }, []);
 
   useEffect(() => {
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
