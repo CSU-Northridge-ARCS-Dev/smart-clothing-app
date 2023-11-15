@@ -16,7 +16,6 @@ import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
-import { daysOfWeek } from "../../utils/calendar";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -27,6 +26,10 @@ const ViewInsights = ({ route }) => {
     ring2: 0,
     ring3: 0,
   });
+
+  const maxCal = 800;
+  const maxMin = 30;
+  const maxHrs = 12;
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -94,7 +97,7 @@ const ViewInsights = ({ route }) => {
 
     const suffix = getDaySuffix(day);
 
-    return `Today, ${month} ${day}${suffix}, ${year}`;
+    return `${month} ${day}${suffix}, ${year}`;
   }
 
   useEffect(() => {
@@ -109,14 +112,16 @@ const ViewInsights = ({ route }) => {
           <Text style={styles.title}>
             {formatDateToCustomString(currentDate)}
           </Text>
-          <Icon
-            name="calendar-alt"
-            size={20}
-            style={styles.icon}
-            onPress={() => setShowDatePicker(true)}
-          />
-          <Icon name="sliders-h" size={20} style={styles.icon} />
-          <Icon name="upload" size={20} style={styles.icon} />
+          <View style={{ flexDirection: "row", gap: 20 }}>
+            <Icon
+              name="calendar-alt"
+              size={20}
+              style={styles.icon}
+              onPress={() => setShowDatePicker(true)}
+            />
+            <Icon name="sliders-h" size={20} style={styles.icon} />
+            <Icon name="upload" size={20} style={styles.icon} />
+          </View>
         </View>
         <DailyInsights
           fromDashboard={false}
@@ -131,8 +136,27 @@ const ViewInsights = ({ route }) => {
         vertPos={2}
         totalProgress={{ ...currentRingData }}
       />
-      <ActivityChart color="darkgreen" name="Move" type="CAL"></ActivityChart>
-      <ActivityChart color="purple" name="Exercise" type="MIN"></ActivityChart>
+      <ActivityChart
+        color={AppColor.ringMove}
+        name="Move"
+        type="CAL"
+        goal={maxCal}
+        progress={314}
+      ></ActivityChart>
+      <ActivityChart
+        color={AppColor.ringExercise}
+        name="Exercise"
+        type="MIN"
+        goal={maxMin}
+        progress={15}
+      ></ActivityChart>
+      <ActivityChart
+        color={AppColor.ringStand}
+        name="Stand"
+        type="HRS"
+        goal={maxHrs}
+        progress={3}
+      ></ActivityChart>
       {showDatePicker && (
         <DateTimePicker
           value={currentDate}
