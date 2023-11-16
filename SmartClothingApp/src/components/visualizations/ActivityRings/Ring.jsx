@@ -10,6 +10,7 @@ import {
   Fill,
   mixColors,
   DashPathEffect,
+  useComputedValue,
 } from "@shopify/react-native-skia";
 import React, { useEffect, useMemo } from "react";
 import {
@@ -89,12 +90,12 @@ const Ring = ({
     return path;
   }, [center, r, totalProgress]);
 
-  const path = useDerivedValue(() => {
-    if (trim.value < 1) {
-      return fullPath.copy().trim(0, trim.value, false);
-    }
-    return fullPath;
-  });
+  // const path = useComputedValue(() => {
+  //   if (trim.value < 1) {
+  //     return fullPath.copy().trim(0, trim.value, false);
+  //   }
+  //   return fullPath;
+  // });
 
   const matrix = useDerivedValue(() => {
     const m = Skia.Matrix();
@@ -107,9 +108,9 @@ const Ring = ({
     }
     return m;
   });
+
   const uniforms = useDerivedValue(() => {
-    const lastPt = path.value.getLastPt();
-    const head = lastPt ? lastPt : { x: 0, y: 0 };
+    const head = fullPath.getLastPt();
     return {
       head,
       r: strokeWidth / 2,
@@ -120,9 +121,9 @@ const Ring = ({
   });
 
   useEffect(() => {
-    trim.value = withTiming(1, { duration: 3000 });
-  }, [trim]);
-  
+    trim.value = 1;
+  }, []);
+
   return (
     <Group transform={[{ rotate: -Math.PI / 2 }]} origin={center}>
       <Group clip={clip}>
@@ -133,7 +134,7 @@ const Ring = ({
           color={colors[0]}
         />
         <Path
-          path={path}
+          path={fullPath}
           strokeWidth={strokeWidth}
           style="stroke"
           color={colors[0]}
