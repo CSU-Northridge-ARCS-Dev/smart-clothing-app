@@ -9,7 +9,7 @@ import {
   ProfileScreen,
   SettingsScreen,
   ViewHealthData,
-  HeartRateData,
+  //HeartRateData,
   ViewInsights,
 } from "../screens";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -130,7 +130,6 @@ const HealthNavigationStack = () => {
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
-      <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
     </Stack.Navigator>
   );
 };
@@ -161,6 +160,7 @@ const AllNavigationStack = () => {
       <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
+      <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
     </Stack.Navigator>
   );
 };
