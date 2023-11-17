@@ -9,12 +9,14 @@ import {
   ProfileScreen,
   SettingsScreen,
   ViewHealthData,
+  HeartRateData,
   ViewInsights,
 } from "../screens";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { AppColor, AppFonts } from "../constants/themes";
 import { StyleSheet, Text } from "react-native";
+import ViewHeartRateData from "../screens/HeartRateData";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -128,6 +130,7 @@ const HealthNavigationStack = () => {
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
+      <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
     </Stack.Navigator>
   );
 };
