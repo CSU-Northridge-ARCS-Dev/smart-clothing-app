@@ -24,6 +24,10 @@ import {
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
+jest.mock('../src/utils/localStorage.js', () => ({
+  AsyncStorage: jest.fn(),
+}));
+
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(),
   addDoc: jest.fn(),

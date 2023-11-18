@@ -37,6 +37,10 @@ jest.mock('../../firebaseConfig.js', () => ({
     },
 }));
 
+jest.mock('../../src/utils/localStorage.js', () => ({
+  AsyncStorage: jest.fn(),
+}));
+
 // jest.mock('../../src/actions/toastActions.js', () => ({
 //     toastError: jest.fn(() => Promise.resolve()),
 // }))
@@ -119,18 +123,6 @@ function TestComponent() {
 describe('SignUpToHome Integration Test', () => {
     it('should navigate from Sign-In to Sign-Up to Dashboard', async () => {
   
-        // Configure Redux Store with Combined Reducer
-        // const store = configureStore(rootReducer, {
-        //     user: {
-        //     "uuid": null
-        //     },
-        // });
-
-        // const store = createStore(
-        //     rootReducer,
-        //     applyMiddleware(thunk)
-        //   );
-
         const store = configureStore();
     
         // Wrap TestComponent with Providers and render
@@ -196,7 +188,7 @@ describe('SignUpToHome Integration Test', () => {
             fireEvent.changeText(confirmPasswordInput, 'password123');
         });
 
-        // Find TOS Checkmark (Wait for Settings update to implement)
+        // Find TOS Checkmark 
         var userAgreements = getAllByRole('checkbox');
         // console.log(userAgreements.length);
         // await act(() => {
