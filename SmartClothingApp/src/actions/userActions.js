@@ -238,16 +238,10 @@ export const startLoginWithEmail = (email, password) => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-<<<<<<< HEAD
-        console.log("Logged in successfully!");
-        console.log(user);
-=======
 
         storeUID(user.uid); // store the user UID securely in local storages
-
-        // console.log("Logged in successfully!");
-        // console.log(user);
->>>>>>> origin/main
+        console.log("Logged in successfully!");
+        console.log(user);
 
         // load the user data from the database
         dispatch(startLoadUserData());
