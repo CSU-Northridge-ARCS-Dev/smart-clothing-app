@@ -15,6 +15,11 @@ import {PaperProvider}  from "react-native-paper";
 
 
 
+
+jest.mock('../../src/utils/localStorage.js', () => ({
+  AsyncStorage: jest.fn(),
+}));
+
 // Mock Firebase Authentication
 jest.mock('../../firebaseConfig.js', () => ({
   auth: {
@@ -50,6 +55,10 @@ jest.mock('firebase/auth', () => ({
           password: 'password123'
         } 
       })),
+}))
+
+jest.mock('../../src/utils/localStorage.js', () => ({
+  storeUID: jest.fn(),
 }))
 
 jest.mock('firebase/firestore', () => ({

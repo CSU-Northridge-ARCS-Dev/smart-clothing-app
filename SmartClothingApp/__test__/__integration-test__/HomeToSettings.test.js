@@ -36,6 +36,12 @@ jest.mock('../../firebaseConfig.js', () => ({
     },
   }));
 
+  jest.mock('../../src/utils/localStorage.js', () => ({
+    AsyncStorage: jest.fn(),
+    storeUID: jest.fn(),
+    getUID: jest.fn(),
+  }));
+
   jest.mock('firebase/auth', () => ({
     initializeApp: jest.fn(),
     registerVersion: jest.fn(),
@@ -43,7 +49,6 @@ jest.mock('../../firebaseConfig.js', () => ({
     getDatabase: jest.fn(),
     signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ 
       user: {
-            //uid: null,
             uid: 'nvQpwMHj7eUKfsyEhVloGM7hvji2',
             email: 'test1@gmail.com',
             password: 'password123'
