@@ -74,29 +74,49 @@ const Stack = createStackNavigator();
 
 describe('SettingsScreen', () => {
     let store;
+    let component;
+    let instance;
 
-  beforeEach(() => {
-    store = configureStore();
-  });
-
-  it('renders correctly', () => {
-    const tree = renderer.create(
-        <ReduxProvider store={store}>
+    beforeEach(() => {
+        store = configureStore();
+        component = renderer.create(
+          <ReduxProvider store={store}>
             <PaperProvider>
-                <NavigationContainer>
-                    <Stack.Navigator>
-                        <Stack.Screen
-                            name="Settings"
-                            component={SettingsScreen}
-                            initialParams={{ previousScreenTitle: 'Test Title' }}
-                        />
-                    </Stack.Navigator>
-                </NavigationContainer>
+              <NavigationContainer>
+                <Stack.Navigator>
+                  <Stack.Screen
+                    name="Settings"
+                    component={SettingsScreen}
+                    initialParams={{ previousScreenTitle: 'Test Title' }}
+                  />
+                </Stack.Navigator>
+              </NavigationContainer>
             </PaperProvider>
-        </ReduxProvider>
-    ).toJSON();
-    expect(tree).toMatchSnapshot(); 
-  });
+          </ReduxProvider>
+        );
+        instance = component.root;
+      });
 
+    it('renders correctly', () => {
+        expect(component.toJSON()).toMatchSnapshot(); 
+    });
+    
+    it('opens update email modal on button press', () => {
+        const updateEmailButton = instance.findByProps({ title: "UPDATE EMAIL" });
+        fireEvent.press(updateEmailButton);
+        // Expect the state for the update email modal to be true
+    });
+    
+    it('opens change password modal on button press', () => {
+        const changePasswordButton = instance.findByProps({ title: "CHANGE PASSWORD" });
+        fireEvent.press(changePasswordButton);
+        // Expect the state for the change password modal to be true
+    });
+    
+    it('opens delete account modal on button press', () => {
+        const deleteAccountButton = instance.findByProps({ title: "DELETE ACCOUNT" });
+        fireEvent.press(deleteAccountButton);
+        // Expect the state for the delete account modal to be true
+    });
   // Add more tests for navigation, modal interactions, and Redux actions
 });
