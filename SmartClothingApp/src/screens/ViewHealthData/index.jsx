@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { AppHeader } from "../../components";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { useFocusEffect } from "@react-navigation/native";
-import { Button } from "react-native-paper";
 
 export default function ViewHealthData({ navigation }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -80,32 +85,34 @@ export default function ViewHealthData({ navigation }) {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.rectangleContainer}>
+        <TouchableOpacity
+          style={styles.rectangleContainer}
+          onPress={() => navigation.navigate("SleepRateData")}
+        >
           <View style={styles.whiteRectangle}>
             <Icon name="bed" size={50} color="#1160A4" />
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.sleepDataText}>Sleep Data</Text>
-            <Icon name="chevron-right" size={16} color="#000000" />
+            <Icon name="chevron-right" size={25} color="#000000" />
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <View style={styles.rectangleContainer}>
+        <TouchableOpacity
+          style={styles.rectangleContainer}
+          onPress={() => navigation.navigate("HeartRateData")}
+        >
           <View style={styles.whiteRectangle}>
             <Icon name="heart" size={50} color="#1160A4" solid />
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.sleepDataText}>Heart Data</Text>
-            <Icon name="chevron-right" size={16} color="#1160A4" />
+            <Icon name="chevron-right" size={25} color="#000000" />
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
-
-      <Button onPress={() => navigation.navigate("HeartRateData")}>
-        Hello
-      </Button>
 
       {showDatePicker && (
         <DateTimePicker
@@ -172,7 +179,7 @@ const styles = StyleSheet.create({
   },
   sleepDataText: {
     color: "#000000",
-    fontSize: 16,
+    fontSize: 25,
     marginRight: 8,
   },
   dayLabelsContainer: {
