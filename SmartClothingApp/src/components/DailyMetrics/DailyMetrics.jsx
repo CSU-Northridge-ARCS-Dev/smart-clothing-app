@@ -12,48 +12,90 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { useFocusEffect } from "@react-navigation/native";
 import { daysOfWeek } from "../../utils/calendar";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
-import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
 
-export default function ViewHealthData({ navigation }) {
-  return (
-    <ScrollView style={{ flex: 1 }}>
-      <AppHeader title={"Health Data"} />
-      <View style={{ padding: 10 }}>
-        <DailyMetrics></DailyMetrics>
-      </View>
+const DailyMetrics = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const days = Object.keys(daysOfWeek);
 
-      <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.rectangleContainer}
-          onPress={() => navigation.navigate("SleepRateData")}
-        >
-          <View style={styles.whiteRectangle}>
-            <Icon name="bed" size={50} color="#1160A4" />
-          </View>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.sleepDataText}>Sleep Data</Text>
-            <Icon name="chevron-right" size={25} color="#000000" />
-          </View>
-        </TouchableOpacity>
-      </View>
+  const onChangeDate = (event, selectedDate) => {
+    setShowDatePicker(Platform.OS === "ios");
+    if (selectedDate) {
+      setCurrentDate(selectedDate);
+    }
+  };
 
-      <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.rectangleContainer}
-          onPress={() => navigation.navigate("HeartRateData")}
-        >
-          <View style={styles.whiteRectangle}>
-            <Icon name="heart" size={50} color="#1160A4" solid />
-          </View>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.sleepDataText}>Heart Data</Text>
-            <Icon name="chevron-right" size={25} color="#000000" />
-          </View>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+  const handleDayPress = (day) => {
+    setSelectedDay((prevSelectedDay) => {
+      return prevSelectedDay === day ? null : day;
+    });
+  };
+
+  const formattedDate = currentDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  useEffect(() => {
+    return () => {
+      setSelectedDay(null);
+    };
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedDay(null);
+    }, [])
   );
-}
+
+  return (
+    <>
+      <View style={styles.dateContainer}>
+        <Text style={styles.title}>{formattedDate}</Text>
+        <View style={styles.iconContainer}>
+          <Icon
+            name="calendar-alt"
+            size={20}
+            style={styles.icon}
+            onPress={() => setShowDatePicker(true)}
+          />
+        </View>
+      </View>
+
+      <View style={styles.insights}>
+        <Text style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold }]}>
+          Daily Metrics
+        </Text>
+        <View style={styles.dayLabelsContainer}>
+          {days.map((day) => (
+            <Text
+              key={day}
+              style={[
+                AppStyle.subTitle,
+                { fontFamily: AppFonts.chakraBold, fontSize: 20 },
+                selectedDay === day && styles.selectedDayLabel,
+              ]}
+              onPress={() => handleDayPress(day)}
+            >
+              {daysOfWeek[day]}
+            </Text>
+          ))}
+        </View>
+        {showDatePicker && (
+          <DateTimePicker
+            value={currentDate}
+            mode="date"
+            display="default"
+            onChange={onChangeDate}
+          />
+        )}
+      </View>
+    </>
+  );
+};
 
 const styles = StyleSheet.create({
   title: {
@@ -162,3 +204,5 @@ const styles = StyleSheet.create({
     height: 100,
   },
 });
+
+export default DailyMetrics;

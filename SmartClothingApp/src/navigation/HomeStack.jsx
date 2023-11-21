@@ -61,7 +61,7 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="Health"
-        component={ViewHealthData}
+        component={HealthNavigationStack}
         options={{
           tabBarIcon: ({ focused }) => (
             <>
@@ -124,13 +124,12 @@ const DevicesNavigationStack = () => {
 const HealthNavigationStack = () => {
   return (
     <Stack.Navigator
-      initialRouteName="Health"
+      initialRouteName="Health Data"
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Health" component={ViewHealthData} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
+      <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
+      <Stack.Screen name="SleepRateData" component={ViewSleepRateData} />
     </Stack.Navigator>
   );
 };
@@ -161,8 +160,6 @@ const AllNavigationStack = () => {
       <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
-      <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
-      <Stack.Screen name="SleepRateData" component={ViewSleepRateData} />
     </Stack.Navigator>
   );
 };
