@@ -179,7 +179,9 @@ const ProfileScreen = ({ navigation, route }) => {
 
         <View style={{ marginLeft: 20, marginBottom: 40 }}>
           <Text variant="titleMedium">Age</Text>
-          <Text style={{ fontSize: 18 }}>{dob ? `${age}` : "No Data"}</Text>
+          <Text style={{ fontSize: 18 }}>
+            {dob ? `${age} Years` : "No Data"}
+          </Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Height
