@@ -40,11 +40,11 @@ export default function ViewHeartRateData({ navigation, route }) {
       </View>
 
       <View style={styles.content}>
-        <View style={styles.whiteRectangle}>
+        <View style={styles.bigIcon}>
           <Icon name="heartbeat" size={50} color="#1160A4" solid />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.sleepDataText}>Heart Rate</Text>
+          <Text style={styles.dataText}>Heart Rate</Text>
         </View>
       </View>
 
@@ -111,13 +111,16 @@ const styles = StyleSheet.create({
     color: "#1160A4",
     fontSize: 25,
   },
-  whiteRectangle: {
+  bigIcon: {
     backgroundColor: "#D3E4FF",
+    height: 70,
+    width: 70,
     borderRadius: 50,
-    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  sleepDataText: {
-    color: "#000000",
+  dataText: {
+    color: "black",
     fontSize: 35,
   },
   textContainer: {

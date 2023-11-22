@@ -6,7 +6,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { daysOfWeek } from "../../utils/calendar";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 
-const DailyMetrics = () => {
+const DailyMetrics = (props) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -60,9 +60,9 @@ const DailyMetrics = () => {
       <View>
         <View style={styles.insights}>
           <Text
-            style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold, }]}
+            style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold }]}
           >
-            Daily Metrics
+            Daily {props.name}
           </Text>
           <View style={styles.weekdayContainer}>
             {days.map((day) => (

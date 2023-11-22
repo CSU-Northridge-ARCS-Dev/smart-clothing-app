@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { AppHeader } from "../../components";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { useFocusEffect } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
+import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 
 export default function ViewSleepRateData({ navigation, route }) {
   const previousScreenTitle = route.params?.previousScreenTitle || "Sleep Data";
@@ -12,54 +11,62 @@ export default function ViewSleepRateData({ navigation, route }) {
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={previousScreenTitle} back={true} />
-      <DailyMetrics />
+      <DailyMetrics name="Sleep Data" />
 
-      <View style={styles.content}>
-        <View style={styles.whiteRectangle}>
-          <Icon name="bed" size={40} color="#1160A4" />
+      <View style={styles.title}>
+        <View style={styles.bigIcon}>
+          <Icon name="bed" size={40} color={AppColor.primary} />
         </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.sleepDataText}>Sleep Rate</Text>
-        </View>
+        <Text style={styles.dataText}>Sleep Data</Text>
       </View>
 
       <Text style={styles.header}>Stages</Text>
 
-      <View style={styles.rectangleBelowText}>
+      <View style={styles.sleepStage}>
         <View style={styles.infoContainer}>
-          <View style={styles.WhiteRectangle}></View>
-          <Text style={styles.infoTextLeft}>Awake</Text>
-          <Text style={styles.infoTextRight}>5 min</Text>
+          <View style={styles.stageText}>
+            <View
+              style={[styles.circle, { backgroundColor: AppColor.sleepAwake }]}
+            ></View>
+            <Text style={styles.infoText}>Awake</Text>
+          </View>
+          <Text style={styles.infoText}>5 min</Text>
         </View>
       </View>
 
-      <View style={styles.rectangleBelowText}>
+      <View style={styles.sleepStage}>
         <View style={styles.infoContainer}>
-          <View
-            style={[styles.WhiteRectangle, { backgroundColor: "#31ADE7" }]}
-          ></View>
-          <Text style={styles.infoTextLeft}>Rem</Text>
-          <Text style={styles.infoTextRight}>1 hr 56 min</Text>
+          <View style={styles.stageText}>
+            <View
+              style={[styles.circle, { backgroundColor: AppColor.sleepRem }]}
+            ></View>
+            <Text style={styles.infoText}>REM</Text>
+          </View>
+          <Text style={styles.infoText}>1 hr 56 min</Text>
         </View>
       </View>
 
-      <View style={styles.rectangleBelowText}>
+      <View style={styles.sleepStage}>
         <View style={styles.infoContainer}>
-          <View
-            style={[styles.WhiteRectangle, { backgroundColor: "#0179FF" }]}
-          ></View>
-          <Text style={styles.infoTextLeft}>Core</Text>
-          <Text style={styles.infoTextRight}>5 hr 17 min</Text>
+          <View style={styles.stageText}>
+            <View
+              style={[styles.circle, { backgroundColor: AppColor.sleepCore }]}
+            />
+            <Text style={styles.infoText}>Core</Text>
+          </View>
+          <Text style={styles.infoText}>5 hr 17 min</Text>
         </View>
       </View>
 
-      <View style={styles.rectangleBelowText}>
+      <View style={styles.sleepStage}>
         <View style={styles.infoContainer}>
-          <View
-            style={[styles.WhiteRectangle, { backgroundColor: "#3937A4" }]}
-          ></View>
-          <Text style={styles.infoTextLeft}>Deep</Text>
-          <Text style={styles.infoTextRight}>11 min</Text>
+          <View style={styles.stageText}>
+            <View
+              style={[styles.circle, { backgroundColor: AppColor.sleepDeep }]}
+            />
+            <Text style={styles.infoText}>Deep</Text>
+          </View>
+          <Text style={styles.infoText}>11 min</Text>
         </View>
       </View>
     </ScrollView>
@@ -68,16 +75,9 @@ export default function ViewSleepRateData({ navigation, route }) {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 24,
-    textAlign: "left",
-    color: "black",
-  },
-  content: {
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    marginBottom: 20,
+    paddingTop: 0,
+    padding: 10,
+    gap: 10,
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
@@ -87,10 +87,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  iconContainer: {
-    flexDirection: "row",
-  },
-  whiteRectangle: {
+  bigIcon: {
     backgroundColor: "#D3E4FF",
     height: 70,
     width: 70,
@@ -98,82 +95,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  sleepDataText: {
-    color: "#000000",
+  dataText: {
+    color: "black",
     fontSize: 35,
   },
-  textContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 10,
-  },
-  rectangleBelowText: {
+  sleepStage: {
     height: 50,
     backgroundColor: "#D3E4FF",
     borderRadius: 15,
-    marginTop: 5,
-    marginLeft: 26,
-    marginRight: 26,
+    marginVertical: 3,
+    marginHorizontal: 10,
+    paddingHorizontal: 10,
+    justifyContent: "center",
   },
   infoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    padding: 10,
-    height: "100%",
-  },
-  infoTextLeft: {
-    fontSize: 20,
-    color: "#000000",
-    marginBottom: 5,
-  },
-  infoTextRight: {
-    fontSize: 20,
-    color: "#000000",
-    marginBottom: 5,
-    marginLeft: 150,
-  },
-  dayLabelsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
     alignItems: "center",
-    marginTop: 10,
   },
-  dateText: {
-    fontSize: 18,
-    color: "#1160A4",
+  infoText: {
+    fontSize: 20,
+    color: "black",
   },
-  dayLabel: {
-    color: "#1160A4",
-    fontSize: 25,
-  },
-  selectedDayLabel: {
-    borderColor: "black",
-    borderWidth: 2,
-    borderRadius: 50,
-    width: 45,
-    height: 45,
-    textAlign: "center",
-    lineHeight: 40,
-    color: "#1160A4",
-  },
-  Content: {
-    paddingHorizontal: 0,
-    paddingTop: 10,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    marginBottom: 20,
+  stageText: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    padding: 16,
+    gap: 10,
   },
   header: {
     textAlign: "center",
-    fontSize: 24,
-    color: "#1160A4",
+    fontSize: 22,
+    color: AppColor.primary,
+    fontWeight: "bold",
   },
-  WhiteRectangle: {
-    backgroundColor: "#FF7D66",
+  circle: {
     height: 10,
     width: 10,
     borderRadius: 50,

@@ -10,18 +10,24 @@ const DataButton = (props) => {
         onPress={() => props.navigation.navigate(props.screen)}
       >
         <View style={styles.bigIcon}>
-          <Icon name={props.icon} size={40} color={props.color} />
+          <Icon
+            name={props.icon}
+            size={40}
+            color={props.color}
+            solid={props.solid}
+          />
         </View>
         <View
           style={{
             flexDirection: "row",
-            alignItems: "flex-start",
+            alignItems: "center",
+            textAlign: "center",
             padding: 10,
-            gap: 10,
+            gap: 15,
           }}
         >
           <Text style={styles.dataText}>{props.dataText}</Text>
-          <Icon name="chevron-right" size={25} height={35} color="black" />
+          <Icon name="chevron-right" size={25} color="black" />
         </View>
       </TouchableOpacity>
     </View>
@@ -33,12 +39,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     padding: 5,
+    marginVertical: 2,
   },
   rectangleContainer: {
     backgroundColor: "white",
     borderRadius: 12,
     padding: 15,
-    marginHorizontal: 16,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
