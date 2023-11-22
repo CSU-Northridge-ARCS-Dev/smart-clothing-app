@@ -1,4 +1,4 @@
-import { NativeModules, Permissions } from 'react-native';
+import { NativeModules } from 'react-native';
 
 // Define the function to check HealthKit availability
 export const checkHealthKitAvailability = async () => {
@@ -69,66 +69,96 @@ export const getActivityRingsData = async () => {
     const activityRingsData = await MyHealthKitModule.fillActivityRings();
     console.log('Activity Rings Data:', activityRingsData);
 
-    const { Move, Exercise, Stand } = activityRingsData;
+    const { Move } = activityRingsData;
     console.log('Move:', Move);
     //console.log('Exercise:', Exercise);
    // console.log('Stand:', Stand);
     //return { Move, Exercise, Stand };
   } catch (error) {
-    console.error(' js: Error retrieving activity rings data:', error);
+    console.error(' Error retrieving activity rings data:', error);
     // Handle the error appropriately (e.g., show a message to the user)
   }
 };
-// export const getVO2MaxData = async () => {
-//   const { MyHealthKitModule } = NativeModules;
 
-//   if (MyHealthKitModule) {
-//     try {
-//       const vo2MaxData = await MyHealthKitModule.readVO2MaxData();
-//       console.log("hi");
-//       console.log('VO2 Max Data:', vo2MaxData); // Log the data
-      
-//       // Separate VO2 max values and dates into separate arrays
-//       const vo2MaxValues = vo2MaxData.map(dataPoint => dataPoint.vo2Max);
-//       const dates = vo2MaxData.map(dataPoint => dataPoint.date);
-      
-//       console.log('VO2 Max Values:', vo2MaxValues);
-//       console.log('Dates:', dates);
-      
-//       // You can return the data or use it as needed
-//       return { vo2MaxValues, dates };
-//     } catch (error) {
-//       console.error('Error retrieving VO2 max data:', error);
-//     }
-//   } else {
-//     console.error('MyHealthKitModule is not available.');
-//   }
-// };
+export const getActiveEnergyData = async () => {
+  const { MyHealthKitModule } = NativeModules;
+  try {
+    const activeEnergyData = await MyHealthKitModule.readActiveEnergyData();
+    console.log('Active Energy Data:', activeEnergyData);
 
-// Call the Objective-C method
-// export const readSleepAndHeartRateData = async () => {
-//   const { MyHealthKitModule } = NativeModules;
+    // Process activeEnergyData as needed
+    const activeEnergies = activeEnergyData.map(dataPoint => dataPoint.activeEnergy);
+    const dateTimes = activeEnergyData.map(dataPoint => dataPoint.date);
 
-//   if (MyHealthKitModule) {
-//     try {
-//       const sleepAndHeartRateData = await MyHealthKitModule.readSleepAndHeartRateData();
-//       console.log('Sleep and Heart Rate Data:', sleepAndHeartRateData); // Log the data
+    console.log('Active Energies:', activeEnergies);
+    console.log('Date/Times:', dateTimes);
 
-//       // Separate sleep data and heart rate data
-//       const sleepData = sleepAndHeartRateData.sleepData;
-//       const heartRateData = sleepAndHeartRateData.heartRateData;
+    return { activeEnergies, dateTimes };
+  } catch (error) {
+    console.error('Error retrieving active energy data:', error);
+    // Handle the error appropriately (e.g., show a message to the user)
+  }
+};
 
-//       console.log('Sleep Data:', sleepData);
-//       console.log('Heart Rate Data:', heartRateData);
+export const getSleepData = async () => {
+  const { MyHealthKitModule } = NativeModules;
+  try {
+    const sleepData = await MyHealthKitModule.readSleepData();
+    console.log('Sleep Data:', sleepData);
 
-//       // Return or process the data as needed
-//       return { sleepData, heartRateData };
-//     } catch (error) {
-//       console.error('Error retrieving sleep and heart rate data:', error);
-//     }
-//   } else {
-//     console.error('MyHealthKitModule is not available.');
-//   }
-// };
+    // Define the order of keys
+    const keyOrder = ['Deep', 'Core', 'Awake', 'Asleep', 'In Bed', 'Rem'];
+
+    // Process sleepData as needed
+    const processedSleepData = sleepData.map((dataPoint, index) => {
+      const label = keyOrder[index] || 'Unknown'; // Use the corresponding key or 'Unknown' if not available
+
+      return {
+        label,
+        startTime: dataPoint.startDate,
+        endTime: dataPoint.endDate
+      };
+    });
+
+    const sleepLabels = processedSleepData.map(dataPoint => dataPoint.label);
+    const startTimes = processedSleepData.map(dataPoint => dataPoint.startTime);
+    const endTimes = processedSleepData.map(dataPoint => dataPoint.endTime);
+
+    console.log('Sleep Labels:', sleepLabels);
+    console.log('Start Times:', startTimes);
+    console.log('End Times:', endTimes);
+
+    return { sleepLabels, startTimes, endTimes };
+  } catch (error) {
+    console.error('Error retrieving sleep data:', error);
+    // Handle the error appropriately (e.g., show a message to the user)
+  }
+};
+
+
+
+export const getRestingHeartRateData = async () => {
+  try {
+    const { MyHealthKitModule } = NativeModules;
+    const restingHeartRateData = await MyHealthKitModule.readRestingHeartRateData();
+    console.log('Resting Heart Rate Data:', restingHeartRateData);
+
+    // Process restingHeartRateData as needed
+    const heartRates = restingHeartRateData.map(dataPoint => dataPoint.heartRateValue);
+    const dateTimes = restingHeartRateData.map(dataPoint => dataPoint.date);
+
+    console.log('Resting Heart Rates:', heartRates);
+    console.log('Date/Times:', dateTimes);
+
+    return { heartRates, dateTimes };
+  } catch (error) {
+    console.error('Error retrieving resting heart rate data:', error);
+    // Handle the error appropriately (e.g., show a message to the user)
+  }
+};
+
+
+
+
 
 
