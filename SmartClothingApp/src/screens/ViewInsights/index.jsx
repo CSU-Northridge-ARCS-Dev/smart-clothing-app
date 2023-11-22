@@ -13,7 +13,6 @@ import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
 import { updateActivityRings } from "../../actions/appActions";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
-import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
@@ -34,7 +33,6 @@ const ViewInsights = ({ route }) => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");

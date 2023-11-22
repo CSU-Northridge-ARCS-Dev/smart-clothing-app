@@ -9,15 +9,14 @@ import {
   ProfileScreen,
   SettingsScreen,
   ViewHealthData,
-  //HeartRateData,
   ViewInsights,
+  ViewHeartRateData,
+  ViewSleepData,
 } from "../screens";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { AppColor, AppFonts } from "../constants/themes";
 import { StyleSheet, Text } from "react-native";
-import ViewHeartRateData from "../screens/HeartRateData";
-import ViewSleepRateData from "../screens/SleepRateData";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -129,7 +128,7 @@ const HealthNavigationStack = () => {
     >
       <Stack.Screen name="Health Data" component={ViewHealthData} />
       <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
-      <Stack.Screen name="SleepRateData" component={ViewSleepRateData} />
+      <Stack.Screen name="SleepData" component={ViewSleepData} />
     </Stack.Navigator>
   );
 };

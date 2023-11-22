@@ -21,7 +21,6 @@ import { useFocusEffect } from "@react-navigation/native";
 const DateToolbar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDay, setSelectedDay] = useState(null);
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");
@@ -36,18 +35,6 @@ const DateToolbar = () => {
     day: "numeric",
     year: "numeric",
   });
-
-  useEffect(() => {
-    return () => {
-      setSelectedDay(null);
-    };
-  }, []);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      setSelectedDay(null);
-    }, [])
-  );
 
   return (
     <>
