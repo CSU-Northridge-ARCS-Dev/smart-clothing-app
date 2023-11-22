@@ -16,7 +16,7 @@ export default function ViewHealthData({ navigation }) {
   return (
     <ScrollView style={{ flex: 1 }}>
       <AppHeader title={"Health Data"} />
-      <DailyMetrics />
+      <DailyMetrics name="Metrics" />
       <DataButton
         screen="SleepRateData"
         icon="bed"
@@ -31,6 +31,7 @@ export default function ViewHealthData({ navigation }) {
         color={AppColor.primary}
         dataText="Heart Rate"
         navigation={navigation}
+        solid
       />
     </ScrollView>
   );
