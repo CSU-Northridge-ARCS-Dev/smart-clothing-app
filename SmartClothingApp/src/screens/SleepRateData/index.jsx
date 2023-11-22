@@ -9,7 +9,7 @@ export default function ViewSleepRateData({ navigation, route }) {
   const previousScreenTitle = route.params?.previousScreenTitle || "Sleep Data";
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
       <DailyMetrics name="Sleep Data" />
 
@@ -75,8 +75,7 @@ export default function ViewSleepRateData({ navigation, route }) {
 
 const styles = StyleSheet.create({
   title: {
-    paddingTop: 0,
-    padding: 10,
+    paddingHorizontal: 10,
     gap: 10,
     flexDirection: "row",
     justifyContent: "flex-start",
@@ -88,7 +87,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bigIcon: {
-    backgroundColor: "#D3E4FF",
+    backgroundColor: AppColor.primaryContainer,
     height: 70,
     width: 70,
     borderRadius: 50,
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
   },
   sleepStage: {
     height: 50,
-    backgroundColor: "#D3E4FF",
+    backgroundColor: AppColor.primaryContainer,
     borderRadius: 15,
     marginVertical: 3,
     marginHorizontal: 10,
