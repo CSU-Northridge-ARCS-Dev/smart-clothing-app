@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-import { AppHeader } from "../../components";
+import { View, Text, StyleSheet } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { useFocusEffect } from "@react-navigation/native";
@@ -52,7 +45,7 @@ const DailyMetrics = () => {
   );
 
   return (
-    <>
+    <View style={{ padding: 10 }}>
       <View style={styles.dateContainer}>
         <Text style={styles.title}>{formattedDate}</Text>
         <View style={styles.iconContainer}>
@@ -64,25 +57,28 @@ const DailyMetrics = () => {
           />
         </View>
       </View>
-
-      <View style={styles.insights}>
-        <Text style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold }]}>
-          Daily Metrics
-        </Text>
-        <View style={styles.dayLabelsContainer}>
-          {days.map((day) => (
-            <Text
-              key={day}
-              style={[
-                AppStyle.subTitle,
-                { fontFamily: AppFonts.chakraBold, fontSize: 20 },
-                selectedDay === day && styles.selectedDayLabel,
-              ]}
-              onPress={() => handleDayPress(day)}
-            >
-              {daysOfWeek[day]}
-            </Text>
-          ))}
+      <View>
+        <View style={styles.insights}>
+          <Text
+            style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold, }]}
+          >
+            Daily Metrics
+          </Text>
+          <View style={styles.weekdayContainer}>
+            {days.map((day) => (
+              <Text
+                key={day}
+                style={[
+                  AppStyle.subTitle,
+                  { fontFamily: AppFonts.chakraBold, fontSize: 20 },
+                  selectedDay === day && styles.selectedDayLabel,
+                ]}
+                onPress={() => handleDayPress(day)}
+              >
+                {daysOfWeek[day]}
+              </Text>
+            ))}
+          </View>
         </View>
         {showDatePicker && (
           <DateTimePicker
@@ -93,13 +89,13 @@ const DailyMetrics = () => {
           />
         )}
       </View>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 24,
+    fontSize: 20,
     textAlign: "left",
     color: "black",
   },
@@ -111,18 +107,8 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 5, height: 5 },
     backgroundColor: AppColor.primaryContainer,
-    padding: 10,
+    padding: 7,
     borderRadius: 10,
-  },
-  content: {
-    paddingHorizontal: 0,
-    paddingTop: 10,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    marginBottom: 20,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    padding: 16,
   },
   dateContainer: {
     flexDirection: "row",
@@ -133,49 +119,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   icon: {
-    marginLeft: 25,
     paddingRight: 10,
-    color: "#1160A4",
+    color: AppColor.primary,
     fontSize: 25,
   },
-  rectangleContainer: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    padding: 8,
-    marginHorizontal: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    elevation: 5,
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    height: 100,
-  },
-  whiteRectangle: {
-    backgroundColor: "#D3E4FF",
-    borderRadius: 50,
-    padding: 16,
-  },
-  sleepDataText: {
-    color: "#000000",
-    fontSize: 25,
-    marginRight: 8,
-  },
-  dayLabelsContainer: {
+  weekdayContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
     marginTop: 10,
-  },
-  dayLabelContainer: {
-    alignItems: "center",
-  },
-  dayLabel: {
-    color: "#1160A4",
-    fontSize: 25,
   },
   selectedDayLabel: {
     borderColor: AppColor.primary,
@@ -187,21 +139,6 @@ const styles = StyleSheet.create({
     lineHeight: 36.5,
     color: AppColor.primaryContainer,
     backgroundColor: AppColor.primary,
-  },
-  date: {
-    flex: 1,
-    backgroundColor: "#D3E4FF",
-    borderRadius: 8,
-    padding: 8,
-    marginHorizontal: 26,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    elevation: 5,
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    height: 100,
   },
 });
 

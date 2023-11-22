@@ -4,11 +4,11 @@ import { AppHeader } from "../../components";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
 
-export default function ViewHealthData({ navigation, route }) {
+export default function ViewHeartRateData({ navigation, route }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const previousScreenTitle =
-    route.params?.previousScreenTitle || "Health Data";
+    route.params?.previousScreenTitle || "Heart Rate Data";
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");
