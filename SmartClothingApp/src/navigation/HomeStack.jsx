@@ -124,10 +124,10 @@ const DevicesNavigationStack = () => {
 const HealthNavigationStack = () => {
   return (
     <Stack.Navigator
-      initialRouteName="Health Data"
+      initialRouteName="Health"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="Health" component={ViewHealthData} />
+      <Stack.Screen name="Health Data" component={ViewHealthData} />
       <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
       <Stack.Screen name="SleepRateData" component={ViewSleepRateData} />
     </Stack.Navigator>

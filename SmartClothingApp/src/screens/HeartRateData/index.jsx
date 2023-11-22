@@ -9,8 +9,7 @@ import HeartRateChart from "../../components/visualizations/HeartRateChart";
 export default function ViewHeartRateData({ navigation, route }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const previousScreenTitle =
-    route.params?.previousScreenTitle || "Heart Rate Data";
+  const { previousScreenTitle } = route.params;
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");

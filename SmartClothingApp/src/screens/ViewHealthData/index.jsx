@@ -8,11 +8,18 @@ import {
 } from "react-native";
 import { AppHeader } from "../../components";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import { useRoute } from "@react-navigation/native";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
 import DataButton from "../../components/UI/DataButton";
 
 export default function ViewHealthData({ navigation }) {
+  const route = useRoute();
+  const navigate = (screen) => {
+    navigation.navigate(screen, {
+      previousScreenTitle: route.name,
+    });
+  };
   return (
     <ScrollView style={{ flex: 1 }}>
       <AppHeader title={"Health Data"} />
@@ -22,7 +29,7 @@ export default function ViewHealthData({ navigation }) {
         icon="bed"
         color={AppColor.primary}
         dataText="Sleep Data"
-        navigation={navigation}
+        navigate={navigate}
       />
 
       <DataButton
@@ -30,7 +37,7 @@ export default function ViewHealthData({ navigation }) {
         icon="heart"
         color={AppColor.primary}
         dataText="Heart Rate"
-        navigation={navigation}
+        navigate={navigate}
         solid
       />
     </ScrollView>
