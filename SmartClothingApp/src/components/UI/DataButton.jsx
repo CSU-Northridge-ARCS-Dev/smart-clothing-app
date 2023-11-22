@@ -7,7 +7,7 @@ const DataButton = (props) => {
     <View style={styles.buttonContainer}>
       <TouchableOpacity
         style={styles.rectangleContainer}
-        onPress={() => props.navigation.navigate(props.screen)}
+        onPress={() => props.navigate(props.screen)}
       >
         <View style={styles.bigIcon}>
           <Icon
