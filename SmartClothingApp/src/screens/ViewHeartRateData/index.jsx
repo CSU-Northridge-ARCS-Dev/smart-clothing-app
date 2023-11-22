@@ -6,26 +6,20 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { AppColor } from "../../constants/themes";
 import HeartRateChart from "../../components/visualizations/HeartRateChart";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import { CartesianChart, Scatter } from "victory-native";
+import inter from "../../../assets/fonts/inter-medium.ttf";
+import { useFont } from "@shopify/react-native-skia";
 
 const ViewHeartRateData = ({ route }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  const font = useFont(inter, 14);
   const { previousScreenTitle } = route.params;
-
-  const onChangeDate = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === "ios");
-    if (selectedDate) {
-      setCurrentDate(selectedDate);
-    }
-  };
-
-  const formattedDate = currentDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
+  const data = [
+    { x: 1, y: 160 },
+    { x: 10, y: 150 },
+    { x: 20, y: 110 },
+    { x: 30, y: 95 },
+    { x: 40, y: 95 },
+  ];
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
@@ -66,15 +60,54 @@ const ViewHeartRateData = ({ route }) => {
           <Text style={styles.infoText}>47 MS</Text>
         </View>
       </View>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={currentDate}
-          mode="date"
-          display="default"
-          onChange={onChangeDate}
-        />
-      )}
+      <View
+        style={{
+          height: 200,
+          marginBottom: 100,
+          padding: 20,
+          backgroundColor: AppColor.primaryContainer,
+          borderRadius: 12,
+          marginHorizontal: 10,
+          marginVertical: 3,
+        }}
+      >
+        <Text style={styles.infoText}>Heart Rate Recovery</Text>
+        <CartesianChart
+          data={data}
+          xKey="x"
+          yKeys={["y"]}
+          domain={{ x: [0, 180], y: [0, 180] }}
+          domainPadding={{ left: 30, right: 30 }}
+          axisOptions={{
+            font,
+            tickCount: { x: 4 },
+            lineColor: "black",
+            lineWidth: 1,
+            labelColor: AppColor.primary,
+            stroke: { fill: "none" },
+            axisSide: { x: "bottom", y: "bottom" },
+          }}
+        >
+          {({ points }) => (
+            <>
+              <Scatter
+                points={points.y}
+                shape="circle"
+                radius={3}
+                style="fill"
+                color="red"
+              />
+              <Scatter
+                points={points.y}
+                shape="circle"
+                radius={3}
+                style="stroke"
+                color="black"
+              />
+            </>
+          )}
+        </CartesianChart>
+      </View>
     </ScrollView>
   );
 };
