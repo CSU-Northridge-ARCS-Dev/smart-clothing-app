@@ -16,6 +16,7 @@ import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
+import DateToolbar from "../../components/DateToolbar/DateToolbar";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -73,20 +74,8 @@ const ViewInsights = ({ route }) => {
   return (
     <ScrollView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
-      <View style={styles.body}>
-        <View style={styles.header}>
-          <Text style={styles.title}>{formattedDate}</Text>
-          <View style={{ flexDirection: "row", gap: 20 }}>
-            <Icon
-              name="calendar-alt"
-              size={20}
-              style={styles.icon}
-              onPress={() => setShowDatePicker(true)}
-            />
-            <Icon name="sliders-h" size={20} style={styles.icon} />
-            <Icon name="upload" size={20} style={styles.icon} />
-          </View>
-        </View>
+      <View style={{ padding: 10 }}>
+        <DateToolbar />
         <DailyInsights
           fromDashboard={false}
           handleRingPress={handleRingPress}
@@ -167,20 +156,9 @@ const styles = StyleSheet.create({
     height: 130,
     overflow: "hidden",
   },
-  body: {
-    padding: 10,
-  },
   ringsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  icon: {
-    color: AppColor.primary,
   },
 });
 
