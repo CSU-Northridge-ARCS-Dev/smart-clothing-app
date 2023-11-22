@@ -7,50 +7,31 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { AppHeader } from "../../components";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import { useFocusEffect } from "@react-navigation/native";
-import { daysOfWeek } from "../../utils/calendar";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
+import DataButton from "../../components/UI/DataButton";
 
 export default function ViewHealthData({ navigation }) {
   return (
     <ScrollView style={{ flex: 1 }}>
       <AppHeader title={"Health Data"} />
-      <View style={{ padding: 10 }}>
-        <DailyMetrics></DailyMetrics>
-      </View>
+      <DailyMetrics />
+      <DataButton
+        screen="SleepRateData"
+        icon="bed"
+        color={AppColor.primary}
+        dataText="Sleep Data"
+        navigation={navigation}
+      />
 
-      <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.rectangleContainer}
-          onPress={() => navigation.navigate("SleepRateData")}
-        >
-          <View style={styles.whiteRectangle}>
-            <Icon name="bed" size={50} color="#1160A4" />
-          </View>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.sleepDataText}>Sleep Data</Text>
-            <Icon name="chevron-right" size={25} color="#000000" />
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.rectangleContainer}
-          onPress={() => navigation.navigate("HeartRateData")}
-        >
-          <View style={styles.whiteRectangle}>
-            <Icon name="heart" size={50} color="#1160A4" solid />
-          </View>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.sleepDataText}>Heart Data</Text>
-            <Icon name="chevron-right" size={25} color="#000000" />
-          </View>
-        </TouchableOpacity>
-      </View>
+      <DataButton
+        screen="HeartRateData"
+        icon="heart"
+        color={AppColor.primary}
+        dataText="Heart Rate"
+        navigation={navigation}
+      />
     </ScrollView>
   );
 }

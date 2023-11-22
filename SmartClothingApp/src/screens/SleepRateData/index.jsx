@@ -4,85 +4,19 @@ import { AppHeader } from "../../components";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useFocusEffect } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
 
-export default function ViewSleepData({ navigation, route }) {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+export default function ViewSleepRateData({ navigation, route }) {
   const previousScreenTitle = route.params?.previousScreenTitle || "Sleep Data";
-  const [selectedDay, setSelectedDay] = useState(null);
-  const days = ["S", "M", "T", "W", "Th", "F", "Sat"];
-
-  const onChangeDate = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === "ios");
-    if (selectedDate) {
-      setCurrentDate(selectedDate);
-    }
-  };
-
-  const handleDayPress = (day) => {
-    setSelectedDay((prevSelectedDay) => {
-      return prevSelectedDay === day ? null : day;
-    });
-  };
-
-  const formattedDate = currentDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  useEffect(() => {
-    return () => {
-      setSelectedDay(null);
-    };
-  }, []);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      setSelectedDay(null);
-    }, [])
-  );
 
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={previousScreenTitle} back={true} />
-
-      <View style={styles.dateContainer}>
-        <Text style={styles.title}>{formattedDate}</Text>
-        <View style={styles.iconContainer}>
-          <Icon
-            name="calendar-alt"
-            size={20}
-            style={styles.icon}
-            onPress={() => setShowDatePicker(true)}
-          />
-        </View>
-      </View>
-
-      <View style={styles.Content}>
-        <View style={styles.date}>
-          <Text style={styles.dateText}>Daily Metrics</Text>
-          <View style={styles.dayLabelsContainer}>
-            {days.map((day) => (
-              <Text
-                key={day}
-                style={[
-                  styles.dayLabel,
-                  selectedDay === day && styles.selectedDayLabel,
-                ]}
-                onPress={() => handleDayPress(day)}
-              >
-                {day}
-              </Text>
-            ))}
-          </View>
-        </View>
-      </View>
+      <DailyMetrics />
 
       <View style={styles.content}>
         <View style={styles.whiteRectangle}>
-          <Icon name="bed" size={50} color="#1160A4" />
+          <Icon name="bed" size={40} color="#1160A4" />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.sleepDataText}>Sleep Rate</Text>
@@ -128,15 +62,6 @@ export default function ViewSleepData({ navigation, route }) {
           <Text style={styles.infoTextRight}>11 min</Text>
         </View>
       </View>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={currentDate}
-          mode="date"
-          display="default"
-          onChange={onChangeDate}
-        />
-      )}
     </ScrollView>
   );
 }
@@ -154,7 +79,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     marginBottom: 20,
     flexDirection: "row",
-    justifyContent: "flex-start", 
+    justifyContent: "flex-start",
     alignItems: "center",
   },
   dateContainer: {
@@ -165,18 +90,13 @@ const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: "row",
   },
-  icon: {
-    marginLeft: 25,
-    paddingRight: 10,
-    color: "#1160A4",
-    fontSize: 25,
-  },
   whiteRectangle: {
     backgroundColor: "#D3E4FF",
-    height: 100,
-    width: 100,
+    height: 70,
+    width: 70,
     borderRadius: 50,
-    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   sleepDataText: {
     color: "#000000",
@@ -185,20 +105,20 @@ const styles = StyleSheet.create({
   textContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 10, 
+    marginLeft: 10,
   },
   rectangleBelowText: {
-    height: 50, 
-    backgroundColor: "#D3E4FF", 
-    borderRadius: 15, 
-    marginTop: 5, 
+    height: 50,
+    backgroundColor: "#D3E4FF",
+    borderRadius: 15,
+    marginTop: 5,
     marginLeft: 26,
     marginRight: 26,
   },
   infoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start", 
+    alignItems: "flex-start",
     padding: 10,
     height: "100%",
   },
@@ -237,21 +157,6 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     color: "#1160A4",
   },
-  date: {
-    flex: 1,
-    backgroundColor: "#D3E4FF",
-    borderRadius: 8,
-    padding: 8,
-    marginHorizontal: 26,
-    flexDirection: "column",
-    justifyContent: "flex-start",
-    elevation: 5,
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    height: 100,
-  },
   Content: {
     paddingHorizontal: 0,
     paddingTop: 10,
@@ -264,7 +169,7 @@ const styles = StyleSheet.create({
   },
   header: {
     textAlign: "center",
-    fontSize: 24, 
+    fontSize: 24,
     color: "#1160A4",
   },
   WhiteRectangle: {

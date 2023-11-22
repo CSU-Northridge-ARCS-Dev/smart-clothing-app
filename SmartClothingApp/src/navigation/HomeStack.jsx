@@ -60,7 +60,7 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Health"
+        name="Health Data"
         component={HealthNavigationStack}
         options={{
           tabBarIcon: ({ focused }) => (

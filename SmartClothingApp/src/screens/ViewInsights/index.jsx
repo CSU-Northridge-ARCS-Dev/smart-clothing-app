@@ -33,6 +33,7 @@ const ViewInsights = ({ route }) => {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");
@@ -54,51 +55,16 @@ const ViewInsights = ({ route }) => {
     setCurrentRingData(currentRingData);
   };
 
-  function getDaySuffix(day) {
-    if (day >= 11 && day <= 13) {
-      return "th";
-    }
-    const lastDigit = day % 10;
-    switch (lastDigit) {
-      case 1:
-        return "st";
-      case 2:
-        return "nd";
-      case 3:
-        return "rd";
-      default:
-        return "th";
-    }
-  }
-
   const handleUpdate = async () => {
     await dispatch(updateActivityRings());
   };
 
-  function formatDateToCustomString(date) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    const suffix = getDaySuffix(day);
-
-    return `${month} ${day}${suffix}, ${year}`;
-  }
+  const formattedDate = currentDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   useEffect(() => {
     setCurrentDate(currentDate);
@@ -109,9 +75,7 @@ const ViewInsights = ({ route }) => {
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={styles.body}>
         <View style={styles.header}>
-          <Text style={styles.title}>
-            {formatDateToCustomString(currentDate)}
-          </Text>
+          <Text style={styles.title}>{formattedDate}</Text>
           <View style={{ flexDirection: "row", gap: 20 }}>
             <Icon
               name="calendar-alt"
@@ -214,6 +178,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  icon: {
+    color: AppColor.primary,
   },
 });
 
