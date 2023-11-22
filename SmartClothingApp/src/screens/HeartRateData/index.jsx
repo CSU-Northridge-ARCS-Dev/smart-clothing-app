@@ -5,6 +5,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { AppColor } from "../../constants/themes";
 import HeartRateChart from "../../components/visualizations/HeartRateChart";
+import DateToolbar from "../../components/DateToolbar/DateToolbar";
 
 export default function ViewHeartRateData({ navigation, route }) {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -28,19 +29,11 @@ export default function ViewHeartRateData({ navigation, route }) {
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
-      <View style={styles.dateContainer}>
-        <Text style={styles.title}>{formattedDate}</Text>
-        <View style={styles.iconContainer}>
-          <Icon
-            name="calendar-alt"
-            size={20}
-            style={styles.icon}
-            onPress={() => setShowDatePicker(true)}
-          />
-        </View>
+      <View style={{ padding: 10 }}>
+        <DateToolbar />
       </View>
 
-      <View style={styles.content}>
+      <View style={styles.title}>
         <View style={styles.bigIcon}>
           <Icon name="heartbeat" size={40} color="#1160A4" solid />
         </View>
@@ -49,7 +42,7 @@ export default function ViewHeartRateData({ navigation, route }) {
         </View>
       </View>
 
-      <View style={{ alignItems: "center", paddingVertical: 25 }}>
+      <View style={{ alignItems: "center", paddingTop: 10, paddingBottom: 20 }}>
         <HeartRateChart />
       </View>
 
@@ -88,13 +81,7 @@ export default function ViewHeartRateData({ navigation, route }) {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 24,
-    textAlign: "left",
-    color: "black",
-  },
-  content: {
-    paddingHorizontal: 10,
-    gap: 10,
+    padding: 10,
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
