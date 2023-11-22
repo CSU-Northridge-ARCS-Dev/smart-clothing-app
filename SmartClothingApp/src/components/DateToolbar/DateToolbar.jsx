@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     flexDirection: "row",
-    gap: 15,
+    gap: 10,
   },
   icon: {
     color: AppColor.primary,
