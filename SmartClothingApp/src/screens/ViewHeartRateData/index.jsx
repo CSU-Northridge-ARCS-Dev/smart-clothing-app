@@ -77,15 +77,22 @@ const ViewHeartRateData = ({ route }) => {
           xKey="x"
           yKeys={["y"]}
           domain={{ x: [0, 180], y: [0, 180] }}
-          domainPadding={{ left: 30, right: 30 }}
+          domainPadding={{ left: 10, right: 15 }}
           axisOptions={{
             font,
-            tickCount: { x: 4 },
-            lineColor: "black",
-            lineWidth: 1,
+            tickCount: { x: 8 },
+            lineColor: { grid: "black", frame: AppColor.primaryContainer },
+            lineWidth: 0.5,
             labelColor: AppColor.primary,
-            stroke: { fill: "none" },
+            labelPosition: { x: "outset", y: "inset" },
             axisSide: { x: "bottom", y: "bottom" },
+            // formatXLabel(value) {
+            //   if (value === 60) {
+            //     return "1 MIN";
+            //   } else {
+            //     return "";
+            //   }
+            // },
           }}
         >
           {({ points }) => (
