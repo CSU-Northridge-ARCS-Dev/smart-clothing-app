@@ -86,13 +86,6 @@ const ViewHeartRateData = ({ route }) => {
             labelColor: AppColor.primary,
             labelPosition: { x: "outset", y: "inset" },
             axisSide: { x: "bottom", y: "bottom" },
-            // formatXLabel(value) {
-            //   if (value === 60) {
-            //     return "1 MIN";
-            //   } else {
-            //     return "";
-            //   }
-            // },
           }}
         >
           {({ points }) => (
