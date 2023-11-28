@@ -23,7 +23,10 @@ import { checkHealthKitAvailability } from "./src/utils/AppleHealthKit/AppleHeal
 import { requestHealthKitAuthorization } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 import { getHeartRateData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 import { getActivityRingsData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
-import { getVO2MaxData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getRestingHeartRateData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getActiveEnergyData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getSleepData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getHeartRateVariabilityData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 
 const store = configureStore();
 
@@ -125,20 +128,33 @@ export default function App() {
         console.error(error);
       });
 
-    // getHeartRateData()
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
-      getActivityRingsData()
+      // getActivityRingsData()
+      // .catch(error => {
+      //   console.error(error);
+      // });
+      // getActiveEnergyData()
+      // .catch(error => {
+      //   console.error(error);
+      // });
+      // getSleepData()
+      // .catch(error => {
+      //   console.error(error);
+      // });
+      getHeartRateVariabilityData()
       .catch(error => {
         console.error(error);
       });
+    
+      // getHeartRateData()
+      //   .catch(error => {
+      //     console.error(error);
+      //   });
       // getVO2MaxData()
       // .catch(error => {
       //   console.error(error);
       // });
 
-    // readSleepAndHeartRateData()
+    // getRestingHeartRateData()
     //   .catch(error => {
     //     console.error(error);
     //   });
