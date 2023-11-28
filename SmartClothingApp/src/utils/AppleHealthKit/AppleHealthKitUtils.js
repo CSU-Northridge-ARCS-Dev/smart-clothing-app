@@ -158,6 +158,28 @@ export const getRestingHeartRateData = async () => {
 };
 
 
+export const getHeartRateVariabilityData = async () => {
+  try {
+    const MyHealthKitModule = NativeModules.MyHealthKitModule; // Make sure to replace 'MyHealthKitModule' with the actual name of your HealthKit module
+    const hrvData = await MyHealthKitModule.readHeartRateVariabilityData();
+    console.log('Heart Rate Variability Data:', hrvData);
+
+    // Process hrvData as needed
+    const hrvValues = hrvData.map(dataPoint => dataPoint.hrvValue);
+    const dateTimes = hrvData.map(dataPoint => dataPoint.date);
+
+    console.log('HRV Values:', hrvValues);
+    console.log('Date/Times:', dateTimes);
+
+    return { hrvValues, dateTimes };
+  } catch (error) {
+    console.error('Error retrieving heart rate variability data:', error);
+    // Handle the error appropriately (e.g., show a message to the user)
+    throw error; // You can re-throw the error if you want to handle it further up the call stack
+  }
+};
+
+
 
 
 
