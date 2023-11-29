@@ -20,6 +20,7 @@
     "@react-navigation/native-stack": "^6.9.13",
     "@shopify/react-native-skia": "0.1.196",
     "axios": "^1.4.0",
+    "d3": "^7.8.5",
     "expo": "^49.0.0",
     "expo-app-loading": "^2.1.1",
     "expo-font": "~11.4.0",

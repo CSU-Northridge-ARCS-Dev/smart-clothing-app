@@ -15,8 +15,7 @@ import {
   bottomLeft,
   rect,
 } from "@shopify/react-native-skia";
-import { useWindowDimensions } from "react-native";
-import { useMemo } from "react";
+import { scaleLinear, tickStep, ticks } from "d3";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
@@ -65,6 +64,8 @@ const ViewSleepData = ({ route }) => {
   const sortedPositions = colorStops.map((stop) => stop.position);
   const sortedColors = colorStops.map((stop) => stop.color);
 
+  const x = ticks(0, 180, 30);
+
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
@@ -76,12 +77,12 @@ const ViewSleepData = ({ route }) => {
         </View>
         <Text style={styles.dataText}>Sleep Data</Text>
       </View>
+
       <View
         style={{
-          height: 300,
-          marginBottom: 100,
+          height: 400,
           padding: 20,
-          backgroundColor: AppColor.primaryContainer,
+          backgroundColor: "white",
           borderRadius: 12,
           marginHorizontal: 10,
           marginVertical: 10,
@@ -92,96 +93,109 @@ const ViewSleepData = ({ route }) => {
           data={data}
           xKey="x"
           yKeys={["y"]}
-          domain={{ x: [0, 180], y: [0, 180] }}
-          domainPadding={{ bottom: 10, top: 20, right: 80, left: 60 }}
+          domain={{ x: [0, 180, 30], y: [0, 180] }}
+          domainPadding={{ bottom: 10, top: 35, right: 80, left: 60 }}
           axisOptions={{
             font,
-            tickCount: { x: 8, y: 32 },
+            tickCount: { x: 8, y: 5 },
             lineColor: { grid: "black", frame: "black" },
             lineWidth: 0.1,
             labelColor: AppColor.primary,
             labelPosition: { x: "outset", y: "inset" },
             formatYLabel(value) {
-              if (value === 180) {
+              if (value === 200) {
                 return "Awake";
-              } else if (value === 135) {
+              } else if (value === 150) {
                 return "REM";
-              } else if (value === 90) {
+              } else if (value === 100) {
                 return "Core";
-              } else if (value === 45) {
+              } else if (value === 50) {
                 return "Deep";
               } else {
-                // Handle values outside the specified ranges
                 return "";
               }
             },
           }}
         >
-          {({ points, chartBounds }) => (
+          {({ points, chartBounds, yScale }) => (
             <Line
               points={points.y}
               color={AppColor.sleepAwake}
-              strokeWidth={5}
+              strokeWidth={6}
               curveType="linear"
             >
               <LinearGradient
                 start={vec(0, 0)}
                 end={vec(chartBounds.top, chartBounds.bottom)}
-                colors={sortedColors}
-                positions={sortedPositions}
+                colors={[
+                  AppColor.sleepAwake,
+                  AppColor.sleepAwake,
+                  AppColor.sleepRem,
+                  AppColor.sleepRem,
+                  AppColor.sleepCore,
+                  AppColor.sleepCore,
+                  AppColor.sleepDeep,
+                  AppColor.sleepDeep,
+                ]}
+                positions={[0, 0.292, 0.25, 0.495, 0.5, 0.67, 0.75, 1]}
               />
             </Line>
           )}
         </CartesianChart>
       </View>
 
-      <Text style={styles.header}>Stages</Text>
+      <View style={{ marginBottom: 100 }}>
+        <Text style={styles.header}>Stages</Text>
 
-      <View style={styles.sleepStage}>
-        <View style={styles.infoContainer}>
-          <View style={styles.stageText}>
-            <View
-              style={[styles.circle, { backgroundColor: AppColor.sleepAwake }]}
-            ></View>
-            <Text style={styles.infoText}>Awake</Text>
+        <View style={styles.sleepStage}>
+          <View style={styles.infoContainer}>
+            <View style={styles.stageText}>
+              <View
+                style={[
+                  styles.circle,
+                  { backgroundColor: AppColor.sleepAwake },
+                ]}
+              ></View>
+              <Text style={styles.infoText}>Awake</Text>
+            </View>
+            <Text style={styles.infoText}>5 min</Text>
           </View>
-          <Text style={styles.infoText}>5 min</Text>
         </View>
-      </View>
 
-      <View style={styles.sleepStage}>
-        <View style={styles.infoContainer}>
-          <View style={styles.stageText}>
-            <View
-              style={[styles.circle, { backgroundColor: AppColor.sleepRem }]}
-            ></View>
-            <Text style={styles.infoText}>REM</Text>
+        <View style={styles.sleepStage}>
+          <View style={styles.infoContainer}>
+            <View style={styles.stageText}>
+              <View
+                style={[styles.circle, { backgroundColor: AppColor.sleepRem }]}
+              ></View>
+              <Text style={styles.infoText}>REM</Text>
+            </View>
+            <Text style={styles.infoText}>1 hr 56 min</Text>
           </View>
-          <Text style={styles.infoText}>1 hr 56 min</Text>
         </View>
-      </View>
 
-      <View style={styles.sleepStage}>
-        <View style={styles.infoContainer}>
-          <View style={styles.stageText}>
-            <View
-              style={[styles.circle, { backgroundColor: AppColor.sleepCore }]}
-            />
-            <Text style={styles.infoText}>Core</Text>
+        <View style={styles.sleepStage}>
+          <View style={styles.infoContainer}>
+            <View style={styles.stageText}>
+              <View
+                style={[styles.circle, { backgroundColor: AppColor.sleepCore }]}
+              />
+              <Text style={styles.infoText}>Core</Text>
+            </View>
+            <Text style={styles.infoText}>5 hr 17 min</Text>
           </View>
-          <Text style={styles.infoText}>5 hr 17 min</Text>
         </View>
-      </View>
 
-      <View style={styles.sleepStage}>
-        <View style={styles.infoContainer}>
-          <View style={styles.stageText}>
-            <View
-              style={[styles.circle, { backgroundColor: AppColor.sleepDeep }]}
-            />
-            <Text style={styles.infoText}>Deep</Text>
+        <View style={styles.sleepStage}>
+          <View style={styles.infoContainer}>
+            <View style={styles.stageText}>
+              <View
+                style={[styles.circle, { backgroundColor: AppColor.sleepDeep }]}
+              />
+              <Text style={styles.infoText}>Deep</Text>
+            </View>
+            <Text style={styles.infoText}>11 min</Text>
           </View>
-          <Text style={styles.infoText}>11 min</Text>
         </View>
       </View>
     </ScrollView>
