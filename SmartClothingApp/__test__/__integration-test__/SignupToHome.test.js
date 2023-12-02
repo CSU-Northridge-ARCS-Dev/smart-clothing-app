@@ -104,6 +104,43 @@ jest.mock('firebase/firestore', () => ({
       }), // Mock 'data' as a function
     }),
 }))
+
+jest.mock('react-native-vector-icons/MaterialIcons', () => require('../__mocks__/react-native-vector-icons').MaterialIcons);
+jest.mock('react-native-vector-icons/FontAwesome5', () => require('../__mocks__/react-native-vector-icons').FontAwesome5);
+jest.mock('@shopify/react-native-skia', () => require('../__mocks__/@shopify__react-native-skia'));
+jest.mock('../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+  return jest.fn(({ ring, center, strokeWidth, scale }) => (
+    <div>
+      Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
+    </div>
+  ));
+});
+jest.mock('victory-native', () => {
+  // Mock the specific components and functionalities you use
+  const MockBar = () => <div>Mock Bar</div>;
+  const MockCartesianChart = () => <div>Mock CartesianChart</div>;
+  const MockUseChartPressState = () => ({ /* Mock return value */ });
+
+  return {
+    Bar: MockBar,
+    CartesianChart: MockCartesianChart,
+    useChartPressState: MockUseChartPressState,
+  };
+});
+jest.mock('../../src/actions/appActions', () => ({
+  userMetricsDataModalVisible: jest.fn().mockReturnValue({
+    type: 'USER_METRICS_DATA_MODAL_VISIBLE',
+    payload: {
+      visibility: true,
+      isFromSignUpScreen: true,
+  }}),
+}));
+// jest.mock('../../src/actions/appActions', () => ({
+//   userMetricsDataModalVisible: jest.fn().mockReturnValue({
+//     visibility: true,
+//     isFromSignUpScreen: true,
+//   }),
+// }));
   
   
   
