@@ -60,39 +60,24 @@ export const getHeartRateData = async () => {
   } catch (error) {
     console.error('Error retrieving heart rate data:', error);
     // Handle the error appropriately (e.g., show a message to the user)
+    throw error;
   }
 };
 
-export const getActivityRingsData = async () => {
-  const { MyHealthKitModule } = NativeModules;
-  try {
-    const activityRingsData = await MyHealthKitModule.fillActivityRings();
-    console.log('Activity Rings Data:', activityRingsData);
-
-    const { Move } = activityRingsData;
-    console.log('Move:', Move);
-    //console.log('Exercise:', Exercise);
-   // console.log('Stand:', Stand);
-    //return { Move, Exercise, Stand };
-  } catch (error) {
-    console.error(' Error retrieving activity rings data:', error);
-    // Handle the error appropriately (e.g., show a message to the user)
-  }
-};
 
 export const getActiveEnergyData = async () => {
   const { MyHealthKitModule } = NativeModules;
   try {
     const activeEnergyData = await MyHealthKitModule.readActiveEnergyData();
     console.log('Active Energy Data:', activeEnergyData);
-
+    
     // Process activeEnergyData as needed
     const activeEnergies = activeEnergyData.map(dataPoint => dataPoint.activeEnergy);
     const dateTimes = activeEnergyData.map(dataPoint => dataPoint.date);
-
+    
     console.log('Active Energies:', activeEnergies);
     console.log('Date/Times:', dateTimes);
-
+    
     return { activeEnergies, dateTimes };
   } catch (error) {
     console.error('Error retrieving active energy data:', error);
@@ -105,14 +90,14 @@ export const getSleepData = async () => {
   try {
     const sleepData = await MyHealthKitModule.readSleepData();
     console.log('Sleep Data:', sleepData);
-
+    
     // Define the order of keys
     const keyOrder = ['Deep', 'Core', 'Awake', 'Asleep', 'In Bed', 'Rem'];
-
+    
     // Process sleepData as needed
     const processedSleepData = sleepData.map((dataPoint, index) => {
       const label = keyOrder[index] || 'Unknown'; // Use the corresponding key or 'Unknown' if not available
-
+      
       return {
         label,
         startTime: dataPoint.startDate,
@@ -179,6 +164,22 @@ export const getHeartRateVariabilityData = async () => {
   }
 };
 
+// export const getActivityRingsData = async () => {
+    //   const { MyHealthKitModule } = NativeModules;
+    //   try {
+    //     const activityRingsData = await MyHealthKitModule.fillActivityRings();
+    //     console.log('Activity Rings Data:', activityRingsData);
+    
+    //     const { Move } = activityRingsData;
+    //     console.log('Move:', Move);
+    //     //console.log('Exercise:', Exercise);
+    //    // console.log('Stand:', Stand);
+    //     //return { Move, Exercise, Stand };
+    //   } catch (error) {
+    //     console.error(' Error retrieving activity rings data:', error);
+    //     // Handle the error appropriately (e.g., show a message to the user)
+    //   }
+    // };
 
 
 
