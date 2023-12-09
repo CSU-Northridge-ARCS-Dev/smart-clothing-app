@@ -17,6 +17,7 @@ import { getHeartRateData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils
 import { getRestingHeartRateData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 import { getHeartRateVariabilityData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 import { getActiveEnergyData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getSleepData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 
 const store = configureStore();
 
@@ -60,34 +61,34 @@ export default function App() {
 
     // return () => unsubscribe();
 
-   // check if AppleHealthKit is Avaliable for use in the app
-    // checkHealthKitAvailability()
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
+  // check if AppleHealthKit is Avaliable for use in the app
+    checkHealthKitAvailability()
+      .catch(error => {
+        console.error(error);
+      });
 
-    // requestHealthKitAuthorization()
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
+    requestHealthKitAuthorization()
+      .catch(error => {
+        console.error(error);
+      });
     // getHeartRateVariabilityData()
     // .catch(error => {
     //   console.error(error);
     // });
   
-    // getHeartRateData()
-    //   .catch(error => {
-    //     console.error(error);
-    //   });
+    getHeartRateData()
+      .catch(error => {
+        console.error(error);
+      });
 
   // getRestingHeartRateData()
   //   .catch(error => {
   //     console.error(error);
   //   });
-  // getSleepData()
-  // .catch(error => {
-  //   console.error(error);
-  // });
+  getSleepData()
+  .catch(error => {
+    console.error(error);
+  });
 
   // getActiveEnergyData()
   // .catch(error => {
