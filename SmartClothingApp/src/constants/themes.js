@@ -44,6 +44,10 @@ export const AppColor = {
   onSurfaceDisabled: "rgba(26, 28, 30, 0.38)",
   backdrop: "rgba(44, 49, 55, 0.4)",
   customHeader: "rgb(255, 255, 255)",
+  lightColor: "#EAF0F8",
+  ringStand: "rgb(6, 188, 255)",
+  ringExercise: "rgb(33, 100, 180)",
+  ringMove: "rgb(9, 14, 62)",
 };
 export const AppFonts = {
   chakraBold: "ChakraPetch_Bold",

@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { auth, database } from "../../../firebaseConfig";
 import {
-  updateUserData,
+  startUpdateUserData,
   fetchUserData,
   startUpdateProfile,
 } from "../../actions/userActions";
@@ -17,14 +17,16 @@ import { userMetricsDataModalVisible } from "../../actions/appActions";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 const ProfileScreen = ({ navigation, route }) => {
-  const { gender, age, height, weight, sports } = useSelector(
+  const { gender, dob, height, weight, sports } = useSelector(
     (state) => state.user.userMetricsData
   );
+  let dobDate = dob;
+
   const { firstName, lastName } = useSelector((state) => state.user);
+  const [age, setAge] = useState("");
 
   const dispatch = useDispatch();
   const { previousScreenTitle } = route.params;
-  const [isLoading, setisLoading] = useState(true);
 
   const [isPersonalModalVisible, setPersonalModalVisible] = useState(false);
 
@@ -35,16 +37,6 @@ const ProfileScreen = ({ navigation, route }) => {
   const closePersonalModal = () => {
     setPersonalModalVisible(false);
   };
-
-  // const [userData, setUserData] = useState({
-  //   fname: auth.currentUser.displayName.split(" ")[0],
-  //   lname: auth.currentUser.displayName.split(" ")[1],
-  //   age: "",
-  //   gender: "",
-  //   height: "",
-  //   weight: "",
-  //   sports: "",
-  // });
 
   const [error, setError] = useState({
     fname: "",
@@ -62,128 +54,44 @@ const ProfileScreen = ({ navigation, route }) => {
       errors.fname = "Must have a first name.";
       flag = false;
     }
+  };
 
-    if (userData.lname.length < 1) {
-      errors.lname = "Must have a last name.";
-      flag = false;
+  const formatHeight = (height) => {
+    if (height) {
+      const feet = Math.floor(height / 12);
+      const inches = height % 12;
+      return `${feet}'${inches}"`;
     }
-
-    setError({ ...errors });
-    return flag;
   };
 
-  const handleClearErrors = () => {
-    setError({
-      fname: "",
-      lname: "",
-    });
-  };
+  useEffect(() => {
+    if (dob) {
+      if (dob.seconds !== undefined && dob.nanoseconds !== undefined) {
+        dobDate = dob.toDate();
+      }
+      let age = new Date().getFullYear() - new Date(dobDate).getFullYear();
 
-  // const handleClear = () => {
-  //   setUserData({
-  //     fname: "",
-  //     lname: "",
-  //     age: "",
-  //     gender: "",
-  //     height: "",
-  //     weight: "",
-  //     sports: "",
-  //   });
-  // };
-
-  const handleUpdateProfile = () => {
-    if (!isValid()) {
-      return;
+      if (
+        new Date().getMonth() < new Date(dobDate).getMonth() ||
+        (new Date().getMonth() === new Date(dobDate).getMonth() &&
+          new Date().getDate() < new Date(dobDate).getDate())
+      ) {
+        age -= 1;
+      }
+      console.log("calculated age = ", age);
+      setAge(age);
     }
-    setIsSubmitting(true);
-
-    dispatch(startUpdateProfile(firstName, lastName));
-  };
-
-  // useEffect(() => {
-  //   const userData = auth.currentUser;
-  //   if (userData) {
-  //     setUid(userData.uid);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       const userDocRef = doc(database, "Users", auth.currentUser.uid);
-  //       const userDoc = await getDoc(userDocRef);
-
-  //       if (userDoc.exists()) {
-  //         const userDataFromFirebase = userDoc.data();
-  //         setUserData(userDataFromFirebase);
-  //         setisLoading(false);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //       setisLoading(false);
-  //     }
-  //   };
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const userDataFromFirebase = await fetchUserData(
-  //         database,
-  //         auth.currentUser.uid
-  //       );
-  //       setUserData(
-  //         userDataFromFirebase || {
-  //           fname: auth.currentUser.displayName.split(" ")[0],
-  //           lname: auth.currentUser.displayName.split(" ")[1],
-  //           age: "",
-  //           gender: "",
-  //           height: "",
-  //           weight: "",
-  //           sports: "",
-  //         }
-  //       );
-  //       setisLoading(false);
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //       setisLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
-  const handleSaveProfile = () => {
-    // const filteredUserData = {};
-    // for (const key in userData) {
-    //   if (userData[key] !== "") {
-    //     filteredUserData[key] = userData[key];
-    //   }
-    // }
-    // if (Object.values(filteredUserData).length > 0) {
-
-    const filteredUserData = { ...userData };
-    delete filteredUserData.fname;
-    delete filteredUserData.lname;
-
-    if (!isValid()) {
-      return;
-    }
-
-    dispatch(startUpdateProfile(userData.fname, userData.lname));
-    dispatch(updateUserData(filteredUserData, auth.currentUser.uid));
-    // }
-  };
-
-  // if (isLoading) {
-  //   return <LoadingOverlay />;
-  // }
-
-  // useEffect to calculate age fomr dob
-
+  }, [dob]);
 
   return (
     <ScrollView>
-      <AppHeader title={"Profile"} back={true} menu={false} />
+      <AppHeader title={previousScreenTitle} back={true} menu={false} />
+      <PersonalModal
+        visible={isPersonalModalVisible}
+        closeModal={closePersonalModal}
+        firstName={firstName}
+        lastName={lastName}
+      />
       <View style={styles.content}>
         <Text
           style={[
@@ -232,7 +140,16 @@ const ProfileScreen = ({ navigation, route }) => {
                 mode="elevated"
                 buttonColor="#1560a4"
                 textColor="white"
-                onPress={() => dispatch(userMetricsDataModalVisible(true))}
+                onPress={() =>
+                  dispatch(userMetricsDataModalVisible(true, false))
+                }
+                currentUserData={{
+                  gender,
+                  dob,
+                  height,
+                  weight,
+                  sports,
+                }}
                 style={{ borderRadius: 10 }}
               >
                 EDIT
@@ -250,17 +167,22 @@ const ProfileScreen = ({ navigation, route }) => {
 
         <View style={{ marginLeft: 20, marginBottom: 40 }}>
           <Text variant="titleMedium">Age</Text>
-          <Text style={{ fontSize: 18 }}>{age}</Text>
+          <Text style={{ fontSize: 18 }}>
+            {dob ? `${age} Years` : "No Data"}
+          </Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Height
           </Text>
-          <Text style={{ fontSize: 18 }}>{height}</Text>
+          <Text style={{ fontSize: 18 }}>{formatHeight(height)}</Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Weight
           </Text>
-          <Text style={{ fontSize: 18 }}>{weight}</Text>
+
+          <Text style={{ fontSize: 18 }}>
+            {weight ? `${weight} lbs` : weight}
+          </Text>
 
           <Text variant="titleMedium" style={{ marginTop: 20 }}>
             Gender

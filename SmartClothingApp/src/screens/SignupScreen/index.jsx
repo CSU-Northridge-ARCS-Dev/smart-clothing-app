@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Image, ScrollView } from "react-native";
-import { useSelector, useDispatch } from "react-redux";
-
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
+import { useSelector, useDispatch } from "react-redux";
 import {
   Button,
   Checkbox,
@@ -11,7 +10,10 @@ import {
   TextInput,
 } from "react-native-paper";
 import { AppColor, AppStyle } from "../../constants/themes";
-import { HeroSection, DataCollectModal } from "../../components";
+import { HeroSection } from "../../components";
+import ToSModal from "../../components/ToSModal/ToSModal";
+
+import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
@@ -22,9 +24,12 @@ import {
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-
+  const authError = useSelector((state) => state.user.authError);
   const [isSubmitting, setIsSubmitting] = useState(true);
-  const [modalVisible, setModalVisible] = useState(true);
+  const [lockStatusPassword, setLockStatusPassword] = useState("locked");
+  const [lockStatusRepassword, setLockStatusRepassword] = useState("locked");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
 
   const [user, setUser] = useState({
     fname: "",
@@ -41,7 +46,6 @@ const SignupScreen = ({ navigation }) => {
     password: "",
     repassword: "",
   });
-  const [checked, setChecked] = useState(false);
 
   const handleClear = () => {
     setUser({
@@ -52,7 +56,7 @@ const SignupScreen = ({ navigation }) => {
       repassword: "",
     });
 
-    setChecked(false);
+    setIsTermsAccepted(false);
 
     setIsSubmitting(false);
 
@@ -71,17 +75,25 @@ const SignupScreen = ({ navigation }) => {
   };
 
   const handleSignUpWithEmail = () => {
-    if (!isValid()) {
-      Alert.alert(
-        "Sign-up Error",
-        "Please correct the following errors:\n\n" +
-          (error.fname && `${error.fname}\n`) +
-          (error.lname && `${error.lname}\n`) +
-          (error.email && `${error.email}\n`) +
-          (error.password && `${error.password}\n`) +
-          (error.repassword && `${error.repassword}`)
-      );
+    let errorMessage = "";
 
+    if (!isTermsAccepted) {
+      errorMessage +=
+        "You must agree to the user agreement to create an account.\n";
+    }
+
+    if (!isValid()) {
+      errorMessage +=
+        "\nPlease correct the following errors:\n" +
+        (error.fname ? `${error.fname}\n` : "") +
+        (error.lname ? `${error.lname}\n` : "") +
+        (error.email ? `${error.email}\n` : "") +
+        (error.password ? `${error.password}\n` : "") +
+        (error.repassword ? `${error.repassword}` : "");
+    }
+
+    if (errorMessage) {
+      Alert.alert("Sign-up Error", errorMessage);
       return;
     }
 
@@ -93,10 +105,25 @@ const SignupScreen = ({ navigation }) => {
     );
   };
 
+  const toggleLockStatusPassword = () => {
+    setLockStatusPassword((prevStatus) =>
+      prevStatus === "locked" ? "unlocked" : "locked"
+    );
+  };
+
+  const toggleLockStatusRepassword = () => {
+    setLockStatusRepassword((prevStatus) =>
+      prevStatus === "locked" ? "unlocked" : "locked"
+    );
+  };
+
+  const toggleModalVisibility = () => {
+    setModalVisible(!modalVisible);
+  };
+
   const isValid = () => {
     let flag = true;
     let errors = error;
-
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
     if (!emailRegex.test(user.email)) {
@@ -127,10 +154,28 @@ const SignupScreen = ({ navigation }) => {
     return flag;
   };
 
+  const handleAgreement = () => {
+    if (isTermsAccepted) {
+      // If the checkbox is checked, just uncheck it
+      setIsTermsAccepted(false);
+    } else {
+      // If the checkbox is unchecked, toggle modal visibility
+      toggleModalVisibility();
+    }
+  };
+
   return (
     <ScrollView>
       <HeroSection />
       <View style={styles.content}>
+        <ToSModal
+          isTermsAccepted={isTermsAccepted}
+          setIsTermsAccepted={setIsTermsAccepted}
+          visible={modalVisible}
+          closeModal={() => closeModal("modal1")}
+          onRequestClose={toggleModalVisibility}
+          toggleModalVisibility={toggleModalVisibility}
+        ></ToSModal>
         <Text
           variant="headlineMedium"
           style={[AppStyle.title, { marginBottom: verticalScale(10) }]}
@@ -188,10 +233,10 @@ const SignupScreen = ({ navigation }) => {
             Please enter a valid email.
           </HelperText>
         </View>
-        <View>
+        <View style={styles.inputContainer}>
           <TextInput
             label="Password"
-            secureTextEntry
+            secureTextEntry={lockStatusPassword === "locked"}
             value={user.password}
             mode="outlined"
             onChangeText={(text) => {
@@ -201,14 +246,22 @@ const SignupScreen = ({ navigation }) => {
             error={
               error.password.length > 1 || user.password != user.repassword
             }
+            style={styles.textInput}
+          />
+          <Icon
+            name={lockStatusPassword === "locked" ? "lock" : "unlock-alt"}
+            size={25}
+            color="black"
+            style={styles.icon}
+            onPress={toggleLockStatusPassword}
           />
           <HelperText type="error" visible={error.password.length > 1}>
             {error.password}
           </HelperText>
         </View>
-        <View>
+        <View style={styles.inputContainer}>
           <TextInput
-            secureTextEntry
+            secureTextEntry={lockStatusRepassword === "locked"}
             label="Confirm Password"
             value={user.repassword}
             mode="outlined"
@@ -217,19 +270,36 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={user.password != user.repassword}
+            style={styles.textInput}
+          />
+          <Icon
+            name={lockStatusRepassword === "locked" ? "lock" : "unlock-alt"}
+            size={25}
+            color="black"
+            style={styles.icon}
+            onPress={toggleLockStatusRepassword}
           />
           <HelperText type="error" visible={user.password != user.repassword}>
             Passwords do not match.
           </HelperText>
         </View>
+
         <View style={styles.checkbox}>
           <Checkbox
-            status={checked ? "checked" : "unchecked"}
+            status={isTermsAccepted ? "checked" : "unchecked"}
             onPress={() => {
-              setChecked(!checked);
+              handleAgreement();
             }}
           />
           <Text>User Agreement</Text>
+        </View>
+
+        <View>
+          {authError && (
+            <HelperText type="error" visible={authError}>
+              {authError}
+            </HelperText>
+          )}
         </View>
         <View style={styles.btnContainer}>
           <Button
@@ -258,6 +328,7 @@ const SignupScreen = ({ navigation }) => {
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
   content: {
     backgroundColor: AppColor.background,
@@ -268,14 +339,20 @@ const styles = StyleSheet.create({
     paddingTop: 25,
   },
   checkbox: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 10,
+  },
+  icon: {
+    position: "absolute",
+    right: 10,
+    top: 16,
+    transform: [{ translateY: 0 }],
   },
   btnContainer: {
     marginVertical: 10,
     flexDirection: "row",
   },
 });
+
 export default SignupScreen;

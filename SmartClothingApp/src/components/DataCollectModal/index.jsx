@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Modal, SafeAreaView } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-
 import {
   Button,
   Checkbox,
@@ -13,143 +12,95 @@ import {
 import DateTimePicker, {
   DateTimePickerAndroid,
 } from "@react-native-community/datetimepicker";
-import { Picker } from "@react-native-picker/picker";
+import Slider from "@react-native-community/slider";
 
 import { AppColor, AppStyle } from "../../constants/themes";
-import { Gender } from "../../utils/gender";
+import { Gender, Sports, Height } from "../../utils/metrics";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
 
-const DataCollectModal = ({ isFromSignupScreen = false }) => {
+const DataCollectModal = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
+  const currentUserMetricsData = useSelector(
+    (state) => state.user.userMetricsData
+  );
 
-  /*
-    userData: {
-    gender: "",
-    dob: "",
-    height: "",
-    weight: "",
-  }
-  */
+  const isFromSignupScreen = useSelector(
+    (state) => state.app.isFromSignUpScreen
+  );
 
   const [gender, setGender] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
+  const [dob, setDob] = useState(new Date());
+  const [height, setHeight] = useState(0);
+  const [weight, setWeight] = useState(0);
   const [sports, setSports] = useState("");
-  const [age, setAge] = useState("");
 
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate;
-    setDate(currentDate);
+    setDob(currentDate);
   };
 
   const showMode = (currentMode) => {
+    dob.setHours(0, 0, 0, 0);
     DateTimePickerAndroid.open({
-      value: date,
+      value: dob,
       onChange,
       mode: currentMode,
       is24Hour: true,
     });
   };
 
-  const showDatepicker = () => {
-    showMode("date");
-  };
-
-  const showTimepicker = () => {
-    showMode("time");
+  const showDatePicker = () => {
+    showMode("dob");
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [error, setError] = useState({
-    fname: "",
-    lname: "",
-    email: "",
-    password: "",
-  });
-  const [checked, setChecked] = useState(false);
-
-  const handleClear = () => {
-    setUser({
-      fname: "",
-      lname: "",
-      email: "",
-      password: "",
-      repassword: "",
-    });
-
-    setIsSubmitting(false);
-
-    handleClearErrors();
+  const poundsToKilograms = (value) => {
+    var kilograms = Math.round(value / 2.20462);
+    return `${kilograms} kg`;
   };
 
-  const handleClearErrors = () => {
-    setError({
-      fname: "",
-      lname: "",
-      email: "",
-      password: "",
-    });
-    setIsSubmitting(false);
+  const handleSubmit = () => {
+    dispatch(
+      startUpdateUserData({
+        gender,
+        dob,
+        height,
+        weight,
+        sports,
+      })
+    );
+    dispatch(userMetricsDataModalVisible(false, false));
   };
 
+  const inchesToFeetInches = (value) => {
+    const feet = Math.floor(value / 12);
+    const remainingInches = value % 12;
+    return `${feet}'${remainingInches}"`;
+  };
+
+  const inchesToCentimeters = (value) => {
+    const centimeters = Math.round(value * 2.54);
+    return `${centimeters} cm`;
+  };
+
+  // runs this function everytime the modal is opened
   useEffect(() => {
-    if (date) {
-      const age = new Date().getFullYear() - new Date(date).getFullYear();
-      console.log(date);
-      console.log("calculated age = ", age);
-      setAge(age);
+    if (
+      visible &&
+      currentUserMetricsData.gender != "No Data" &&
+      !isFromSignupScreen
+    ) {
+      setGender(currentUserMetricsData.gender);
+      // setDob(currentUserMetricsData.dob.toDate());
+      setHeight(currentUserMetricsData.height);
+      setWeight(currentUserMetricsData.weight);
+      setSports(currentUserMetricsData.sports);
     }
-  }, [date]);
-
-  // const handleSignUpWithEmail = () => {
-  //   if (!isValid()) {
-  //     console.log("Invalid user details!");
-  //     return;
-  //   }
-
-  //   setIsSubmitting(true);
-  //   dispatch(
-  //     startSignupWithEmail(
-  //       user.email,
-  //       user.password,
-  //       user.fname,
-  //       user.lname,
-  //       userData
-  //     )
-  //   );
-  // };
-
-  // const isValid = () => {
-  //   let flag = true;
-  //   let errors = error;
-  //   if (user.email.length < 1 || !user.email.includes("@")) {
-  //     errors.email = "Enter valid email!";
-  //     flag = false;
-  //   }
-  //   if (user.password.length < 1) {
-  //     errors.password = "Password cannot be empty!";
-  //     flag = false;
-  //   }
-  //   if (user.password.length < 6) {
-  //     errors.password = "Password length cannot be less than 6!";
-  //     flag = false;
-  //   }
-  //   if (user.fname.length < 1) {
-  //     errors.fname = "Firstname cannot be empty!";
-  //     flag = false;
-  //   }
-  //   if (user.lname.length < 1) {
-  //     errors.lname = "Lastname cannot be empty!";
-  //     flag = false;
-  //   }
-  //   setError({ ...errors });
-  //   return flag;
-  // };
+  }, [visible]);
 
   return (
     <View style={styles.container}>
@@ -158,7 +109,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
         transparent={true}
         visible={visible}
         onRequestClose={() => {
-          dispatch(userMetricsDataModalVisible(false));
+          dispatch(userMetricsDataModalVisible(false, false));
         }}
       >
         <View style={styles.modalBackground}>
@@ -173,112 +124,86 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
               </Text>
             )}
 
-            <MyDropdown
-              data={Object.entries(Gender).map(([key, value]) => ({
-                label: key,
-                value: value,
-              }))}
-              value={gender}
-              placeholder={"Gender"}
-              onChange={(item) => {
-                setGender(item.value);
-              }}
-            />
+            <View style={styles.itemContainer}>
+              <MyDropdown
+                data={Object.entries(Gender).map(([key, value]) => ({
+                  label: key,
+                  value: value,
+                }))}
+                value={gender}
+                placeholder={"Gender"}
+                onChange={(item) => {
+                  setGender(item.value);
+                }}
+              />
 
-            <MyDropdown
-              data={Object.entries(Sports).map(([key, value]) => ({
-                label: key,
-                value: value,
-              }))}
-              value={sports}
-              placeholder={"Sports"}
-              onChange={(item) => {
-                setSports(item.value);
-              }}
-            />
+              <MyDropdown
+                data={Object.entries(Sports).map(([key, value]) => ({
+                  label: key,
+                  value: value,
+                }))}
+                value={sports}
+                placeholder={"Sports"}
+                onChange={(item) => {
+                  setSports(item.value);
+                }}
+              />
 
-            <View
-              style={{
-                flexDirection: "row",
-                // justifyContent: "flex-end",
-                alignItems: "center",
-              }}
-            >
-              <Text>Gender</Text>
-              <Picker
-                selectedValue={gender}
-                onValueChange={(itemValue, itemIndex) => setGender(itemValue)}
-                mode={"dropdown"}
+              <View
                 style={{
-                  // flex: 1,
-                  width: 150,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  borderColor: "gray",
+                  borderWidth: 1,
+                  backgroundColor: "white",
+                  fontFamily: "sans-serif",
+                  height: 50,
+                  marginBottom: 12,
                 }}
               >
-                {Object.entries(Gender).map(([key, value]) => (
-                  <Picker.Item key={key} label={key} value={value} />
-                ))}
-              </Picker>
+                <Text style={{ marginLeft: 14, fontSize: 17 }}>
+                  Date of Birth
+                </Text>
+                <SafeAreaView>
+                  <Button onPress={showDatePicker}>
+                    {dob ? dob.toLocaleDateString() : "No Data"}
+                  </Button>
+                </SafeAreaView>
+              </View>
             </View>
-            <HelperText type="error" visible={false}>
-              Please enter Gender!
-            </HelperText>
 
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Text>Date of Birth</Text>
-              <SafeAreaView>
-                <Button onPress={showDatepicker}>
-                  {date.toLocaleString()}
-                </Button>
-              </SafeAreaView>
+            <View style={{ marginVertical: 10, gap: 15 }}>
+              <Text style={styles.sliderText}>
+                {inchesToFeetInches(height)} ({inchesToCentimeters(height)})
+              </Text>
+              <Slider
+                value={height}
+                maximumValue={118}
+                minimumValue={0}
+                onValueChange={(value) => {
+                  setHeight(Math.floor(value));
+                }}
+              />
+              <Text style={styles.sliderText}>
+                {weight} lbs ({poundsToKilograms(weight)})
+              </Text>
+              <Slider
+                value={weight}
+                maximumValue={800}
+                minimumValue={0}
+                onValueChange={(value) => {
+                  setWeight(Math.floor(value));
+                }}
+              />
             </View>
-            <HelperText type="error" visible={false}>
-              Please enter Birth Date!
-            </HelperText>
-
-            <TextInput
-              label="Height"
-              value={height}
-              mode="outlined"
-              keyboardType="numeric"
-              inputMode="numeric"
-              style={styles.input}
-              onChangeText={(text) => {
-                setHeight(text);
-                // handleClearErrors();
-              }}
-              error={false}
-            />
-            <HelperText type="error" visible={false}>
-              Please enter Height!
-            </HelperText>
-
-            <TextInput
-              label="Weight"
-              value={weight}
-              mode="outlined"
-              keyboardType="numeric"
-              inputMode="numeric"
-              style={styles.input}
-              onChangeText={(text) => {
-                setWeight(text);
-                handleClearErrors();
-              }}
-              error={false}
-            />
-            <HelperText type="error" visible={false}>
-              Please enter Weight!
-            </HelperText>
 
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
-                onPress={() => dispatch(userMetricsDataModalVisible(false))}
+                onPress={() =>
+                  dispatch(userMetricsDataModalVisible(false, false))
+                }
                 style={styles.button}
               >
                 {isFromSignupScreen ? "Skip" : "Cancel"}
@@ -287,16 +212,7 @@ const DataCollectModal = ({ isFromSignupScreen = false }) => {
                 disabled={isSubmitting}
                 mode="elevated"
                 onPress={() => {
-                  dispatch(
-                    startUpdateUserData({
-                      gender,
-                      age,
-                      height,
-                      weight,
-                      sports,
-                    })
-                  );
-                  dispatch(userMetricsDataModalVisible(false));
+                  handleSubmit();
                 }}
                 style={[
                   styles.button,
@@ -333,9 +249,6 @@ const styles = {
     alignSelf: "center",
     elevation: 5,
   },
-  input: {
-    marginVertical: 10,
-  },
   btnContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -345,6 +258,15 @@ const styles = {
     flex: 1,
     marginHorizontal: 10,
   },
-};
+  itemContainer: {
+    width: "100%",
+    gap: 34,
+    marginVertical: 10,
+  },
+  sliderText: {
+    textAlign: "center",
+    fontSize: 17,
+  },
+});
 
 export default DataCollectModal;

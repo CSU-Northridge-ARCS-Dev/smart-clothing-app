@@ -15,4 +15,5 @@ export const firebaseErrorsMessages = {
   "auth/invalid-credential": "Invalid credential.",
   "auth/invalid-verification-id": "Invalid verification ID.",
   "auth/invalid-verification-code": "Invalid verification code.",
+  "auth/requires-recent-login": "Requires reauthentication.",
 };
