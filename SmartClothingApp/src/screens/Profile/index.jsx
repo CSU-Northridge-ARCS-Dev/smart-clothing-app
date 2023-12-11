@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { HelperText, TextInput, Button, Text } from "react-native-paper";
-import { AppHeader, DataCollectModal } from "../../components";
-import { AppFonts, AppStyle, AppColor } from "../../constants/themes.js";
+import React, { useState } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { TextInput, Button, Text } from "react-native-paper";
+import { AppHeader } from "../../components";
+import { AppFonts, AppStyle } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -41,6 +41,9 @@ const ProfileScreen = ({ navigation, route }) => {
   const [error, setError] = useState({
     fname: "",
     lname: "",
+    email: "",
+    password: "",
+    repassword: "",
   });
 
   const isValid = () => {
@@ -99,31 +102,15 @@ const ProfileScreen = ({ navigation, route }) => {
         >
           Edit Profile
         </Text>
-      </View>
-
-      <View style={styles.container}>
-        <View style={styles.content}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={[styles.subTitle, AppStyle.textPrimary]}>
-              Personal
-            </Text>
-            <View style={styles.btnContainer}>
-              <Button
-                mode="elevated"
-                buttonColor="#1560a4"
-                textColor="white"
-                style={{ borderRadius: 10 }}
-                onPress={openPersonalModal}
-              >
-                EDIT
-              </Button>
-            </View>
-          </View>
-          <View
-            style={{
-              borderBottomColor: "black",
-              borderBottomWidth: StyleSheet.hairlineWidth,
+        <View>
+          <TextInput
+            label="First Name"
+            value={user.fname}
+            mode="outlined"
+            onChangeText={(text) => {
+              setUser({ ...user, fname: text });
             }}
+            error={error.fname.length > 1}
           />
         </View>
         <View style={{ marginLeft: 18 }}>
@@ -174,6 +161,7 @@ const ProfileScreen = ({ navigation, route }) => {
               borderBottomColor: "black",
               borderBottomWidth: StyleSheet.hairlineWidth,
             }}
+            error={error.fname.length > 1}
           />
         </View>
 
@@ -216,31 +204,19 @@ const styles = StyleSheet.create({
     fontSize: 36,
     marginVertical: 24,
     textAlign: "center",
-    paddingTop: 45,
-  },
-  subTitle: {
-    fontSize: 24,
-    marginVertical: 24,
-    fontFamily: AppFonts.chakraBold,
-    flex: 1,
-    marginLeft: 15,
   },
   content: {
     paddingHorizontal: 20,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
-    marginBottom: 20,
+    transform: [{ translateY: -25 }],
+    paddingTop: 25,
   },
-  btnContainer: { flex: 1, alignItems: "flex-end", marginRight: 20 },
-  container: {
-    backgroundColor: AppColor.primaryContainer,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-    elevation: 8,
+  btnContainer: {
+    marginVertical: 10,
+    flexDirection: "row",
   },
 });
+
 
 export default ProfileScreen;

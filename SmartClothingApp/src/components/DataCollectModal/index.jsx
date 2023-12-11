@@ -19,7 +19,6 @@ import { Gender, Sports, Height } from "../../utils/metrics";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
-import MyDropdown from "../UI/dropdown";
 
 const DataCollectModal = (props) => {
   const dispatch = useDispatch();
@@ -116,7 +115,7 @@ const DataCollectModal = (props) => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-              Please enter your details.
+              Welcome. Please enter your details.
             </Text>
 
             {isFromSignupScreen && (
@@ -219,7 +218,6 @@ const DataCollectModal = (props) => {
                   styles.button,
                   { backgroundColor: isSubmitting ? "#ccc" : "#007bff" },
                 ]}
-                textColor="white"
               >
                 Save
               </Button>
@@ -231,7 +229,7 @@ const DataCollectModal = (props) => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     justifyContent: "center",

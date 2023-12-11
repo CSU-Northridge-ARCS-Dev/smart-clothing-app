@@ -17,7 +17,10 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { startSignupWithEmail } from "../../actions/userActions.js";
+import {
+  startSignupWithEmail,
+  startUpdateUserData,
+} from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
