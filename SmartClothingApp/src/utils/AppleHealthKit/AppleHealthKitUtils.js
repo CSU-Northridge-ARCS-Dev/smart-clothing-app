@@ -45,19 +45,19 @@ export const requestHealthKitAuthorization = async () => {
 };
 
 export const getHeartRateData = async () => {
+
   const { MyHealthKitModule } = NativeModules;
   try {
     const heartRateData = await MyHealthKitModule.readHeartRateData();
-    console.log('Heart Rate Data:', heartRateData);
+    //console.log('Heart Rate Data:', heartRateData);
 
     // Process heartRateData as needed
     const heartRates = heartRateData.map(dataPoint => dataPoint.heartRate);
     const dateTimes = heartRateData.map(dataPoint => dataPoint.date);
 
-    console.log('Heart Rates:', heartRates);
-    console.log('Date/Times:', dateTimes);
-
-    return { heartRates, dateTimes };
+   console.log('Heart Rates:', heartRates);
+   console.log('Date/Times:', dateTimes);
+   return heartRateData;
   } catch (error) {
     console.error('Error retrieving heart rate data:', error);
     // Handle the error appropriately (e.g., show a message to the user)
@@ -105,15 +105,15 @@ export const getSleepData = async () => {
       return sleepItem
     });
 
-    const sleepLabels = processedSleepData.map(dataPoint => dataPoint.label);
-    const startTimes = processedSleepData.map(dataPoint => dataPoint.startTime);
-    const endTimes = processedSleepData.map(dataPoint => dataPoint.endTime);
+    // const sleepLabels = processedSleepData.map(dataPoint => dataPoint.label);
+    // const startTimes = processedSleepData.map(dataPoint => dataPoint.startTime);
+    // const endTimes = processedSleepData.map(dataPoint => dataPoint.endTime);
 
     // console.log('Sleep Labels:', sleepLabels);
     // console.log('Start Times:', startTimes);
     // console.log('End Times:', endTimes);
 
-    return { sleepLabels, startTimes, endTimes };
+    return sleepData;
   } catch (error) {
     console.error('Error retrieving sleep data:', error);
     // Handle the error appropriately (e.g., show a message to the user)

@@ -22,7 +22,12 @@ import {
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
+  UPDATE_HEART_RATE_DATA,
 } from "./types";
+
+import { getHeartRateData, getSleepData } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
+import { checkHealthKitAvailability } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
+import { requestHealthKitAuthorization } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
 
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
@@ -110,6 +115,20 @@ export const updateUserMetricsData = (userMetricsData) => {
   };
 };
 
+export const updateEmailData = (newEmail) => {
+  return {
+    type: UPDATE_EMAIL_SUCCESS,
+    payload: newEmail,
+  };
+};
+
+export const updateHeartRateData = (heartRateData) => {
+  return {
+    type: UPDATE_HEART_RATE_DATA,
+    payload: heartRateData,
+  }
+}
+
 export const startUpdateUserData = (userData) => {
   console.log("startUpdateUserData called with", userData);
   return async (dispatch) => {
@@ -123,6 +142,19 @@ export const startUpdateUserData = (userData) => {
     }
   };
 };
+// export const startUpdateUserData = (userData) => {
+//   console.log("startUpdateUserData called with", userData);
+//   return async (dispatch) => {
+//     try {
+//       await setDoc(doc(database, "Users2", auth.currentUser.uid), userData);
+//       console.log("User data added to database successfully!");
+//       dispatch(updateUserMetricsData(userData));
+//     } catch (e) {
+//       console.log("Error adding user data to database!");
+//       console.log(e);
+//     }
+//   };
+// };
 
 export const startLoadUserData = () => {
   return async (dispatch) => {
@@ -349,22 +381,108 @@ export const deleteAccount = () => {
   };
 };
 
-export const sendSleepData = async (sleepData) => {
-  console.log("Sleep invoked!");
+// export const updateHeartRateData = () => {
+//   const sampleData = getHeartRateData();
 
-  //get the user ID
-  const userId = auth.currentUser.uid;
+//   return 
 
-  //make a reference to the doc with the user ID
-  const userRef = doc(database, "Users", userId);
+// }
 
-  // get documents inside SleepData
-  const sleepDataCollection = collection(userRef, "SleepData");
 
-  // // get docs from SleepData
-  // const sleepDocs = await getDocs(sleepDataCollection);
+export const updateHealthData = () => {
+  return async (dispatch) => {
+    try {
+      checkHealthKitAvailability()
+      .catch(error => {
+        console.error(error);
+      });
 
-  for (const data of sleepData) {
-    await addDoc(sleepDataCollection, data);
-  }
+      requestHealthKitAuthorization()
+        .catch(error => {
+          console.error(error);
+        });
+
+
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+
+      // Create a new collection (e.g., HeartRateData) inside the Users document
+      const heartRateCollectionRef = collection(userDocRef, "HeartRateData");
+      
+      if (getHeartRateData() == null)
+      {
+        console.log("uh oh");
+      }
+      else 
+      {
+        console.log("theres data in here"); 
+        console.log(getHeartRateData());
+      }
+      
+      // Add sample data to the new collection
+      const sampleHeartRateData = await getHeartRateData();
+
+      console.log("sample:", sampleHeartRateData);
+
+      // Loop through the sample data and add it to the HeartRateData collection
+      for (const data of sampleHeartRateData) {
+        const heartRateDocRef = doc(heartRateCollectionRef); // Automatically generates a unique document ID
+        await setDoc(heartRateDocRef, data);
+      }
+
+      console.log(
+        "Sample heart rate data added to HeartRateData collection successfully!"
+      );
+    } catch (e) {
+      console.error("Error updating health data:", e);
+    }
+  };
+};
+
+export const updateSleepData = () => {
+  return async (dispatch) => {
+    try {
+      checkHealthKitAvailability()
+      .catch(error => {
+        console.error(error);
+      });
+
+      requestHealthKitAuthorization()
+        .catch(error => {
+          console.error(error);
+        });
+
+
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+
+      // Create a new collection (e.g., HeartRateData) inside the Users document
+      const sleepDataCollectionRef = collection(userDocRef, "SleepData");
+      
+      if (getSleepData() == null)
+      {
+        console.log("uh oh");
+      }
+      else 
+      {
+        console.log("theres data in here"); 
+        console.log(getSleepData());
+      }
+      
+      // Add sample data to the new collection
+      const sampleSleepData = await getSleepData();
+
+      console.log("sample:", sampleSleepData);
+
+      // Loop through the sample data and add it to the HeartRateData collection
+      for (const data of sampleSleepData) {
+        const sleepDataDocRef = doc(sleepDataCollectionRef); // Automatically generates a unique document ID
+        await setDoc(sleepDataDocRef, data);
+      }
+
+      console.log(
+        "Sample sleep data added to SleepData collection successfully!"
+      );
+    } catch (e) {
+      console.error("Error updating health data:", e);
+    }
+  };
 };
