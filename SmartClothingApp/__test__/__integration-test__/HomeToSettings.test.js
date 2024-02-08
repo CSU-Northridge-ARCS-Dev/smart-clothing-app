@@ -36,6 +36,12 @@ jest.mock('../../firebaseConfig.js', () => ({
     },
   }));
 
+  jest.mock('../../src/utils/localStorage.js', () => ({
+    AsyncStorage: jest.fn(),
+    storeUID: jest.fn(),
+    getUID: jest.fn(),
+  }));
+
   jest.mock('firebase/auth', () => ({
     initializeApp: jest.fn(),
     registerVersion: jest.fn(),
@@ -43,7 +49,6 @@ jest.mock('../../firebaseConfig.js', () => ({
     getDatabase: jest.fn(),
     signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ 
       user: {
-            //uid: null,
             uid: 'nvQpwMHj7eUKfsyEhVloGM7hvji2',
             email: 'test1@gmail.com',
             password: 'password123'
@@ -68,6 +73,29 @@ jest.mock('firebase/firestore', () => ({
       }), // Mock 'data' as a function
     }),
   }))
+
+  jest.mock('react-native-vector-icons/MaterialIcons', () => require('../__mocks__/react-native-vector-icons').MaterialIcons);
+  jest.mock('react-native-vector-icons/FontAwesome5', () => require('../__mocks__/react-native-vector-icons').FontAwesome5);
+  jest.mock('@shopify/react-native-skia', () => require('../__mocks__/@shopify__react-native-skia'));
+  jest.mock('../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+    return jest.fn(({ ring, center, strokeWidth, scale }) => (
+      <div>
+        Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
+      </div>
+    ));
+  });
+  jest.mock('victory-native', () => {
+    // Mock the specific components and functionalities you use
+    const MockBar = () => <div>Mock Bar</div>;
+    const MockCartesianChart = () => <div>Mock CartesianChart</div>;
+    const MockUseChartPressState = () => ({ /* Mock return value */ });
+  
+    return {
+      Bar: MockBar,
+      CartesianChart: MockCartesianChart,
+      useChartPressState: MockUseChartPressState,
+    };
+  });
 
 
 // Create a StackNavigator with your Sign-In and Dashboard screens

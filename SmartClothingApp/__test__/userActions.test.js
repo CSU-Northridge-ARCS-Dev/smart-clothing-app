@@ -25,6 +25,10 @@ import {
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
+jest.mock('../src/utils/localStorage.js', () => ({
+  AsyncStorage: jest.fn(),
+}));
+
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(),
   addDoc: jest.fn(),
@@ -161,6 +165,7 @@ describe('Async Auth Actions', () => {
 
     consoleErrorSpy.mockRestore();
   });
+<<<<<<< HEAD
 
   it('dispatches UPDATE_USER_METRICS_DATA action when startUpdateUserData is called successfully', async () => {
     // Mocking setDoc to simulate success
@@ -208,3 +213,6 @@ describe('Async Auth Actions', () => {
 
 
 
+=======
+});
+>>>>>>> bbc93b73f8eff64434957ed6822e876ebc935dff

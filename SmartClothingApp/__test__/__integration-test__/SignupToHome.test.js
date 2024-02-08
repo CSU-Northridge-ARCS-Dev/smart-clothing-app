@@ -37,6 +37,10 @@ jest.mock('../../firebaseConfig.js', () => ({
     },
 }));
 
+jest.mock('../../src/utils/localStorage.js', () => ({
+  AsyncStorage: jest.fn(),
+}));
+
 // jest.mock('../../src/actions/toastActions.js', () => ({
 //     toastError: jest.fn(() => Promise.resolve()),
 // }))
@@ -100,6 +104,43 @@ jest.mock('firebase/firestore', () => ({
       }), // Mock 'data' as a function
     }),
 }))
+
+jest.mock('react-native-vector-icons/MaterialIcons', () => require('../__mocks__/react-native-vector-icons').MaterialIcons);
+jest.mock('react-native-vector-icons/FontAwesome5', () => require('../__mocks__/react-native-vector-icons').FontAwesome5);
+jest.mock('@shopify/react-native-skia', () => require('../__mocks__/@shopify__react-native-skia'));
+jest.mock('../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+  return jest.fn(({ ring, center, strokeWidth, scale }) => (
+    <div>
+      Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
+    </div>
+  ));
+});
+jest.mock('victory-native', () => {
+  // Mock the specific components and functionalities you use
+  const MockBar = () => <div>Mock Bar</div>;
+  const MockCartesianChart = () => <div>Mock CartesianChart</div>;
+  const MockUseChartPressState = () => ({ /* Mock return value */ });
+
+  return {
+    Bar: MockBar,
+    CartesianChart: MockCartesianChart,
+    useChartPressState: MockUseChartPressState,
+  };
+});
+jest.mock('../../src/actions/appActions', () => ({
+  userMetricsDataModalVisible: jest.fn().mockReturnValue({
+    type: 'USER_METRICS_DATA_MODAL_VISIBLE',
+    payload: {
+      visibility: true,
+      isFromSignUpScreen: true,
+  }}),
+}));
+// jest.mock('../../src/actions/appActions', () => ({
+//   userMetricsDataModalVisible: jest.fn().mockReturnValue({
+//     visibility: true,
+//     isFromSignUpScreen: true,
+//   }),
+// }));
   
   
   
@@ -119,18 +160,6 @@ function TestComponent() {
 describe('SignUpToHome Integration Test', () => {
     it('should navigate from Sign-In to Sign-Up to Dashboard', async () => {
   
-        // Configure Redux Store with Combined Reducer
-        // const store = configureStore(rootReducer, {
-        //     user: {
-        //     "uuid": null
-        //     },
-        // });
-
-        // const store = createStore(
-        //     rootReducer,
-        //     applyMiddleware(thunk)
-        //   );
-
         const store = configureStore();
     
         // Wrap TestComponent with Providers and render
@@ -196,7 +225,7 @@ describe('SignUpToHome Integration Test', () => {
             fireEvent.changeText(confirmPasswordInput, 'password123');
         });
 
-        // Find TOS Checkmark (Wait for Settings update to implement)
+        // Find TOS Checkmark 
         var userAgreements = getAllByRole('checkbox');
         // console.log(userAgreements.length);
         // await act(() => {
@@ -231,5 +260,5 @@ describe('SignUpToHome Integration Test', () => {
         await waitFor(() => {
             expect(getByText('Dashboard')).toBeTruthy();
         });
-    });
+    }, 10000);
 });
