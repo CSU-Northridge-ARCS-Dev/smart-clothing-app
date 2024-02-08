@@ -6,6 +6,7 @@ import {
   startUpdateProfile,
   startUpdateUserData,
   startLoadUserData,
+  updateEmail,
 } from '../src/actions/userActions.js'; // Adjust the path accordingly
 import {
   createUserWithEmailAndPassword,
@@ -31,6 +32,7 @@ jest.mock('firebase/firestore', () => ({
   doc: jest.fn(),
   updateDoc: jest.fn(),
   getDoc: jest.fn(),
+  updateEmail: jest.fn(),
 }));
 
 jest.mock('../firebaseConfig.js', () => ({
@@ -47,6 +49,9 @@ jest.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: jest.fn(),
   updateProfile: jest.fn(() => Promise.resolve()), // Mock the updateProfile function
   sendPasswordResetEmail: jest.fn(),
+  auth: {
+    updateEmail: jest.fn(),
+  },
 }));
 
 describe('Async Auth Actions', () => {
@@ -156,4 +161,50 @@ describe('Async Auth Actions', () => {
 
     consoleErrorSpy.mockRestore();
   });
+
+  it('dispatches UPDATE_USER_METRICS_DATA action when startUpdateUserData is called successfully', async () => {
+    // Mocking setDoc to simulate success
+    setDoc.mockResolvedValue();
+
+    const expectedActions = [
+      {
+        type: 'UPDATE_USER_METRICS_DATA',
+        payload: { /* your user metrics data here */ },
+      },
+    ];
+
+    const store = mockStore({});
+    await store.dispatch(startUpdateUserData({ /* your user metrics data here */ }));
+
+    expect(store.getActions()).toEqual(expectedActions);
+  });  
+
+  it('logs error when updateUserEmail fails', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error');
+    consoleErrorSpy.mockImplementation(() => {});
+
+    // Mocking updateEmail to simulate an error
+    const newEmail = 'new.email@example.com';
+    const errorMessage = 'Error updating email!';
+    auth.auth.updateEmail.mockRejectedValue(new Error(errorMessage));
+
+    const store = mockStore({});
+    await store.dispatch(updateUserEmail(newEmail));
+
+    // Check that the error is logged
+    const consoleErrorCalls = consoleErrorSpy.mock.calls;
+    consoleErrorCalls.forEach((call) => {
+      console.error('Captured error:', call[0]);
+      expect(call[0].message).toBe(errorMessage);
+    });
+
+    // Restore the console.error spy
+    consoleErrorSpy.mockRestore();
+  });
+
+
+
 });
+
+
+
