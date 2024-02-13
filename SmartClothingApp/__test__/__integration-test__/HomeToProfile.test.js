@@ -102,11 +102,23 @@ jest.mock('react-native-vector-icons/MaterialIcons', () => require('../__mocks__
     </NavigationContainer>
   );
 
+  const TestComponent2 = () => (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Profile">
+        <Stack.Screen 
+            name="Profile" 
+            component={ProfileScreen} 
+            initialParams={{ previousScreenTitle: 'Dashboard' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+
 
 describe('Home to Profile Navigation', () => {
   let store;
 
-  it('navigates from Home to Profile screen', async () => {
+  it('Navigates from Home to Profile screen', async () => {
     store = configureStore();
 
     const { getAllByTestId, getByText } = render(
@@ -130,15 +142,77 @@ describe('Home to Profile Navigation', () => {
     await waitFor(() => {
         expect(getByText('Profile')).toBeTruthy();
     });
-
-    // // Replace 'Profile' with the actual text or identifier triggering the navigation
-    // const profileButton = await findByText('Profile');
-    // fireEvent.press(profileButton);
-
-    // // Check if the Profile screen is rendered after navigation
-    // await waitFor(() => {
-    //   expect(findByText('Edit Profile')).toBeTruthy();
-    // });
   });
 
+  it('Navigates from main Profile Screen to Edit Personal Info Screen', async () => {
+    store = configureStore();
+
+        const { getByText, getAllByText } = render(
+            <StoreProvider store={store}>
+            <PaperProvider> 
+                <TestComponent2 />
+            </PaperProvider>
+            </StoreProvider>
+        );
+
+        const editPersonalTextElement = getByText('Edit Profile');
+        const editPersonalView = editPersonalTextElement.parent || editPersonalTextElement;
+
+        await act(() => {
+            fireEvent.press(editPersonalView);
+        });
+
+        const editFirstNameElements = getAllByText('First Name');
+        const editLastNameElements = getAllByText('Last Name');
+
+        await waitFor(() => {
+            expect(editFirstNameElements[0]).toBeTruthy();
+        });
+
+        await waitFor(() => {
+            expect(editLastNameElements[0]).toBeTruthy();
+        });
+  });
+
+  it('Navigates from main Profile Screen to Metrics Data Screen', async () => {
+    store = configureStore();
+
+    const { getByText, getAllByText } = render(
+        <StoreProvider store={store}>
+        <PaperProvider> 
+            <TestComponent2 />
+        </PaperProvider>
+        </StoreProvider>
+    );
+
+    const editMetricsTextElement = getByText('Edit Profile');
+    const editMetricsView = editMetricsTextElement.parent || editMetricsTextElement;
+
+    await act(() => {
+        fireEvent.press(editMetricsView);
+    });
+
+    const editFirstNameElements = getAllByText('Age');
+    const editLastNameElements = getAllByText('Height');
+    const editWeightElements = getAllByText('Weight');
+    const editGenderElements = getAllByText('Gender');
+    const editSportsElements = getAllByText('Sports');
+
+    await waitFor(() => {
+        expect(editFirstNameElements[0]).toBeTruthy();
+    });
+    await waitFor(() => {
+        expect(editLastNameElements[0]).toBeTruthy();
+    });
+    await waitFor(() => {
+        expect(editWeightElements[0]).toBeTruthy();
+    });
+    await waitFor(() => {
+        expect(editGenderElements[0]).toBeTruthy();
+    });
+    await waitFor(() => {
+        expect(editSportsElements[0]).toBeTruthy();
+    });
+
+  });
 });
