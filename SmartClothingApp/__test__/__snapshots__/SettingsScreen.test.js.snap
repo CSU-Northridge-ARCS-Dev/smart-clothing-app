@@ -625,13 +625,6 @@ exports[`SettingsScreen renders correctly 1`] = `
                                       style={
                                         [
                                           {
-                                            "fontFamily": "System",
-                                            "fontSize": 22,
-                                            "fontWeight": "400",
-                                            "letterSpacing": 0,
-                                            "lineHeight": 28,
-                                          },
-                                          {
                                             "textAlign": "left",
                                           },
                                           {
@@ -640,17 +633,26 @@ exports[`SettingsScreen renders correctly 1`] = `
                                           },
                                           [
                                             {
-                                              "color": "rgba(28, 27, 31, 1)",
                                               "fontFamily": "System",
                                               "fontSize": 22,
                                               "fontWeight": "400",
                                               "letterSpacing": 0,
                                               "lineHeight": 28,
                                             },
-                                            false,
-                                            {
-                                              "fontFamily": "ChakraPetch_BoldItalic",
-                                            },
+                                            [
+                                              {
+                                                "color": "rgba(28, 27, 31, 1)",
+                                                "fontFamily": "System",
+                                                "fontSize": 22,
+                                                "fontWeight": "400",
+                                                "letterSpacing": 0,
+                                                "lineHeight": 28,
+                                              },
+                                              false,
+                                              {
+                                                "fontFamily": "ChakraPetch_BoldItalic",
+                                              },
+                                            ],
                                           ],
                                         ]
                                       }

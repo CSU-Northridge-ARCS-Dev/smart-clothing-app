@@ -66,13 +66,6 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
         style={
           [
             {
-              "fontFamily": "ChakraPetch_BoldItalic",
-              "fontSize": 28,
-              "fontWeight": "400",
-              "letterSpacing": 0,
-              "lineHeight": 36,
-            },
-            {
               "textAlign": "left",
             },
             {
@@ -81,16 +74,25 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
             },
             [
               {
-                "borderLeftColor": "rgb(17, 96, 164)",
-                "borderLeftWidth": 10.416666666666668,
-                "color": "rgb(17, 96, 164)",
-                "fontFamily": "ChakraPetch_BoldItalic",
+                "fontFamily": "System",
                 "fontSize": 28,
-                "paddingLeft": 10,
+                "fontWeight": "400",
+                "letterSpacing": 0,
+                "lineHeight": 36,
               },
-              {
-                "marginBottom": 20.84375,
-              },
+              [
+                {
+                  "borderLeftColor": "rgb(17, 96, 164)",
+                  "borderLeftWidth": 10.416666666666668,
+                  "color": "rgb(17, 96, 164)",
+                  "fontFamily": "ChakraPetch_BoldItalic",
+                  "fontSize": 28,
+                  "paddingLeft": 10,
+                },
+                {
+                  "marginBottom": 20.84375,
+                },
+              ],
             ],
           ]
         }
@@ -101,13 +103,6 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
         style={
           [
             {
-              "fontFamily": "Poppins_Bold",
-              "fontSize": 16,
-              "fontWeight": "500",
-              "letterSpacing": 0.15,
-              "lineHeight": 24,
-            },
-            {
               "textAlign": "left",
             },
             {
@@ -116,13 +111,22 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
             },
             [
               {
-                "color": "rgb(17, 96, 164)",
-                "fontFamily": "Poppins_Bold",
+                "fontFamily": "System",
                 "fontSize": 16,
+                "fontWeight": "500",
+                "letterSpacing": 0.15,
+                "lineHeight": 24,
               },
-              {
-                "marginBottom": 20.84375,
-              },
+              [
+                {
+                  "color": "rgb(17, 96, 164)",
+                  "fontFamily": "Poppins_Bold",
+                  "fontSize": 16,
+                },
+                {
+                  "marginBottom": 20.84375,
+                },
+              ],
             ],
           ]
         }
@@ -145,6 +149,7 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
                     "right": 0,
                     "top": 6,
                   },
+                  false,
                   {
                     "backgroundColor": "rgba(255, 251, 254, 1)",
                     "borderColor": "rgba(121, 116, 126, 1)",
@@ -156,200 +161,205 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
               }
               testID="text-input-outline"
             />
-            <View>
+            <View
+              style={
+                [
+                  {
+                    "paddingBottom": 0,
+                  },
+                  {
+                    "minHeight": 56,
+                    "paddingTop": 8,
+                  },
+                ]
+              }
+            >
               <View
+                collapsable={false}
+                pointerEvents="none"
                 style={
-                  [
-                    {
-                      "paddingBottom": 0,
-                    },
-                    {
-                      "minHeight": 56,
-                      "paddingTop": 8,
-                    },
-                  ]
+                  {
+                    "bottom": 0,
+                    "left": 0,
+                    "opacity": 1,
+                    "position": "absolute",
+                    "right": 0,
+                    "top": 0,
+                    "transform": [
+                      {
+                        "translateX": 0,
+                      },
+                    ],
+                    "width": 750,
+                    "zIndex": 3,
+                  }
                 }
               >
-                <View
+                <Text
                   collapsable={false}
-                  pointerEvents="none"
+                  maxFontSizeMultiplier={1.5}
+                  numberOfLines={1}
                   style={
                     {
-                      "bottom": 0,
-                      "left": 0,
-                      "opacity": 1,
+                      "backgroundColor": "rgba(255, 251, 254, 1)",
+                      "color": "transparent",
+                      "fontFamily": "System",
+                      "fontSize": 16,
+                      "fontWeight": undefined,
+                      "left": 8,
+                      "letterSpacing": 0.15,
+                      "lineHeight": undefined,
+                      "opacity": -0.6666666666666667,
+                      "paddingHorizontal": 0,
                       "position": "absolute",
-                      "right": 0,
-                      "top": 0,
+                      "textAlign": "left",
+                      "top": 33,
                       "transform": [
                         {
                           "translateX": 0,
                         },
+                        {
+                          "translateY": 0,
+                        },
+                        {
+                          "scale": 1,
+                        },
+                        {
+                          "scaleY": 1,
+                        },
                       ],
-                      "zIndex": 3,
+                      "width": -16,
+                      "writingDirection": "ltr",
                     }
                   }
+                  testID="text-input-outlined-label-background"
                 >
-                  <Text
-                    collapsable={false}
-                    maxFontSizeMultiplier={1.5}
-                    numberOfLines={1}
-                    style={
-                      {
-                        "backgroundColor": "rgba(255, 251, 254, 1)",
-                        "color": "transparent",
-                        "fontFamily": "Poppins_Regular",
-                        "fontSize": 16,
-                        "fontWeight": undefined,
-                        "left": 8,
-                        "letterSpacing": 0.15,
-                        "lineHeight": undefined,
-                        "opacity": -0.6666666666666667,
-                        "paddingHorizontal": 0,
-                        "position": "absolute",
-                        "textAlign": "left",
-                        "top": 33,
-                        "transform": [
-                          {
-                            "translateX": 0,
-                          },
-                          {
-                            "translateY": 0,
-                          },
-                          {
-                            "scale": 1,
-                          },
-                          {
-                            "scaleY": 1,
-                          },
-                        ],
-                        "width": -16,
-                        "writingDirection": "ltr",
-                      }
-                    }
-                  >
-                    Email
-                  </Text>
-                  <Text
-                    collapsable={false}
-                    maxFontSizeMultiplier={1.5}
-                    numberOfLines={1}
-                    onLayout={[Function]}
-                    style={
-                      {
-                        "color": "rgba(103, 80, 164, 1)",
-                        "fontFamily": "Poppins_Regular",
-                        "fontSize": 16,
-                        "fontWeight": undefined,
-                        "left": 0,
-                        "letterSpacing": 0.15,
-                        "lineHeight": undefined,
-                        "opacity": 0,
-                        "paddingHorizontal": 16,
-                        "position": "absolute",
-                        "textAlign": "left",
-                        "top": 32,
-                        "transform": [
-                          {
-                            "translateX": 0,
-                          },
-                          {
-                            "translateY": 0,
-                          },
-                          {
-                            "scale": 1,
-                          },
-                        ],
-                        "writingDirection": "ltr",
-                      }
-                    }
-                    testID="text-input-outlined-label-active"
-                  >
-                    Email
-                  </Text>
-                  <Text
-                    collapsable={false}
-                    maxFontSizeMultiplier={1.5}
-                    numberOfLines={1}
-                    style={
-                      {
-                        "color": "rgba(73, 69, 79, 1)",
-                        "fontFamily": "Poppins_Regular",
-                        "fontSize": 16,
-                        "fontWeight": undefined,
-                        "left": 0,
-                        "letterSpacing": 0.15,
-                        "lineHeight": undefined,
-                        "opacity": 0,
-                        "paddingHorizontal": 16,
-                        "position": "absolute",
-                        "textAlign": "left",
-                        "top": 32,
-                        "transform": [
-                          {
-                            "translateX": 0,
-                          },
-                          {
-                            "translateY": 0,
-                          },
-                          {
-                            "scale": 1,
-                          },
-                        ],
-                        "writingDirection": "ltr",
-                      }
-                    }
-                    testID="text-input-outlined-label-inactive"
-                  >
-                    Email
-                  </Text>
-                </View>
-                <TextInput
-                  editable={true}
+                  Email
+                </Text>
+                <Text
+                  collapsable={false}
                   maxFontSizeMultiplier={1.5}
-                  multiline={false}
-                  onBlur={[Function]}
-                  onChangeText={[Function]}
-                  onFocus={[Function]}
-                  placeholder=" "
-                  placeholderTextColor="rgba(73, 69, 79, 1)"
-                  selectionColor="rgba(103, 80, 164, 1)"
+                  numberOfLines={1}
+                  onLayout={[Function]}
+                  onTextLayout={[Function]}
                   style={
-                    [
-                      {
-                        "margin": 0,
-                        "zIndex": 1,
-                      },
-                      {
-                        "height": 48,
-                      },
-                      {
-                        "paddingBottom": 0,
-                        "paddingTop": 0,
-                      },
-                      {
-                        "color": "rgba(28, 27, 31, 1)",
-                        "fontFamily": "Poppins_Regular",
-                        "fontSize": 16,
-                        "fontWeight": undefined,
-                        "letterSpacing": 0.15,
-                        "lineHeight": undefined,
-                        "paddingHorizontal": 16,
-                        "textAlign": "left",
-                        "textAlignVertical": "center",
-                      },
-                      false,
-                      [
-                        {},
+                    {
+                      "color": "rgba(103, 80, 164, 1)",
+                      "fontFamily": "System",
+                      "fontSize": 16,
+                      "fontWeight": undefined,
+                      "left": 0,
+                      "letterSpacing": 0.15,
+                      "lineHeight": undefined,
+                      "maxWidth": 73,
+                      "opacity": 0,
+                      "paddingHorizontal": 16,
+                      "position": "absolute",
+                      "textAlign": "left",
+                      "top": 32,
+                      "transform": [
+                        {
+                          "translateX": 0,
+                        },
+                        {
+                          "translateY": 0,
+                        },
+                        {
+                          "scale": 1,
+                        },
                       ],
-                      undefined,
-                    ]
+                      "writingDirection": "ltr",
+                    }
                   }
-                  testID="text-input-outlined"
-                  underlineColorAndroid="transparent"
-                  value=""
-                />
+                  testID="text-input-outlined-label-active"
+                >
+                  Email
+                </Text>
+                <Text
+                  collapsable={false}
+                  maxFontSizeMultiplier={1.5}
+                  numberOfLines={1}
+                  style={
+                    {
+                      "color": "rgba(73, 69, 79, 1)",
+                      "fontFamily": "System",
+                      "fontSize": 16,
+                      "fontWeight": undefined,
+                      "left": 0,
+                      "letterSpacing": 0.15,
+                      "lineHeight": undefined,
+                      "maxWidth": 73,
+                      "opacity": 0,
+                      "paddingHorizontal": 16,
+                      "position": "absolute",
+                      "textAlign": "left",
+                      "top": 32,
+                      "transform": [
+                        {
+                          "translateX": 0,
+                        },
+                        {
+                          "translateY": 0,
+                        },
+                        {
+                          "scale": 1,
+                        },
+                      ],
+                      "writingDirection": "ltr",
+                    }
+                  }
+                  testID="text-input-outlined-label-inactive"
+                >
+                  Email
+                </Text>
               </View>
+              <TextInput
+                cursorColor="rgba(103, 80, 164, 1)"
+                editable={true}
+                maxFontSizeMultiplier={1.5}
+                multiline={false}
+                onBlur={[Function]}
+                onChangeText={[Function]}
+                onFocus={[Function]}
+                onLayout={[Function]}
+                placeholder=" "
+                placeholderTextColor="rgba(73, 69, 79, 1)"
+                selectionColor="rgba(103, 80, 164, 1)"
+                style={
+                  [
+                    {
+                      "margin": 0,
+                    },
+                    {
+                      "height": 48,
+                    },
+                    {
+                      "paddingBottom": 0,
+                      "paddingTop": 0,
+                    },
+                    {
+                      "color": "rgba(28, 27, 31, 1)",
+                      "fontFamily": "System",
+                      "fontSize": 16,
+                      "fontWeight": undefined,
+                      "letterSpacing": 0.15,
+                      "lineHeight": undefined,
+                      "minWidth": 65,
+                      "paddingHorizontal": 16,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    },
+                    false,
+                    [
+                      {},
+                    ],
+                    undefined,
+                  ]
+                }
+                testID="text-input-outlined"
+                underlineColorAndroid="transparent"
+                value=""
+              />
             </View>
           </View>
         </View>
@@ -360,7 +370,7 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
           style={
             {
               "color": "rgba(179, 38, 30, 1)",
-              "fontFamily": "Poppins_Regular",
+              "fontFamily": "System",
               "fontSize": 12,
               "fontWeight": "400",
               "letterSpacing": 0.25,
@@ -392,6 +402,7 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
                   "right": 0,
                   "top": 6,
                 },
+                false,
                 {
                   "backgroundColor": "rgba(255, 251, 254, 1)",
                   "borderColor": "rgba(121, 116, 126, 1)",
@@ -403,201 +414,206 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
             }
             testID="text-input-outline"
           />
-          <View>
+          <View
+            style={
+              [
+                {
+                  "paddingBottom": 0,
+                },
+                {
+                  "minHeight": 56,
+                  "paddingTop": 8,
+                },
+              ]
+            }
+          >
             <View
+              collapsable={false}
+              pointerEvents="none"
               style={
-                [
-                  {
-                    "paddingBottom": 0,
-                  },
-                  {
-                    "minHeight": 56,
-                    "paddingTop": 8,
-                  },
-                ]
+                {
+                  "bottom": 0,
+                  "left": 0,
+                  "opacity": 1,
+                  "position": "absolute",
+                  "right": 0,
+                  "top": 0,
+                  "transform": [
+                    {
+                      "translateX": 0,
+                    },
+                  ],
+                  "width": 750,
+                  "zIndex": 3,
+                }
               }
             >
-              <View
+              <Text
                 collapsable={false}
-                pointerEvents="none"
+                maxFontSizeMultiplier={1.5}
+                numberOfLines={1}
                 style={
                   {
-                    "bottom": 0,
-                    "left": 0,
-                    "opacity": 1,
+                    "backgroundColor": "rgba(255, 251, 254, 1)",
+                    "color": "transparent",
+                    "fontFamily": "System",
+                    "fontSize": 16,
+                    "fontWeight": undefined,
+                    "left": 8,
+                    "letterSpacing": 0.15,
+                    "lineHeight": undefined,
+                    "opacity": -0.6666666666666667,
+                    "paddingHorizontal": 0,
                     "position": "absolute",
-                    "right": 0,
-                    "top": 0,
+                    "textAlign": "left",
+                    "top": 33,
                     "transform": [
                       {
                         "translateX": 0,
                       },
+                      {
+                        "translateY": 0,
+                      },
+                      {
+                        "scale": 1,
+                      },
+                      {
+                        "scaleY": 1,
+                      },
                     ],
-                    "zIndex": 3,
+                    "width": -16,
+                    "writingDirection": "ltr",
                   }
                 }
+                testID="text-input-outlined-label-background"
               >
-                <Text
-                  collapsable={false}
-                  maxFontSizeMultiplier={1.5}
-                  numberOfLines={1}
-                  style={
-                    {
-                      "backgroundColor": "rgba(255, 251, 254, 1)",
-                      "color": "transparent",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "left": 8,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "opacity": -0.6666666666666667,
-                      "paddingHorizontal": 0,
-                      "position": "absolute",
-                      "textAlign": "left",
-                      "top": 33,
-                      "transform": [
-                        {
-                          "translateX": 0,
-                        },
-                        {
-                          "translateY": 0,
-                        },
-                        {
-                          "scale": 1,
-                        },
-                        {
-                          "scaleY": 1,
-                        },
-                      ],
-                      "width": -16,
-                      "writingDirection": "ltr",
-                    }
-                  }
-                >
-                  Password
-                </Text>
-                <Text
-                  collapsable={false}
-                  maxFontSizeMultiplier={1.5}
-                  numberOfLines={1}
-                  onLayout={[Function]}
-                  style={
-                    {
-                      "color": "rgba(103, 80, 164, 1)",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "left": 0,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "opacity": 0,
-                      "paddingHorizontal": 16,
-                      "position": "absolute",
-                      "textAlign": "left",
-                      "top": 32,
-                      "transform": [
-                        {
-                          "translateX": 0,
-                        },
-                        {
-                          "translateY": 0,
-                        },
-                        {
-                          "scale": 1,
-                        },
-                      ],
-                      "writingDirection": "ltr",
-                    }
-                  }
-                  testID="text-input-outlined-label-active"
-                >
-                  Password
-                </Text>
-                <Text
-                  collapsable={false}
-                  maxFontSizeMultiplier={1.5}
-                  numberOfLines={1}
-                  style={
-                    {
-                      "color": "rgba(73, 69, 79, 1)",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "left": 0,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "opacity": 0,
-                      "paddingHorizontal": 16,
-                      "position": "absolute",
-                      "textAlign": "left",
-                      "top": 32,
-                      "transform": [
-                        {
-                          "translateX": 0,
-                        },
-                        {
-                          "translateY": 0,
-                        },
-                        {
-                          "scale": 1,
-                        },
-                      ],
-                      "writingDirection": "ltr",
-                    }
-                  }
-                  testID="text-input-outlined-label-inactive"
-                >
-                  Password
-                </Text>
-              </View>
-              <TextInput
-                editable={true}
+                Password
+              </Text>
+              <Text
+                collapsable={false}
                 maxFontSizeMultiplier={1.5}
-                multiline={false}
-                onBlur={[Function]}
-                onChangeText={[Function]}
-                onFocus={[Function]}
-                placeholder=" "
-                placeholderTextColor="rgba(73, 69, 79, 1)"
-                secureTextEntry={true}
-                selectionColor="rgba(103, 80, 164, 1)"
+                numberOfLines={1}
+                onLayout={[Function]}
+                onTextLayout={[Function]}
                 style={
-                  [
-                    {
-                      "margin": 0,
-                      "zIndex": 1,
-                    },
-                    {
-                      "height": 48,
-                    },
-                    {
-                      "paddingBottom": 0,
-                      "paddingTop": 0,
-                    },
-                    {
-                      "color": "rgba(28, 27, 31, 1)",
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 16,
-                      "fontWeight": undefined,
-                      "letterSpacing": 0.15,
-                      "lineHeight": undefined,
-                      "paddingHorizontal": 16,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                    false,
-                    [
-                      {},
+                  {
+                    "color": "rgba(103, 80, 164, 1)",
+                    "fontFamily": "System",
+                    "fontSize": 16,
+                    "fontWeight": undefined,
+                    "left": 0,
+                    "letterSpacing": 0.15,
+                    "lineHeight": undefined,
+                    "maxWidth": 73,
+                    "opacity": 0,
+                    "paddingHorizontal": 16,
+                    "position": "absolute",
+                    "textAlign": "left",
+                    "top": 32,
+                    "transform": [
+                      {
+                        "translateX": 0,
+                      },
+                      {
+                        "translateY": 0,
+                      },
+                      {
+                        "scale": 1,
+                      },
                     ],
-                    undefined,
-                  ]
+                    "writingDirection": "ltr",
+                  }
                 }
-                testID="text-input-outlined"
-                underlineColorAndroid="transparent"
-                value=""
-              />
+                testID="text-input-outlined-label-active"
+              >
+                Password
+              </Text>
+              <Text
+                collapsable={false}
+                maxFontSizeMultiplier={1.5}
+                numberOfLines={1}
+                style={
+                  {
+                    "color": "rgba(73, 69, 79, 1)",
+                    "fontFamily": "System",
+                    "fontSize": 16,
+                    "fontWeight": undefined,
+                    "left": 0,
+                    "letterSpacing": 0.15,
+                    "lineHeight": undefined,
+                    "maxWidth": 73,
+                    "opacity": 0,
+                    "paddingHorizontal": 16,
+                    "position": "absolute",
+                    "textAlign": "left",
+                    "top": 32,
+                    "transform": [
+                      {
+                        "translateX": 0,
+                      },
+                      {
+                        "translateY": 0,
+                      },
+                      {
+                        "scale": 1,
+                      },
+                    ],
+                    "writingDirection": "ltr",
+                  }
+                }
+                testID="text-input-outlined-label-inactive"
+              >
+                Password
+              </Text>
             </View>
+            <TextInput
+              cursorColor="rgba(103, 80, 164, 1)"
+              editable={true}
+              maxFontSizeMultiplier={1.5}
+              multiline={false}
+              onBlur={[Function]}
+              onChangeText={[Function]}
+              onFocus={[Function]}
+              onLayout={[Function]}
+              placeholder=" "
+              placeholderTextColor="rgba(73, 69, 79, 1)"
+              secureTextEntry={true}
+              selectionColor="rgba(103, 80, 164, 1)"
+              style={
+                [
+                  {
+                    "margin": 0,
+                  },
+                  {
+                    "height": 48,
+                  },
+                  {
+                    "paddingBottom": 0,
+                    "paddingTop": 0,
+                  },
+                  {
+                    "color": "rgba(28, 27, 31, 1)",
+                    "fontFamily": "System",
+                    "fontSize": 16,
+                    "fontWeight": undefined,
+                    "letterSpacing": 0.15,
+                    "lineHeight": undefined,
+                    "minWidth": 65,
+                    "paddingHorizontal": 16,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  },
+                  false,
+                  [
+                    {},
+                  ],
+                  undefined,
+                ]
+              }
+              testID="text-input-outlined"
+              underlineColorAndroid="transparent"
+              value=""
+            />
           </View>
         </View>
         <Text
@@ -735,13 +751,6 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
                   style={
                     [
                       {
-                        "fontFamily": "Poppins_Regular",
-                        "fontSize": 14,
-                        "fontWeight": "500",
-                        "letterSpacing": 0.1,
-                        "lineHeight": 20,
-                      },
-                      {
                         "textAlign": "left",
                       },
                       {
@@ -750,25 +759,34 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
                       },
                       [
                         {
-                          "marginHorizontal": 16,
-                          "marginVertical": 9,
-                          "textAlign": "center",
-                        },
-                        false,
-                        {
-                          "marginHorizontal": 12,
-                        },
-                        undefined,
-                        false,
-                        {
-                          "color": "rgba(103, 80, 164, 1)",
-                          "fontFamily": "Poppins_Regular",
+                          "fontFamily": "System",
                           "fontSize": 14,
                           "fontWeight": "500",
                           "letterSpacing": 0.1,
                           "lineHeight": 20,
                         },
-                        undefined,
+                        [
+                          {
+                            "marginHorizontal": 16,
+                            "marginVertical": 9,
+                            "textAlign": "center",
+                          },
+                          false,
+                          {
+                            "marginHorizontal": 12,
+                          },
+                          undefined,
+                          false,
+                          {
+                            "color": "rgba(103, 80, 164, 1)",
+                            "fontFamily": "System",
+                            "fontSize": 14,
+                            "fontWeight": "500",
+                            "letterSpacing": 0.1,
+                            "lineHeight": 20,
+                          },
+                          undefined,
+                        ],
                       ],
                     ]
                   }
@@ -893,13 +911,6 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
                 style={
                   [
                     {
-                      "fontFamily": "Poppins_Regular",
-                      "fontSize": 14,
-                      "fontWeight": "500",
-                      "letterSpacing": 0.1,
-                      "lineHeight": 20,
-                    },
-                    {
                       "textAlign": "left",
                     },
                     {
@@ -908,26 +919,35 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
                     },
                     [
                       {
-                        "marginHorizontal": 16,
-                        "marginVertical": 9,
-                        "textAlign": "center",
-                      },
-                      false,
-                      {
-                        "marginHorizontal": 24,
-                        "marginVertical": 10,
-                      },
-                      undefined,
-                      false,
-                      {
-                        "color": "rgba(28, 27, 31, 0.38)",
-                        "fontFamily": "Poppins_Regular",
+                        "fontFamily": "System",
                         "fontSize": 14,
                         "fontWeight": "500",
                         "letterSpacing": 0.1,
                         "lineHeight": 20,
                       },
-                      undefined,
+                      [
+                        {
+                          "marginHorizontal": 16,
+                          "marginVertical": 9,
+                          "textAlign": "center",
+                        },
+                        false,
+                        {
+                          "marginHorizontal": 24,
+                          "marginVertical": 10,
+                        },
+                        undefined,
+                        false,
+                        {
+                          "color": "rgba(28, 27, 31, 0.38)",
+                          "fontFamily": "System",
+                          "fontSize": 14,
+                          "fontWeight": "500",
+                          "letterSpacing": 0.1,
+                          "lineHeight": 20,
+                        },
+                        undefined,
+                      ],
                     ],
                   ]
                 }
@@ -1040,13 +1060,6 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
               style={
                 [
                   {
-                    "fontFamily": "Poppins_Regular",
-                    "fontSize": 14,
-                    "fontWeight": "500",
-                    "letterSpacing": 0.1,
-                    "lineHeight": 20,
-                  },
-                  {
                     "textAlign": "left",
                   },
                   {
@@ -1055,25 +1068,34 @@ exports[`SigninScreen Error Alerts renders correctly 1`] = `
                   },
                   [
                     {
-                      "marginHorizontal": 16,
-                      "marginVertical": 9,
-                      "textAlign": "center",
-                    },
-                    false,
-                    {
-                      "marginHorizontal": 12,
-                    },
-                    undefined,
-                    false,
-                    {
-                      "color": "rgba(103, 80, 164, 1)",
-                      "fontFamily": "Poppins_Regular",
+                      "fontFamily": "System",
                       "fontSize": 14,
                       "fontWeight": "500",
                       "letterSpacing": 0.1,
                       "lineHeight": 20,
                     },
-                    undefined,
+                    [
+                      {
+                        "marginHorizontal": 16,
+                        "marginVertical": 9,
+                        "textAlign": "center",
+                      },
+                      false,
+                      {
+                        "marginHorizontal": 12,
+                      },
+                      undefined,
+                      false,
+                      {
+                        "color": "rgba(103, 80, 164, 1)",
+                        "fontFamily": "System",
+                        "fontSize": 14,
+                        "fontWeight": "500",
+                        "letterSpacing": 0.1,
+                        "lineHeight": 20,
+                      },
+                      undefined,
+                    ],
                   ],
                 ]
               }
