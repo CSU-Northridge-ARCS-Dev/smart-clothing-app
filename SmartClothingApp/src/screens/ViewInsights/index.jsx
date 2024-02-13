@@ -13,9 +13,9 @@ import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
 import { updateActivityRings } from "../../actions/appActions";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
-import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
+import DateToolbar from "../../components/DateToolbar/DateToolbar";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -54,51 +54,16 @@ const ViewInsights = ({ route }) => {
     setCurrentRingData(currentRingData);
   };
 
-  function getDaySuffix(day) {
-    if (day >= 11 && day <= 13) {
-      return "th";
-    }
-    const lastDigit = day % 10;
-    switch (lastDigit) {
-      case 1:
-        return "st";
-      case 2:
-        return "nd";
-      case 3:
-        return "rd";
-      default:
-        return "th";
-    }
-  }
-
   const handleUpdate = async () => {
     await dispatch(updateActivityRings());
   };
 
-  function formatDateToCustomString(date) {
-    const months = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-
-    const suffix = getDaySuffix(day);
-
-    return `${month} ${day}${suffix}, ${year}`;
-  }
+  const formattedDate = currentDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   useEffect(() => {
     setCurrentDate(currentDate);
@@ -107,22 +72,8 @@ const ViewInsights = ({ route }) => {
   return (
     <ScrollView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
-      <View style={styles.body}>
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            {formatDateToCustomString(currentDate)}
-          </Text>
-          <View style={{ flexDirection: "row", gap: 20 }}>
-            <Icon
-              name="calendar-alt"
-              size={20}
-              style={styles.icon}
-              onPress={() => setShowDatePicker(true)}
-            />
-            <Icon name="sliders-h" size={20} style={styles.icon} />
-            <Icon name="upload" size={20} style={styles.icon} />
-          </View>
-        </View>
+      <View style={{ padding: 10 }}>
+        <DateToolbar />
         <DailyInsights
           fromDashboard={false}
           handleRingPress={handleRingPress}
@@ -203,17 +154,9 @@ const styles = StyleSheet.create({
     height: 130,
     overflow: "hidden",
   },
-  body: {
-    padding: 10,
-  },
   ringsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
 });
 

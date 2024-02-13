@@ -9,7 +9,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
-import { storeUID } from "../utils/localStorage.js";
+import { storeUID, storeMetrics } from "../utils/localStorage.js";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -137,8 +137,12 @@ export const startUpdateUserData = (userData) => {
       await setDoc(doc(database, "Users", auth.currentUser.uid), userData);
       console.log("User data added to database successfully!");
       dispatch(updateUserMetricsData(userData));
+      // Store the user metrics data in the local storage
+      storeMetrics(userData);
     } catch (e) {
-      console.log("Error adding user data to database!");
+      console.log(
+        "Error adding user data to database! There might be no data to add."
+      );
       console.log(e);
     }
   };

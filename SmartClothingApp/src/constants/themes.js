@@ -48,7 +48,12 @@ export const AppColor = {
   ringStand: "rgb(6, 188, 255)",
   ringExercise: "rgb(33, 100, 180)",
   ringMove: "rgb(9, 14, 62)",
+  sleepAwake: "#FF7D66",
+  sleepRem: "#31ADE7",
+  sleepCore: "#0179FF",
+  sleepDeep: "#3937A4",
 };
+
 export const AppFonts = {
   chakraBold: "ChakraPetch_Bold",
   chakraBoldItalic: "ChakraPetch_BoldItalic",

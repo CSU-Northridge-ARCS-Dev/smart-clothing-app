@@ -52,8 +52,8 @@ const SigninScreen = ({ navigation }) => {
       Alert.alert(
         "Authentication Error",
         "Please correct the following errors:\n\n" +
-        (error.email && `${error.email}\n`) +
-        (error.password && `${error.password}`)
+          (error.email && `${error.email}\n`) +
+          (error.password && `${error.password}`)
       );
       return;
     }
@@ -146,7 +146,7 @@ const SigninScreen = ({ navigation }) => {
         <View style={styles.inputContainer}>
           <TextInput
             label="Password"
-            secureTextEntry={lockStatus === "locked"} 
+            secureTextEntry={lockStatus === "locked"}
             value={user.password}
             mode="outlined"
             onChangeText={(text) => {
@@ -158,7 +158,7 @@ const SigninScreen = ({ navigation }) => {
           />
           <Icon
             name={lockStatus === "locked" ? "lock" : "unlock-alt"}
-            size={25} 
+            size={25}
             color="black"
             style={styles.icon}
             onPress={toggleLockStatus}
@@ -206,8 +206,8 @@ const styles = StyleSheet.create({
   icon: {
     position: "absolute",
     right: 10,
-    top: 16, 
-    transform: [{ translateY: 0 }], 
+    top: 16,
+    transform: [{ translateY: 0 }],
   },
 });
 
