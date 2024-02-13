@@ -168,5 +168,13 @@ describe('SignUpToHome Integration Test', () => {
     await waitFor(() => {
       expect(getByText('Dashboard')).toBeTruthy();
     });
+
   });
+<<<<<<< HEAD
+
+
+  
 });
+=======
+});
+>>>>>>> bbc93b73f8eff64434957ed6822e876ebc935dff
