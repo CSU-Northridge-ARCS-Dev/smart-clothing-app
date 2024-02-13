@@ -142,6 +142,16 @@ jest.mock('../../src/actions/appActions', () => ({
 //   }),
 // }));
   
+// Mocks ViewSleepData 
+jest.mock('d3', () => ({
+  scaleLinear: jest.fn().mockReturnValue({
+    domain: jest.fn().mockReturnThis(),
+    range: jest.fn().mockReturnThis(),
+    ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
+  }),
+  tickStep: jest.fn().mockReturnValue(50),
+  ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
+}));
   
   
   // Create a StackNavigator with your Sign-In and Dashboard screens
