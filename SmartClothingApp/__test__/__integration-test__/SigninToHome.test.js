@@ -170,11 +170,4 @@ describe('SignUpToHome Integration Test', () => {
     });
 
   });
-<<<<<<< HEAD
-
-
-  
 });
-=======
-});
->>>>>>> bbc93b73f8eff64434957ed6822e876ebc935dff
