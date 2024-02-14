@@ -129,7 +129,6 @@ const ViewHeartRateData = ({ route }) => {
             </>
           )}
         </CartesianChart>
-        <Button onPress={queryHeartRateData} title="Boom"></Button>
       </View>
     </ScrollView>
   );
