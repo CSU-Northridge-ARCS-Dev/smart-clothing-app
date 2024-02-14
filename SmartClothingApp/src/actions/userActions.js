@@ -5,6 +5,9 @@ import {
   doc,
   updateDoc,
   getDoc,
+  getDocs,
+  where,
+  query,
   getFirestore,
   deleteDoc,
 } from "firebase/firestore";
@@ -356,4 +359,34 @@ export const deleteAccount = () => {
       dispatch(toastError(error.message || "An error occurred."));
     }
   };
+};
+
+export const queryData = async (data, startDate, endDate) => {
+  try {
+    //get the user ID
+    const userId = auth.currentUser.uid;
+
+    //make a reference to the doc with the user ID
+    const userRef = doc(database, "Users", userId);
+
+    // Create a query to filter documents within the date range
+    const dataQuery = query(
+      collection(userRef, data),
+      where("date", ">=", startDate),
+      where("date", "<=", endDate)
+    );
+
+    // Execute the query to get the result
+    const dataSnapshot = await getDocs(dataQuery);
+
+    const fetchedData = [];
+    dataSnapshot.forEach((doc) => {
+      fetchedData.push({ id: doc.id, ...doc.data() });
+    });
+
+    return fetchedData;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    return [];
+  }
 };
