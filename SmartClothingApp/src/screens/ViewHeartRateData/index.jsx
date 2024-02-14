@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import { AppHeader } from "../../components";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -9,9 +9,11 @@ import DateToolbar from "../../components/DateToolbar/DateToolbar";
 import { CartesianChart, Scatter } from "victory-native";
 import inter from "../../../assets/fonts/inter-medium.ttf";
 import { useFont } from "@shopify/react-native-skia";
+import { queryData } from "../../actions/userActions";
 
 const ViewHeartRateData = ({ route }) => {
   const font = useFont(inter, 14);
+  const [heartRateData, setHeartRateData] = useState([]);
   const { previousScreenTitle } = route.params;
   const data = [
     { x: 1, y: 160 },
@@ -20,6 +22,26 @@ const ViewHeartRateData = ({ route }) => {
     { x: 30, y: 95 },
     { x: 40, y: 95 },
   ];
+
+  const queryHeartRateData = async () => {
+    const heartRateData = await queryData("HeartRateData", "2023-12-09T21:16:00.000Z", "2023-12-19T23:59:59.999Z");
+    return heartRateData;
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await queryHeartRateData();
+        setHeartRateData(data);
+      } catch (error) {
+        console.error('Error fetching heart rate data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
@@ -37,7 +59,7 @@ const ViewHeartRateData = ({ route }) => {
       </View>
 
       <View style={{ alignItems: "center", paddingTop: 10, paddingBottom: 20 }}>
-        <HeartRateChart />
+        <HeartRateChart dataArray={heartRateData}/>
       </View>
 
       <View style={styles.heartRate}>
@@ -107,6 +129,7 @@ const ViewHeartRateData = ({ route }) => {
             </>
           )}
         </CartesianChart>
+        <Button onPress={queryHeartRateData} title="Boom"></Button>
       </View>
     </ScrollView>
   );
