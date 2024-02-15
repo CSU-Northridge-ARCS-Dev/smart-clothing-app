@@ -96,7 +96,7 @@ const DataCollectModal = (props) => {
       !isFromSignupScreen
     ) {
       setGender(currentUserMetricsData.gender);
-      // setDob(currentUserMetricsData.dob.toDate());
+      setDob(new Date(currentUserMetricsData.dob));
       setHeight(currentUserMetricsData.height);
       setWeight(currentUserMetricsData.weight);
       setSports(currentUserMetricsData.sports);
