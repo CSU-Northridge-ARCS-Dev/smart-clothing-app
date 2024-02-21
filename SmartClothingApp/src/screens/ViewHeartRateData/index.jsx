@@ -24,8 +24,8 @@ const ViewHeartRateData = ({ route }) => {
   ];
 
   const queryHeartRateData = async () => {
-    const heartRateData = await queryData("HeartRateData", "2023-12-09T21:16:00.000Z", "2023-12-19T23:59:59.999Z");
-    return heartRateData;
+    const result = await queryData("HeartRateData", "2023-12-09T21:16:00.000Z", "2023-12-19T23:59:59.999Z");
+    return result;
   }
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const ViewHeartRateData = ({ route }) => {
       </View>
 
       <View style={{ alignItems: "center", paddingTop: 10, paddingBottom: 20 }}>
-        <HeartRateChart dataArray={heartRateData}/>
+        {<HeartRateChart dataArray={heartRateData}/>}
       </View>
 
       <View style={styles.heartRate}>
