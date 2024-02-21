@@ -381,7 +381,7 @@ export const queryData = async (data, startDate, endDate) => {
 
     const fetchedData = [];
     dataSnapshot.forEach((doc) => {
-      fetchedData.push({ id: doc.id, ...doc.data() });
+      fetchedData.push({ ...doc.data() });
     });
 
     return fetchedData;
