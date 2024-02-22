@@ -21,14 +21,11 @@ import {
   updateDoc,
   getDoc,
 } from 'firebase/firestore';
-
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
-
 jest.mock('../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
 }));
-
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(),
   addDoc: jest.fn(),
@@ -38,7 +35,6 @@ jest.mock('firebase/firestore', () => ({
   getDoc: jest.fn(),
   updateEmail: jest.fn(),
 }));
-
 jest.mock('../firebaseConfig.js', () => ({
   auth: {
     signOut: jest.fn(() => Promise.resolve()),
@@ -47,9 +43,9 @@ jest.mock('../firebaseConfig.js', () => ({
     },
   },
 }));
-
 jest.mock('firebase/auth', () => ({
   createUserWithEmailAndPassword: jest.fn(),
+  updateEmail: jest.fn(),
   signInWithEmailAndPassword: jest.fn(),
   updateProfile: jest.fn(() => Promise.resolve()), // Mock the updateProfile function
   sendPasswordResetEmail: jest.fn(),
@@ -57,7 +53,6 @@ jest.mock('firebase/auth', () => ({
     updateEmail: jest.fn(),
   },
 }));
-
 describe('Async Auth Actions', () => {
   it('dispatches LOGOUT action when startLogout is called', async () => {
     const expectedActions = [
@@ -69,31 +64,24 @@ describe('Async Auth Actions', () => {
         type: 'showErrorToast',
       },
     ];
-
     const store = mockStore({});
     await store.dispatch(startLogout());
-
     expect(store.getActions()).toEqual(expectedActions);
     expect(auth.signOut).toHaveBeenCalled();
   });
-
   it('logs error when startLogout fails', async () => {
     const consoleLogSpy = jest.spyOn(console, 'log');
     consoleLogSpy.mockImplementation(() => {});
-
     // Mocking signOut to simulate an error
     auth.signOut.mockRejectedValue(new Error('Error logging out!'));
     const store = mockStore({});
     await store.dispatch(startLogout());
-
     const consoleLogCalls = consoleLogSpy.mock.calls;
     consoleLogCalls.forEach((call) => {
       console.log('Captured log:', call[0]);
     });
-
     consoleLogSpy.mockRestore();
   });
-
   it('dispatches UPDATE_PROFILE action when startUpdateProfile is called successfully', async () => {
     const expectedActions = [
       {
@@ -101,68 +89,65 @@ describe('Async Auth Actions', () => {
         payload: ['John', 'Doe'],
       },
     ];
-
     const store = mockStore({});
     await store.dispatch(startUpdateProfile('John', 'Doe'));
-
     expect(store.getActions()).toEqual(expectedActions);
   });
-
   it('logs error when startUpdateProfile fails', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error');
     consoleErrorSpy.mockImplementation(() => {});
-
     // Mocking updateProfile to simulate an error
     updateProfile.mockRejectedValue(new Error('Error updating profile!'));
-
     const store = mockStore({});
     await store.dispatch(startUpdateProfile('John', 'Doe'));
-
     const consoleErrorCalls = consoleErrorSpy.mock.calls;
     consoleErrorCalls.forEach((call) => {
       console.error('Captured error:', call[0]);
     });
-
     consoleErrorSpy.mockRestore();
   });
-
   it('logs error and dispatches action when startUpdateUserData fails', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error');
     consoleErrorSpy.mockImplementation(() => {});
-
     // Mocking setDoc to simulate an error
     const errorMessage = 'Error adding user data to database!';
     setDoc.mockRejectedValue(new Error(errorMessage));
-
     const store = mockStore({});
     await store.dispatch(startUpdateUserData({ /* your user metrics data here */ }));
-
     // Check that the error is logged
     const consoleErrorCalls = consoleErrorSpy.mock.calls;
     consoleErrorCalls.forEach((call) => {
       console.error('Captured error:', call[0]);
       expect(call[0].message).toBe(errorMessage);
     });
-
     consoleErrorSpy.mockRestore();
   });
-
   it('logs error when startLoadUserData fails', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error');
     consoleErrorSpy.mockImplementation(() => {});
-
     // Mocking getDoc to simulate an error
     const userDocRef = doc(collection, 'Users', 'user123');
     getDoc.mockRejectedValue(new Error('Error loading user data from database!'));
-
     const store = mockStore({});
     await store.dispatch(startLoadUserData());
-
     const consoleErrorCalls = consoleErrorSpy.mock.calls;
     consoleErrorCalls.forEach((call) => {
       console.error('Captured error:', call[0]);
     });
-
     consoleErrorSpy.mockRestore();
   });
+  it('dispatches UPDATE_USER_METRICS_DATA action when startUpdateUserData is called successfully', async () => {
+    // Mocking setDoc to simulate success
+    setDoc.mockResolvedValue();
+    const expectedActions = [
+      {
+        type: 'UPDATE_USER_METRICS_DATA',
+        payload: { /* your user metrics data here */ },
+      },
+    ];
+    const store = mockStore({});
+    await store.dispatch(startUpdateUserData({ /* your user metrics data here */ }));
+    expect(store.getActions()).toEqual(expectedActions);
+  });
+  
 });
