@@ -5,6 +5,7 @@ import {
   DARK_THEME,
   MEASUREMENT_SYSTEM,
   UPDATE_ACTIVITY_RINGS_DATA,
+  UPDATE_DATE_RANGE,
 } from "../actions/types";
 
 const initialState = {
@@ -50,6 +51,10 @@ const initialState = {
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3
     },
+    dateRangeData: {
+      startDate: new Date(),
+      endDate: new Date(),
+    },
   },
 };
 
@@ -70,6 +75,14 @@ const appReducer = (state = initialState, action) => {
           [action.payload.day]: {
             ...action.payload.rings,
           },
+        },
+      };
+    case UPDATE_DATE_RANGE:
+      return {
+        ...state,
+        dateRangeData: {
+          startDate: action.payload.startDate,
+          endDate: action.payload.endDate,
         },
       };
     default:

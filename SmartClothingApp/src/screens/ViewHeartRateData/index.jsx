@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { AppColor } from "../../constants/themes";
 import HeartRateChart from "../../components/visualizations/HeartRateChart";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import { useSelector } from "react-redux";
 import { CartesianChart, Scatter } from "victory-native";
 import inter from "../../../assets/fonts/inter-medium.ttf";
 import { useFont } from "@shopify/react-native-skia";
@@ -13,6 +14,7 @@ import { queryData } from "../../actions/userActions";
 
 const ViewHeartRateData = ({ route }) => {
   const font = useFont(inter, 14);
+  const dates = useSelector((state) => state.app.dateRangeData);
   const [heartRateData, setHeartRateData] = useState([]);
   const { previousScreenTitle } = route.params;
   const data = [
@@ -22,24 +24,23 @@ const ViewHeartRateData = ({ route }) => {
     { x: 30, y: 95 },
     { x: 40, y: 95 },
   ];
+ //  "2023-12-09T21:16:00.000Z", "2023-12-19T23:59:59.999Z"
 
-  const queryHeartRateData = async () => {
-    const result = await queryData("HeartRateData", "2023-12-09T21:16:00.000Z", "2023-12-19T23:59:59.999Z");
-    return result;
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
+ useEffect(() => {
+    const fetchHeartRateData = async () => {
       try {
-        const data = await queryHeartRateData();
-        setHeartRateData(data);
+        console.log(dates.startDate);
+        console.log(dates.endDate);
+        const result = await queryData("HeartRateData", dates.startDate, dates.endDate);
+        setHeartRateData(result);
       } catch (error) {
-        console.error('Error fetching heart rate data:', error);
+        console.error("Error fetching heart rate data:", error);
+        // Handle error
       }
     };
 
-    fetchData();
-  }, []);
+    fetchHeartRateData();
+  }, [dates.startDate, dates.endDate]);
 
 
   return (
