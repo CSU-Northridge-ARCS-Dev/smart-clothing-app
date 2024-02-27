@@ -25,6 +25,8 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: SmartClothingApp
 
       - name: Run Tests
         run: npm run test
+        working-directory: SmartClothingApp
