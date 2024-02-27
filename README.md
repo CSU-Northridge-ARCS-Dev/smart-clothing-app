@@ -77,6 +77,9 @@ To bypass login/signup page:
 
 ## Troubleshooting
 - Error Code: "Main" has not been registered.
-    Run: ```npx expo start --clear```
-
-- Android Studio Build, PATH variable: 
+    - Run: ```npx expo start --clear```
+- Must have JDKs 8, 11, and 17
+- Android Studio Build, PATH variable:
+    - go to settings
+    - type in: ```edit system variables```
+    - add ```C:\\Users\ReplaceWithYourUser\AppData\Local\Android\Sdk```
