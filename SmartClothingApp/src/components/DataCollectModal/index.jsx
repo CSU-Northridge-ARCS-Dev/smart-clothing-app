@@ -96,7 +96,7 @@ const DataCollectModal = (props) => {
       !isFromSignupScreen
     ) {
       setGender(currentUserMetricsData.gender);
-      setDob(new Date(currentUserMetricsData.dob));
+      // setDob(currentUserMetricsData.dob.toDate());
       setHeight(currentUserMetricsData.height);
       setWeight(currentUserMetricsData.weight);
       setSports(currentUserMetricsData.sports);
@@ -116,7 +116,7 @@ const DataCollectModal = (props) => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContent}>
             <Text style={{ fontSize: 20, fontWeight: "bold" }}>
-              Please enter your details.
+              Welcome. Please enter your details.
             </Text>
 
             {isFromSignupScreen && (
@@ -219,7 +219,6 @@ const DataCollectModal = (props) => {
                   styles.button,
                   { backgroundColor: isSubmitting ? "#ccc" : "#007bff" },
                 ]}
-                textColor="white"
               >
                 Save
               </Button>
@@ -231,7 +230,7 @@ const DataCollectModal = (props) => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
     justifyContent: "center",
@@ -269,6 +268,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 17,
   },
-});
+};
 
 export default DataCollectModal;

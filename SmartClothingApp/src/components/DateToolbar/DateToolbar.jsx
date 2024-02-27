@@ -16,17 +16,20 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import { useFocusEffect } from "@react-navigation/native";
-import DateRangePicker from "./DateRangePicker";
+import BaseCalendar from "./BaseCalendar";
 import { updateDateRange } from "../../actions/appActions";
 
-const DateToolbar = () => {
+
+const DateToolbar = (props) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const dates = useSelector((state) => state.app.dateRangeData);
   const dispatch = useDispatch();
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
     endDate: new Date(),
-  })
+  });
+
+
 
   const handleDateRangeSuccess = (startDate, endDate) => {
     // Handle the selected date range here
@@ -40,10 +43,7 @@ const DateToolbar = () => {
 
     const endDateString = endDateObject.toISOString();
 
-    setDateRange({
-      startDate: startDateString,
-      endDate: endDateString
-      });
+    handleUpdate(startDateString, endDateString);
   };
 
   const onChangeDate = (event, selectedDate) => {
@@ -53,8 +53,8 @@ const DateToolbar = () => {
     }
   };
 
-  const handleUpdate = async () => {
-    await dispatch(updateDateRange(dateRange.startDate, dateRange.endDate));
+  const handleUpdate = async (startDate, endDate) => {
+    await dispatch(updateDateRange(startDate, endDate));
   }
 
   // const formattedDate = selected.toLocaleDateString("en-US", {
@@ -65,8 +65,11 @@ const DateToolbar = () => {
   // });
 
   useEffect(() => {
-    handleUpdate();
-  }, [dateRange]);
+    setDateRange({
+      startDate: dates.startDate,
+      endDate: dates.endDate,
+    })
+  }, [dates.startDate, dates.endDate]);
 
   return (
     <>
@@ -83,9 +86,12 @@ const DateToolbar = () => {
           <Icon name="upload" size={20} style={styles.icon} />
         </View>
       </View>
-      {showDatePicker && (
-        <DateRangePicker onSuccess={handleDateRangeSuccess}/>
-      )}
+      {showDatePicker && 
+        <BaseCalendar 
+          dateType={props.dateType} 
+          onSuccess={props.dateType === 'period' ? handleDateRangeSuccess : undefined}
+          /> 
+      }
     </>
   );
 };

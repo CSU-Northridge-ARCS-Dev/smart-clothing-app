@@ -16,6 +16,8 @@ const ViewHeartRateData = ({ route }) => {
   const font = useFont(inter, 14);
   const dates = useSelector((state) => state.app.dateRangeData);
   const [heartRateData, setHeartRateData] = useState([]);
+  const [minHeartRate, setMinHeartRate] = useState(null);
+  const [maxHeartRate, setMaxHeartRate] = useState(null);
   const { previousScreenTitle } = route.params;
   const data = [
     { x: 1, y: 160 },
@@ -24,14 +26,23 @@ const ViewHeartRateData = ({ route }) => {
     { x: 30, y: 95 },
     { x: 40, y: 95 },
   ];
- //  "2023-12-09T21:16:00.000Z", "2023-12-19T23:59:59.999Z"
 
  useEffect(() => {
     const fetchHeartRateData = async () => {
       try {
-        console.log(dates.startDate);
-        console.log(dates.endDate);
+        // console.log(dates.startDate);
+        // console.log(dates.endDate);
         const result = await queryData("HeartRateData", dates.startDate, dates.endDate);
+        if (result.length > 0) {
+          const heartRates = result.map(entry => entry.heartRate);
+          const min = Math.min(...heartRates);
+          const max = Math.max(...heartRates);
+          setMinHeartRate(min);
+          setMaxHeartRate(max);
+        } else {
+          setMinHeartRate(null);
+          setMaxHeartRate(null);
+        }
         setHeartRateData(result);
       } catch (error) {
         console.error("Error fetching heart rate data:", error);
@@ -43,11 +54,13 @@ const ViewHeartRateData = ({ route }) => {
   }, [dates.startDate, dates.endDate]);
 
 
+
+
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
-        <DateToolbar />
+        <DateToolbar dateType="period"/>
       </View>
 
       <View style={styles.title}>
@@ -66,21 +79,21 @@ const ViewHeartRateData = ({ route }) => {
       <View style={styles.heartRate}>
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>Heart Rate</Text>
-          <Text style={styles.infoText}>57 - 126 BPM</Text>
+          <Text style={styles.infoText}>{minHeartRate !== null ? `${minHeartRate} - ${maxHeartRate} BPM` : 'N/A'}</Text>
         </View>
       </View>
 
       <View style={styles.heartRate}>
         <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>Resting Rate</Text>
-          <Text style={styles.infoText}>59 BPM</Text>
+          <Text style={styles.infoText}>Resting Heart Rate</Text>
+          <Text style={styles.infoText}>N/A</Text>
         </View>
       </View>
 
       <View style={styles.heartRate}>
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>Heart Rate Variability</Text>
-          <Text style={styles.infoText}>47 MS</Text>
+          <Text style={styles.infoText}>N/A</Text>
         </View>
       </View>
       <View
