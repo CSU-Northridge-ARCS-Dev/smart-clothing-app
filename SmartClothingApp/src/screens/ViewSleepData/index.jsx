@@ -22,7 +22,7 @@ import { querySleepData } from "../../actions/userActions";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
-  const dates = {startDate: "2023-12-18T00:00:00.000Z", endDate: "2023-12-19T23:59:99.999Z"}
+  const dates = {startDate: "2023-12-19T00:00:00.000Z", endDate: "2023-12-20T23:59:99.999Z"}
   const { previousScreenTitle } = route.params;
   const [sleepData, setSleepData] = useState([]);
   const data = [
@@ -43,7 +43,10 @@ const ViewSleepData = ({ route }) => {
         // console.log(dates.startDate);
         // console.log(dates.endDate);
         const result = await querySleepData(dates.startDate, dates.endDate);
-        // console.log(result);
+        // result.forEach(item => {
+        //     console.log("startDate", item.startDate);
+        //     console.log("endDate", item.endDate);
+        // });
         const parsedData = parseSleepData(result);
         setSleepData(parsedData);
       } catch (error) {
@@ -57,16 +60,24 @@ const ViewSleepData = ({ route }) => {
 
 
   const parseSleepData = (sleepData) => {    
-    const numStages = sleepData.length; // Total number of stages
+    const numStages = sleepData.length - 1; // Total number of stages
 
     const parsedData = sleepData.reduce((parsedData, item, index) => {
         const startDate = new Date(item.startDate);
         const endDate = new Date(item.endDate);
-        const duration = (startDate.getHours() - endDate.getHours());
-        const stageProportion = 1 / 6; // Equal proportion for each stage
-        const stageIndex = Math.floor((numStages * stageProportion)); // Calculate the stage index
-        console.log("startDate", startDate.getHours());
-        // Deep 0-46s
+        const durationHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+        // console.log("startDate", startDate, startDate.getTime());
+        // console.log("endDate", endDate, endDate.getTime());
+          // Calculate the x position based on the cumulative duration of previous stages
+        const cumulativeDuration = sleepData.slice(0, index).reduce((sum, stage) => {
+            const start = new Date(stage.startDate);
+            const end = new Date(stage.endDate);
+            return sum + (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duration in hours
+        }, 0);
+        const x = (cumulativeDuration / 24) * 200; // Assuming the x range is 0-200
+        // console.log("hours", durationHours);
+        // console.log("duration", duration);
+        // Deep 0-46
         // Core 46-100
         // REM 100-160
         // Awake 160-180
@@ -74,22 +85,22 @@ const ViewSleepData = ({ route }) => {
         let y;
         if (index <= (numStages * 3/6)) {
             // Deep sleep: 0-46
-            console.log("deep");
+            // console.log("deep");
             y = 0;
         } else if (index <= (numStages * 4/6)) {
             // REM sleep: 46-100
-            console.log("REM");
+            // console.log("REM");
             y = 46;
         } else if (index <= (numStages * 5/6)) {
             // Awake: 100-160
-            console.log("awake");
+            // console.log("awake");
             y = 100;
-        } else if (index >= (numStages * 6/6)) {
+        } else if (index >= (numStages * 5/6)) {
             // Core sleep: 160-200
             y = 160;
-            console.log("core");
+            // console.log("core");
         }
-        parsedData.push({ x: duration, y: y });
+        parsedData.push({ x: x, y: y });
         // console.log(parsedData);
 
         return parsedData;
