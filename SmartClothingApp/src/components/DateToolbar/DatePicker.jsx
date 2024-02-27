@@ -15,14 +15,19 @@ export const DatePicker = (props) => {
     }),
     [selected]
   );
+
+  const handleDayPress = (day) => {
+    setSelected(day.dateString);
+    props.onSuccess && props.onSuccess(day.dateString);
+  };
+
+
+
   return (
     <Calendar
       initialDate={initDate}
       markedDates={marked}
-      onDayPress={(day) => {
-        setSelected(day.dateString);
-        props.onDaySelect && props.onDaySelect(day);
-      }}
+      onDayPress={handleDayPress}
       {...props}
     />
   );

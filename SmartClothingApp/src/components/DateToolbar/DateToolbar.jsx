@@ -57,6 +57,19 @@ const DateToolbar = (props) => {
     await dispatch(updateDateRange(startDate, endDate));
   }
 
+  const formatDateRange = () => {
+    const startDate = new Date(dates.startDate);
+    const endDate = new Date(dates.endDate);
+    
+    const startOptions = { weekday: 'long', month: 'long', day: 'numeric' };
+    const endOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+
+    const startFormatted = startDate.toLocaleDateString('en-US', startOptions);
+    const endFormatted = endDate.toLocaleDateString('en-US', endOptions);
+    
+    return `${startFormatted} - ${endFormatted}`;
+};
+
   // const formattedDate = selected.toLocaleDateString("en-US", {
   //   weekday: "long",
   //   month: "long",
@@ -74,7 +87,7 @@ const DateToolbar = (props) => {
   return (
     <>
       <View style={styles.dateContainer}>
-        {/* <Text style={styles.title}>{formattedDate}</Text> */}
+        {/* <Text style={styles.title}>{formatDateRange()}</Text> */}
         <View style={styles.iconContainer}>
           <Icon
             name="calendar-alt"
