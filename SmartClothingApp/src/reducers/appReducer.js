@@ -51,10 +51,10 @@ const initialState = {
       ring2: 0, // Default value for Monday, Ring 2
       ring3: 0, // Default value for Monday, Ring 3
     },
-    dateRangeData: {
-      startDate: new Date(),
-      endDate: new Date(),
-    },
+  },
+  dateRangeData: {
+    startDate: new Date(),
+    endDate: new Date(),
   },
 };
 

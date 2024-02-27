@@ -16,6 +16,7 @@ import {
   rect,
 } from "@shopify/react-native-skia";
 import { scaleLinear, tickStep, ticks } from "d3";
+import DateToolbar from "../../components/DateToolbar/DateToolbar";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
@@ -69,6 +70,9 @@ const ViewSleepData = ({ route }) => {
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
+      <View style={{paddingLeft: 10, paddingTop: 10}}>
+        <DateToolbar dateType="single" />
+      </View>
       <DailyMetrics name="Sleep Data" />
 
       <View style={styles.title}>
