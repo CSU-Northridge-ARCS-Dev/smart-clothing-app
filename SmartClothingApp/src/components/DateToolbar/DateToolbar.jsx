@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   Button,
   View,
@@ -11,54 +11,100 @@ import { AppHeader } from "../../components";
 import ActivityRings from "../../components/visualizations/ActivityRings/ActivityRings";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
-import { updateActivityRings } from "../../actions/appActions";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import { useFocusEffect } from "@react-navigation/native";
+import BaseCalendar from "./BaseCalendar";
+import { updateDateRange } from "../../actions/appActions";
 
-const DateToolbar = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
+
+const DateToolbar = (props) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const dates = useSelector((state) => state.app.dateRangeData);
+  const dispatch = useDispatch();
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(),
+    endDate: new Date(),
+  });
+
+
+
+  const handleDateRangeSuccess = (startDate, endDate) => {
+    // Handle the selected date range here
+    const startDateString = new Date(startDate).toISOString();
+    const endDateObject = new Date(endDate)
+
+    endDateObject.setHours(39);
+    endDateObject.setMinutes(59);
+    endDateObject.setSeconds(59);
+    endDateObject.setMilliseconds(999);
+
+    const endDateString = endDateObject.toISOString();
+
+    handleUpdate(startDateString, endDateString);
+  };
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
-      setCurrentDate(selectedDate);
+      setSelected(selectedDate);
     }
   };
 
-  const formattedDate = currentDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  const handleUpdate = async (startDate, endDate) => {
+    await dispatch(updateDateRange(startDate, endDate));
+  }
+
+  const formatDateRange = () => {
+    const startDate = new Date(dates.startDate);
+    const endDate = new Date(dates.endDate);
+    
+    const startOptions = { weekday: 'long', month: 'long', day: 'numeric' };
+    const endOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+
+    const startFormatted = startDate.toLocaleDateString('en-US', startOptions);
+    const endFormatted = endDate.toLocaleDateString('en-US', endOptions);
+    
+    return `${startFormatted} - ${endFormatted}`;
+};
+
+  // const formattedDate = selected.toLocaleDateString("en-US", {
+  //   weekday: "long",
+  //   month: "long",
+  //   day: "numeric",
+  //   year: "numeric",
+  // });
+
+  useEffect(() => {
+    setDateRange({
+      startDate: dates.startDate,
+      endDate: dates.endDate,
+    })
+  }, [dates.startDate, dates.endDate]);
 
   return (
     <>
       <View style={styles.dateContainer}>
-        <Text style={styles.title}>{formattedDate}</Text>
+        {/* <Text style={styles.title}>{formatDateRange()}</Text> */}
         <View style={styles.iconContainer}>
           <Icon
             name="calendar-alt"
             size={20}
             style={styles.icon}
-            onPress={() => setShowDatePicker(true)}
+            onPress={() => setShowDatePicker(!showDatePicker)}
           />
           <Icon name="sliders-h" size={20} style={styles.icon} />
           <Icon name="upload" size={20} style={styles.icon} />
         </View>
       </View>
-      {showDatePicker && (
-        <DateTimePicker
-          value={currentDate}
-          mode="date"
-          display="default"
-          onChange={onChangeDate}
-        />
-      )}
+      {showDatePicker && 
+        <BaseCalendar 
+          dateType={props.dateType} 
+          onSuccess={props.dateType === 'period' ? handleDateRangeSuccess : undefined}
+          /> 
+      }
     </>
   );
 };

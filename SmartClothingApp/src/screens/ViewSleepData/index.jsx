@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { AppHeader } from "../../components";
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -16,18 +17,125 @@ import {
   rect,
 } from "@shopify/react-native-skia";
 import { scaleLinear, tickStep, ticks } from "d3";
+import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import { querySleepData } from "../../actions/userActions";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
+  const dates = {startDate: "2023-12-18T00:00:00.000Z", endDate: "2023-12-19T23:59:99.999Z"}
   const { previousScreenTitle } = route.params;
+  const [sleepData, setSleepData] = useState([]);
+
+
+
   const data = [
-    { x: 1, y: 10 },
-    { x: 20, y: 110 },
-    { x: 40, y: 20 },
-    { x: 160, y: 160 },
-    { x: 170, y: 180 },
-    { x: 180, y: 10 },
+      { x: 1, y: 10 },   //Deep 0-40
+      { x: 20, y: 110 }, // Core 40-100
+      { x: 40, y: 20 },  // REM 100-160
+      { x: 180, y: 160 }, // Awake 160-200
+      { x: 170, y: 180 }, 
+      { x: 200, y: 10 },
   ];
+
+  const testData = [
+      { x: 1, y: 20 },   //Deep 0-40
+      { x: 20, y: 70 }, // Core 40-100
+      { x: 40, y: 130 },  // REM 100-160
+      { x: 180, y: 180 }, // Awake 160-200
+      { x: 170, y: 130 }, 
+      { x: 200, y: 70 },
+  ]
+
+//Deep 0-46
+// Core 46-100
+// REM 100-160
+// Awake 160-180
+   useEffect(() => {
+    const fetchSleepData = async () => {
+      try {
+        // console.log(dates.startDate);
+        // console.log(dates.endDate);
+        const result = await querySleepData(dates.startDate, dates.endDate);
+        // result.forEach(item => {
+        //     console.log("startDate", item.startDate);
+        //     console.log("endDate", item.endDate);
+        // });
+        const parsedData = parseSleepData(result);
+        setSleepData(parsedData);
+      } catch (error) {
+        console.error("Error fetching sleep data:", error);
+        // Handle error
+      }
+    };
+
+    fetchSleepData();
+  }, [dates.startDate, dates.endDate]);
+
+
+  const parseSleepData = (sleepData) => {    
+    const numStages = sleepData.length - 1; // Total number of stages
+    const durations = [];
+
+    const parsedData = sleepData.reduce((parsedData, item, index) => {
+        // console.log("startDate", startDate, startDate.getTime());
+        // console.log("endDate", endDate, endDate.getTime());
+        // console.log("hours", durationHours);
+
+        const cumulativeDuration = sleepData.slice(0, index).reduce((sum, stage) => {
+            const start = new Date(stage.startDate);
+            const end = new Date(stage.endDate);
+            return sum + (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duration in hours
+        }, 0);
+
+        durations.push(cumulativeDuration);
+
+        if (index === numStages) {
+          const lastStart = new Date(sleepData[sleepData.length - 1].startDate);
+          const lastEnd = new Date(sleepData[sleepData.length - 1].endDate);
+          const lastDuration = (lastEnd.getTime() - lastStart.getTime()) / (1000 * 60 * 60);
+          durations.push(cumulativeDuration + lastDuration);
+        }
+
+        const x = (durations[index] / 24) * 200; // Assuming the x range is 0-200
+        // console.log("hours", durationHours);
+        // console.log("duration", duration);
+        // console.log(x);
+        // Deep 0-46
+        // Core 46-100
+        // REM 100-160
+        // Awake 160-180
+
+        let y;
+        if (index <= (numStages * 3/6)) {
+            // Deep sleep: 0-46
+            // console.log("deep");
+            y = 0;
+        } else if (index <= (numStages * 4/6)) {
+            // Core sleep: 40-100
+            // console.log("REM");
+            y = 40;
+        } else if (index <= (numStages * 5/6)) {
+            // REM: 100-160
+            // console.log("awake");
+            y = 100;
+        } else if (index >= (numStages * 5/6)) {
+            // Awake sleep: 160-200
+            y = 180;
+            // console.log("core");
+        }
+        parsedData.push({ x: x, y: y });
+
+        if (index === numStages) {
+          parsedData.push({x: (durations[numStages + 1] / 24) * 200, y: 180 })
+        }
+
+        console.log(parsedData);
+
+        return parsedData;
+    }, []);
+    
+    return parsedData; 
+  };
 
   const getDynamicPositionForY = (y, maxRange) => {
     // Calculate the relative position within the range [0, maxRange]
@@ -69,6 +177,9 @@ const ViewSleepData = ({ route }) => {
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
+      <View style={{paddingLeft: 10, paddingTop: 10}}>
+        <DateToolbar dateType="single" />
+      </View>
       <DailyMetrics name="Sleep Data" />
 
       <View style={styles.title}>
@@ -90,7 +201,7 @@ const ViewSleepData = ({ route }) => {
       >
         <Text style={styles.infoText}>Sleep Data</Text>
         <CartesianChart
-          data={data}
+          data={testData}
           xKey="x"
           yKeys={["y"]}
           domain={{ x: [0, 180, 30], y: [0, 180] }}

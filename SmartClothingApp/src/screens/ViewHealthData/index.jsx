@@ -12,6 +12,7 @@ import { useRoute } from "@react-navigation/native";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
 import DataButton from "../../components/UI/DataButton";
+import DateToolbar from "../../components/DateToolbar/DateToolbar";
 
 export default function ViewHealthData({ navigation }) {
   const route = useRoute();
@@ -23,7 +24,9 @@ export default function ViewHealthData({ navigation }) {
   return (
     <ScrollView style={{ flex: 1 }}>
       <AppHeader title={"Health Data"} />
-      <DailyMetrics name="Metrics" />
+      <View style={{paddingLeft: 10, paddingTop: 10}}>
+        <DateToolbar dateType="single" />
+      </View>
       <DataButton
         screen="SleepData"
         icon="bed"
