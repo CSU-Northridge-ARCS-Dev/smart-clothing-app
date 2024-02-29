@@ -24,9 +24,13 @@ const ViewHeartRateData = ({ route }) => {
   ];
 
   const queryHeartRateData = async () => {
-    const heartRateData = await queryData("HeartRateData", "2023-12-09T21:16:00.000Z", "2023-12-19T23:59:59.999Z");
+    const heartRateData = await queryData(
+      "HeartRateData",
+      "2023-12-09T21:16:00.000Z",
+      "2023-12-19T23:59:59.999Z"
+    );
     return heartRateData;
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,13 +38,12 @@ const ViewHeartRateData = ({ route }) => {
         const data = await queryHeartRateData();
         setHeartRateData(data);
       } catch (error) {
-        console.error('Error fetching heart rate data:', error);
+        console.error("Error fetching heart rate data:", error);
       }
     };
 
     fetchData();
   }, []);
-
 
   return (
     <ScrollView>
@@ -59,7 +62,7 @@ const ViewHeartRateData = ({ route }) => {
       </View>
 
       <View style={{ alignItems: "center", paddingTop: 10, paddingBottom: 20 }}>
-        <HeartRateChart dataArray={heartRateData}/>
+        <HeartRateChart dataArray={heartRateData} />
       </View>
 
       <View style={styles.heartRate}>

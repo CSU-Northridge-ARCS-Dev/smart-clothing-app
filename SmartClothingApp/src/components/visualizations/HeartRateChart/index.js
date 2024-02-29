@@ -8,13 +8,13 @@ const HeartRateChart = ({ dataArray }) => {
   // Hardcoded heart rate data
   //heart_rate [bpm](/api/datatype/19/)
 
-  console.log(dataArray);
-  const heartRates = [
-    70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
-    71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
-    93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
-    87, 87, 86,
-  ];
+  let heartRates = [1];
+
+  // Check if dataArray is not empty before mapping
+  if (dataArray && dataArray.length > 0) {
+    heartRates = dataArray.map((entry) => entry.heartRate);
+  }
+
   // heartRates = dataArray.map((entry) => entry.heartRate);
 
   // Generate data for the chart
