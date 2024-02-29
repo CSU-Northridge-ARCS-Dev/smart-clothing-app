@@ -369,19 +369,20 @@ export const queryData = async (data, startDate, endDate) => {
     //make a reference to the doc with the user ID
     const userRef = doc(database, "Users", userId);
 
-    // Create a query to filter documents within the date range
+    // create a query to filter documents within the date range
     const dataQuery = query(
       collection(userRef, data),
       where("date", ">=", startDate),
       where("date", "<=", endDate)
     );
 
-    // Execute the query to get the result
+    // execute the query to get the result
     const dataSnapshot = await getDocs(dataQuery);
 
+    // get the documents
     const fetchedData = [];
     dataSnapshot.forEach((doc) => {
-      fetchedData.push({ id: doc.id, ...doc.data() });
+      fetchedData.push({ ...doc.data() });
     });
 
     return fetchedData;
