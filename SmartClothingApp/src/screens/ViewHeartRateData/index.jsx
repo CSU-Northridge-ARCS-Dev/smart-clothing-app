@@ -6,14 +6,18 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { AppColor } from "../../constants/themes";
 import HeartRateChart from "../../components/visualizations/HeartRateChart";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import { useSelector } from "react-redux";
 import { CartesianChart, Scatter } from "victory-native";
 import inter from "../../../assets/fonts/inter-medium.ttf";
 import { useFont } from "@shopify/react-native-skia";
-import { queryData } from "../../actions/userActions";
+import { queryHeartRateData } from "../../actions/userActions";
 
 const ViewHeartRateData = ({ route }) => {
   const font = useFont(inter, 14);
+  const dates = useSelector((state) => state.app.dateRangeData);
   const [heartRateData, setHeartRateData] = useState([]);
+  const [minHeartRate, setMinHeartRate] = useState(null);
+  const [maxHeartRate, setMaxHeartRate] = useState(null);
   const { previousScreenTitle } = route.params;
   const data = [
     { x: 1, y: 160 },
@@ -23,33 +27,37 @@ const ViewHeartRateData = ({ route }) => {
     { x: 40, y: 95 },
   ];
 
-  const queryHeartRateData = async () => {
-    const heartRateData = await queryData(
-      "HeartRateData",
-      "2023-12-09T21:16:00.000Z",
-      "2023-12-19T23:59:59.999Z"
-    );
-    return heartRateData;
-  };
-
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchHeartRateData = async () => {
       try {
-        const data = await queryHeartRateData();
-        setHeartRateData(data);
+        // console.log(dates.startDate);
+        // console.log(dates.endDate);
+        const result = await queryHeartRateData(dates.startDate, dates.endDate);
+        if (result.length > 0) {
+          const heartRates = result.map((entry) => entry.heartRate);
+          const min = Math.min(...heartRates);
+          const max = Math.max(...heartRates);
+          setMinHeartRate(min);
+          setMaxHeartRate(max);
+        } else {
+          setMinHeartRate(null);
+          setMaxHeartRate(null);
+        }
+        setHeartRateData(result);
       } catch (error) {
         console.error("Error fetching heart rate data:", error);
+        // Handle error
       }
     };
 
-    fetchData();
-  }, []);
+    fetchHeartRateData();
+  }, [dates.startDate, dates.endDate]);
 
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
-        <DateToolbar />
+        <DateToolbar dateType="period" />
       </View>
 
       <View style={styles.title}>
@@ -68,21 +76,25 @@ const ViewHeartRateData = ({ route }) => {
       <View style={styles.heartRate}>
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>Heart Rate</Text>
-          <Text style={styles.infoText}>57 - 126 BPM</Text>
+          <Text style={styles.infoText}>
+            {minHeartRate !== null
+              ? `${minHeartRate} - ${maxHeartRate} BPM`
+              : "N/A"}
+          </Text>
         </View>
       </View>
 
       <View style={styles.heartRate}>
         <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>Resting Rate</Text>
-          <Text style={styles.infoText}>59 BPM</Text>
+          <Text style={styles.infoText}>Resting Heart Rate</Text>
+          <Text style={styles.infoText}>N/A</Text>
         </View>
       </View>
 
       <View style={styles.heartRate}>
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>Heart Rate Variability</Text>
-          <Text style={styles.infoText}>47 MS</Text>
+          <Text style={styles.infoText}>N/A</Text>
         </View>
       </View>
       <View

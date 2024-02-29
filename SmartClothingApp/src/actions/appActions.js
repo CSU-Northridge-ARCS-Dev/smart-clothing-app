@@ -1,8 +1,8 @@
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   UPDATE_ACTIVITY_RINGS_DATA,
+  UPDATE_DATE_RANGE,
 } from "./types";
-
 
 export const userMetricsDataModalVisible = (
   visibility,
@@ -26,6 +26,13 @@ export const updateActivityRingsData = (day, ringData) => {
 
 const generateRandomValue = () => {
   return Math.random() * 2;
+};
+
+export const updateDateRangeData = (startDate, endDate) => {
+  return {
+    type: UPDATE_DATE_RANGE,
+    payload: { startDate: startDate, endDate: endDate },
+  };
 };
 
 export const updateActivityRings = () => {
@@ -53,5 +60,11 @@ export const updateActivityRings = () => {
       // Dispatch the action to update the activity rings data
       dispatch(updateActivityRingsData(day, randomData));
     }
+  };
+};
+
+export const updateDateRange = (startDate, endDate) => {
+  return async (dispatch) => {
+    dispatch(updateDateRangeData(startDate, endDate));
   };
 };

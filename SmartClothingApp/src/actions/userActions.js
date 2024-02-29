@@ -10,6 +10,7 @@ import {
   query,
   getFirestore,
   deleteDoc,
+  orderBy,
 } from "firebase/firestore";
 
 import { storeUID, storeMetrics } from "../utils/localStorage.js";
@@ -361,7 +362,7 @@ export const deleteAccount = () => {
   };
 };
 
-export const queryData = async (data, startDate, endDate) => {
+export const querySleepData = async (startDate, endDate) => {
   try {
     //get the user ID
     const userId = auth.currentUser.uid;
@@ -371,7 +372,41 @@ export const queryData = async (data, startDate, endDate) => {
 
     // create a query to filter documents within the date range
     const dataQuery = query(
-      collection(userRef, data),
+      collection(userRef, "SleepData"),
+      where("startDate", ">=", startDate),
+      where("startDate", "<=", endDate),
+      orderBy("startDate", "asc")
+    );
+
+    // Execute the query to get the result
+    const dataSnapshot = await getDocs(dataQuery);
+
+    const fetchedData = [];
+    dataSnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.endDate >= startDate && data.endDate <= endDate) {
+        fetchedData.push({ ...data });
+      }
+    });
+
+    return fetchedData;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    return [];
+  }
+};
+
+export const queryHeartRateData = async (startDate, endDate) => {
+  try {
+    //get the user ID
+    const userId = auth.currentUser.uid;
+
+    //make a reference to the doc with the user ID
+    const userRef = doc(database, "Users", userId);
+
+    // Create a query to filter documents within the date range
+    const dataQuery = query(
+      collection(userRef, "HeartRateData"),
       where("date", ">=", startDate),
       where("date", "<=", endDate)
     );
