@@ -10,26 +10,44 @@ import {
 } from "../../components";
 import { Button, Text } from "react-native-paper";
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
-import { initialize, requestPermission, insertRecords } from "react-native-health-connect";
+import { initialize, getSdkStatus, requestPermission, insertRecords } from "react-native-health-connect";
+
+const firstName = useSelector((state) => state.user.firstName);
+const insertSampleData = async () => {
+  const isInitalized = await initialize();
+  if (!isInitalized) {
+    return;
+  }
+  console.log({isInitalized});
+  const status = await getSdkStatus();
+  if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
+    console.log('SDK is available');
+  }
+  await requestPermission([
+    { accessType: 'insert', recordType: 'Steps' },
+    { accessType: 'insert', recordType: 'HeartRate' },
+  ]);
+
+  insertRecords([
+    {
+      recordType: 'ActiveCaloriesBurned',
+      energy: { unit: 'kilocalories', value: 10000 },
+      startTime: '2023-01-09T10:00:00.405Z',
+      endTime: '2023-01-09T11:53:15.405Z',
+    },
+    {
+      recordType: 'ActiveCaloriesBurned',
+      energy: { unit: 'kilocalories', value: 15000 },
+      startTime: '2023-01-09T12:00:00.405Z',
+      endTime: '2023-01-09T23:53:15.405Z',
+    },
+  ]).then((ids) => {
+    console.log('Records inserted ', { ids }); // Records inserted  {"ids": ["06bef46e-9383-4cc1-94b6-07a5045b764a", "a7bdea65-86ce-4eb2-a9ef-a87e6a7d9df2"]}
+  });
+}
 
 export default function HomeScreen({ navigation }) {
-  
-  const firstName = useSelector((state) => state.user.firstName);
-  const insertSampleData = async () => {
-    const isInitalized = await initialize();
-    const grantedPermissions = await requestPermission([
-      {accessType: 'insert', recordType: 'Steps'},
-    ]);
-    insertRecords({
-        recordType: "StepsCount",
-        startTime: "2024-01-25T08:00:00.000Z",
-        endTime: "2024-01-25T09:00:00.000Z",
-        steps: 5000,
-      }).then((response) => {
-        console.log(response.result);
-      }).catch((error) => console.error(error));
-    }
-    
+  insertSampleData();
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
