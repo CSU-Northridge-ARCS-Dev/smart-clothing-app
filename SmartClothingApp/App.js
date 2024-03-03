@@ -13,6 +13,13 @@ import { AppToast } from "./src/components";
 import { auth } from "./firebaseConfig.js";
 import { getUID } from "./src/utils/localStorage.js";
 import SplashScreen from "react-native-splash-screen";
+import { checkHealthKitAvailability } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { requestHealthKitAuthorization } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getHeartRateData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getRestingHeartRateData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getHeartRateVariabilityData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getActiveEnergyData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getSleepData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 
 const store = configureStore();
 

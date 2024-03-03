@@ -1,9 +1,9 @@
 {
   "expo": {
     "name": "SmartClothingApp",
-    "slug": "SmartClothingApp",
+    "slug": "smart-clothing-app",
     "version": "1.0.0",
-     "owner": "arcs", 
+    "owner": "vaiterius",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -32,7 +32,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "2fd377bc-4100-45de-b595-5667519caf3d"
+        "projectId": "c600d87d-0964-4d97-a260-af18bb27c115"
       }
     }
   }
