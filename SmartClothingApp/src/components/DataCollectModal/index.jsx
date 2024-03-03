@@ -21,7 +21,9 @@ import { horizontalScale, verticalScale } from "../../utils/scale";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
 
-const DataCollectModal = ({ isFromSignupScreen = false }) => {
+import MyDropdown from "../UI/dropdown";
+
+const DataCollectModal = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
 
@@ -341,6 +343,15 @@ const styles = {
   button: {
     flex: 1,
     marginHorizontal: 10,
+  },
+  itemContainer: {
+    width: "100%",
+    gap: 34,
+    marginVertical: 10,
+  },
+  sliderText: {
+    textAlign: "center",
+    fontSize: 17,
   },
 };
 
