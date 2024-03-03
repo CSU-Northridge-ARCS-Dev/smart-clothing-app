@@ -89,29 +89,26 @@ export const getSleepData = async () => {
   const { MyHealthKitModule } = NativeModules;
   try {
     const sleepData = await MyHealthKitModule.readSleepData();
-    console.log('Sleep Data:', sleepData);
+    console.log('Raw sleep Data:', sleepData);
     
-    // Define the order of keys
-    const keyOrder = ['Deep', 'Core', 'Awake', 'Asleep', 'In Bed', 'Rem'];
-    
-    // Process sleepData as needed
-    const processedSleepData = sleepData.map((dataPoint, index) => {
-      const label = keyOrder[index] || 'Unknown'; // Use the corresponding key or 'Unknown' if not available
-      
-      return {
-        label,
+    // Process sleepData as needed. Keep datetimes in ISO.
+    const processedSleepData = sleepData.map((dataPoint) => {
+      const sleepItem = {
+        label: dataPoint.sleepValue,
         startTime: dataPoint.startDate,
         endTime: dataPoint.endDate
       };
+      console.log(`[${sleepItem.label.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startTime)} - ${convertToReadableFormat(sleepItem.endTime)}`)
+      return sleepItem
     });
 
     const sleepLabels = processedSleepData.map(dataPoint => dataPoint.label);
     const startTimes = processedSleepData.map(dataPoint => dataPoint.startTime);
     const endTimes = processedSleepData.map(dataPoint => dataPoint.endTime);
 
-    console.log('Sleep Labels:', sleepLabels);
-    console.log('Start Times:', startTimes);
-    console.log('End Times:', endTimes);
+    // console.log('Sleep Labels:', sleepLabels);
+    // console.log('Start Times:', startTimes);
+    // console.log('End Times:', endTimes);
 
     return { sleepLabels, startTimes, endTimes };
   } catch (error) {
@@ -181,7 +178,20 @@ export const getHeartRateVariabilityData = async () => {
     //   }
     // };
 
+// ISO to human readable datetime format.
+function convertToReadableFormat(isoString) {
+  const date = new Date(isoString);
 
+  // Options for toLocaleString to display in desired format
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true // Use 12-hour time format with AM/PM
+  };
 
-
-
+  // Convert to local string with specified options
+  return date.toLocaleString('en-US', options);
+}

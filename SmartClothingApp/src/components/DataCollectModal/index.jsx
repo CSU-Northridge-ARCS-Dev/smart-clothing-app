@@ -20,6 +20,8 @@ import { horizontalScale, verticalScale } from "../../utils/scale";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
 
+import MyDropdown from "../UI/dropdown";
+
 const DataCollectModal = (props) => {
   const dispatch = useDispatch();
   const visible = useSelector((state) => state.app.userMetricsDataModalVisible);
@@ -267,6 +269,6 @@ const styles = {
     textAlign: "center",
     fontSize: 17,
   },
-});
+};
 
 export default DataCollectModal;

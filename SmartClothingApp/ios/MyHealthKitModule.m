@@ -386,27 +386,54 @@ RCT_EXPORT_METHOD(readSleepData:(RCTPromiseResolveBlock)resolve rejecter:(RCTPro
               // Handle the results to extract sleep values and dates
               HKCategorySample *previousSample = nil;
               for (HKCategorySample *sample in results) {
-                  NSString *sleepValue = (sample.value == HKCategoryValueSleepAnalysisInBed) ? @"In Bed" : @"Asleep";
-                  NSDate *startDate = sample.startDate;
-                  NSDate *endDate = sample.endDate;
+                BOOL isInBed = NO;
+                NSString *sleepValue = @"";
 
-                  // If the previous sample is an "In Bed" entry, use its end date as the start date for the current entry
-                  if (previousSample && previousSample.value == HKCategoryValueSleepAnalysisInBed) {
-                      startDate = previousSample.endDate;
-                  }
+                // Determine which sleep type
+                switch (sample.value) {
+                    case HKCategoryValueSleepAnalysisInBed:
+                        sleepValue = @"In Bed";
+                        isInBed = YES;
+                        break;
+                    case HKCategoryValueSleepAnalysisAwake:
+                        sleepValue = @"Awake";
+                        break;
+                    case HKCategoryValueSleepAnalysisAsleepCore:
+                        sleepValue = @"Core";
+                        break;
+                    case HKCategoryValueSleepAnalysisAsleepDeep:
+                        sleepValue = @"Deep";
+                        break;
+                    case HKCategoryValueSleepAnalysisAsleepREM:
+                        sleepValue = @"Rem";
+                        break;
+                    case HKCategoryValueSleepAnalysisAsleepUnspecified:
+                        // Asleep but sleep state isn't known.
+                        sleepValue = @"Unspecified";
+                        break;
+                    default:
+                        sleepValue = @"Unknown";  // Shouldn't happen.
+                        break;
+                }
 
-                  NSString *iso8601StartDateString = [dateFormatter stringFromDate:startDate];
-                  NSString *iso8601EndDateString = [dateFormatter stringFromDate:endDate];
+                NSDate *startDate = sample.startDate;
+                NSDate *endDate = sample.endDate;
 
-                  NSDictionary *dataPoint = @{
-                      @"sleepValue": sleepValue,
-                      @"startDate": iso8601StartDateString,
-                      @"endDate": iso8601EndDateString
-                  };
-                  [sleepData addObject:dataPoint];
+                // Debug.
+                NSLog(@"[DEBUG] IN BED: %@ | VALUE: %@", isInBed ? @"YES" : @"NO", sleepValue);
 
-                  // Save the current sample as the previous one for the next iteration
-                  previousSample = sample;
+                NSString *iso8601StartDateString = [dateFormatter stringFromDate:startDate];
+                NSString *iso8601EndDateString = [dateFormatter stringFromDate:endDate];
+
+                NSDictionary *dataPoint = @{
+                    @"sleepValue": sleepValue,
+                    @"startDate": iso8601StartDateString,
+                    @"endDate": iso8601EndDateString
+                };
+                [sleepData addObject:dataPoint];
+
+                // Save the current sample as the previous one for the next iteration
+                previousSample = sample;
               }
 
               // Resolve the promise with the extracted data
