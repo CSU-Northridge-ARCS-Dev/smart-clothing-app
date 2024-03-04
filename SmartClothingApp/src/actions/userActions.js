@@ -370,7 +370,7 @@ export const querySleepData = async (startDate, endDate) => {
     //make a reference to the doc with the user ID
     const userRef = doc(database, "Users", userId);
 
-    // Create a query to filter documents within the date range
+    // create a query to filter documents within the date range
     const dataQuery = query(
       collection(userRef, "SleepData"),
       where("startDate", ">=", startDate),
@@ -411,9 +411,10 @@ export const queryHeartRateData = async (startDate, endDate) => {
       where("date", "<=", endDate)
     );
 
-    // Execute the query to get the result
+    // execute the query to get the result
     const dataSnapshot = await getDocs(dataQuery);
 
+    // get the documents
     const fetchedData = [];
     dataSnapshot.forEach((doc) => {
       fetchedData.push({ ...doc.data() });
