@@ -1,4 +1,5 @@
 import { NativeModules } from 'react-native';
+import { sendSleepData } from '../../actions/userActions';
 
 // Define the function to check HealthKit availability
 export const checkHealthKitAvailability = async () => {
@@ -90,6 +91,8 @@ export const getSleepData = async () => {
   try {
     const sleepData = await MyHealthKitModule.readSleepData();
     console.log('Raw sleep Data:', sleepData);
+
+    await sendSleepData(sleepData);
     
     // Process sleepData as needed. Keep datetimes in ISO.
     const processedSleepData = sleepData.map((dataPoint) => {
@@ -116,7 +119,6 @@ export const getSleepData = async () => {
     // Handle the error appropriately (e.g., show a message to the user)
   }
 };
-
 
 
 export const getRestingHeartRateData = async () => {
