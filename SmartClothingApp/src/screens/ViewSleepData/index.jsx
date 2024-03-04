@@ -22,7 +22,7 @@ import { querySleepData } from "../../actions/userActions";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
-  const dates = {startDate: "2023-12-18T00:00:00.000Z", endDate: "2023-12-19T23:59:99.999Z"}
+  const dates = {startDate: "2024-03-03T00:00:00.000Z", endDate: "2024-03-03T23:59:99.999Z"}
   const { previousScreenTitle } = route.params;
   const [sleepData, setSleepData] = useState([]);
 
@@ -72,9 +72,9 @@ const ViewSleepData = ({ route }) => {
   }, [dates.startDate, dates.endDate]);
 
 
-  const parseSleepData = (sleepData) => {    
-    const numStages = sleepData.length - 1; // Total number of stages
-    const durations = [];
+  const parseSleepData = (sleepData) => {  
+    
+    durations = [];
 
     const parsedData = sleepData.reduce((parsedData, item, index) => {
         // console.log("startDate", startDate, startDate.getTime());
@@ -89,13 +89,6 @@ const ViewSleepData = ({ route }) => {
 
         durations.push(cumulativeDuration);
 
-        if (index === numStages) {
-          const lastStart = new Date(sleepData[sleepData.length - 1].startDate);
-          const lastEnd = new Date(sleepData[sleepData.length - 1].endDate);
-          const lastDuration = (lastEnd.getTime() - lastStart.getTime()) / (1000 * 60 * 60);
-          durations.push(cumulativeDuration + lastDuration);
-        }
-
         const x = (durations[index] / 24) * 200; // Assuming the x range is 0-200
         // console.log("hours", durationHours);
         // console.log("duration", duration);
@@ -105,29 +98,26 @@ const ViewSleepData = ({ route }) => {
         // REM 100-160
         // Awake 160-180
 
-        let y;
-        if (index <= (numStages * 3/6)) {
-            // Deep sleep: 0-46
-            // console.log("deep");
-            y = 0;
-        } else if (index <= (numStages * 4/6)) {
-            // Core sleep: 40-100
-            // console.log("REM");
-            y = 40;
-        } else if (index <= (numStages * 5/6)) {
-            // REM: 100-160
-            // console.log("awake");
-            y = 100;
-        } else if (index >= (numStages * 5/6)) {
-            // Awake sleep: 160-200
-            y = 180;
-            // console.log("core");
-        }
+      console.log(item.sleepValue);
+      let y;
+      switch (item.sleepValue) {
+          case "Deep":
+              y = 0; // Deep sleep: 0-46
+              break;
+          case "Core":
+              y = 60; // Core 40-100
+              break;
+          case "Rem":
+              y = 130; //Rem 100-160 
+              break;
+          case "Awake":
+              y = 180; //Awake 160-200 
+              break;
+          default:
+              // Handle unexpected sleepValue
+              break;
+      }
         parsedData.push({ x: x, y: y });
-
-        if (index === numStages) {
-          parsedData.push({x: (durations[numStages + 1] / 24) * 200, y: 180 })
-        }
 
         console.log(parsedData);
 
@@ -201,7 +191,7 @@ const ViewSleepData = ({ route }) => {
       >
         <Text style={styles.infoText}>Sleep Data</Text>
         <CartesianChart
-          data={testData}
+          data={sleepData}
           xKey="x"
           yKeys={["y"]}
           domain={{ x: [0, 180, 30], y: [0, 180] }}
@@ -233,7 +223,7 @@ const ViewSleepData = ({ route }) => {
               points={points.y}
               color={AppColor.sleepAwake}
               strokeWidth={6}
-              curveType="linear"
+              curveType="step"
             >
               <LinearGradient
                 start={vec(0, 0)}
