@@ -7,6 +7,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,10 +25,16 @@ jobs:
         working-directory: SmartClothingApp
 
       - name: Run Tests
-        run: npm run test
+        run: |
+          if npm run test; then
+            echo "Regression testing successfully done, All test cases passed"
+          else
+            echo "Testing pipeline broken"
+            exit 1
+          fi
         working-directory: SmartClothingApp
 
-
+      - name: Tests ✅
         if: ${{ success() }}
         run: |
           curl --request POST \
