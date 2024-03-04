@@ -1,15 +1,18 @@
-name: Tests CI
+name: Test React Native App testing
 
 on:
-  push:
   pull_request:
+  workflow_dispatch:
+  push:
+    branches: [testing]
 
 jobs:
-  test:
+  tests:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [18.x]
 
     steps:
       - name: Checkout code
@@ -25,39 +28,5 @@ jobs:
         working-directory: SmartClothingApp
 
       - name: Run Tests
-        run: |
-          if npm run test; then
-            echo "Regression testing successfully done, All test cases passed"
-          else
-            echo "Testing pipeline broken"
-            exit 1
-          fi
+        run: npm run test
         working-directory: SmartClothingApp
-
-      - name: Tests ✅
-        if: ${{ success() }}
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          --data '{
-            "context": "tests",
-            "state": "success",
-            "description": "Tests passed",
-            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
-
-      - name: Tests 🚨
-        if: ${{ failure() }}
-        run: |
-          curl --request POST \
-          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-          --header 'content-type: application/json' \
-          --data '{
-            "context": "tests",
-            "state": "failure",
-            "description": "Tests failed",
-            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }'
