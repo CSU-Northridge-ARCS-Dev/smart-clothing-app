@@ -27,14 +27,14 @@ const ViewHeartRateData = ({ route }) => {
     { x: 40, y: 95 },
   ];
 
- useEffect(() => {
+  useEffect(() => {
     const fetchHeartRateData = async () => {
       try {
         // console.log(dates.startDate);
         // console.log(dates.endDate);
         const result = await queryHeartRateData(dates.startDate, dates.endDate);
         if (result.length > 0) {
-          const heartRates = result.map(entry => entry.heartRate);
+          const heartRates = result.map((entry) => entry.heartRate);
           const min = Math.min(...heartRates);
           const max = Math.max(...heartRates);
           setMinHeartRate(min);
@@ -53,14 +53,11 @@ const ViewHeartRateData = ({ route }) => {
     fetchHeartRateData();
   }, [dates.startDate, dates.endDate]);
 
-
-
-
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
-        <DateToolbar dateType="period"/>
+        <DateToolbar dateType="period" />
       </View>
 
       <View style={styles.title}>
@@ -73,13 +70,17 @@ const ViewHeartRateData = ({ route }) => {
       </View>
 
       <View style={{ alignItems: "center", paddingTop: 10, paddingBottom: 20 }}>
-        {<HeartRateChart dataArray={heartRateData}/>}
+        <HeartRateChart dataArray={heartRateData} />
       </View>
 
       <View style={styles.heartRate}>
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>Heart Rate</Text>
-          <Text style={styles.infoText}>{minHeartRate !== null ? `${minHeartRate} - ${maxHeartRate} BPM` : 'N/A'}</Text>
+          <Text style={styles.infoText}>
+            {minHeartRate !== null
+              ? `${minHeartRate} - ${maxHeartRate} BPM`
+              : "N/A"}
+          </Text>
         </View>
       </View>
 

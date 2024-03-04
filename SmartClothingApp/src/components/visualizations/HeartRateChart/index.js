@@ -10,6 +10,7 @@ const HeartRateChart = ({ dataArray }) => {
 
   let heartRates = [1];
 
+  // Check if dataArray is not empty before mapping
   if (dataArray && dataArray.length > 0) {
     heartRates = dataArray.map((entry) => entry.heartRate);
   }
