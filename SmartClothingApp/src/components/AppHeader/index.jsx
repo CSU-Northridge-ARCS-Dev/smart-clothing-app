@@ -34,11 +34,15 @@ const AppHeader = (props) => {
     <>
       <Appbar.Header elevated>
         {props.back && (
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.BackAction 
+            onPress= {() => navigation.goBack()} 
+            testID="back-action"
+            />
         )}
         <Appbar.Content
           title={props.title}
           titleStyle={{ fontFamily: AppFonts.chakraBoldItalic }}
+          testID={props.title}
         />
         {props.menu !== false && (
           <Menu
@@ -46,6 +50,7 @@ const AppHeader = (props) => {
             onDismiss={() => setVisible(false)}
             anchor={
               <Appbar.Action
+                testID="menu-action"
                 icon={MORE_ICON}
                 onPress={() => setVisible(true)}
               />

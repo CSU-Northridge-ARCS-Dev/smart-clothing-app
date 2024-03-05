@@ -129,7 +129,7 @@ describe('Home to Profile Navigation', () => {
         </StoreProvider>
     );
 
-    const dropDownMenu = getAllByTestId('icon-button');
+    const dropDownMenu = getAllByTestId('menu-action');
     await act(() => {
         fireEvent.press(dropDownMenu[0])
     });
@@ -168,7 +168,6 @@ describe('Home to Profile Navigation', () => {
         await waitFor(() => {
             expect(editFirstNameElements[0]).toBeTruthy();
         });
-
         await waitFor(() => {
             expect(editLastNameElements[0]).toBeTruthy();
         });

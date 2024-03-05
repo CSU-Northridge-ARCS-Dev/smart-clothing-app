@@ -109,6 +109,8 @@ jest.mock('victory-native', () => {
 //       isFromSignUpScreen: false,
 //   }}),
 // }));
+
+// Mocks ViewSleepData 
 jest.mock('d3', () => ({
   scaleLinear: jest.fn().mockReturnValue({
     domain: jest.fn().mockReturnThis(),

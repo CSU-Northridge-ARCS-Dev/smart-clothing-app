@@ -52,8 +52,7 @@ export default function HomeScreen({ navigation }) {
           title="Calories"
           value="2000 Kcal"
         />
-
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
+        {/* <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Breath Rate
         </Text>
         <BreathingRateChart />
@@ -64,7 +63,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Heartbeat Rate
         </Text>
-        <HeartRateChart />
+        <HeartRateChart /> */}
       </View>
     </ScrollView>
   );

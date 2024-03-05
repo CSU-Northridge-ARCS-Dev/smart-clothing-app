@@ -236,6 +236,7 @@ exports[`SettingsScreen renders correctly 1`] = `
               <View
                 accessibilityElementsHidden={false}
                 closing={false}
+                collapsable={false}
                 gestureVelocityImpact={0.3}
                 importantForAccessibility="auto"
                 onClose={[Function]}
@@ -435,7 +436,7 @@ exports[`SettingsScreen renders correctly 1`] = `
                                         "width": 40,
                                       }
                                     }
-                                    testID="icon-button-container-outer-layer"
+                                    testID="back-action-container-outer-layer"
                                   >
                                     <View
                                       collapsable={false}
@@ -457,7 +458,7 @@ exports[`SettingsScreen renders correctly 1`] = `
                                           "shadowRadius": 0,
                                         }
                                       }
-                                      testID="icon-button-container"
+                                      testID="back-action-container"
                                     >
                                       <View
                                         accessibilityComponentType="button"
@@ -519,7 +520,7 @@ exports[`SettingsScreen renders correctly 1`] = `
                                             ],
                                           ]
                                         }
-                                        testID="icon-button"
+                                        testID="back-action"
                                       >
                                         <View
                                           style={
@@ -615,7 +616,7 @@ exports[`SettingsScreen renders correctly 1`] = `
                                         ],
                                       ]
                                     }
-                                    testID="appbar-content"
+                                    testID="Test Title"
                                   >
                                     <Text
                                       accessibilityRole="header"
@@ -656,7 +657,7 @@ exports[`SettingsScreen renders correctly 1`] = `
                                           ],
                                         ]
                                       }
-                                      testID="appbar-content-title-text"
+                                      testID="Test Title-title-text"
                                     >
                                       Test Title
                                     </Text>
