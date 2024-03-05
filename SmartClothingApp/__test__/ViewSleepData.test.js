@@ -173,3 +173,13 @@ describe('ViewSleepData', () => {
 
 });
     
+// it('Check for the presence of stages and their descriptions', () => {
+//   // Assuming you want to test the dynamic color assignment, ensure the colors are correctly determined
+//     // This might require knowing the expected output or mocking the data and functions inside the component
+    
+//     // Check for the presence of stages and their descriptions
+//     const stages = ['Awake', 'REM', 'Core', 'Deep'];
+//     stages.forEach(stage => {
+//       expect(getAllByText(stage).length).toBeGreaterThan(0);
+//     });
+//   });

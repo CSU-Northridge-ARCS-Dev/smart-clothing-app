@@ -138,12 +138,18 @@ describe('Dashboard to Settings Integration Test', () => {
             </StoreProvider>
         );
 
-        const dropDownMenu = getAllByTestId('icon-button');
+        const dropDownMenu1 = getAllByTestId('menu-action');
         await act(() => {
-            fireEvent.press(dropDownMenu[0])
+            fireEvent.press(dropDownMenu1[0])
+        });
+
+        const dropDownMenu2 = getAllByTestId('cross-fade-icon-current');
+        await act(() => {
+            fireEvent.press(dropDownMenu2[0])
         });
 
         const menuItem = getAllByTestId('menu-item');
+        console.log(menuItem.length);
         await act(() => {
             fireEvent.press(menuItem[1])
         });
