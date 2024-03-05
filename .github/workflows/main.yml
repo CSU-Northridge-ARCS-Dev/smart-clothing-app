@@ -30,3 +30,7 @@ jobs:
       - name: Run Tests
         run: npm run test
         working-directory: SmartClothingApp
+
+      - name: Success Message
+        if: success()
+        run: echo "All steps completed successfully!"
