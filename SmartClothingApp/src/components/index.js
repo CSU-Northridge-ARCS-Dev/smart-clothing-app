@@ -8,6 +8,7 @@ import HeroSection from "./HeroSection";
 import BreathingRateChart from "./visualizations/BreathingRateChart";
 import HeartRateChart from "./visualizations/HeartRateChart";
 import VentilationChart from "./visualizations/VentilationChart";
+import DataCollectModal from "./DataCollectModal";
 
 export {
   GoogleButton,
@@ -20,4 +21,5 @@ export {
   BreathingRateChart,
   HeartRateChart,
   ActivityCard,
+  DataCollectModal,
 };

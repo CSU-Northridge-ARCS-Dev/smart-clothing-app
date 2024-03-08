@@ -34,6 +34,10 @@ const HeartRateChart = () => {
         backgroundGradientTo: "#08130D",
         color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
         strokeWidth: 2,
+        decimalPlaces: 1,
+        propsForLabels: {
+          fontSize: 15,
+        },
       }}
       bezier
     />

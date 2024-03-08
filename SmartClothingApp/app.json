@@ -3,7 +3,7 @@
     "name": "SmartClothingApp",
     "slug": "SmartClothingApp",
     "version": "1.0.0",
-    "owner": "arcs",
+    // "owner": "arcs", // it was causing "ApiV2Error: Entity Not Authorized." expo app error, so temporarily removed it
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

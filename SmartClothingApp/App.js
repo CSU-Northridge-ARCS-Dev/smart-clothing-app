@@ -3,14 +3,21 @@ import { SafeAreaView } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as StoreProvider } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import AppRouter from "./src/navigation";
 import { useAppFonts } from "./src/hooks/useAppFonts";
 import { AppTheme } from "./src/constants/themes";
 import configureStore from "./src/store";
 import { AppToast } from "./src/components";
-/* import { HealthConnect } from "./utils/HealthConnect.js"; */
+import { auth } from "./firebaseConfig.js";
+
+import { getUID, getMetrics } from "./src/utils/localStorage.js";
+
+import {
+  startLoadUserData,
+  updateUserMetricsData,
+} from "./src/actions/userActions.js";
+import SplashScreen from "react-native-splash-screen";
 
 const store = configureStore();
 
@@ -44,9 +51,55 @@ const store = configureStore();
 
 export default function App() {
   const [isLoading, setLoading] = useState(true);
-/*   const healthConn = new HealthConnect();
-  healthConn.initalizeHealthConnect(); */
+
+  // useEffect(() => {
+  //   if (Platform.OS === "android") {
+  //     SplashScreen.hide();
+  //   }
+  // }, []);
+
   useEffect(() => {
+    console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
+
+    // Check if there's a stored token on app launch
+    const checkUID = async () => {
+      try {
+        const storedUID = await getUID();
+        console.log("Checking stored UID");
+        if (storedUID) {
+          // If there's a token, try to refresh the user's session
+          console.log("Stored storedUID found");
+        } else {
+          console.log("No stored UID");
+        }
+      } catch (error) {
+        console.error("Error checking stored UID:", error);
+      }
+    };
+    checkUID();
+
+    // Check if there's a stored user Matrics Data in local storage
+    const checkMetrics = async () => {
+      try {
+        const storedMetrics = await getMetrics();
+        // console.log("Checking stored metrics");
+        if (storedMetrics) {
+          // If there's a token, try to refresh the user's session
+          // console.log("Stored metrics found");
+          // console.log("Stored metrics is -->", storedMetrics);
+          //Set the user metrics data in the Redux store
+          store.dispatch(updateUserMetricsData(storedMetrics));
+        } else {
+          // console.log("No stored metrics");
+          //get the user metrics data from the database
+          store.dispatch(startLoadUserData());
+        }
+      } catch (error) {
+        console.error("Error checking stored metrics:", error);
+      }
+    };
+    checkMetrics();
+
     // Loading fonts
     const loadFont = async () => {
       const res = await useAppFonts();
@@ -54,7 +107,8 @@ export default function App() {
     };
     loadFont();
 
-    /* askForPermission(); */
+    console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
+
     // // Check if there's a stored token on app launch
     // const checkToken = async () => {
     //   try {

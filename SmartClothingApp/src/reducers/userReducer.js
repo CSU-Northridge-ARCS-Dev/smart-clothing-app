@@ -2,8 +2,9 @@ import {
   LOGIN_WITH_EMAIL,
   SIGNUP_WITH_EMAIL,
   LOGOUT,
-  AUTH_ERROR,
   UPDATE_PROFILE,
+  UPDATE_USER_METRICS_DATA,
+  UPDATE_EMAIL_SUCCESS,
 } from "../actions/types";
 
 const initialState = {
@@ -12,6 +13,13 @@ const initialState = {
   lastName: null,
   email: null,
   authError: null,
+  userMetricsData: {
+    gender: "No Data",
+    dob: new Date(),
+    height: "No Data",
+    weight: "No Data",
+    sports: "No Data",
+  },
 };
 
 const userReducer = (state = initialState, action) => {
@@ -42,17 +50,23 @@ const userReducer = (state = initialState, action) => {
         lastName: null,
         email: null,
         authError: null,
-      };
-    case AUTH_ERROR:
-      return {
-        ...state,
-        authError: action.payload,
+        reAuth: null,
       };
     case UPDATE_PROFILE:
       return {
         ...state,
         firstName: action.payload[0],
         lastName: action.payload[1],
+      };
+    case UPDATE_USER_METRICS_DATA:
+      return {
+        ...state,
+        userMetricsData: action.payload,
+      };
+    case UPDATE_EMAIL_SUCCESS:
+      return {
+        ...state,
+        user: { ...state.user, email: action.payload },
       };
     default:
       return state;

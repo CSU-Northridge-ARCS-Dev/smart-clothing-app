@@ -14,6 +14,7 @@ const AppRouter = () => {
   }, []);
 
   return uuid ? <MainTabNavigator /> : <AuthStack />;
+  // return true ? <MainTabNavigator /> : <AuthStack />;
 };
 
 export default AppRouter;

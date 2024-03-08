@@ -1,14 +1,19 @@
 import React, { useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
+import { Button, Text } from "react-native-paper";
+import { useRoute } from "@react-navigation/native";
+import DailyInsights from "../../components/DailyInsights/DailyInsights";
+
 import {
   ActivityCard,
   AppHeader,
   BreathingRateChart,
   HeartRateChart,
   VentilationChart,
+  DataCollectModal,
 } from "../../components";
-import { Button, Text } from "react-native-paper";
+
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 import { initialize, getSdkStatus, requestPermission, insertRecords } from "react-native-health-connect";
 
@@ -47,12 +52,24 @@ const insertSampleData = async () => {
 }
 
 export default function HomeScreen({ navigation }) {
+<<<<<<< HEAD
   insertSampleData();
+=======
+  const route = useRoute();
+  const navigate = (screen) => {
+    navigation.navigate(screen, {
+      previousScreenTitle: route.name,
+    });
+  };
+  const firstName = useSelector((state) => state.user.firstName);
+>>>>>>> origin/main
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
+      <DataCollectModal />
       <View style={styles.body}>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
+<<<<<<< HEAD
         <Text style={AppStyle.title}>Hello World</Text>
         <View style={styles.insights}>
           <Text
@@ -71,6 +88,9 @@ export default function HomeScreen({ navigation }) {
             View
           </Button>
         </View>
+=======
+        <DailyInsights fromDashboard={true} navigation={navigation} />
+>>>>>>> origin/main
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Today Status
         </Text>
