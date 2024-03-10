@@ -37,14 +37,6 @@ const ViewSleepData = ({ route }) => {
       { x: 200, y: 10 },
   ];
 
-  const testData = [
-      { x: 1, y: 20 },   //Deep 0-40
-      { x: 20, y: 70 }, // Core 40-100
-      { x: 40, y: 130 },  // REM 100-160
-      { x: 180, y: 180 }, // Awake 160-200
-      { x: 170, y: 130 }, 
-      { x: 200, y: 70 },
-  ]
 
 //Deep 0-46
 // Core 46-100
@@ -213,6 +205,20 @@ const ViewSleepData = ({ route }) => {
                 return "";
               }
             },
+            formatXLabel(value) {
+              if (value === 200) {
+                return "12AM"
+              } else if (value === 150) {
+                return "6PM"
+              } else if (value === 100) {
+                return "12PM"
+              } else if (value === 50) {
+                return "6AM"
+              } else  {
+                return "";
+              }
+            }
+
           }}
         >
           {({ points, chartBounds, yScale }) => (
