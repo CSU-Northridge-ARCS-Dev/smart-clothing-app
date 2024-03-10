@@ -22,7 +22,7 @@ import { querySleepData } from "../../actions/userActions";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
-  const dates = {startDate: "2024-03-03T00:00:00.000Z", endDate: "2024-03-03T23:59:99.999Z"}
+  const dates = useSelector((state) => state.app.sleepDataDateRangeData);
   const { previousScreenTitle } = route.params;
   const [sleepData, setSleepData] = useState([]);
 
@@ -97,8 +97,6 @@ const ViewSleepData = ({ route }) => {
         // Core 46-100
         // REM 100-160
         // Awake 160-180
-
-      console.log(item.sleepValue);
       let y;
       switch (item.sleepValue) {
           case "Deep":
@@ -167,10 +165,9 @@ const ViewSleepData = ({ route }) => {
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
-      <View style={{paddingLeft: 10, paddingTop: 10}}>
-        <DateToolbar dateType="single" />
+      <View style={{padding: 10}}>
+        <DateToolbar dateType="single" dataType="Sleep Data" />
       </View>
-      <DailyMetrics name="Sleep Data" />
 
       <View style={styles.title}>
         <View style={styles.bigIcon}>

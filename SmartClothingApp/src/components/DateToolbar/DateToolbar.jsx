@@ -17,12 +17,29 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import { useFocusEffect } from "@react-navigation/native";
 import BaseCalendar from "./BaseCalendar";
-import { updateDateRange } from "../../actions/appActions";
+import { updateHeartRateDateRange, updateSleepDataDateRange } from "../../actions/appActions";
 
 
 const DateToolbar = (props) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const dates = useSelector((state) => state.app.dateRangeData);
+  const heartRateDates = useSelector((state) => state.app.heartRateDateRangeData);
+  const sleepDataDates = useSelector((state) => state.app.sleepDataDateRangeData);
+  let dates;
+  switch (props.dateType) {
+    case 'Heart Rate':
+      dates = heartRateDates;
+      break;
+    case 'Sleep Data':
+      dates = sleepDataDates;
+      break;
+    default:
+      dates = {
+        startDate: new Date(),
+        endDate: new Date(),
+      };
+      break;
+  }
+
   const dispatch = useDispatch();
   const [dateRange, setDateRange] = useState({
     startDate: new Date(),
@@ -43,6 +60,9 @@ const DateToolbar = (props) => {
 
     const endDateString = endDateObject.toISOString();
 
+    console.log("start", startDate);
+    console.log("end", endDate);
+
     handleUpdate(startDateString, endDateString);
   };
 
@@ -54,7 +74,17 @@ const DateToolbar = (props) => {
   };
 
   const handleUpdate = async (startDate, endDate) => {
-    await dispatch(updateDateRange(startDate, endDate));
+    switch (props.dataType) {
+      case "Heart Rate":
+        await dispatch(updateHeartRateDateRange(startDate, endDate));
+        break;
+      case "Sleep Data":
+        await dispatch(updateSleepDataDateRange(startDate, endDate));
+        break;
+      default:
+        await dispatch(updateSleepDataDateRange(startDate, endDate));
+        break;
+    }
   }
 
   const formatDateRange = () => {
@@ -77,12 +107,12 @@ const DateToolbar = (props) => {
   //   year: "numeric",
   // });
 
-  useEffect(() => {
-    setDateRange({
-      startDate: dates.startDate,
-      endDate: dates.endDate,
-    })
-  }, [dates.startDate, dates.endDate]);
+  // useEffect(() => {
+  //   setDateRange({
+  //     startDate: dates.startDate,
+  //     endDate: dates.endDate,
+  //   })
+  // }, [dates.startDate, dates.endDate]);
 
   return (
     <>
@@ -102,7 +132,7 @@ const DateToolbar = (props) => {
       {showDatePicker && 
         <BaseCalendar 
           dateType={props.dateType} 
-          onSuccess={props.dateType === 'period' ? handleDateRangeSuccess : undefined}
+          onSuccess={handleDateRangeSuccess}
           /> 
       }
     </>

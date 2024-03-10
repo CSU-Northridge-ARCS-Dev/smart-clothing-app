@@ -7,7 +7,7 @@ const BaseCalendar = ({ dateType, onSuccess }) => {
             {dateType === 'period' && (
                 <DateRangePicker onSuccess={onSuccess} />
             )}
-            {dateType === 'single' && (<DatePicker />)}
+            {dateType === 'single' && (<DatePicker onSuccess={onSuccess} />)}
         </>
     );
 };

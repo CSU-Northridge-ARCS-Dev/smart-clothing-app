@@ -5,7 +5,8 @@ import {
   DARK_THEME,
   MEASUREMENT_SYSTEM,
   UPDATE_ACTIVITY_RINGS_DATA,
-  UPDATE_DATE_RANGE,
+  UPDATE_HEART_RATE_DATE_RANGE,
+  UPDATE_SLEEP_DATA_DATE_RANGE,
 } from "../actions/types";
 
 const initialState = {
@@ -52,7 +53,11 @@ const initialState = {
       ring3: 0, // Default value for Monday, Ring 3
     },
   },
-  dateRangeData: {
+  heartRateDateRangeData: {
+    startDate: new Date(),
+    endDate: new Date(),
+  },
+  sleepDataDateRangeData: {
     startDate: new Date(),
     endDate: new Date(),
   },
@@ -77,10 +82,18 @@ const appReducer = (state = initialState, action) => {
           },
         },
       };
-    case UPDATE_DATE_RANGE:
+    case UPDATE_HEART_RATE_DATE_RANGE:
       return {
         ...state,
-        dateRangeData: {
+        heartRateDateRangeData: {
+          startDate: action.payload.startDate,
+          endDate: action.payload.endDate,
+        },
+      };
+    case UPDATE_SLEEP_DATA_DATE_RANGE:
+      return {
+        ...state,
+        sleepDataDateRangeData: {
           startDate: action.payload.startDate,
           endDate: action.payload.endDate,
         },
