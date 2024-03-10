@@ -296,10 +296,15 @@ export const reauthenticate = (currentPassword) => {
   return async (dispatch) => {
     try {
       const user = auth.currentUser;
-      const cred = EmailAuthProvider.credential(user.email, currentPassword);
-      await reauthenticateWithCredential(user, cred);
-      console.log("Reauthentication success");
-      return true;
+      if (currentPassword) {
+        cred = EmailAuthProvider.credential(user.email, currentPassword);
+        await reauthenticateWithCredential(user, cred);
+        console.log("Reauthentication success");
+        return true;
+      } else {
+        dispatch(toastError("Current password is required."));
+        return false;
+      }
     } catch (error) {
       dispatch(toastError(firebaseErrorsMessages[error.code]));
       console.log("Reauthentication failure");
