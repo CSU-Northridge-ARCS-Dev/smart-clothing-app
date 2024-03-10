@@ -32,6 +32,12 @@ const DataCollectModal = (props) => {
     (state) => state.app.isFromSignUpScreen
   );
 
+  let dobDate = currentUserMetricsData.dob;
+
+  if(currentUserMetricsData.dob.seconds !== undefined && currentUserMetricsData.dob.nanoseconds !== undefined) {
+    dobDate = dobDate.seconds * 1000;
+  }
+
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState(new Date());
   const [height, setHeight] = useState(0);
@@ -96,7 +102,7 @@ const DataCollectModal = (props) => {
       !isFromSignupScreen
     ) {
       setGender(currentUserMetricsData.gender);
-      setDob(new Date(currentUserMetricsData.dob));
+      setDob(new Date(dobDate));
       setHeight(currentUserMetricsData.height);
       setWeight(currentUserMetricsData.weight);
       setSports(currentUserMetricsData.sports);
