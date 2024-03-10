@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import { AppHeader } from "../../components";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -14,7 +14,7 @@ import { queryHeartRateData } from "../../actions/userActions";
 
 const ViewHeartRateData = ({ route }) => {
   const font = useFont(inter, 14);
-  const dates = useSelector((state) => state.app.dateRangeData);
+  const dates = useSelector((state) => state.app.heartRateDateRangeData);
   const [heartRateData, setHeartRateData] = useState([]);
   const [minHeartRate, setMinHeartRate] = useState(null);
   const [maxHeartRate, setMaxHeartRate] = useState(null);
@@ -57,7 +57,7 @@ const ViewHeartRateData = ({ route }) => {
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
-        <DateToolbar dateType="period" />
+        <DateToolbar dateType="period" dataType="Heart Rate" />
       </View>
 
       <View style={styles.title}>

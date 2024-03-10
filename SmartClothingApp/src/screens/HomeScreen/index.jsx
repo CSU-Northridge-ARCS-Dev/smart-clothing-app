@@ -14,8 +14,6 @@ import {
   DataCollectModal,
 } from "../../components";
 
-import { sendSleepData } from "../../actions/userActions.js";
-
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
@@ -37,7 +35,6 @@ export default function HomeScreen({ navigation }) {
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
-        <Button onPress={sendSleepData}>Send Data</Button>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>

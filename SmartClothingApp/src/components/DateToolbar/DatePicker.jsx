@@ -3,7 +3,9 @@ import { SafeAreaView, ScrollView, StyleSheet, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 
 export const DatePicker = (props) => {
-  const initDate = "2022-12-01";
+  const currentDate = new Date();
+  //convert date to ISO string, then split by character T, and get first arg
+  const initDate = currentDate.toISOString().split("T")[0];
   const [selected, setSelected] = useState(initDate);
   const marked = useMemo(
     () => ({
@@ -18,7 +20,8 @@ export const DatePicker = (props) => {
 
   const handleDayPress = (day) => {
     setSelected(day.dateString);
-    props.onSuccess && props.onSuccess(day.dateString);
+    const isoDateString = new Date(day.timestamp).toISOString();
+    props.onSuccess(isoDateString, isoDateString);
   };
 
 
