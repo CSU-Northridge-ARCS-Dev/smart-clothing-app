@@ -45,9 +45,9 @@ class Controller: NSObject {
           HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)!,
           HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.restingHeartRate)!,
           HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.stepCount)!,
-//          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleStandTime)!,
-//          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleMoveTime)!,
-//          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleExerciseTime)!,
+          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleStandTime)!,
+          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleMoveTime)!,
+          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleExerciseTime)!,
           HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRateVariabilitySDNN)!
       ]
       
@@ -56,7 +56,7 @@ class Controller: NSObject {
           let healthStore = HKHealthStore()
           
           // Request authorization to the data
-          healthStore.requestAuthorization(toShare: allTypes, read: allTypes) { success, error in
+          healthStore.requestAuthorization(toShare: nil, read: allTypes) { success, error in
               if success {
                   print("User has granted permission for health data to be read")
                   resolve(true)
