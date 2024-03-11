@@ -73,9 +73,9 @@
 	<string>Light</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSHealthShareUsageDescription</key>
-	<string>SmartClothingApp wants to access your health data in order to analyze your health</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>We need access to your health data for updating heart rate information.</string>
+	<string>We need write access to your health data to store your activity and workout information.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>SmartClothingApp wants to access your health data in order to analyze your health.</string>
 </dict>
 </plist>
