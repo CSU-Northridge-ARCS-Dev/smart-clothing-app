@@ -20,6 +20,7 @@ import { Gender } from "../../utils/gender";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
+import { MyDropdown } from "../UI/dropdown";
 
 import MyDropdown from "../UI/dropdown";
 
