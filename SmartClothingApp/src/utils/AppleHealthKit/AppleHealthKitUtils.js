@@ -36,146 +36,124 @@ export const requestHealthKitAuthorization = async () => {
   }
 };
 
-
-// export const getHeartRateData = async () => {
-
-//   const { MyHealthKitModule } = NativeModules;
-//   try {
-//     const heartRateData = await MyHealthKitModule.readHeartRateData();
-//     //console.log('Heart Rate Data:', heartRateData);
-
-//     // Process heartRateData as needed
-//     const heartRates = heartRateData.map(dataPoint => dataPoint.heartRate);
-//     const dateTimes = heartRateData.map(dataPoint => dataPoint.date);
-
-//    console.log('Heart Rates:', heartRates);
-//    console.log('Date/Times:', dateTimes);
-//    return heartRateData;
-//   } catch (error) {
-//     console.error('Error retrieving heart rate data:', error);
-//     // Handle the error appropriately (e.g., show a message to the user)
-//     throw error;
-//   }
-// };
-
-
-// export const getActiveEnergyData = async () => {
-//   const { MyHealthKitModule } = NativeModules;
-//   try {
-//     const activeEnergyData = await MyHealthKitModule.readActiveEnergyData();
-//     console.log('Active Energy Data:', activeEnergyData);
+export const readHeartRateData = async () => {
+  try {
+    const heartRateData = await Controller.readHeartRateData();
+    console.log("Heart rate data:", heartRateData);
     
-//     // Process activeEnergyData as needed
-//     const activeEnergies = activeEnergyData.map(dataPoint => dataPoint.activeEnergy);
-//     const dateTimes = activeEnergyData.map(dataPoint => dataPoint.date);
-    
-//     console.log('Active Energies:', activeEnergies);
-//     console.log('Date/Times:', dateTimes);
-    
-//     return { activeEnergies, dateTimes };
-//   } catch (error) {
-//     console.error('Error retrieving active energy data:', error);
-//     // Handle the error appropriately (e.g., show a message to the user)
-//   }
-// };
+    // Process heart rate data
+    heartRateData.forEach(data => {
+      const timestamp = new Date(data.date);
+      const heartRate = data.heartRate;
+      console.log("Timestamp:", timestamp, "Heart rate:", heartRate);
 
-// export const getSleepData = async () => {
-//   const { MyHealthKitModule } = NativeModules;
-//   try {
-//     const sleepData = await MyHealthKitModule.readSleepData();
-//     console.log('Sleep Data:', sleepData);
-    
-//     // Define the order of keys
-//     // const keyOrder = ['Deep', 'Core', 'Awake', 'Asleep', 'In Bed', 'Rem'];
-    
-//     // Process sleepData as needed
-//     // const processedSleepData = sleepData.map((dataPoint, index) => {
-//     //   const label = keyOrder[index] || 'Unknown'; // Use the corresponding key or 'Unknown' if not available
+      return {heartRate, timestamp};
       
-//     //   return {
-//     //     label,
-//     //     startTime: dataPoint.startDate,
-//     //     endTime: dataPoint.endDate
-//     //   };
-//     // });
+      // Perform further processing as needed
+    });
+  } catch (error) {
+    console.error("An unexpected error occurred while reading heart rate data:", error);
+  }
+};
 
-//     // const sleepLabels = processedSleepData.map(dataPoint => dataPoint.label);
-//     // const startTimes = processedSleepData.map(dataPoint => dataPoint.startTime);
-//     // const endTimes = processedSleepData.map(dataPoint => dataPoint.endTime);
+export const getRestingHeartRateData = async () => {
+  try {
+    const restingHeartRateData = await Controller.readRestingHeartRateData();
+    console.log('Resting heart rate Data:', restingHeartRateData);
 
-//     // console.log('Sleep Labels:', sleepLabels);
-//     // console.log('Start Times:', startTimes);
-//     // console.log('End Times:', endTimes);
+    // Process resting heart rate data
+    const processedRestingHeartRateData = restingHeartRateData.map(data => {
+      const heartRateValue = data.heartRateValue;
+      const date = new Date(data.date);
+      console.log("Resting Heart Rate Value:", heartRateValue, "Date:", date);
+      return { heartRateValue, date };
+    });
 
-//     return sleepData;
-//   } catch (error) {
-//     console.error('Error retrieving sleep data:', error);
-//     // Handle the error appropriately (e.g., show a message to the user)
-//   }
-// };
+    const heartRateValues = processedRestingHeartRateData.map(dataPoint => dataPoint.heartRateValue);
+    const dates = processedRestingHeartRateData.map(dataPoint => dataPoint.date);
 
-
-
-// export const getRestingHeartRateData = async () => {
-//   try {
-//     const { MyHealthKitModule } = NativeModules;
-//     const restingHeartRateData = await MyHealthKitModule.readRestingHeartRateData();
-//     console.log('Resting Heart Rate Data:', restingHeartRateData);
-
-//     // Process restingHeartRateData as needed
-//     const heartRates = restingHeartRateData.map(dataPoint => dataPoint.heartRateValue);
-//     const dateTimes = restingHeartRateData.map(dataPoint => dataPoint.date);
-
-//     console.log('Resting Heart Rates:', heartRates);
-//     console.log('Date/Times:', dateTimes);
-
-//     return { heartRates, dateTimes };
-//   } catch (error) {
-//     console.error('Error retrieving resting heart rate data:', error);
-//     // Handle the error appropriately (e.g., show a message to the user)
-//   }
-// };
+    // Return the processed data
+    return { heartRateValues, dates };
+  } catch (error) {
+    console.error('Error retrieving resting heart rate data:', error);
+    // Handle the error appropriately (e.g., show a message to the user)
+    throw error; // You can re-throw the error if you want to handle it further up the call stack
+  }
+};
 
 
-// export const getHeartRateVariabilityData = async () => {
-//   try {
-//     const MyHealthKitModule = NativeModules.MyHealthKitModule; // Make sure to replace 'MyHealthKitModule' with the actual name of your HealthKit module
-//     const hrvData = await MyHealthKitModule.readHeartRateVariabilityData();
-//     console.log('Heart Rate Variability Data:', hrvData);
+export const getHeartRateVariabilityData = async () => {
+  try {
+    const readHeartRateVariabilityData = await Controller.readHeartRateVariabilityData();
+    console.log('Heart rate variability Data:', readHeartRateVariabilityData);
 
-//     // Process hrvData as needed
-//     const hrvValues = hrvData.map(dataPoint => dataPoint.hrvValue);
-//     const dateTimes = hrvData.map(dataPoint => dataPoint.date);
+    // Process resting heart rate data
+    readHeartRateVariabilityData.forEach(data => {
+      // console.log("data", data)
+      const timestamp = data.date;
+      const heartRateVariability = data.heart_rate_value;
+      console.log("Timestamp..:", timestamp, "Heart rate varaibility:", heartRateVariability);
 
-//     console.log('HRV Values:', hrvValues);
-//     console.log('Date/Times:', dateTimes);
+      return {heartRateVariability, timestamp};
 
-//     return { hrvValues, dateTimes };
-//   } catch (error) {
-//     console.error('Error retrieving heart rate variability data:', error);
-//     // Handle the error appropriately (e.g., show a message to the user)
-//     throw error; // You can re-throw the error if you want to handle it further up the call stack
-//   }
-// };
+  }); 
+} catch (error) {
+    console.error('Error retrieving resting heart rate variability data:', error);
+    // Handle the error appropriately (e.g., show a message to the user)
+    throw error; // You can re-throw the error if you want to handle it further up the call stack
+  }
+};
 
-// // export const getActivityRingsData = async () => {
-//     //   const { MyHealthKitModule } = NativeModules;
-//     //   try {
-//     //     const activityRingsData = await MyHealthKitModule.fillActivityRings();
-//     //     console.log('Activity Rings Data:', activityRingsData);
+export const getSleepData = async () => {
+  const { Controller } = NativeModules;
+  try {
+    const sleepData = await Controller.readSleepData();
+    console.log('Raw sleep Data:', sleepData);
+
+    // await sendSleepData(sleepData);
     
-//     //     const { Move } = activityRingsData;
-//     //     console.log('Move:', Move);
-//     //     //console.log('Exercise:', Exercise);
-//     //    // console.log('Stand:', Stand);
-//     //     //return { Move, Exercise, Stand };
-//     //   } catch (error) {
-//     //     console.error(' Error retrieving activity rings data:', error);
-//     //     // Handle the error appropriately (e.g., show a message to the user)
-//     //   }
-//     // };
+    // Process sleepData as needed. Keep datetimes in ISO.
+    const processedSleepData = sleepData.map((dataPoint) => {
+      const sleepItem = {
+        label: dataPoint.sleepValue,
+        startTime: dataPoint.startDate,
+        endTime: dataPoint.endDate
+      };
+      console.log(`[${sleepItem.label.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startTime)} - ${convertToReadableFormat(sleepItem.endTime)}`)
+      return sleepItem
+    });
+
+    const sleepLabels = processedSleepData.map(dataPoint => dataPoint.label);
+    const startTimes = processedSleepData.map(dataPoint => dataPoint.startTime);
+    const endTimes = processedSleepData.map(dataPoint => dataPoint.endTime);
+
+    // console.log('Sleep Labels:', sleepLabels);
+    // console.log('Start Times:', startTimes);
+    // console.log('End Times:', endTimes);
+
+    return { sleepLabels, startTimes, endTimes };
+  } catch (error) {
+    console.error('Error retrieving sleep data:', error);
+    // Handle the error appropriately (e.g., show a message to the user)
+  }
+};
 
 
 
+// ISO to human readable datetime format.
+function convertToReadableFormat(isoString) {
+  const date = new Date(isoString);
 
+  // Options for toLocaleString to display in desired format
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true // Use 12-hour time format with AM/PM
+  };
 
+  // Convert to local string with specified options
+  return date.toLocaleString('en-US', options);
+}
