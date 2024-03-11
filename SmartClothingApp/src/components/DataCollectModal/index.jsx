@@ -22,7 +22,6 @@ import { userMetricsDataModalVisible } from "../../actions/appActions";
 import { startUpdateUserData } from "../../actions/userActions";
 import { MyDropdown } from "../UI/dropdown";
 
-import MyDropdown from "../UI/dropdown";
 
 const DataCollectModal = (props) => {
   const dispatch = useDispatch();
