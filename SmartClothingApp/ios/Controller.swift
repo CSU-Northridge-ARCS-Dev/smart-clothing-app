@@ -2,7 +2,7 @@
 //  Controller.swift
 //  SmartClothingApp
 //
-//  Created by Emi Jr Anyakpor on 3/3/24.
+//  Created by Emi Jr Anyakpor and Gerard Gandionco on 3/3/24.
 //
 
 // Communication layer with Health Kit
@@ -40,15 +40,17 @@ class Controller: NSObject {
       
       // Health data types we want to show in our app
       let allTypes: Set<HKSampleType> = [
-          HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!,
-//          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.activeEnergyBurned)!,
-          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)!,
-          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.restingHeartRate)!,
-//          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.stepCount)!,
-          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleStandTime)!,
-          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleMoveTime)!,
-          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleExerciseTime)!,
-          HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRateVariabilitySDNN)!
+        HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!,
+        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)!,
+        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.restingHeartRate)!,
+        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRateVariabilitySDNN)!,
+
+        // Activity rings.
+        // Percentage of ring can be calculated as follows: value (energy burned or time) / goal (same quantity).
+        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleMoveTime)!,
+        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.activeEnergyBurned)!,
+        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleExerciseTime)!,
+        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleStandTime)!,
       ]
       
       // Check if Health Data is available on the device
@@ -340,85 +342,172 @@ class Controller: NSObject {
              healthStore.execute(sleepQuery)
          }
   }
-//  func readSleepData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-//      // Check if Apple HealthKit is available on this device
-//      guard HKHealthStore.isHealthDataAvailable() else {
-//          let error = NSError(domain: "UNAVAILABLE", code: 0, userInfo: ["message": "Sleep data is unavailable"])
-//          reject("UNAVAILABLE", "Sleep data is unavailable", error)
-//          return
-//      }
-//
-//      // Define the type for sleep data
-//      guard let sleepData = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
-//          let error = NSError(domain: "UNAVAILABLE", code: 0, userInfo: ["message": "Permission denied reading sleep data"])
-//          reject("UNAVAILABLE", "Permission denied reading sleep data", error)
-//          return
-//      }
-//
-//      // Calculate the start date (one week ago)
-//      let calendar = Calendar.current
-//      let endDate = Date()
-//      guard let startDate = calendar.date(byAdding: .day, value: -7, to: endDate) else {
-//          let error = NSError(domain: "INVALID_DATE", code: 0, userInfo: ["message": "Invalid start date"])
-//          reject("INVALID_DATE", "Invalid start date", error)
-//          return
-//      }
-//
-//      // Create the predicate for querying sleep data samples
-//      let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
-//
-//      // Create the query to fetch sleep data samples
-//      let query = HKSampleQuery(sampleType: sleepData, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { (query, results, error) in
-//          if let error = error {
-//              reject("QUERY_ERROR", "Error querying sleep data", error)
-//              return
-//          }
-//
-//          guard let samples = results as? [HKCategorySample] else {
-//              reject("QUERY_ERROR", "Unexpected type of results", nil)
-//              return
-//          }
-//
-//          // Process the samples and extract timestamps and sleep categories
-//          var sleepData: [[String: Any]] = []
-//          for sample in samples {
-//              let timestamp = sample.startDate
-//              let sleepCategoryValue = sample.value
-//
-//              // Convert the sleep category value to a human-readable string
-//              var sleepCategory: String
-//              switch sleepCategoryValue {
-//              case HKCategoryValueSleepAnalysis.inBed.rawValue:
-//                  sleepCategory = "In Bed"
-//              case HKCategoryValueSleepAnalysis.asleep.rawValue:
-//                  sleepCategory = "Asleep"
-//              case HKCategoryValueSleepAnalysis.awake.rawValue:
-//                  sleepCategory = "Awake"
-//              case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
-//                  sleepCategory = "Deep"
-//              case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
-//                  sleepCategory = "REM"
-//              case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
-//                  sleepCategory = "Core"
-//              default:
-//                  sleepCategory = "Unknown"
-//              }
-//
-//              let data: [String: Any] = [
-//                  "timestamp": timestamp,
-//                  "sleepCategory": sleepCategory
-//              ]
-//              sleepData.append(data)
-//          }
-//
-//          // Resolve the promise with the sleep data array
-//          resolve(sleepData)
-//      }
-//
-//      // Execute the query
-//      HKHealthStore().execute(query)
-//  }
 
+    // TODO refactor.
+    @available(iOS 16.0, *)
+    @objc
+    func readActivityRingsData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        let healthStore = HKHealthStore();
+
+        // Check for health data availability.
+        guard HKHealthStore.isHealthDataAvailable() else {
+             let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
+             reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
+             return
+        }
+
+        // Ensure we can request the data type.
+        let activitySummaryType = HKObjectType.activitySummaryType();
+        let readTypes: Set<HKObjectType> = [activitySummaryType];
+
+        // Request authorization to access activity rings data.
+        healthStore.requestAuthorization(toShare: Set(), read: readTypes) { (success, error) in 
+            if !success {
+                reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for activity rings data", error)
+                return
+            }
+
+            // Fetch data over the previous 7 days.
+
+            // Build predicate.
+            let calendar = NSCalendar.current
+            let endDate = Date()
+            guard let startDate = calendar.date(byAdding: .day, value: -7, to: endDate) else {
+                fatalError("*** Unable to create the start date ***")
+            }
+            let units: Set<Calendar.Component> = [.day, .month, .year, .era]
+            var startDateComponents = calendar.dateComponents(units, from: startDate)
+            startDateComponents.calendar = calendar
+            var endDateComponents = calendar.dateComponents(units, from: endDate)
+            endDateComponents.calendar = calendar
+        
+            let summariesWithinRange = HKQuery.predicate(forActivitySummariesBetweenStart: startDateComponents, end: endDateComponents)
+
+            // Query for activity ring summary.
+            let query = HKActivitySummaryQuery(predicate: summariesWithinRange) { (query, summariesOrNil, errorOrNil) -> Void in
+                guard let summaries = summariesOrNil else {
+                    if let error = errorOrNil {
+                        print("Error fetching activity ring summaries: \(error.localizedDescription)");
+                        reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for activity ring data types", error as NSError?);
+                    } else {
+                        resolve([]);  // No data available.
+                    }
+                    return
+                }
+
+                // Store data values.
+                var ringData: [[String: Any]] = [];
+
+                // ISO 8601 datetime format.
+                let dateFormatter = DateFormatter();
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+                dateFormatter.timeZone = TimeZone(abbreviation: "UTC");
+                
+                for summary in summaries {
+                    let dateComponents = summary.dateComponents(for: calendar);
+                    guard let date = calendar.date(from: dateComponents) else { continue }
+                    let dateString = dateFormatter.string(from: date);
+
+                    let energyBurned = summary.activeEnergyBurned.doubleValue(for: HKUnit.kilocalorie())
+                    let energyBurnedGoal = summary.activeEnergyBurnedGoal.doubleValue(for: HKUnit.kilocalorie())
+                    let exerciseTime = summary.appleExerciseTime.doubleValue(for: HKUnit.minute())
+                    let exerciseTimeGoal = summary.appleExerciseTimeGoal.doubleValue(for: HKUnit.minute())
+                    let standHours = summary.appleStandHours.doubleValue(for: HKUnit.count())
+                    let standHoursGoal = summary.appleStandHoursGoal.doubleValue(for: HKUnit.count())
+
+                    // Organizing data into a dictionary.
+                    let dayData: [String: Any] = [
+                        "date": dateString,
+                        "energyBurned": energyBurned,
+                        "energyBurnedGoal": energyBurnedGoal,
+                        "exerciseTime": exerciseTime,
+                        "exerciseTimeGoal": exerciseTimeGoal,
+                        "standHours": standHours,
+                        "standHoursGoal": standHoursGoal
+                    ]
+                    
+                    ringData.append(dayData)
+
+                    // DEBUG.
+                    print("Current summary: ", dayData);
+                }
+
+                resolve(ringData);
+            }
+            healthStore.execute(query);
+        }
+    }
+
+    // @available(iOS 16.0, *)
+    // @objc
+    // func readActivityRingsData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    //     let healthStore = HKHealthStore();
+
+    //     // Check for health data availability.
+    //     guard HKHealthStore.isHealthDataAvailable() else {
+    //          let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
+    //          reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
+    //          return
+    //     }
+
+    //     // Specify datatypes we want to use (ignore goals).
+    //     guard let energyBurnedType = HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.activeEnergyBurned) else {
+    //         print("Requested `activeEnergyBurned` type not available");
+    //         return;
+    //     }
+    //     guard let exerciseTimeType = HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleExerciseTime) else {
+    //         print("Requested `appleExerciseTime` type not available");
+    //         return;
+    //     }
+    //     guard let standTimeType = HKQuantityType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleStandTime) else {
+    //         print("Requested `appleStandTime` type not available");
+    //         return;
+    //     }
+
+    //     // Requesting authorization to access activity rings data.
+    //     let typesToRead: Set = [energyBurnedType, exerciseTimeType, standTimeType];
+    //     healthStore.requestAuthorization(toShare: nil, read: typesToRead) { (success, error) in 
+    //         if (!success) {
+    //             reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for activity ring data types", error as NSError?);
+    //             return;
+    //         }
+
+    //         // Authorization granted, proceed with queries.
+
+    //         @Published var energyBurnedValue: Int = 0;
+    //         @Published var exerciseValue: Int = 0;
+    //         @Published var standValue: Int = 0;
+
+    //         // TODO refactor the bottom 3 sections throughout all functions.
+
+    //         // Last 7 days of data.
+    //         let endDate = Date()
+    //         let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)! // Last 7 days
+
+    //         // Sort samples by start date.
+    //         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false);
+
+    //         // Date formatter to convert dates to ISO 8601 format
+    //         let dateFormatter = DateFormatter();
+    //         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    //         dateFormatter.timeZone = TimeZone(abbreviation: "UTC");
+
+    //         // Data to be returned.
+    //         var energyBurnedData = [[String: Any]]();
+    //         var exerciseValue = [[String: Any]]();
+    //         var standValue = [[String: Any]]();
+
+    //         // RED RING (active energy burned).
+    //         let energyBurnedPredicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])!;
+    //         let energyBurnedQuery = HKSampleQuery(sampleType: energyBurnedType, predicate: energyBurnedPredicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in 
+    //             if let error = error {
+    //                 reject("QUERY_FAILED", "Failed to query energy burned data", error);
+    //             }
+
+
+    //         }
+    //     }
+    // }
   
 @objc
   static func requireMainQueueSetup() -> Bool {
