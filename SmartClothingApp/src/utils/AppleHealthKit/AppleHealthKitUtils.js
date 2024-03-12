@@ -138,7 +138,33 @@ export const getSleepData = async () => {
   }
 };
 
+export const getActivityRingsData = async () => {
+  const { Controller } = NativeModules;
 
+  try {
+    const activityRingsData = await Controller.readActivityRingsData();
+    console.log("Raw activity rings data: ", activityRingsData);
+
+    // Extract individual energy burned, move, and stand data.
+    const processedRingData = activityRingsData.map((dayData) => {
+      return {
+        date: dayData.date,
+        energyBurned: dayData.energyBurned,
+        energyBurnedGoal: dayData.energyBurnedGoal,
+        exerciseTime: dayData.exerciseTime,
+        exerciseTimeGoal: dayData.exerciseTimeGoal,
+        standHours: dayData.standHours,
+        standHoursGoal: standHoursGoal
+      }
+    })
+
+    // Use the processed data to your desired purpose.
+
+    return processedRingData;
+  } catch (error) {
+    console.error("Error retrieving activity ring data", error);
+  }
+}
 
 // ISO to human readable datetime format.
 function convertToReadableFormat(isoString) {

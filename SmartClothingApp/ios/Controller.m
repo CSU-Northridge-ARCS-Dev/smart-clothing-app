@@ -28,4 +28,7 @@ RCT_EXTERN_METHOD(readRestingHeartRateData:(RCTPromiseResolveBlock)resolve rejec
 // Exports our sleepData method in the class
 RCT_EXTERN_METHOD(readSleepData:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
+// Exports our activity rings method
+RCT_EXTERN_METHOD(readActivityRingsData:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+
 @end

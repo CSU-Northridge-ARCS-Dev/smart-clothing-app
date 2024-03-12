@@ -19,6 +19,7 @@ import { readHeartRateData } from './src/utils/AppleHealthKit/AppleHealthKitUtil
 import { getRestingHeartRateData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 import { getHeartRateVariabilityData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 import { getSleepData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
+import { getActivityRingsData } from "./src/utils/AppleHealthKit/AppleHealthKitUtils";
 
 
 const store = configureStore();
@@ -121,6 +122,11 @@ export default function App() {
   .catch(error => {
     console.error(error);
   });
+
+  getActivityRingsData()
+  .catch(error => {
+    console.error(error);
+  })
 
   }, []);
 
