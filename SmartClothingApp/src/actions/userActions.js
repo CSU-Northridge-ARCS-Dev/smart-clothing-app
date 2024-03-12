@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 import {
   collection,
   addDoc,
@@ -5,15 +7,11 @@ import {
   doc,
   updateDoc,
   getDoc,
-  getDocs,
-  where,
-  query,
   getFirestore,
   deleteDoc,
-  orderBy,
 } from "firebase/firestore";
 
-import { storeUID, storeMetrics } from "../utils/localStorage.js";
+import { storeUID } from "../utils/localStorage.js";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -37,7 +35,12 @@ import {
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
+  UPDATE_HEART_RATE_DATA,
 } from "./types";
+
+import { getHeartRateData, getSleepData } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
+import { checkHealthKitAvailability } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
+import { requestHealthKitAuthorization } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
 
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
@@ -132,6 +135,13 @@ export const updateEmailData = (newEmail) => {
   };
 };
 
+export const updateHeartRateData = (heartRateData) => {
+  return {
+    type: UPDATE_HEART_RATE_DATA,
+    payload: heartRateData,
+  }
+}
+
 export const startUpdateUserData = (userData) => {
   console.log("startUpdateUserData called with", userData);
   return async (dispatch) => {
@@ -139,16 +149,25 @@ export const startUpdateUserData = (userData) => {
       await setDoc(doc(database, "Users", auth.currentUser.uid), userData);
       console.log("User data added to database successfully!");
       dispatch(updateUserMetricsData(userData));
-      // Store the user metrics data in the local storage
-      storeMetrics(userData);
     } catch (e) {
-      console.log(
-        "Error adding user data to database! There might be no data to add."
-      );
+      console.log("Error adding user data to database!");
       console.log(e);
     }
   };
 };
+// export const startUpdateUserData = (userData) => {
+//   console.log("startUpdateUserData called with", userData);
+//   return async (dispatch) => {
+//     try {
+//       await setDoc(doc(database, "Users2", auth.currentUser.uid), userData);
+//       console.log("User data added to database successfully!");
+//       dispatch(updateUserMetricsData(userData));
+//     } catch (e) {
+//       console.log("Error adding user data to database!");
+//       console.log(e);
+//     }
+//   };
+// };
 
 export const startLoadUserData = () => {
   return async (dispatch) => {
@@ -296,15 +315,10 @@ export const reauthenticate = (currentPassword) => {
   return async (dispatch) => {
     try {
       const user = auth.currentUser;
-      if (currentPassword) {
-        cred = EmailAuthProvider.credential(user.email, currentPassword);
-        await reauthenticateWithCredential(user, cred);
-        console.log("Reauthentication success");
-        return true;
-      } else {
-        dispatch(toastError("Current password is required."));
-        return false;
-      }
+      const cred = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, cred);
+      console.log("Reauthentication success");
+      return true;
     } catch (error) {
       dispatch(toastError(firebaseErrorsMessages[error.code]));
       console.log("Reauthentication failure");
@@ -367,67 +381,109 @@ export const deleteAccount = () => {
   };
 };
 
-export const querySleepData = async (startDate, endDate) => {
-  try {
-    //get the user ID
-    const userId = auth.currentUser.uid;
+// export const updateHeartRateData = () => {
+//   const sampleData = getHeartRateData();
 
-    //make a reference to the doc with the user ID
-    const userRef = doc(database, "Users", userId);
+//   return 
 
-    // create a query to filter documents within the date range
-    const dataQuery = query(
-      collection(userRef, "SleepData"),
-      where("startDate", ">=", startDate),
-      where("startDate", "<=", endDate),
-      orderBy("startDate", "asc")
-    );
+// }
 
-    // Execute the query to get the result
-    const dataSnapshot = await getDocs(dataQuery);
 
-    const fetchedData = [];
-    dataSnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.endDate >= startDate && data.endDate <= endDate) {
-        fetchedData.push({ ...data });
+export const updateHealthData = () => {
+  return async (dispatch) => {
+    try {
+      checkHealthKitAvailability()
+      .catch(error => {
+        console.error(error);
+      });
+
+      requestHealthKitAuthorization()
+        .catch(error => {
+          console.error(error);
+        });
+
+
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+
+      // Create a new collection (e.g., HeartRateData) inside the Users document
+      const heartRateCollectionRef = collection(userDocRef, "HeartRateData");
+      
+      if (getHeartRateData() == null)
+      {
+        console.log("uh oh");
       }
-    });
+      else 
+      {
+        console.log("theres data in here"); 
+        console.log(getHeartRateData());
+      }
+      
+      // Add sample data to the new collection
+      const sampleHeartRateData = await getHeartRateData();
 
-    return fetchedData;
-  } catch (error) {
-    console.error("Error fetching data: ", error);
-    return [];
-  }
+      console.log("sample:", sampleHeartRateData);
+
+      // Loop through the sample data and add it to the HeartRateData collection
+      for (const data of sampleHeartRateData) {
+        const heartRateDocRef = doc(heartRateCollectionRef); // Automatically generates a unique document ID
+        await setDoc(heartRateDocRef, data);
+      }
+
+      console.log(
+        "Sample heart rate data added to HeartRateData collection successfully!"
+      );
+    } catch (e) {
+      console.error("Error updating health data:", e);
+    }
+  };
 };
 
-export const queryHeartRateData = async (startDate, endDate) => {
-  try {
-    //get the user ID
-    const userId = auth.currentUser.uid;
+export const updateSleepData = () => {
+  return async (dispatch) => {
+    try {
+      checkHealthKitAvailability()
+      .catch(error => {
+        console.error(error);
+      });
 
-    //make a reference to the doc with the user ID
-    const userRef = doc(database, "Users", userId);
+      requestHealthKitAuthorization()
+        .catch(error => {
+          console.error(error);
+        });
 
-    // Create a query to filter documents within the date range
-    const dataQuery = query(
-      collection(userRef, "HeartRateData"),
-      where("date", ">=", startDate),
-      where("date", "<=", endDate)
-    );
 
-    // execute the query to get the result
-    const dataSnapshot = await getDocs(dataQuery);
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
 
-    // get the documents
-    const fetchedData = [];
-    dataSnapshot.forEach((doc) => {
-      fetchedData.push({ ...doc.data() });
-    });
+      // Create a new collection (e.g., HeartRateData) inside the Users document
+      const sleepDataCollectionRef = collection(userDocRef, "SleepData");
+      
+      if (getSleepData() == null)
+      {
+        console.log("uh oh");
+      }
+      else 
+      {
+        console.log("theres data in here"); 
+        console.log(getSleepData());
+      }
+      
+      // Add sample data to the new collection
+      const sampleSleepData = await getSleepData();
 
-    return fetchedData;
-  } catch (error) {
-    console.error("Error fetching data: ", error);
-    return [];
-  }
+      console.log("sample:", sampleSleepData);
+
+      // Loop through the sample data and add it to the HeartRateData collection
+      for (const data of sampleSleepData) {
+        const sleepDataDocRef = doc(sleepDataCollectionRef); // Automatically generates a unique document ID
+        await setDoc(sleepDataDocRef, data);
+      }
+
+      console.log(
+        "Sample sleep data added to SleepData collection successfully!"
+      );
+    } catch (e) {
+      console.error("Error updating health data:", e);
+    }
+  };
 };
+>>>>>>> origin/ios-dev-eanyakpor
