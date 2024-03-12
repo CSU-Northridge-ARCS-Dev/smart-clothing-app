@@ -70,11 +70,15 @@ jest.mock('firebase/firestore', () => ({
   getDoc: jest.fn().mockReturnValue({
     exists: jest.fn().mockReturnValue(true), // Mock 'exists' as a function
     data: jest.fn().mockReturnValue({
-      height: "1111",
-      weight: "11",
-      age: "111",
+      height: "6541",
+      weight: "55",
+      age: "666",
       gender: "male",
       sports: "running",
+      dob: {
+        seconds: 1627852800, // Example timestamp for July 2, 2021
+        nanoseconds: 0, // Firestore Timestamps include nanoseconds, but it's often okay to mock them as 0 in tests
+      },
     }), // Mock 'data' as a function
   }),
 }))
