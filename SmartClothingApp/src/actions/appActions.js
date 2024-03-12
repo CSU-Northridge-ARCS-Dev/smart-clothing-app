@@ -1,8 +1,9 @@
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   UPDATE_ACTIVITY_RINGS_DATA,
+  UPDATE_HEART_RATE_DATE_RANGE,
+  UPDATE_SLEEP_DATA_DATE_RANGE,
 } from "./types";
-
 
 export const userMetricsDataModalVisible = (
   visibility,
@@ -26,6 +27,20 @@ export const updateActivityRingsData = (day, ringData) => {
 
 const generateRandomValue = () => {
   return Math.random() * 2;
+};
+
+export const updateHeartRateDateRangeData = (startDate, endDate) => {
+  return {
+    type: UPDATE_HEART_RATE_DATE_RANGE,
+    payload: { startDate: startDate, endDate: endDate },
+  };
+};
+
+export const updateSleepDataDateRangeData = (startDate, endDate) => {
+  return {
+    type: UPDATE_SLEEP_DATA_DATE_RANGE,
+    payload: { startDate: startDate, endDate: endDate },
+  };
 };
 
 export const updateActivityRings = () => {
@@ -53,5 +68,17 @@ export const updateActivityRings = () => {
       // Dispatch the action to update the activity rings data
       dispatch(updateActivityRingsData(day, randomData));
     }
+  };
+};
+
+export const updateHeartRateDateRange = (startDate, endDate) => {
+  return async (dispatch) => {
+    dispatch(updateHeartRateDateRangeData(startDate, endDate));
+  };
+};
+
+export const updateSleepDataDateRange = (startDate, endDate) => {
+  return async (dispatch) => {
+    dispatch(updateSleepDataDateRangeData(startDate, endDate));
   };
 };

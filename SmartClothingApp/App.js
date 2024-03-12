@@ -11,7 +11,13 @@ import { AppTheme } from "./src/constants/themes";
 import configureStore from "./src/store";
 import { AppToast } from "./src/components";
 import { auth } from "./firebaseConfig.js";
-import { getUID } from "./src/utils/localStorage.js";
+
+import { getUID, getMetrics } from "./src/utils/localStorage.js";
+
+import {
+  startLoadUserData,
+  updateUserMetricsData,
+} from "./src/actions/userActions.js";
 import SplashScreen from "react-native-splash-screen";
 import { findHealthData } from './src/utils/AppleHealthKit/AppleHealthKitUtils';
 import { requestHealthKitAuthorization } from './src/utils/AppleHealthKit/AppleHealthKitUtils';
@@ -54,15 +60,35 @@ export default function App() {
     };
     checkUID();
 
+    // Check if there's a stored user Matrics Data in local storage
+    const checkMetrics = async () => {
+      try {
+        const storedMetrics = await getMetrics();
+        // console.log("Checking stored metrics");
+        if (storedMetrics) {
+          // If there's a token, try to refresh the user's session
+          // console.log("Stored metrics found");
+          // console.log("Stored metrics is -->", storedMetrics);
+          //Set the user metrics data in the Redux store
+          store.dispatch(updateUserMetricsData(storedMetrics));
+        } else {
+          // console.log("No stored metrics");
+          //get the user metrics data from the database
+          store.dispatch(startLoadUserData());
+        }
+      } catch (error) {
+        console.error("Error checking stored metrics:", error);
+      }
+    };
+    checkMetrics();
+
     // Loading fonts
     const loadFont = async () => {
       const res = await useAppFonts();
       setLoading(false);
     };
     loadFont();
-
-    console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
-
+    
     // // Check if there's a stored token on app launch
     // const checkToken = async () => {
       //   try {

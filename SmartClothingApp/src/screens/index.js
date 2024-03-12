@@ -9,6 +9,8 @@ import SigninScreen from "./SigninScreen";
 import SignupScreen from "./SignupScreen";
 import ViewHealthData from "./ViewHealthData";
 import ViewInsights from "./ViewInsights";
+import ViewHeartRateData from "./ViewHeartRateData";
+import ViewSleepData from "./ViewSleepData";
 
 export {
   HomeScreen,
@@ -22,4 +24,6 @@ export {
   SettingsScreen,
   AccessibilityScreen,
   DeviceDetails,
+  ViewHeartRateData,
+  ViewSleepData,
 };

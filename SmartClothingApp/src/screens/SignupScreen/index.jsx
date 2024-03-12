@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, Image, ScrollView } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -10,10 +12,7 @@ import {
   TextInput,
 } from "react-native-paper";
 import { AppColor, AppStyle } from "../../constants/themes";
-import { HeroSection } from "../../components";
-import ToSModal from "../../components/ToSModal/ToSModal";
-
-import Icon from "react-native-vector-icons/FontAwesome5";
+import { HeroSection, DataCollectModal } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
@@ -24,12 +23,9 @@ import {
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.user.authError);
+
   const [isSubmitting, setIsSubmitting] = useState(true);
-  const [lockStatusPassword, setLockStatusPassword] = useState("locked");
-  const [lockStatusRepassword, setLockStatusRepassword] = useState("locked");
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [modalVisible, setModalVisible] = useState(true);
 
   const [user, setUser] = useState({
     fname: "",
@@ -45,6 +41,7 @@ const SignupScreen = ({ navigation }) => {
     email: "",
     password: "",
     repassword: "",
+    accepted: "",
   });
 
   const handleClear = () => {
@@ -75,25 +72,7 @@ const SignupScreen = ({ navigation }) => {
   };
 
   const handleSignUpWithEmail = () => {
-    let errorMessage = "";
-
-    if (!isTermsAccepted) {
-      errorMessage +=
-        "You must agree to the user agreement to create an account.\n";
-    }
-
     if (!isValid()) {
-      errorMessage +=
-        "\nPlease correct the following errors:\n" +
-        (error.fname ? `${error.fname}\n` : "") +
-        (error.lname ? `${error.lname}\n` : "") +
-        (error.email ? `${error.email}\n` : "") +
-        (error.password ? `${error.password}\n` : "") +
-        (error.repassword ? `${error.repassword}` : "");
-    }
-
-    if (errorMessage) {
-      Alert.alert("Sign-up Error", errorMessage);
       return;
     }
 
@@ -150,6 +129,11 @@ const SignupScreen = ({ navigation }) => {
       errors.repassword = "Passwords did not match.";
       flag = false;
     }
+    if (!isTermsAccepted) {
+      errors.accepted = "You have to agree to the terms of services.";
+      flag = false;
+    }
+
     setError({ ...errors });
     return flag;
   };
@@ -197,10 +181,10 @@ const SignupScreen = ({ navigation }) => {
               setUser({ ...user, fname: text });
               handleClearErrors();
             }}
-            error={error.fname.length > 1}
+            error={error.fname.length > 0}
           />
-          <HelperText type="error" visible={error.fname.length > 1}>
-            Please enter first name.
+          <HelperText type="error" visible={error.fname.length > 0}>
+            {error.fname}
           </HelperText>
         </View>
         <View>
@@ -212,10 +196,10 @@ const SignupScreen = ({ navigation }) => {
               setUser({ ...user, lname: text });
               handleClearErrors();
             }}
-            error={error.lname.length > 1}
+            error={error.lname.length > 0}
           />
-          <HelperText type="error" visible={error.lname.length > 1}>
-            Please enter last name.
+          <HelperText type="error" visible={error.lname.length > 0}>
+            {error.lname}
           </HelperText>
         </View>
         <View>
@@ -227,10 +211,10 @@ const SignupScreen = ({ navigation }) => {
               setUser({ ...user, email: text });
               handleClearErrors();
             }}
-            error={error.email.length > 1}
+            error={error.email.length > 0}
           />
-          <HelperText type="error" visible={error.email.length > 1}>
-            Please enter a valid email.
+          <HelperText type="error" visible={error.email.length > 0}>
+            {error.email}
           </HelperText>
         </View>
         <View style={styles.inputContainer}>
@@ -244,7 +228,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={
-              error.password.length > 1 || user.password != user.repassword
+              error.password.length > 0 || user.password != user.repassword
             }
             style={styles.textInput}
           />
@@ -255,7 +239,7 @@ const SignupScreen = ({ navigation }) => {
             style={styles.icon}
             onPress={toggleLockStatusPassword}
           />
-          <HelperText type="error" visible={error.password.length > 1}>
+          <HelperText type="error" visible={error.password.length > 0}>
             {error.password}
           </HelperText>
         </View>
@@ -280,10 +264,9 @@ const SignupScreen = ({ navigation }) => {
             onPress={toggleLockStatusRepassword}
           />
           <HelperText type="error" visible={user.password != user.repassword}>
-            Passwords do not match.
+            {error.repassword}
           </HelperText>
         </View>
-
         <View style={styles.checkbox}>
           <Checkbox
             status={isTermsAccepted ? "checked" : "unchecked"}
@@ -291,7 +274,9 @@ const SignupScreen = ({ navigation }) => {
               handleAgreement();
             }}
           />
-          <Text>User Agreement</Text>
+        <Text style={error.accepted?.length > 0 ? styles.errorText : null}>
+          {error.accepted?.length > 0 ? error.accepted : "User Agreement"}
+        </Text>
         </View>
 
         <View>
@@ -352,6 +337,9 @@ const styles = StyleSheet.create({
   btnContainer: {
     marginVertical: 10,
     flexDirection: "row",
+  },
+  errorText: {
+    color:"red",
   },
 });
 

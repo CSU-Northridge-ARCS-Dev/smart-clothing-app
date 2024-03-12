@@ -5,14 +5,13 @@ import {
   DARK_THEME,
   MEASUREMENT_SYSTEM,
   UPDATE_ACTIVITY_RINGS_DATA,
+  UPDATE_HEART_RATE_DATE_RANGE,
+  UPDATE_SLEEP_DATA_DATE_RANGE,
 } from "../actions/types";
 
 const initialState = {
   darkTheme: false,
-
-  // userMetricsData Modal sub-states
   userMetricsDataModalVisible: false,
-  isFromSignUpScreen: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
   activityRingsData: {
     Sunday: {
@@ -51,6 +50,14 @@ const initialState = {
       ring3: 0, // Default value for Monday, Ring 3
     },
   },
+  heartRateDateRangeData: {
+    startDate: new Date(),
+    endDate: new Date(),
+  },
+  sleepDataDateRangeData: {
+    startDate: new Date(),
+    endDate: new Date(),
+  },
 };
 
 const appReducer = (state = initialState, action) => {
@@ -70,6 +77,22 @@ const appReducer = (state = initialState, action) => {
           [action.payload.day]: {
             ...action.payload.rings,
           },
+        },
+      };
+    case UPDATE_HEART_RATE_DATE_RANGE:
+      return {
+        ...state,
+        heartRateDateRangeData: {
+          startDate: action.payload.startDate,
+          endDate: action.payload.endDate,
+        },
+      };
+    case UPDATE_SLEEP_DATA_DATE_RANGE:
+      return {
+        ...state,
+        sleepDataDateRangeData: {
+          startDate: action.payload.startDate,
+          endDate: action.payload.endDate,
         },
       };
     default:

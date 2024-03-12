@@ -10,6 +10,8 @@ import {
   SettingsScreen,
   ViewHealthData,
   ViewInsights,
+  ViewHeartRateData,
+  ViewSleepData,
 } from "../screens";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -57,8 +59,8 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Health"
-        component={ViewHealthData}
+        name="HealthTab"
+        component={HealthNavigationStack}
         options={{
           tabBarIcon: ({ focused }) => (
             <>
@@ -124,10 +126,9 @@ const HealthNavigationStack = () => {
       initialRouteName="Health"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="Health" component={ViewHealthData} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
+      <Stack.Screen name="Health Data" component={ViewHealthData} />
+      <Stack.Screen name="HeartRateData" component={ViewHeartRateData} />
+      <Stack.Screen name="SleepData" component={ViewSleepData} />
     </Stack.Navigator>
   );
 };
