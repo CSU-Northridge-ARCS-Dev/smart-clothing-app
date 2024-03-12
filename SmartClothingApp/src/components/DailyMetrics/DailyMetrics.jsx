@@ -5,7 +5,6 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { useFocusEffect } from "@react-navigation/native";
 import { daysOfWeek } from "../../utils/calendar";
 import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
-import DateToolbar from "../DateToolbar/DateToolbar";
 
 const DailyMetrics = ({ name }) => {
   const [selectedDay, setSelectedDay] = useState(null);
@@ -31,7 +30,6 @@ const DailyMetrics = ({ name }) => {
 
   return (
     <View style={{ padding: 10 }}>
-      <DateToolbar />
       <View style={styles.insights}>
         <Text style={[AppStyle.subTitle, { fontFamily: AppFonts.chakraBold }]}>
           Daily {name}
