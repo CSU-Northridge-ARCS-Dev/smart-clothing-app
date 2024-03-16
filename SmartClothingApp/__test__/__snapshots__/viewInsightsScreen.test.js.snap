@@ -843,7 +843,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                       }
                                     }
                                   >
-                                    Tuesday, March 5, 2024
+                                    Monday, March 11, 2024
                                   </Text>
                                   <View
                                     style={
