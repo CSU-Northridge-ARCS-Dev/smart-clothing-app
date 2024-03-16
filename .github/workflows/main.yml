@@ -32,7 +32,8 @@ jobs:
           start=$(date +%s)
           npx jest -u
           end=$(date +%s)
-          echo "::set-output name=execution_time::$((end-start)) seconds"
+          execution_time=$((end-start))
+          echo "::set-output name=execution_time::$execution_time"
         working-directory: SmartClothingApp
 
       - name: Count Tests
