@@ -28,11 +28,7 @@ jobs:
         working-directory: SmartClothingApp
 
       - name: Run Tests
-        run: |
-          start=$(date +%s)
-          npx jest -u
-          end=$(date +%s)
-          echo "::set-output name=execution_time::$((end-start)) seconds"
+        run: npm run test
         working-directory: SmartClothingApp
 
       - name: Count Tests
