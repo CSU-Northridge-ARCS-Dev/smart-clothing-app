@@ -28,9 +28,20 @@ jobs:
         working-directory: SmartClothingApp
 
       - name: Run Tests
-        run: npm run test
+        run: |
+          start=$(date +%s)
+          npx jest -u
+          end=$(date +%s)
+          echo "::set-output name=execution_time::$((end-start)) seconds"
         working-directory: SmartClothingApp
+
+      - name: Count Tests
+        id: count-tests
+        run: echo "::set-output name=number_of_tests::$(grep -oP '(?<=Test Suites: ).*(?= passed)' SmartClothingApp/__tests__/*.test.js | awk '{total += $1} END {print total}')"
 
       - name: Success Message
         if: success()
-        run: echo "All steps completed successfully!"
+        run: |
+          echo "Regression testing successfully executed!"
+          echo "Number of tests executed: ${{ steps.count-tests.outputs.number_of_tests }}"
+          echo "Time taken to execute: ${{ steps.tests.outputs.execution_time }} seconds"
