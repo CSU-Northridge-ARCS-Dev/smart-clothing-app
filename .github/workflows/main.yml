@@ -28,7 +28,7 @@ jobs:
         working-directory: SmartClothingApp
 
       - name: Run Tests
-        run: npm run test -- --coverage --collectCoverageFrom='src/**/*.{js,jsx}' --coveragePathIgnorePatterns='(.*\\.snap$|<other-patterns>)'
+        run: npm run test -- --coverage --collectCoverageFrom='src/**/*.{js,jsx}' --testPathIgnorePatterns='(_snapshots_)'
         working-directory: SmartClothingApp
 
       - name: Success Message
