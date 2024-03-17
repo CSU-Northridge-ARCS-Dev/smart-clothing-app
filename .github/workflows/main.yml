@@ -33,4 +33,5 @@ jobs:
 
       - name: Success Message
         if: success()
-        run: echo "Regression testing successfully completed..."
+        run: echo "Regression testing completed successfully!"
+
