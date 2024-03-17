@@ -236,7 +236,6 @@ exports[`ViewInsights renders correctly 1`] = `
               <View
                 accessibilityElementsHidden={false}
                 closing={false}
-                collapsable={false}
                 gestureVelocityImpact={0.3}
                 importantForAccessibility="auto"
                 onClose={[Function]}
@@ -843,7 +842,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                       }
                                     }
                                   >
-                                    Monday, March 11, 2024
+                                    Saturday, March 16, 2024
                                   </Text>
                                   <View
                                     style={
