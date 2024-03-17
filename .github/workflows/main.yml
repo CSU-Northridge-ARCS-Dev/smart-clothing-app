@@ -28,10 +28,9 @@ jobs:
         working-directory: SmartClothingApp
 
       - name: Run Tests
-        run: npm run test
+        run: npm run test -- --coverage --collectCoverageFrom='src/**/*.{js,jsx}' --coveragePathIgnorePatterns='(.*\\.snap$|<other-patterns>)'
         working-directory: SmartClothingApp
 
       - name: Success Message
         if: success()
         run: echo "Regression testing completed successfully!"
-
