@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 import {
   collection,
   addDoc,
@@ -486,4 +484,3 @@ export const updateSleepData = () => {
     }
   };
 };
->>>>>>> origin/ios-dev-eanyakpor

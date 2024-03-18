@@ -18,7 +18,11 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arcs.smartclothingapp"
+      "bundleIdentifier": "com.arcs.smartclothingapp",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "This app needs access to your health data to track fitness activities.",
+        "NSHealthUpdateUsageDescription": "This app needs access to your health data to track fitness activities."
+      }
     },
     "android": {
       "package": "com.arcs.smartclothingapp",
@@ -28,7 +32,8 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "extra": {
       "eas": {

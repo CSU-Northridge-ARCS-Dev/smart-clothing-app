@@ -154,7 +154,7 @@ export const getActivityRingsData = async () => {
         exerciseTime: dayData.exerciseTime,
         exerciseTimeGoal: dayData.exerciseTimeGoal,
         standHours: dayData.standHours,
-        standHoursGoal: standHoursGoal
+        standHoursGoal: dayData.standHoursGoal
       }
     })
 

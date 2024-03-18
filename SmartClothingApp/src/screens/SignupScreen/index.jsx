@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Image, ScrollView } from "react-native";
-import { useSelector, useDispatch } from "react-redux";
-
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useSelector, useDispatch } from "react-redux";
 import {
