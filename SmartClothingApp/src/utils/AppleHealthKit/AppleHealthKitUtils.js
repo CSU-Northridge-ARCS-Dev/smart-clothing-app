@@ -143,7 +143,7 @@ export const getActivityRingsData = async () => {
 
   try {
     const activityRingsData = await Controller.readActivityRingsData();
-    console.log("Raw activity rings data: ", activityRingsData);
+    // console.log("Raw activity rings data: ", activityRingsData);
 
     // Extract individual energy burned, move, and stand data.
     const processedRingData = activityRingsData.map((dayData) => {

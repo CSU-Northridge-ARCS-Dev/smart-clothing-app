@@ -27,9 +27,10 @@ const ViewInsights = ({ route }) => {
     ring3: 0,
   });
 
-  const maxCal = 800;
-  const maxMin = 30;
-  const maxHrs = 12;
+  // Change these to goal values.
+  const maxCal = 800;  // Don't know cap.
+  const maxMin = 90;  // As capped in Apple Watch.
+  const maxHrs = 16;  // As capped in Apple Watch.
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -42,7 +43,7 @@ const ViewInsights = ({ route }) => {
     }
   };
 
-  // console.log(activityRingsData);
+  console.log(activityRingsData);
 
   const handleRingPress = (day) => {
     const currentRingData = {
@@ -92,21 +93,21 @@ const ViewInsights = ({ route }) => {
         name="Move"
         type="CAL"
         goal={maxCal}
-        progress={314}
+        progress={0}
       ></ActivityChart>
       <ActivityChart
         color={AppColor.ringExercise}
         name="Exercise"
         type="MIN"
         goal={maxMin}
-        progress={15}
+        progress={0}
       ></ActivityChart>
       <ActivityChart
         color={AppColor.ringStand}
         name="Stand"
         type="HRS"
         goal={maxHrs}
-        progress={3}
+        progress={0}
       ></ActivityChart>
       {showDatePicker && (
         <DateTimePicker

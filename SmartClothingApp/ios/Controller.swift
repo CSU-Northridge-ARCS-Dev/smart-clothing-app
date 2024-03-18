@@ -23,7 +23,6 @@ class Controller: NSObject {
   @objc
   func findHealthData(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
     if HKHealthStore.isHealthDataAvailable() {
-//      print("hello22")
       print("Health Data is avaliable on this device")
       resolve(true)
     } else {
@@ -299,28 +298,23 @@ class Controller: NSObject {
                      // Handle the results to extract sleep values and dates
                      for sample in results as? [HKCategorySample] ?? [] {
                          var sleepValue: String
-                         var isInBed: Bool
                          
                          switch sample.value {
                          case HKCategoryValueSleepAnalysis.inBed.rawValue:
                              sleepValue = "In Bed"
-                             isInBed = true
                          case HKCategoryValueSleepAnalysis.awake.rawValue:
                              sleepValue = "Awake"
-                             isInBed = false
                          case HKCategoryValueSleepAnalysis.asleep.rawValue:
                              sleepValue = "Core"
-                             isInBed = false
                          default:
                              sleepValue = "Unknown"
-                             isInBed = false
                          }
                          
                          let startDate = sample.startDate
                          let endDate = sample.endDate
                          
                          // Debug
-                         print("[DEBUG] IN BED: \(isInBed ? "YES" : "NO") | VALUE: \(sleepValue)")
+                         print("[DEBUG] VALUE: \(sleepValue)")
                          
                          let iso8601StartDateString = dateFormatter.string(from: startDate)
                          let iso8601EndDateString = dateFormatter.string(from: endDate)
