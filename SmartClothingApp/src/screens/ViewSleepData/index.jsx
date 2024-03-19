@@ -48,6 +48,7 @@ const ViewSleepData = ({ route }) => {
         // console.log(dates.startDate);
         // console.log(dates.endDate);
         const result = await querySleepData(dates.startDate, dates.endDate);
+        console.log("UNPARSED SLEEP DATA: ", result)
         // result.forEach(item => {
         //     console.log("startDate", item.startDate);
         //     console.log("endDate", item.endDate);

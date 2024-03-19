@@ -1,6 +1,9 @@
 import { NativeModules } from 'react-native';
 const { Controller } = NativeModules;
 
+import { convertToReadableFormat, getDayFromISODate } from '../dateConversions';
+import { sendSleepData, sendHeartRateData } from '../../actions/userActions';
+
 // Request read access to health data
 export const findHealthData = async () => {
 
@@ -40,6 +43,8 @@ export const readHeartRateData = async () => {
   try {
     const heartRateData = await Controller.readHeartRateData();
     console.log("Heart rate data:", heartRateData);
+
+    // await sendHeartRateData(heartRateData);
     
     // Process heart rate data
     heartRateData.forEach(data => {
@@ -108,30 +113,25 @@ export const getSleepData = async () => {
   const { Controller } = NativeModules;
   try {
     const sleepData = await Controller.readSleepData();
-    console.log('Raw sleep Data:', sleepData);
+    // console.log('Raw sleep Data:', sleepData);
+    console.log("----------");
+    console.log("SLEEP DATA");
+    console.log("----------");
 
     // await sendSleepData(sleepData);
     
     // Process sleepData as needed. Keep datetimes in ISO.
     const processedSleepData = sleepData.map((dataPoint) => {
       const sleepItem = {
-        label: dataPoint.sleepValue,
-        startTime: dataPoint.startDate,
-        endTime: dataPoint.endDate
+        sleepValue: dataPoint.sleepValue,
+        startDate: dataPoint.startDate,
+        endDate: dataPoint.endDate
       };
-      console.log(`[${sleepItem.label.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startTime)} - ${convertToReadableFormat(sleepItem.endTime)}`)
+      console.log(`[${sleepItem.sleepValue.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startDate)} - ${convertToReadableFormat(sleepItem.endDate)}`)
       return sleepItem
     });
 
-    const sleepLabels = processedSleepData.map(dataPoint => dataPoint.label);
-    const startTimes = processedSleepData.map(dataPoint => dataPoint.startTime);
-    const endTimes = processedSleepData.map(dataPoint => dataPoint.endTime);
-
-    // console.log('Sleep Labels:', sleepLabels);
-    // console.log('Start Times:', startTimes);
-    // console.log('End Times:', endTimes);
-
-    return { sleepLabels, startTimes, endTimes };
+    return processedSleepData;
   } catch (error) {
     console.error('Error retrieving sleep data:', error);
     // Handle the error appropriately (e.g., show a message to the user)
@@ -143,11 +143,14 @@ export const getActivityRingsData = async () => {
 
   try {
     const activityRingsData = await Controller.readActivityRingsData();
-    console.log("Raw activity rings data: ", activityRingsData);
+    // console.log("Raw activity rings data: ", activityRingsData);
+    console.log("--------------");
+    console.log("ACTIVITY RINGS");
+    console.log("--------------");
 
     // Extract individual energy burned, move, and stand data.
     const processedRingData = activityRingsData.map((dayData) => {
-      return {
+      const currentData = {
         date: dayData.date,
         energyBurned: dayData.energyBurned,
         energyBurnedGoal: dayData.energyBurnedGoal,
@@ -156,6 +159,8 @@ export const getActivityRingsData = async () => {
         standHours: dayData.standHours,
         standHoursGoal: dayData.standHoursGoal
       }
+      console.log(`${getDayFromISODate(dayData.date)}: ${JSON.stringify(currentData)}`);
+      return currentData;
     })
 
     // Use the processed data to your desired purpose.
@@ -164,22 +169,4 @@ export const getActivityRingsData = async () => {
   } catch (error) {
     console.error("Error retrieving activity ring data", error);
   }
-}
-
-// ISO to human readable datetime format.
-function convertToReadableFormat(isoString) {
-  const date = new Date(isoString);
-
-  // Options for toLocaleString to display in desired format
-  const options = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true // Use 12-hour time format with AM/PM
-  };
-
-  // Convert to local string with specified options
-  return date.toLocaleString('en-US', options);
 }

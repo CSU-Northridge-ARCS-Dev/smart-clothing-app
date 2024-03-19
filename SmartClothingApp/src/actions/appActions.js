@@ -4,6 +4,8 @@ import {
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
 } from "./types";
+import { getActivityRingsData } from "../utils/AppleHealthKit/AppleHealthKitUtils";
+import { getDayFromISODate } from "../utils/dateConversions";
 
 export const userMetricsDataModalVisible = (
   visibility,
@@ -25,10 +27,6 @@ export const updateActivityRingsData = (day, ringData) => {
   };
 };
 
-const generateRandomValue = () => {
-  return Math.random() * 2;
-};
-
 export const updateHeartRateDateRangeData = (startDate, endDate) => {
   return {
     type: UPDATE_HEART_RATE_DATE_RANGE,
@@ -45,28 +43,27 @@ export const updateSleepDataDateRangeData = (startDate, endDate) => {
 
 export const updateActivityRings = () => {
   return async (dispatch) => {
-    const daysOfWeek = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
+    // Load in all past 7 days.
+    const ringData = await getActivityRingsData();
+    console.log(`Ring data: ${JSON.stringify(ringData)}`);
 
-    for (const day of daysOfWeek) {
-      const randomData = {
-        ring1: generateRandomValue().toFixed(1),
-        ring2: generateRandomValue().toFixed(1),
-        ring3: generateRandomValue().toFixed(1),
-      };
+    for (const dayData of ringData) {
+      const data = {
+        ring1: {
+          currentValue: dayData.energyBurned,
+          goalValue: dayData.energyBurnedGoal
+        },
+        ring2: {
+          currentValue: dayData.exerciseTime,
+          goalValue: dayData.exerciseTimeGoal
+        },
+        ring3: {
+          currentValue: dayData.standHours,
+          goalValue: dayData.standHoursGoal
+        },
+      }
 
-      // Simulate an async operation (e.g., fetching data)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Dispatch the action to update the activity rings data
-      dispatch(updateActivityRingsData(day, randomData));
+      dispatch(updateActivityRingsData(getDayFromISODate(dayData.date), data));
     }
   };
 };
