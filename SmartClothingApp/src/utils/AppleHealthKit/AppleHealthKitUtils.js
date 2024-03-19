@@ -1,6 +1,8 @@
 import { NativeModules } from 'react-native';
 const { Controller } = NativeModules;
 
+import { convertToReadableFormat, getDayFromISODate } from '../dateConversions';
+
 // Request read access to health data
 export const findHealthData = async () => {
 
@@ -108,7 +110,10 @@ export const getSleepData = async () => {
   const { Controller } = NativeModules;
   try {
     const sleepData = await Controller.readSleepData();
-    console.log('Raw sleep Data:', sleepData);
+    // console.log('Raw sleep Data:', sleepData);
+    console.log("----------");
+    console.log("SLEEP DATA");
+    console.log("----------");
 
     // await sendSleepData(sleepData);
     
@@ -144,10 +149,13 @@ export const getActivityRingsData = async () => {
   try {
     const activityRingsData = await Controller.readActivityRingsData();
     // console.log("Raw activity rings data: ", activityRingsData);
+    console.log("--------------");
+    console.log("ACTIVITY RINGS");
+    console.log("--------------");
 
     // Extract individual energy burned, move, and stand data.
     const processedRingData = activityRingsData.map((dayData) => {
-      return {
+      const currentData = {
         date: dayData.date,
         energyBurned: dayData.energyBurned,
         energyBurnedGoal: dayData.energyBurnedGoal,
@@ -156,6 +164,8 @@ export const getActivityRingsData = async () => {
         standHours: dayData.standHours,
         standHoursGoal: dayData.standHoursGoal
       }
+      console.log(`${getDayFromISODate(dayData.date)}: ${JSON.stringify(currentData)}`);
+      return currentData;
     })
 
     // Use the processed data to your desired purpose.
@@ -164,22 +174,4 @@ export const getActivityRingsData = async () => {
   } catch (error) {
     console.error("Error retrieving activity ring data", error);
   }
-}
-
-// ISO to human readable datetime format.
-function convertToReadableFormat(isoString) {
-  const date = new Date(isoString);
-
-  // Options for toLocaleString to display in desired format
-  const options = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true // Use 12-hour time format with AM/PM
-  };
-
-  // Convert to local string with specified options
-  return date.toLocaleString('en-US', options);
 }

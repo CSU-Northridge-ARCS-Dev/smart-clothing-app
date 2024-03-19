@@ -22,15 +22,19 @@ const ViewInsights = ({ route }) => {
   const dispatch = useDispatch();
   const activityRingsData = useSelector((state) => state.app.activityRingsData);
   const [currentRingData, setCurrentRingData] = useState({
-    ring1: 0,
-    ring2: 0,
-    ring3: 0,
+    ring1: {
+      currentValue: 0,
+      goalValue: 800  // Initial cap.
+    },
+    ring2: {
+      currentValue: 0,
+      goalValue: 90  // Initial cap.
+    },
+    ring3: {
+      currentValue: 0,
+      goalValue: 16  // Initial cap.
+    },
   });
-
-  // Change these to goal values.
-  const maxCal = 800;  // Don't know cap.
-  const maxMin = 90;  // As capped in Apple Watch.
-  const maxHrs = 16;  // As capped in Apple Watch.
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -43,20 +47,25 @@ const ViewInsights = ({ route }) => {
     }
   };
 
-  console.log(activityRingsData);
+  // console.log(activityRingsData);
 
-  const handleRingPress = (day) => {
+  // Slight wrapper over setCurrentRingData, focuses screen on a single day's data.
+  const setFocusedRingData = (day) => {
     const currentRingData = {
       ring1: activityRingsData[day].ring1,
       ring2: activityRingsData[day].ring2,
       ring3: activityRingsData[day].ring3,
     };
-
     setCurrentRingData(currentRingData);
+  }
+
+  const handleRingPress = (day) => {
+    setFocusedRingData(day);
   };
 
   const handleUpdate = async () => {
     await dispatch(updateActivityRings());
+    setFocusedRingData(currentDate.toLocaleDateString('en-US', { weekday: 'long' }));
   };
 
   const formattedDate = currentDate.toLocaleDateString("en-US", {
@@ -80,34 +89,34 @@ const ViewInsights = ({ route }) => {
           handleRingPress={handleRingPress}
         />
       </View>
-      <ActivityRings //big ring
+      <ActivityRings // Big ring.
         scale={0.9}
         canvasWidth={400}
         canvasHeight={220}
         horiPos={2}
         vertPos={2}
-        totalProgress={{ ...currentRingData }}
+        totalProgress={{...currentRingData}}
       />
       <ActivityChart
         color={AppColor.ringMove}
         name="Move"
         type="CAL"
-        goal={maxCal}
-        progress={0}
+        goal={currentRingData.ring1.goalValue}  // Already rounded by Apple.
+        progress={Math.round(currentRingData.ring1.currentValue)}
       ></ActivityChart>
       <ActivityChart
         color={AppColor.ringExercise}
         name="Exercise"
         type="MIN"
-        goal={maxMin}
-        progress={0}
+        goal={currentRingData.ring2.goalValue}
+        progress={currentRingData.ring2.currentValue}
       ></ActivityChart>
       <ActivityChart
         color={AppColor.ringStand}
         name="Stand"
         type="HRS"
-        goal={maxHrs}
-        progress={0}
+        goal={currentRingData.ring3.goalValue}
+        progress={currentRingData.ring3.currentValue}
       ></ActivityChart>
       {showDatePicker && (
         <DateTimePicker
@@ -121,8 +130,8 @@ const ViewInsights = ({ route }) => {
         title="Update Activity Rings Data"
         onPress={() => {
           handleUpdate();
-          // updateDataAtIndex(7, 5);
-        }}
+          }
+        }
       />
     </ScrollView>
   );

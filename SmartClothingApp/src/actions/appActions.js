@@ -5,6 +5,7 @@ import {
   UPDATE_SLEEP_DATA_DATE_RANGE,
 } from "./types";
 import { getActivityRingsData } from "../utils/AppleHealthKit/AppleHealthKitUtils";
+import { getDayFromISODate } from "../utils/dateConversions";
 
 export const userMetricsDataModalVisible = (
   visibility,
@@ -24,10 +25,6 @@ export const updateActivityRingsData = (day, ringData) => {
     type: UPDATE_ACTIVITY_RINGS_DATA,
     payload: { day, rings: ringData },
   };
-};
-
-const generateRandomValue = () => {
-  return Math.random() * 2;
 };
 
 export const updateHeartRateDateRangeData = (startDate, endDate) => {
@@ -52,9 +49,18 @@ export const updateActivityRings = () => {
 
     for (const dayData of ringData) {
       const data = {
-        ring1: (dayData.energyBurned / dayData.energyBurnedGoal),
-        ring2: (dayData.exerciseTime / dayData.exerciseTimeGoal),
-        ring3: (dayData.standHours / dayData.standHoursGoal),
+        ring1: {
+          currentValue: dayData.energyBurned,
+          goalValue: dayData.energyBurnedGoal
+        },
+        ring2: {
+          currentValue: dayData.exerciseTime,
+          goalValue: dayData.exerciseTimeGoal
+        },
+        ring3: {
+          currentValue: dayData.standHours,
+          goalValue: dayData.standHoursGoal
+        },
       }
 
       dispatch(updateActivityRingsData(getDayFromISODate(dayData.date), data));
@@ -73,10 +79,3 @@ export const updateSleepDataDateRange = (startDate, endDate) => {
     dispatch(updateSleepDataDateRangeData(startDate, endDate));
   };
 };
-
-function getDayFromISODate(isoDate) {
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const date = new Date(isoDate);
-  const dayIndex = date.getDay();
-  return daysOfWeek[dayIndex];
-}
