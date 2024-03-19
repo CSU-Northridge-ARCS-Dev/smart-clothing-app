@@ -39,6 +39,14 @@ const ViewInsights = ({ route }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const formattedDate = currentDate.toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  useEffect(() =>{
+    setFocusedRingData(formattedDate);
+  },[activityRingsData[formattedDate]])
+
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
@@ -47,9 +55,6 @@ const ViewInsights = ({ route }) => {
     }
   };
 
-  // console.log(activityRingsData);
-
-  // Slight wrapper over setCurrentRingData, focuses screen on a single day's data.
   const setFocusedRingData = (day) => {
     const currentRingData = {
       ring1: activityRingsData[day].ring1,
@@ -65,15 +70,7 @@ const ViewInsights = ({ route }) => {
 
   const handleUpdate = async () => {
     await dispatch(updateActivityRings());
-    setFocusedRingData(currentDate.toLocaleDateString('en-US', { weekday: 'long' }));
   };
-
-  const formattedDate = currentDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
 
   useEffect(() => {
     setCurrentDate(currentDate);
