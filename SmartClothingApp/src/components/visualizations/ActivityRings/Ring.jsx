@@ -90,12 +90,14 @@ const Ring = ({
     return path;
   }, [center, r, totalProgress]);
 
-  // const path = useComputedValue(() => {
-  //   if (trim.value < 1) {
-  //     return fullPath.copy().trim(0, trim.value, false);
-  //   }
-  //   return fullPath;
-  // });
+  const path = useDerivedValue(() => {
+    if (trim.value < 1) {
+      if (fullPath) {
+          return fullPath.copy().trim(0, trim.value, false);
+      }
+    }
+    return fullPath;
+  });
 
   const matrix = useDerivedValue(() => {
     const m = Skia.Matrix();
@@ -110,7 +112,7 @@ const Ring = ({
   });
 
   const uniforms = useDerivedValue(() => {
-    const head = fullPath.getLastPt();
+    const head = path.value.getLastPt();
     return {
       head,
       r: strokeWidth / 2,
@@ -121,7 +123,7 @@ const Ring = ({
   });
 
   useEffect(() => {
-    trim.value = 1;
+    trim.value = withTiming(1, { duration: 3000 });
   }, []);
 
   return (
@@ -134,7 +136,7 @@ const Ring = ({
           color={colors[0]}
         />
         <Path
-          path={fullPath}
+          path={path}
           strokeWidth={strokeWidth}
           style="stroke"
           color={colors[0]}

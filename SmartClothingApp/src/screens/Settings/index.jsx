@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, StatusBar } from "react-native";
+import { ScrollView, View, Text, StyleSheet, StatusBar } from "react-native";
 import { AppHeader } from "../../components";
 import { AppFonts, AppColor, AppStyle } from "../../constants/themes";
 import { useDispatch } from "react-redux";
@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import UpdateEmailModal from "../../components/UpdateEmailModal/UpdateEmailModal";
 import DeleteAccountModal from "../../components/DeleteAccountModal/DeleteAccountModal";
 import ChangePasswordModal from "../../components/ChangePasswordModal/ChangePasswordModal"
+import ToSModal from "../../components/ToSModal/ToSModal";
 import SettingsButton from "../../components/UI/SettingsButton";
 
 const SettingsScreen = ({ navigation, route }) => {
@@ -31,7 +32,7 @@ const SettingsScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View style>
+    <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
       <UpdateEmailModal
         visible={isModalVisible.modal1}
@@ -47,7 +48,12 @@ const SettingsScreen = ({ navigation, route }) => {
         closeModal={() => closeModal("changePasswordModal")} 
       ></ChangePasswordModal>
 
-      <View style={styles.content}>
+      <ToSModal
+        visible={isModalVisible.modal2}
+        closeModal={() => closeModal("modal2")}
+      ></ToSModal>
+
+      <View>
         <Text
           style={[
             styles.title,
@@ -58,7 +64,7 @@ const SettingsScreen = ({ navigation, route }) => {
           {"Account\nSettings"}
         </Text>
       </View>
-      <View style={{ alignItems: "center", gap: 30 }}>
+      <View style={styles.content}>
         <SettingsButton
           title="UPDATE EMAIL"
           onPress={() => openModal("modal1")}
@@ -78,8 +84,13 @@ const SettingsScreen = ({ navigation, route }) => {
           onPress={() => openModal("modal4")}
           description="Permanently delete your account"
         />
+        <SettingsButton
+          title="TERMS OF SERVICES"
+          onPress={() => openModal("modal2")}
+          description="Review terms of services"
+        />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -88,6 +99,11 @@ const styles = StyleSheet.create({
     fontSize: 36,
     marginVertical: 24,
     textAlign: "center",
+  },
+  content: {
+    alignItems: "center",
+    gap: 30, 
+    marginBottom: 24,
   },
   selectBtn: {
     borderRadius: 10,
