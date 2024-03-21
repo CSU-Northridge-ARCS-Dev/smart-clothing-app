@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, Image, ScrollView } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -10,23 +10,20 @@ import {
   TextInput,
 } from "react-native-paper";
 import { AppColor, AppStyle } from "../../constants/themes";
-import { HeroSection } from "../../components";
-import ToSModal from "../../components/ToSModal/ToSModal";
-
-import Icon from "react-native-vector-icons/FontAwesome5";
+import { HeroSection, DataCollectModal } from "../../components";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { startSignupWithEmail } from "../../actions/userActions.js";
+import {
+  startSignupWithEmail,
+  startUpdateUserData,
+} from "../../actions/userActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const authError = useSelector((state) => state.user.authError);
+
   const [isSubmitting, setIsSubmitting] = useState(true);
-  const [lockStatusPassword, setLockStatusPassword] = useState("locked");
-  const [lockStatusRepassword, setLockStatusRepassword] = useState("locked");
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [modalVisible, setModalVisible] = useState(true);
 
   const [user, setUser] = useState({
     fname: "",
@@ -268,7 +265,6 @@ const SignupScreen = ({ navigation }) => {
             {error.repassword}
           </HelperText>
         </View>
-
         <View style={styles.checkbox}>
           <Checkbox
             status={isTermsAccepted ? "checked" : "unchecked"}

@@ -42,6 +42,8 @@ import {
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
 
+import { getSleepData, readHeartRateData } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
+
 const loginWithEmail = (user) => {
   return {
     type: LOGIN_WITH_EMAIL,
@@ -429,5 +431,42 @@ export const queryHeartRateData = async (startDate, endDate) => {
   } catch (error) {
     console.error("Error fetching data: ", error);
     return [];
+  }
+};
+
+export const sendSleepData = async (sleepData) => {
+  console.log("Sleep invoked!");
+
+  //get the user ID
+  const userId = auth.currentUser.uid;
+
+  //make a reference to the doc with the user ID
+  const userRef = doc(database, "Users", userId);
+
+  // get documents inside SleepData
+  const sleepDataCollection = collection(userRef, "SleepData");
+
+  // // get docs from SleepData
+  // const sleepDocs = await getDocs(sleepDataCollection);
+
+  for (const data of sleepData) {
+    await addDoc(sleepDataCollection, data);
+  }
+};
+
+export const sendHeartRateData = async (heartRateData) => {
+  console.log("Heart rate invoked!");
+
+  //get the user ID
+  const userId = auth.currentUser.uid;
+
+  //make a reference to the doc with the user ID
+  const userRef = doc(database, "Users", userId);
+
+  // get documents inside HeartRateData
+  const heartRateDataCollection = collection(userRef, "HeartRateData");
+
+  for (const data of heartRateData) {
+    await addDoc(heartRateDataCollection, data);
   }
 };

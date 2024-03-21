@@ -1,9 +1,9 @@
 {
   "expo": {
     "name": "SmartClothingApp",
-    "slug": "SmartClothingApp",
+    "slug": "smart-clothing-app",
     "version": "1.0.0",
-    // "owner": "arcs", // it was causing "ApiV2Error: Entity Not Authorized." expo app error, so temporarily removed it
+    "owner": "vaiterius",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,7 +18,11 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arcs.smartclothingapp"
+      "bundleIdentifier": "com.arcs.smartclothingapp",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "This app needs access to your health data to track fitness activities.",
+        "NSHealthUpdateUsageDescription": "This app needs access to your health data to track fitness activities."
+      }
     },
     "android": {
       "package": "com.arcs.smartclothingapp",
@@ -28,7 +32,13 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c600d87d-0964-4d97-a260-af18bb27c115"
+      }
     }
   }
 }

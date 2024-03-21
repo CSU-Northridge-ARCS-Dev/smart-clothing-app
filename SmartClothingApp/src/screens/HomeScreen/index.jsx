@@ -5,6 +5,8 @@ import { Button, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
+import { getSleepData } from "../../utils/AppleHealthKit/AppleHealthKitUtils.js";
+import { sendSleepData, sendHeartRateData } from "../../actions/userActions.js";
 import {
   ActivityCard,
   AppHeader,
@@ -29,12 +31,23 @@ export default function HomeScreen({ navigation }) {
       previousScreenTitle: route.name,
     });
   };
+
+  const sendData = async () => {
+    try {
+      await sendSleepData();
+      await sendHeartRateData();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const firstName = useSelector((state) => state.user.firstName);
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
+        <Button onPress={async () => {await sendData();}}>Send Sleep & Heart Rate Data</Button>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
