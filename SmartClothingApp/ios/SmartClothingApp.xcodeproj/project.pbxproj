@@ -56,6 +56,7 @@
 		13B07FAE1A68108700A75B9A /* SmartClothingApp */ = {
 			isa = PBXGroup;
 			children = (
+				9106C0292BAC28C200183CAD /* Fonts */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -109,6 +110,13 @@
 				13B07F961A680F5B00A75B9A /* SmartClothingApp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9106C0292BAC28C200183CAD /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		92DBD88DE9BF7D494EA9DA96 /* SmartClothingApp */ = {
