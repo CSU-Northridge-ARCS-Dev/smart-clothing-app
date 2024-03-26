@@ -5,6 +5,7 @@ import { Button, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
+import { getSleepData, readHeartRateData } from "../../utils/AppleHealthKit/AppleHealthKitUtils.js";
 import {
   ActivityCard,
   AppHeader,
@@ -29,12 +30,32 @@ export default function HomeScreen({ navigation }) {
       previousScreenTitle: route.name,
     });
   };
+
+  // const sendData = async () => {
+  //   try {
+  //     await getSleepData();
+  //     await readHeartRateData();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     await getSleepData();
+  //     await readHeartRateData();
+  //   }
+  //   fetchData()
+  //   .catch(error => console.error(error));
+  // }, [])  // run once
+
   const firstName = useSelector((state) => state.user.firstName);
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
+        {/* <Button onPress={async () => {await sendData();}}>Send Sleep & Heart Rate Data</Button> */}
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
@@ -44,19 +65,19 @@ export default function HomeScreen({ navigation }) {
           style={{ marginTop: 10 }}
           icon="directions-run"
           title="Activity"
-          value="8H 25Min"
+          value="0H 25Min"
         />
         <ActivityCard
           style={{ marginTop: 10 }}
           icon="transfer-within-a-station"
           title="Steps"
-          value="8000"
+          value="2355"
         />
         <ActivityCard
           style={{ marginTop: 10 }}
           icon="fitness-center"
           title="Calories"
-          value="2000 Kcal"
+          value="1280 Kcal"
         />
 
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
@@ -70,7 +91,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Heartbeat Rate
         </Text>
-        {/* <HeartRateChart data={defaultData}/> */}
+        <HeartRateChart data={defaultData}/>
       </View>
     </ScrollView>
   );

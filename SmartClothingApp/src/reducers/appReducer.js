@@ -11,46 +11,108 @@ import {
 
 const initialState = {
   darkTheme: false,
-
-  // userMetricsData Modal sub-states
   userMetricsDataModalVisible: false,
-  isFromSignUpScreen: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
+
+  // Initial values at 0.
   activityRingsData: {
     Sunday: {
-      ring1: 0, // Default value for Sunday, Ring 1
-      ring2: 0, // Default value for Sunday, Ring 2
-      ring3: 0, // Default value for Sunday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0
+      },
     },
     Monday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0
+      },
     },
     Tuesday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0
+      },
     },
     Wednesday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0
+      },
     },
     Thursday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0
+      },
     },
     Friday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0
+      },
     },
     Saturday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0
+      },
     },
   },
   heartRateDateRangeData: {
