@@ -8,9 +8,9 @@ import { HelperText } from 'react-native-paper';
 import renderer from 'react-test-renderer';
 import { Button } from 'react-native-paper';
 import { waitFor } from '@testing-library/react-native';
-import SigninScreen from '../src/screens/SigninScreen/index.jsx';
+import SigninScreen from '../../src/screens/SigninScreen/index.jsx';
 import { useDispatch } from 'react-redux';
-import { startLoginWithEmail } from '../src/actions/userActions.js';
+import { startLoginWithEmail } from '../../src/actions/userActions.js';
 
 
 

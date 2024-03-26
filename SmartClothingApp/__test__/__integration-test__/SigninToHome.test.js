@@ -146,11 +146,12 @@ describe('SignUpToHome Integration Test', () => {
   it('should navigate from Sign-In to Dashboard', async () => {
 
     // Configure Redux Store with Combined Reducer
-    const store = configureStore(rootReducer, {
-      user: {
-        "uuid": null
-      },
-    });
+    // const store = configureStore(rootReducer, {
+    //   user: {
+    //     "uuid": null
+    //   },
+    // });
+    const store = configureStore();
 
     // Wrap TestComponent with Providers and render
     const { getAllByTestId, getByText } = render(
@@ -184,6 +185,7 @@ describe('SignUpToHome Integration Test', () => {
     await waitFor(() => {
       expect(getByText('Dashboard')).toBeTruthy();
     });
+    
 
   });
 });

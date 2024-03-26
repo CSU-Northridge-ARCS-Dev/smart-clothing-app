@@ -209,6 +209,7 @@ exports[`SettingsScreen renders correctly 1`] = `
                   "top": -1,
                 }
               }
+              onGestureCancel={[Function]}
               pointerEvents="box-none"
               sheetAllowedDetents="large"
               sheetCornerRadius={-1}
@@ -236,6 +237,7 @@ exports[`SettingsScreen renders correctly 1`] = `
               <View
                 accessibilityElementsHidden={false}
                 closing={false}
+                collapsable={false}
                 gestureVelocityImpact={0.3}
                 importantForAccessibility="auto"
                 onClose={[Function]}
@@ -349,63 +351,38 @@ exports[`SettingsScreen renders correctly 1`] = `
                             }
                           }
                         >
-                          <View
-                            style={true}
-                          >
-                            <View
-                              style={
-                                [
-                                  {
-                                    "backgroundColor": "rgb(243, 237, 246)",
-                                    "elevation": 2,
-                                    "paddingHorizontal": 0,
-                                    "paddingTop": 0,
-                                    "zIndex": 1,
-                                  },
-                                  {},
-                                  {
-                                    "shadowColor": "#000000",
-                                    "shadowOffset": {
-                                      "height": 0.75,
-                                      "width": 0,
-                                    },
-                                    "shadowOpacity": 0.24,
-                                    "shadowRadius": 1.5,
-                                  },
-                                ]
-                              }
-                              testID="appbar-header-root-layer"
-                            >
+                          <RCTScrollView>
+                            <View>
                               <View
-                                collapsable={false}
                                 style={
-                                  {
-                                    "backgroundColor": "rgb(243, 237, 246)",
-                                    "height": 64,
-                                    "shadowColor": "#000",
-                                    "shadowOffset": {
-                                      "height": 0,
-                                      "width": 0,
+                                  [
+                                    {
+                                      "backgroundColor": "rgb(243, 237, 246)",
+                                      "elevation": 2,
+                                      "paddingHorizontal": 0,
+                                      "paddingTop": 0,
+                                      "zIndex": 1,
                                     },
-                                    "shadowOpacity": 0,
-                                    "shadowRadius": 0,
-                                  }
+                                    {},
+                                    {
+                                      "shadowColor": "#000000",
+                                      "shadowOffset": {
+                                        "height": 0.75,
+                                        "width": 0,
+                                      },
+                                      "shadowOpacity": 0.24,
+                                      "shadowRadius": 1.5,
+                                    },
+                                  ]
                                 }
-                                testID="appbar-header-outer-layer"
+                                testID="appbar-header-root-layer"
                               >
                                 <View
                                   collapsable={false}
                                   style={
                                     {
-                                      "alignItems": "center",
                                       "backgroundColor": "rgb(243, 237, 246)",
-                                      "flex": 1,
-                                      "flexDirection": "row",
-                                      "paddingBottom": undefined,
-                                      "paddingHorizontal": 4,
-                                      "paddingLeft": undefined,
-                                      "paddingRight": undefined,
-                                      "paddingTop": undefined,
+                                      "height": 64,
                                       "shadowColor": "#000",
                                       "shadowOffset": {
                                         "height": 0,
@@ -415,16 +392,21 @@ exports[`SettingsScreen renders correctly 1`] = `
                                       "shadowRadius": 0,
                                     }
                                   }
-                                  testID="appbar-header"
+                                  testID="appbar-header-outer-layer"
                                 >
                                   <View
                                     collapsable={false}
                                     style={
                                       {
-                                        "backgroundColor": "transparent",
-                                        "borderRadius": 20,
-                                        "height": 40,
-                                        "margin": 6,
+                                        "alignItems": "center",
+                                        "backgroundColor": "rgb(243, 237, 246)",
+                                        "flex": 1,
+                                        "flexDirection": "row",
+                                        "paddingBottom": undefined,
+                                        "paddingHorizontal": 4,
+                                        "paddingLeft": undefined,
+                                        "paddingRight": undefined,
+                                        "paddingTop": undefined,
                                         "shadowColor": "#000",
                                         "shadowOffset": {
                                           "height": 0,
@@ -432,22 +414,18 @@ exports[`SettingsScreen renders correctly 1`] = `
                                         },
                                         "shadowOpacity": 0,
                                         "shadowRadius": 0,
-                                        "width": 40,
                                       }
                                     }
-                                    testID="back-action-container-outer-layer"
+                                    testID="appbar-header"
                                   >
                                     <View
                                       collapsable={false}
                                       style={
                                         {
                                           "backgroundColor": "transparent",
-                                          "borderColor": "rgba(121, 116, 126, 1)",
                                           "borderRadius": 20,
-                                          "borderWidth": 0,
-                                          "elevation": 0,
-                                          "flex": 1,
-                                          "overflow": "hidden",
+                                          "height": 40,
+                                          "margin": 6,
                                           "shadowColor": "#000",
                                           "shadowOffset": {
                                             "height": 0,
@@ -455,558 +433,629 @@ exports[`SettingsScreen renders correctly 1`] = `
                                           },
                                           "shadowOpacity": 0,
                                           "shadowRadius": 0,
+                                          "width": 40,
                                         }
                                       }
-                                      testID="back-action-container"
+                                      testID="back-action-container-outer-layer"
                                     >
                                       <View
-                                        accessibilityComponentType="button"
-                                        accessibilityLabel="Back"
-                                        accessibilityRole="button"
-                                        accessibilityState={
-                                          {
-                                            "busy": undefined,
-                                            "checked": undefined,
-                                            "disabled": false,
-                                            "expanded": undefined,
-                                            "selected": undefined,
-                                          }
-                                        }
-                                        accessibilityTraits="button"
-                                        accessibilityValue={
-                                          {
-                                            "max": undefined,
-                                            "min": undefined,
-                                            "now": undefined,
-                                            "text": undefined,
-                                          }
-                                        }
-                                        accessible={true}
-                                        centered={true}
                                         collapsable={false}
-                                        focusable={true}
-                                        hitSlop={
+                                        style={
                                           {
-                                            "bottom": 6,
-                                            "left": 6,
-                                            "right": 6,
-                                            "top": 6,
+                                            "backgroundColor": "transparent",
+                                            "borderColor": "rgba(121, 116, 126, 1)",
+                                            "borderRadius": 20,
+                                            "borderWidth": 0,
+                                            "elevation": 0,
+                                            "flex": 1,
+                                            "overflow": "hidden",
+                                            "shadowColor": "#000",
+                                            "shadowOffset": {
+                                              "height": 0,
+                                              "width": 0,
+                                            },
+                                            "shadowOpacity": 0,
+                                            "shadowRadius": 0,
                                           }
                                         }
-                                        onBlur={[Function]}
-                                        onClick={[Function]}
-                                        onFocus={[Function]}
-                                        onResponderGrant={[Function]}
-                                        onResponderMove={[Function]}
-                                        onResponderRelease={[Function]}
-                                        onResponderTerminate={[Function]}
-                                        onResponderTerminationRequest={[Function]}
-                                        onStartShouldSetResponder={[Function]}
-                                        style={
-                                          [
-                                            {
-                                              "overflow": "hidden",
-                                            },
-                                            [
-                                              {
-                                                "alignItems": "center",
-                                                "flexGrow": 1,
-                                                "justifyContent": "center",
-                                              },
-                                              {
-                                                "borderRadius": 20,
-                                              },
-                                            ],
-                                          ]
-                                        }
-                                        testID="back-action"
+                                        testID="back-action-container"
                                       >
                                         <View
+                                          accessibilityComponentType="button"
+                                          accessibilityLabel="Back"
+                                          accessibilityRole="button"
+                                          accessibilityState={
+                                            {
+                                              "busy": undefined,
+                                              "checked": undefined,
+                                              "disabled": false,
+                                              "expanded": undefined,
+                                              "selected": undefined,
+                                            }
+                                          }
+                                          accessibilityTraits="button"
+                                          accessibilityValue={
+                                            {
+                                              "max": undefined,
+                                              "min": undefined,
+                                              "now": undefined,
+                                              "text": undefined,
+                                            }
+                                          }
+                                          accessible={true}
+                                          centered={true}
+                                          collapsable={false}
+                                          focusable={true}
+                                          hitSlop={
+                                            {
+                                              "bottom": 6,
+                                              "left": 6,
+                                              "right": 6,
+                                              "top": 6,
+                                            }
+                                          }
+                                          onBlur={[Function]}
+                                          onClick={[Function]}
+                                          onFocus={[Function]}
+                                          onResponderGrant={[Function]}
+                                          onResponderMove={[Function]}
+                                          onResponderRelease={[Function]}
+                                          onResponderTerminate={[Function]}
+                                          onResponderTerminationRequest={[Function]}
+                                          onStartShouldSetResponder={[Function]}
                                           style={
                                             [
                                               {
-                                                "alignItems": "center",
-                                                "justifyContent": "center",
+                                                "overflow": "hidden",
                                               },
-                                              {
-                                                "height": 24,
-                                                "width": 24,
-                                              },
+                                              [
+                                                {
+                                                  "alignItems": "center",
+                                                  "flexGrow": 1,
+                                                  "justifyContent": "center",
+                                                },
+                                                {
+                                                  "borderRadius": 20,
+                                                },
+                                              ],
                                             ]
                                           }
+                                          testID="back-action"
                                         >
                                           <View
-                                            collapsable={false}
                                             style={
-                                              {
-                                                "bottom": 0,
-                                                "left": 0,
-                                                "opacity": 1,
-                                                "position": "absolute",
-                                                "right": 0,
-                                                "top": 0,
-                                                "transform": [
-                                                  {
-                                                    "rotate": "0deg",
-                                                  },
-                                                ],
-                                              }
+                                              [
+                                                {
+                                                  "alignItems": "center",
+                                                  "justifyContent": "center",
+                                                },
+                                                {
+                                                  "height": 24,
+                                                  "width": 24,
+                                                },
+                                              ]
                                             }
-                                            testID="cross-fade-icon-current"
                                           >
                                             <View
+                                              collapsable={false}
                                               style={
-                                                [
-                                                  {
-                                                    "alignItems": "center",
-                                                    "justifyContent": "center",
-                                                  },
-                                                  {
-                                                    "height": 24,
-                                                    "transform": [
-                                                      {
-                                                        "scaleX": 1,
-                                                      },
-                                                    ],
-                                                    "width": 24,
-                                                  },
-                                                ]
+                                                {
+                                                  "bottom": 0,
+                                                  "left": 0,
+                                                  "opacity": 1,
+                                                  "position": "absolute",
+                                                  "right": 0,
+                                                  "top": 0,
+                                                  "transform": [
+                                                    {
+                                                      "rotate": "0deg",
+                                                    },
+                                                  ],
+                                                }
                                               }
+                                              testID="cross-fade-icon-current"
                                             >
-                                              <Image
-                                                accessibilityIgnoresInvertColors={true}
-                                                source={1}
+                                              <View
                                                 style={
                                                   [
                                                     {
-                                                      "resizeMode": "contain",
+                                                      "alignItems": "center",
+                                                      "justifyContent": "center",
                                                     },
                                                     {
-                                                      "height": 21,
-                                                      "tintColor": "rgba(28, 27, 31, 1)",
-                                                      "width": 21,
+                                                      "height": 24,
+                                                      "transform": [
+                                                        {
+                                                          "scaleX": 1,
+                                                        },
+                                                      ],
+                                                      "width": 24,
                                                     },
                                                   ]
                                                 }
-                                              />
+                                              >
+                                                <Image
+                                                  accessibilityIgnoresInvertColors={true}
+                                                  source={1}
+                                                  style={
+                                                    [
+                                                      {
+                                                        "resizeMode": "contain",
+                                                      },
+                                                      {
+                                                        "height": 21,
+                                                        "tintColor": "rgba(28, 27, 31, 1)",
+                                                        "width": 21,
+                                                      },
+                                                    ]
+                                                  }
+                                                />
+                                              </View>
                                             </View>
                                           </View>
                                         </View>
                                       </View>
                                     </View>
-                                  </View>
-                                  <View
-                                    pointerEvents="box-none"
-                                    style={
-                                      [
-                                        {
-                                          "flex": 1,
-                                          "paddingHorizontal": 12,
-                                        },
-                                        {
-                                          "paddingHorizontal": 0,
-                                        },
-                                        [
-                                          false,
-                                          {
-                                            "alignItems": "center",
-                                          },
-                                          undefined,
-                                        ],
-                                      ]
-                                    }
-                                    testID="Test Title"
-                                  >
-                                    <Text
-                                      accessibilityRole="header"
-                                      accessibilityTraits="header"
-                                      accessible={true}
-                                      numberOfLines={1}
+                                    <View
+                                      pointerEvents="box-none"
                                       style={
                                         [
                                           {
-                                            "textAlign": "left",
+                                            "flex": 1,
+                                            "paddingHorizontal": 12,
                                           },
                                           {
-                                            "color": "rgba(28, 27, 31, 1)",
-                                            "writingDirection": "ltr",
+                                            "paddingHorizontal": 0,
                                           },
                                           [
+                                            false,
                                             {
-                                              "fontFamily": "System",
-                                              "fontSize": 22,
-                                              "fontWeight": "400",
-                                              "letterSpacing": 0,
-                                              "lineHeight": 28,
+                                              "alignItems": "center",
+                                            },
+                                            undefined,
+                                          ],
+                                        ]
+                                      }
+                                      testID="Test Title"
+                                    >
+                                      <Text
+                                        accessibilityRole="header"
+                                        accessibilityTraits="header"
+                                        accessible={true}
+                                        numberOfLines={1}
+                                        style={
+                                          [
+                                            {
+                                              "textAlign": "left",
+                                            },
+                                            {
+                                              "color": "rgba(28, 27, 31, 1)",
+                                              "writingDirection": "ltr",
                                             },
                                             [
                                               {
-                                                "color": "rgba(28, 27, 31, 1)",
                                                 "fontFamily": "System",
                                                 "fontSize": 22,
                                                 "fontWeight": "400",
                                                 "letterSpacing": 0,
                                                 "lineHeight": 28,
                                               },
-                                              false,
-                                              {
-                                                "fontFamily": "ChakraPetch_BoldItalic",
-                                              },
+                                              [
+                                                {
+                                                  "color": "rgba(28, 27, 31, 1)",
+                                                  "fontFamily": "System",
+                                                  "fontSize": 22,
+                                                  "fontWeight": "400",
+                                                  "letterSpacing": 0,
+                                                  "lineHeight": 28,
+                                                },
+                                                false,
+                                                {
+                                                  "fontFamily": "ChakraPetch_BoldItalic",
+                                                },
+                                              ],
                                             ],
-                                          ],
-                                        ]
+                                          ]
+                                        }
+                                        testID="Test Title-title-text"
+                                      >
+                                        Test Title
+                                      </Text>
+                                    </View>
+                                    <View
+                                      style={
+                                        {
+                                          "width": 52,
+                                        }
                                       }
-                                      testID="Test Title-title-text"
-                                    >
-                                      Test Title
-                                    </Text>
+                                    />
                                   </View>
-                                  <View
-                                    style={
+                                </View>
+                              </View>
+                              <View>
+                                <Text
+                                  style={
+                                    [
                                       {
-                                        "width": 52,
-                                      }
+                                        "fontSize": 36,
+                                        "marginVertical": 24,
+                                        "textAlign": "center",
+                                      },
+                                      {
+                                        "color": "rgb(17, 96, 164)",
+                                      },
+                                      {
+                                        "fontFamily": "ChakraPetch_Bold",
+                                      },
+                                    ]
+                                  }
+                                >
+                                  Account
+Settings
+                                </Text>
+                              </View>
+                              <View
+                                style={
+                                  {
+                                    "alignItems": "center",
+                                    "gap": 30,
+                                    "marginBottom": 24,
+                                  }
+                                }
+                              >
+                                <View
+                                  accessibilityState={
+                                    {
+                                      "busy": undefined,
+                                      "checked": undefined,
+                                      "disabled": undefined,
+                                      "expanded": undefined,
+                                      "selected": undefined,
                                     }
-                                  />
+                                  }
+                                  accessibilityValue={
+                                    {
+                                      "max": undefined,
+                                      "min": undefined,
+                                      "now": undefined,
+                                      "text": undefined,
+                                    }
+                                  }
+                                  accessible={true}
+                                  collapsable={false}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    {
+                                      "alignItems": "flex-start",
+                                      "backgroundColor": "#EAF0F8",
+                                      "borderRadius": 10,
+                                      "elevation": 4,
+                                      "height": 90,
+                                      "justifyContent": "center",
+                                      "opacity": 1,
+                                      "padding": 15,
+                                      "width": "85%",
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "fontSize": 21,
+                                        },
+                                        {
+                                          "color": "rgb(17, 96, 164)",
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    UPDATE EMAIL
+                                  </Text>
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "color": "#7D7A7A",
+                                          "fontSize": 14,
+                                          "paddingTop": 5,
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    Change your account email
+                                  </Text>
+                                </View>
+                                <View
+                                  accessibilityState={
+                                    {
+                                      "busy": undefined,
+                                      "checked": undefined,
+                                      "disabled": undefined,
+                                      "expanded": undefined,
+                                      "selected": undefined,
+                                    }
+                                  }
+                                  accessibilityValue={
+                                    {
+                                      "max": undefined,
+                                      "min": undefined,
+                                      "now": undefined,
+                                      "text": undefined,
+                                    }
+                                  }
+                                  accessible={true}
+                                  collapsable={false}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    {
+                                      "alignItems": "flex-start",
+                                      "backgroundColor": "#EAF0F8",
+                                      "borderRadius": 10,
+                                      "elevation": 4,
+                                      "height": 90,
+                                      "justifyContent": "center",
+                                      "opacity": 1,
+                                      "padding": 15,
+                                      "width": "85%",
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "fontSize": 21,
+                                        },
+                                        {
+                                          "color": "rgb(17, 96, 164)",
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    CHANGE PASSWORD
+                                  </Text>
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "color": "#7D7A7A",
+                                          "fontSize": 14,
+                                          "paddingTop": 5,
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    Change your account password
+                                  </Text>
+                                </View>
+                                <View
+                                  accessibilityState={
+                                    {
+                                      "busy": undefined,
+                                      "checked": undefined,
+                                      "disabled": undefined,
+                                      "expanded": undefined,
+                                      "selected": undefined,
+                                    }
+                                  }
+                                  accessibilityValue={
+                                    {
+                                      "max": undefined,
+                                      "min": undefined,
+                                      "now": undefined,
+                                      "text": undefined,
+                                    }
+                                  }
+                                  accessible={true}
+                                  collapsable={false}
+                                  focusable={false}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    {
+                                      "alignItems": "flex-start",
+                                      "backgroundColor": "#EAF0F8",
+                                      "borderRadius": 10,
+                                      "elevation": 4,
+                                      "height": 90,
+                                      "justifyContent": "center",
+                                      "opacity": 1,
+                                      "padding": 15,
+                                      "width": "85%",
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "fontSize": 21,
+                                        },
+                                        {
+                                          "color": "rgb(17, 96, 164)",
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    DELETE DATA
+                                  </Text>
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "color": "#7D7A7A",
+                                          "fontSize": 14,
+                                          "paddingTop": 5,
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    Permanently delete all stored data
+                                  </Text>
+                                </View>
+                                <View
+                                  accessibilityState={
+                                    {
+                                      "busy": undefined,
+                                      "checked": undefined,
+                                      "disabled": undefined,
+                                      "expanded": undefined,
+                                      "selected": undefined,
+                                    }
+                                  }
+                                  accessibilityValue={
+                                    {
+                                      "max": undefined,
+                                      "min": undefined,
+                                      "now": undefined,
+                                      "text": undefined,
+                                    }
+                                  }
+                                  accessible={true}
+                                  collapsable={false}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    {
+                                      "alignItems": "flex-start",
+                                      "backgroundColor": "#EAF0F8",
+                                      "borderRadius": 10,
+                                      "elevation": 4,
+                                      "height": 90,
+                                      "justifyContent": "center",
+                                      "opacity": 1,
+                                      "padding": 15,
+                                      "width": "85%",
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "fontSize": 21,
+                                        },
+                                        {
+                                          "color": "rgb(17, 96, 164)",
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    DELETE ACCOUNT
+                                  </Text>
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "color": "#7D7A7A",
+                                          "fontSize": 14,
+                                          "paddingTop": 5,
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    Permanently delete your account
+                                  </Text>
+                                </View>
+                                <View
+                                  accessibilityState={
+                                    {
+                                      "busy": undefined,
+                                      "checked": undefined,
+                                      "disabled": undefined,
+                                      "expanded": undefined,
+                                      "selected": undefined,
+                                    }
+                                  }
+                                  accessibilityValue={
+                                    {
+                                      "max": undefined,
+                                      "min": undefined,
+                                      "now": undefined,
+                                      "text": undefined,
+                                    }
+                                  }
+                                  accessible={true}
+                                  collapsable={false}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    {
+                                      "alignItems": "flex-start",
+                                      "backgroundColor": "#EAF0F8",
+                                      "borderRadius": 10,
+                                      "elevation": 4,
+                                      "height": 90,
+                                      "justifyContent": "center",
+                                      "opacity": 1,
+                                      "padding": 15,
+                                      "width": "85%",
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "fontSize": 21,
+                                        },
+                                        {
+                                          "color": "rgb(17, 96, 164)",
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    TERMS OF SERVICES
+                                  </Text>
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "color": "#7D7A7A",
+                                          "fontSize": 14,
+                                          "paddingTop": 5,
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    Review terms of services
+                                  </Text>
                                 </View>
                               </View>
                             </View>
-                            <Modal
-                              animationType="slide"
-                              hardwareAccelerated={false}
-                              presentationStyle="pageSheet"
-                              statusBarTranslucent={true}
-                              transparent={false}
-                              visible={false}
-                            />
-                            <Modal
-                              animationType="slide"
-                              hardwareAccelerated={false}
-                              presentationStyle="pageSheet"
-                              statusBarTranslucent={true}
-                              transparent={false}
-                              visible={false}
-                            />
-                            <Modal
-                              animationType="slide"
-                              hardwareAccelerated={false}
-                              presentationStyle="pageSheet"
-                              statusBarTranslucent={true}
-                              transparent={false}
-                              visible={false}
-                            />
-                            <View>
-                              <Text
-                                style={
-                                  [
-                                    {
-                                      "fontSize": 36,
-                                      "marginVertical": 24,
-                                      "textAlign": "center",
-                                    },
-                                    {
-                                      "color": "rgb(17, 96, 164)",
-                                    },
-                                    {
-                                      "fontFamily": "ChakraPetch_Bold",
-                                    },
-                                  ]
-                                }
-                              >
-                                Account
-Settings
-                              </Text>
-                            </View>
-                            <View
-                              style={
-                                {
-                                  "alignItems": "center",
-                                  "gap": 30,
-                                }
-                              }
-                            >
-                              <View
-                                accessibilityState={
-                                  {
-                                    "busy": undefined,
-                                    "checked": undefined,
-                                    "disabled": undefined,
-                                    "expanded": undefined,
-                                    "selected": undefined,
-                                  }
-                                }
-                                accessibilityValue={
-                                  {
-                                    "max": undefined,
-                                    "min": undefined,
-                                    "now": undefined,
-                                    "text": undefined,
-                                  }
-                                }
-                                accessible={true}
-                                collapsable={false}
-                                focusable={true}
-                                onClick={[Function]}
-                                onResponderGrant={[Function]}
-                                onResponderMove={[Function]}
-                                onResponderRelease={[Function]}
-                                onResponderTerminate={[Function]}
-                                onResponderTerminationRequest={[Function]}
-                                onStartShouldSetResponder={[Function]}
-                                style={
-                                  {
-                                    "alignItems": "flex-start",
-                                    "backgroundColor": "#EAF0F8",
-                                    "borderRadius": 10,
-                                    "elevation": 4,
-                                    "height": 90,
-                                    "justifyContent": "center",
-                                    "opacity": 1,
-                                    "padding": 15,
-                                    "width": "85%",
-                                  }
-                                }
-                              >
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "fontSize": 21,
-                                      },
-                                      {
-                                        "color": "rgb(17, 96, 164)",
-                                      },
-                                    ]
-                                  }
-                                >
-                                  UPDATE EMAIL
-                                </Text>
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "color": "#7D7A7A",
-                                        "fontSize": 14,
-                                        "paddingTop": 5,
-                                      },
-                                    ]
-                                  }
-                                >
-                                  Change your account email
-                                </Text>
-                              </View>
-                              <View
-                                accessibilityState={
-                                  {
-                                    "busy": undefined,
-                                    "checked": undefined,
-                                    "disabled": undefined,
-                                    "expanded": undefined,
-                                    "selected": undefined,
-                                  }
-                                }
-                                accessibilityValue={
-                                  {
-                                    "max": undefined,
-                                    "min": undefined,
-                                    "now": undefined,
-                                    "text": undefined,
-                                  }
-                                }
-                                accessible={true}
-                                collapsable={false}
-                                focusable={true}
-                                onClick={[Function]}
-                                onResponderGrant={[Function]}
-                                onResponderMove={[Function]}
-                                onResponderRelease={[Function]}
-                                onResponderTerminate={[Function]}
-                                onResponderTerminationRequest={[Function]}
-                                onStartShouldSetResponder={[Function]}
-                                style={
-                                  {
-                                    "alignItems": "flex-start",
-                                    "backgroundColor": "#EAF0F8",
-                                    "borderRadius": 10,
-                                    "elevation": 4,
-                                    "height": 90,
-                                    "justifyContent": "center",
-                                    "opacity": 1,
-                                    "padding": 15,
-                                    "width": "85%",
-                                  }
-                                }
-                              >
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "fontSize": 21,
-                                      },
-                                      {
-                                        "color": "rgb(17, 96, 164)",
-                                      },
-                                    ]
-                                  }
-                                >
-                                  CHANGE PASSWORD
-                                </Text>
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "color": "#7D7A7A",
-                                        "fontSize": 14,
-                                        "paddingTop": 5,
-                                      },
-                                    ]
-                                  }
-                                >
-                                  Change your account password
-                                </Text>
-                              </View>
-                              <View
-                                accessibilityState={
-                                  {
-                                    "busy": undefined,
-                                    "checked": undefined,
-                                    "disabled": undefined,
-                                    "expanded": undefined,
-                                    "selected": undefined,
-                                  }
-                                }
-                                accessibilityValue={
-                                  {
-                                    "max": undefined,
-                                    "min": undefined,
-                                    "now": undefined,
-                                    "text": undefined,
-                                  }
-                                }
-                                accessible={true}
-                                collapsable={false}
-                                focusable={false}
-                                onClick={[Function]}
-                                onResponderGrant={[Function]}
-                                onResponderMove={[Function]}
-                                onResponderRelease={[Function]}
-                                onResponderTerminate={[Function]}
-                                onResponderTerminationRequest={[Function]}
-                                onStartShouldSetResponder={[Function]}
-                                style={
-                                  {
-                                    "alignItems": "flex-start",
-                                    "backgroundColor": "#EAF0F8",
-                                    "borderRadius": 10,
-                                    "elevation": 4,
-                                    "height": 90,
-                                    "justifyContent": "center",
-                                    "opacity": 1,
-                                    "padding": 15,
-                                    "width": "85%",
-                                  }
-                                }
-                              >
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "fontSize": 21,
-                                      },
-                                      {
-                                        "color": "rgb(17, 96, 164)",
-                                      },
-                                    ]
-                                  }
-                                >
-                                  DELETE DATA
-                                </Text>
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "color": "#7D7A7A",
-                                        "fontSize": 14,
-                                        "paddingTop": 5,
-                                      },
-                                    ]
-                                  }
-                                >
-                                  Permanently delete all stored data
-                                </Text>
-                              </View>
-                              <View
-                                accessibilityState={
-                                  {
-                                    "busy": undefined,
-                                    "checked": undefined,
-                                    "disabled": undefined,
-                                    "expanded": undefined,
-                                    "selected": undefined,
-                                  }
-                                }
-                                accessibilityValue={
-                                  {
-                                    "max": undefined,
-                                    "min": undefined,
-                                    "now": undefined,
-                                    "text": undefined,
-                                  }
-                                }
-                                accessible={true}
-                                collapsable={false}
-                                focusable={true}
-                                onClick={[Function]}
-                                onResponderGrant={[Function]}
-                                onResponderMove={[Function]}
-                                onResponderRelease={[Function]}
-                                onResponderTerminate={[Function]}
-                                onResponderTerminationRequest={[Function]}
-                                onStartShouldSetResponder={[Function]}
-                                style={
-                                  {
-                                    "alignItems": "flex-start",
-                                    "backgroundColor": "#EAF0F8",
-                                    "borderRadius": 10,
-                                    "elevation": 4,
-                                    "height": 90,
-                                    "justifyContent": "center",
-                                    "opacity": 1,
-                                    "padding": 15,
-                                    "width": "85%",
-                                  }
-                                }
-                              >
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "fontSize": 21,
-                                      },
-                                      {
-                                        "color": "rgb(17, 96, 164)",
-                                      },
-                                    ]
-                                  }
-                                >
-                                  DELETE ACCOUNT
-                                </Text>
-                                <Text
-                                  style={
-                                    [
-                                      {
-                                        "color": "#7D7A7A",
-                                        "fontSize": 14,
-                                        "paddingTop": 5,
-                                      },
-                                    ]
-                                  }
-                                >
-                                  Permanently delete your account
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
+                          </RCTScrollView>
                         </View>
                       </View>
                     </View>

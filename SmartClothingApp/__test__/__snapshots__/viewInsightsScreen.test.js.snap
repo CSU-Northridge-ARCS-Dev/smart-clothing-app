@@ -209,6 +209,7 @@ exports[`ViewInsights renders correctly 1`] = `
                   "top": -1,
                 }
               }
+              onGestureCancel={[Function]}
               pointerEvents="box-none"
               sheetAllowedDetents="large"
               sheetCornerRadius={-1}
@@ -236,6 +237,7 @@ exports[`ViewInsights renders correctly 1`] = `
               <View
                 accessibilityElementsHidden={false}
                 closing={false}
+                collapsable={false}
                 gestureVelocityImpact={0.3}
                 importantForAccessibility="auto"
                 onClose={[Function]}
@@ -807,7 +809,42 @@ exports[`ViewInsights renders correctly 1`] = `
                                                 }
                                                 testID="cross-fade-icon-current"
                                               >
-                                                <Text />
+                                                <Text
+                                                  accessibilityElementsHidden={true}
+                                                  allowFontScaling={false}
+                                                  importantForAccessibility="no-hide-descendants"
+                                                  pointerEvents="none"
+                                                  selectable={false}
+                                                  style={
+                                                    [
+                                                      {
+                                                        "color": "rgba(73, 69, 79, 1)",
+                                                        "fontSize": 24,
+                                                      },
+                                                      [
+                                                        {
+                                                          "lineHeight": 24,
+                                                          "transform": [
+                                                            {
+                                                              "scaleX": 1,
+                                                            },
+                                                          ],
+                                                        },
+                                                        {
+                                                          "backgroundColor": "transparent",
+                                                        },
+                                                      ],
+                                                      {
+                                                        "fontFamily": "Material Design Icons",
+                                                        "fontStyle": "normal",
+                                                        "fontWeight": "normal",
+                                                      },
+                                                      {},
+                                                    ]
+                                                  }
+                                                >
+                                                  󰇘
+                                                </Text>
                                               </View>
                                             </View>
                                           </View>
@@ -833,17 +870,6 @@ exports[`ViewInsights renders correctly 1`] = `
                                     }
                                   }
                                 >
-                                  <Text
-                                    style={
-                                      {
-                                        "color": "black",
-                                        "fontSize": 20,
-                                        "textAlign": "left",
-                                      }
-                                    }
-                                  >
-                                    Saturday, March 16, 2024
-                                  </Text>
                                   <View
                                     style={
                                       {
