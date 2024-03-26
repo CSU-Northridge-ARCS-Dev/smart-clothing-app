@@ -18,6 +18,12 @@ import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
   const route = useRoute();
+  const defaultData = [
+    70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
+    71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
+    93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
+    87, 87, 86,
+  ];
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
@@ -63,7 +69,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Heartbeat Rate
         </Text>
-        <HeartRateChart /> */}
+        {/* <HeartRateChart data={defaultData}/> */}
       </View>
     </ScrollView>
   );
