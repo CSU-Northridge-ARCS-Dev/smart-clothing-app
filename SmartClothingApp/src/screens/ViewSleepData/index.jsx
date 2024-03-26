@@ -19,14 +19,14 @@ import {
 import { scaleLinear, tickStep, ticks } from "d3";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
 import { querySleepData } from "../../actions/userActions";
+import { calculateTotalDuration } from "../../utils/dateConversions";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
   const dates = useSelector((state) => state.app.sleepDataDateRangeData);
   const { previousScreenTitle } = route.params;
   const [sleepData, setSleepData] = useState([]);
-
-
+  const [sleepDataUnparsed, setSleepDataUnparsed] = useState([]);
 
   const data = [
       { x: 1, y: 10 },   //Deep 0-40
@@ -36,7 +36,6 @@ const ViewSleepData = ({ route }) => {
       { x: 170, y: 180 }, 
       { x: 200, y: 10 },
   ];
-
 
 //Deep 0-46
 // Core 46-100
@@ -48,6 +47,8 @@ const ViewSleepData = ({ route }) => {
         // console.log(dates.startDate);
         // console.log(dates.endDate);
         const result = await querySleepData(dates.startDate, dates.endDate);
+        setSleepDataUnparsed(result);
+        console.log("UNPARSED SLEEP DATA: ", result)
         // result.forEach(item => {
         //     console.log("startDate", item.startDate);
         //     console.log("endDate", item.endDate);
@@ -64,7 +65,7 @@ const ViewSleepData = ({ route }) => {
   }, [dates.startDate, dates.endDate]);
 
 
-  const parseSleepData = (sleepData) => {  
+  const parseSleepData = (sleepData) => {
     
     durations = [];
 
@@ -153,6 +154,23 @@ const ViewSleepData = ({ route }) => {
   const sortedColors = colorStops.map((stop) => stop.color);
 
   const x = ticks(0, 180, 30);
+
+  // e.g. returns array of objects if type is REM
+  const getPhaseDuration = (phaseType) => {
+    // const dates = sleepDataUnparsed.map(({ startDate, endDate, sleepValue }) => {
+    //   if (sleepValue !== phaseType) return;
+    //   return { startDate, endDate };
+    // });
+    // console.log("UNPARSED!!!", sleepDataUnparsed)
+    const dates = sleepDataUnparsed.filter(item => {
+      console.log(`phaseType: ${item.sleepValue}, item.sleepValue: ${phaseType}`)
+      return item.sleepValue === phaseType;
+    });
+    // for (let obj of dates) {
+    //   console.log(JSON.stringify(obj))
+    // }
+    return calculateTotalDuration(dates);
+  }
 
   return (
     <ScrollView>
@@ -262,7 +280,7 @@ const ViewSleepData = ({ route }) => {
               ></View>
               <Text style={styles.infoText}>Awake</Text>
             </View>
-            <Text style={styles.infoText}>5 min</Text>
+            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Awake").totalHours} hr ${getPhaseDuration("Awake").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
 
@@ -274,7 +292,7 @@ const ViewSleepData = ({ route }) => {
               ></View>
               <Text style={styles.infoText}>REM</Text>
             </View>
-            <Text style={styles.infoText}>1 hr 56 min</Text>
+            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("REM").totalHours} hr ${getPhaseDuration("REM").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
 
@@ -286,7 +304,7 @@ const ViewSleepData = ({ route }) => {
               />
               <Text style={styles.infoText}>Core</Text>
             </View>
-            <Text style={styles.infoText}>5 hr 17 min</Text>
+            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Core").totalHours} hr ${getPhaseDuration("Core").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
 
@@ -298,7 +316,7 @@ const ViewSleepData = ({ route }) => {
               />
               <Text style={styles.infoText}>Deep</Text>
             </View>
-            <Text style={styles.infoText}>11 min</Text>
+            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Deep").totalHours} hr ${getPhaseDuration("Deep").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
       </View>
