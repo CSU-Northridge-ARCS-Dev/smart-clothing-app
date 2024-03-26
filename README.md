@@ -82,4 +82,5 @@ To bypass login/signup page:
 - Android Studio Build, PATH variable:
     - go to settings
     - type in: ```edit system variables```
-    - add ```C:\\Users\ReplaceWithYourUser\AppData\Local\Android\Sdk```
+    - add ```C:\\Users\\ReplaceWithYourUser\\AppData\\Local\\Android\Sdk``` (this path can be found from Android Studio by doing to the SDK Manager)
+    - set sdk.dir to the same path as well
