@@ -128,31 +128,31 @@ export default function App() {
         console.error(error)
       });
   
-  readHeartRateData()
-      .catch(error => {
-        console.error(error)
-      });
+  // readHeartRateData()
+  //     .catch(error => {
+  //       console.error(error)
+  //     });
     
-      getHeartRateVariabilityData()
-    .catch(error => {
-      console.error(error);
-    });
+  //     getHeartRateVariabilityData()
+  //   .catch(error => {
+  //     console.error(error);
+  //   });
 
-  // these methods don't crash the app 
-  getRestingHeartRateData()
-    .catch(error => {
-      console.error(error);
-    });
+  // // these methods don't crash the app 
+  // getRestingHeartRateData()
+  //   .catch(error => {
+  //     console.error(error);
+  //   });
 
-  getSleepData()
-  .catch(error => {
-    console.error(error);
-  });
+  // getSleepData()
+  // .catch(error => {
+  //   console.error(error);
+  // });
 
-  getActivityRingsData()
-  .catch(error => {
-    console.error(error);
-  })
+  // getActivityRingsData()
+  // .catch(error => {
+  //   console.error(error);
+  // })
 
   }, []);
 

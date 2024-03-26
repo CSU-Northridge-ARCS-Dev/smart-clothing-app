@@ -446,8 +446,11 @@ export const sendSleepData = async (sleepData) => {
   // get documents inside SleepData
   const sleepDataCollection = collection(userRef, "SleepData");
 
-  // // get docs from SleepData
+  // get docs from SleepData
   // const sleepDocs = await getDocs(sleepDataCollection);
+
+  console.log("sleepDataCollection", sleepDataCollection);
+  // console.log("sleepDocs: ", sleepDocs);
 
   for (const data of sleepData) {
     await addDoc(sleepDataCollection, data);
@@ -465,6 +468,12 @@ export const sendHeartRateData = async (heartRateData) => {
 
   // get documents inside HeartRateData
   const heartRateDataCollection = collection(userRef, "HeartRateData");
+
+  // get docs from HeartRateData
+  // const heartRateDocs = await getDocs(heartRateDataCollection);
+
+  console.log("heartRateDataCollection", heartRateDataCollection);
+  // console.log("heartRateDocs: ", heartRateDocs);
 
   for (const data of heartRateData) {
     await addDoc(heartRateDataCollection, data);

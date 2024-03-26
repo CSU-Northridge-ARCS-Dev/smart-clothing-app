@@ -86,7 +86,7 @@ class Controller: NSObject {
           }
 
           let endDate = Date()
-          let startDate = Calendar.current.date(byAdding: .day, value: -1, to: endDate)! // Last 24 hours
+          let startDate = Calendar.current.date(byAdding: .day, value: -14, to: endDate)! // Last 14 days
 
           let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
 
@@ -144,7 +144,7 @@ class Controller: NSObject {
 
               // Authorization granted, proceed with the heart rate variability query
               let endDate = Date()
-              let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)! // Last 7 days
+              let startDate = Calendar.current.date(byAdding: .day, value: -14, to: endDate)! // Last 28 days
 
               let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
 
@@ -209,7 +209,7 @@ class Controller: NSObject {
 
               // Authorization granted, proceed with the resting heart rate query
               let endDate = Date()
-              let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)! // Last 7 days
+              let startDate = Calendar.current.date(byAdding: .day, value: -14, to: endDate)! // Last 14 days
 
               let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
 
@@ -276,7 +276,7 @@ class Controller: NSObject {
              
              // Authorization granted, proceed with the sleep query
              let endDate = Date()
-             let startDate = Calendar.current.date(byAdding: .day, value: -7, to: endDate)! // Adjust the time range as needed
+             let startDate = Calendar.current.date(byAdding: .month, value: -1, to: endDate)! // 28 days past
              
              let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
              
@@ -300,14 +300,20 @@ class Controller: NSObject {
                          var sleepValue: String
                          
                          switch sample.value {
-                         case HKCategoryValueSleepAnalysis.inBed.rawValue:
-                             sleepValue = "In Bed"
-                         case HKCategoryValueSleepAnalysis.awake.rawValue:
-                             sleepValue = "Awake"
-                         case HKCategoryValueSleepAnalysis.asleep.rawValue:
-                             sleepValue = "Core"
-                         default:
-                             sleepValue = "Unknown"
+                            case HKCategoryValueSleepAnalysis.inBed.rawValue:
+                                sleepValue = "In Bed"
+                            case HKCategoryValueSleepAnalysis.awake.rawValue:
+                                sleepValue = "Awake"
+                            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
+                                sleepValue = "Core"
+                            case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                                sleepValue = "Deep"
+                            case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                                sleepValue = "REM"
+                            case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
+                                sleepValue = "Unspecified"
+                            default:
+                                sleepValue = "Unknown"
                          }
                          
                          let startDate = sample.startDate
@@ -361,12 +367,12 @@ class Controller: NSObject {
                 return
             }
 
-            // Fetch data over the previous 7 days.
+            // Fetch data over the previous 28 days.
 
             // Build predicate.
             let calendar = NSCalendar.current
             let endDate = Date()
-            guard let startDate = calendar.date(byAdding: .day, value: -7, to: endDate) else {
+            guard let startDate = calendar.date(byAdding: .month, value: -1, to: endDate) else {
                 fatalError("*** Unable to create the start date ***")
             }
             let units: Set<Calendar.Component> = [.day, .month, .year, .era]

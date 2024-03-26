@@ -44,7 +44,7 @@ export const readHeartRateData = async () => {
     const heartRateData = await Controller.readHeartRateData();
     console.log("Heart rate data:", heartRateData);
 
-    // await sendHeartRateData(heartRateData);
+    await sendHeartRateData(heartRateData);
     
     // Process heart rate data
     heartRateData.forEach(data => {
@@ -118,7 +118,8 @@ export const getSleepData = async () => {
     console.log("SLEEP DATA");
     console.log("----------");
 
-    // await sendSleepData(sleepData);
+    console.log("Sleep data sent!");
+    await sendSleepData(sleepData);
     
     // Process sleepData as needed. Keep datetimes in ISO.
     const processedSleepData = sleepData.map((dataPoint) => {
@@ -150,6 +151,18 @@ export const getActivityRingsData = async () => {
 
     // Extract individual energy burned, move, and stand data.
     const processedRingData = activityRingsData.map((dayData) => {
+      // COMMENTED OUT just for the demo... TODO fix past 7 days data fetching.
+      // if (getDayFromISODate(dayData.date) === "Friday" || getDayFromISODate(dayData.date) === "Saturday") {
+      //   return {
+      //     date: dayData.date,
+      //     energyBurned: 0,
+      //     energyBurnedGoal: 0,
+      //     exerciseTime: 0,
+      //     exerciseTimeGoal: 0,
+      //     standHours: 0,
+      //     standHoursGoal: 0
+      //   }
+      // }
       const currentData = {
         date: dayData.date,
         energyBurned: dayData.energyBurned,
