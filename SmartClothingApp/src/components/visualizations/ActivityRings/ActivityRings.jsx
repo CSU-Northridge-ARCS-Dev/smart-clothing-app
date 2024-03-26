@@ -45,17 +45,18 @@ const ActivityRings = ({
     size: SIZE,
   };
 
+  // Calculate percentage fills.
   const ringProps = [
-    {
-      totalProgress: totalProgress.ring1,
+    {  // Big move ring.
+      totalProgress: totalProgress.ring1.currentValue / totalProgress.ring1.goalValue,
       ...commonRing1,
     },
-    {
-      totalProgress: totalProgress.ring2,
+    {  // Medium exercise ring.
+      totalProgress: totalProgress.ring2.currentValue / totalProgress.ring2.goalValue,
       ...commonRing2,
     },
-    {
-      totalProgress: totalProgress.ring3,
+    {  // Small stand ring.
+      totalProgress: totalProgress.ring3.currentValue / totalProgress.ring3.goalValue,
       ...commonRing3,
     },
   ];
