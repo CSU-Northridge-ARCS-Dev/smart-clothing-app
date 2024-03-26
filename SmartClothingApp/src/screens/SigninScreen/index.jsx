@@ -49,13 +49,7 @@ const SigninScreen = ({ navigation }) => {
     // setIsSubmitting(true) - after validating, isSubmitting state is set to true to indicate form submission is in progress
     // then asynchronous sign-in process is dispatched. 
     if (!isValid()) {
-      Alert.alert(
-        "Authentication Error",
-        "Please correct the following errors:\n\n" +
-          (error.email && `${error.email}\n`) +
-          (error.password && `${error.password}`)
-      );
-      return;
+        return;
     }
 
     setIsSubmitting(true);
@@ -97,16 +91,8 @@ const SigninScreen = ({ navigation }) => {
     }
 
     setError({ ...errors });
-
     return flag;
   };
-
-
-  if (firebaseErrorMessages.hasOwnProperty("authError")) {
-    const errorMessage = firebaseErrorMessages[authError];
-
-    Alert.alert("Authentication Error", errorMessage);
-  }
 
   return (
     <ScrollView style={styles.container}>
@@ -135,11 +121,11 @@ const SigninScreen = ({ navigation }) => {
                 setUser({ ...user, email: text });
                 handleClearErrors();
               }}
-              error={error.email.length > 1}
+              error={error.email.length > 0}
             />
           </View>
-          <HelperText type="error" visible={error.email.length > 1}>
-            Email is invalid!
+          <HelperText type="error" visible={error.email.length > 0}>
+            {error.email}
           </HelperText>
         </View>
 
@@ -153,7 +139,7 @@ const SigninScreen = ({ navigation }) => {
               setUser({ ...user, password: text });
               handleClearErrors();
             }}
-            error={error.password.length > 1}
+            error={error.password.length > 0}
             style={styles.textInput}
           />
           <Icon
@@ -164,6 +150,9 @@ const SigninScreen = ({ navigation }) => {
             onPress={toggleLockStatus}
           />
         </View>
+          <HelperText type="error" visible={error.password.length > 0}>
+            {error.password}
+          </HelperText>
 
         <View style={styles.checkbox}>
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
