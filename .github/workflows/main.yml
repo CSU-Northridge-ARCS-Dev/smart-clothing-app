@@ -28,9 +28,9 @@ jobs:
         working-directory: SmartClothingApp
 
       - name: Run Tests
-        run: npx jest -u
+        run: npm test -- -u
         working-directory: SmartClothingApp
 
       - name: Success Message
         if: success()
-        run: echo "All steps completed successfully!"
+        run: echo "Regression testing completed successfully!"
