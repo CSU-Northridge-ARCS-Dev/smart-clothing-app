@@ -145,8 +145,25 @@ const ViewSleepData = ({ route }) => {
         <View style={styles.bigIcon}>
           <Icon name="bed" size={40} color={AppColor.primary} />
         </View>
-        <Text style={styles.dataText}>Sleep Data</Text>
-      </View>
+          <View>
+            <Text style={styles.dataText}>Time in Bed</Text>
+            <Text style={styles.dataSubText}>
+               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("In Bed").totalHours}` : "0"}</Text>
+              <Text style={styles.smallUnits}>hrs </Text>
+               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("In Bed").totalMinutes}` : "0"}</Text>
+              <Text style={styles.smallUnits}>mins</Text>
+            </Text>
+          </View>
+          <View>
+            <Text style={styles.dataText}>Time Asleep</Text>
+              <Text style={styles.dataSubText}>
+              <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Unknown").totalHours}` : "0"}</Text>
+              <Text style={styles.smallUnits}>hrs </Text>
+               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Unknown").totalMinutes}` : "0"}</Text>
+              <Text style={styles.smallUnits}>mins</Text>
+            </Text>
+          </View>
+    </View>
 
       <View
         style={{
@@ -229,7 +246,7 @@ const ViewSleepData = ({ route }) => {
       </View>
 
       <View style={{ marginBottom: 100 }}>
-        <Text style={styles.header}>Stages</Text>
+        <Text style={[styles.dataSubText, {textAlign: "center"}]}>Stages</Text>
 
         <View style={styles.sleepStage}>
           <View style={styles.infoContainer}>
@@ -289,7 +306,7 @@ const ViewSleepData = ({ route }) => {
 const styles = StyleSheet.create({
   title: {
     paddingHorizontal: 10,
-    gap: 10,
+    gap: 20,
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
@@ -309,7 +326,7 @@ const styles = StyleSheet.create({
   },
   dataText: {
     color: "black",
-    fontSize: 35,
+    fontSize: 22,
   },
   sleepStage: {
     height: 50,
@@ -333,9 +350,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
-  header: {
-    textAlign: "center",
-    fontSize: 22,
+  dataSubText: {
+    fontSize: 25,
     color: AppColor.primary,
     fontWeight: "bold",
   },
@@ -344,6 +360,9 @@ const styles = StyleSheet.create({
     width: 10,
     borderRadius: 50,
     padding: 16,
+  },
+  smallUnits: {
+    fontSize: 17
   },
 });
 
