@@ -4,7 +4,7 @@ on:
   pull_request:
   workflow_dispatch:
   push:
-    branches: [testing, testing-dependabot-merged-83-95-99]
+    branches: [testing, testing-dependabot-merged-83-95-99, main]
 
 jobs:
   tests:
