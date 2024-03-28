@@ -25,7 +25,7 @@ const DateToolbar = (props) => {
   const heartRateDates = useSelector((state) => state.app.heartRateDateRangeData);
   const sleepDataDates = useSelector((state) => state.app.sleepDataDateRangeData);
   let dates;
-  switch (props.dateType) {
+  switch (props.dataType) {
     case 'Heart Rate':
       dates = heartRateDates;
       break;
@@ -60,8 +60,8 @@ const DateToolbar = (props) => {
 
     const endDateString = endDateObject.toISOString();
 
-    console.log("start", startDate);
-    console.log("end", endDate);
+    // console.log("start", startDate);
+    // console.log("end", endDate);
 
     handleUpdate(startDateString, endDateString);
   };
@@ -94,10 +94,21 @@ const DateToolbar = (props) => {
     const startOptions = { weekday: 'long', month: 'long', day: 'numeric' };
     const endOptions = { month: 'long', day: 'numeric', year: 'numeric' };
 
-    const startFormatted = startDate.toLocaleDateString('en-US', startOptions);
-    const endFormatted = endDate.toLocaleDateString('en-US', endOptions);
+    const formattedStartDate = startDate.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+       ...(props.dateType === 'single' && { year: 'numeric' }),
+    });
+
+    // Format date range
+    const formattedEndDate = endDate.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
     
-    return `${startFormatted} - ${endFormatted}`;
+    return props.dateType === 'period' ? `${formattedStartDate} - ${formattedEndDate}` : `${formattedStartDate}`;
 };
 
   // const formattedDate = selected.toLocaleDateString("en-US", {
@@ -107,17 +118,15 @@ const DateToolbar = (props) => {
   //   year: "numeric",
   // });
 
-  // useEffect(() => {
-  //   setDateRange({
-  //     startDate: dates.startDate,
-  //     endDate: dates.endDate,
-  //   })
-  // }, [dates.startDate, dates.endDate]);
+  useEffect(() => {
+    console.log(dates.startDate);
+    console.log(dates.endDate);
+  }, [dates.startDate, dates.endDate]);
 
   return (
     <>
       <View style={styles.dateContainer}>
-        {/* <Text style={styles.title}>{formatDateRange()}</Text> */}
+        <Text style={styles.title}>{formatDateRange()}</Text>
         <View style={styles.iconContainer}>
           <Icon
             name="calendar-alt"
