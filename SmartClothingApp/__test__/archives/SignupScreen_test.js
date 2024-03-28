@@ -5,7 +5,7 @@ import { Alert } from 'react-native';
 import { act } from 'react-test-renderer';
 import renderer from 'react-test-renderer';
 import { waitFor } from '@testing-library/react-native';
-import SignupScreen from '../src/screens/SignupScreen/index.jsx';
+import SignupScreen from '../../src/screens/SignupScreen/index.jsx';
 
 // Mock dependencies or Redux actions as needed
 jest.mock('react-redux', () => ({
