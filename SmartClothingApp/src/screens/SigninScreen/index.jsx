@@ -122,6 +122,7 @@ const SigninScreen = ({ navigation }) => {
                 handleClearErrors();
               }}
               error={error.email.length > 0}
+              testID="email-input"
             />
           </View>
           <HelperText type="error" visible={error.email.length > 0}>
@@ -141,6 +142,7 @@ const SigninScreen = ({ navigation }) => {
             }}
             error={error.password.length > 0}
             style={styles.textInput}
+            testID="password-input"
           />
           <Icon
             name={lockStatus === "locked" ? "lock" : "unlock-alt"}
@@ -167,6 +169,7 @@ const SigninScreen = ({ navigation }) => {
           mode="elevated"
           onPress={handleSignInWithEmail}
           style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
+          testID="sign-in-button"
         >
           Sign In
         </Button>
