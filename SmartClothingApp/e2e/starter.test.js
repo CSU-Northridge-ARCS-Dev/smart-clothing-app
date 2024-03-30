@@ -1,23 +1,22 @@
-describe('Example', () => {
+describe('Sign in flow', () => {
   beforeAll(async () => {
-    await device.launchApp();
+    await device.launchApp({newInstance: true});
+    //await device.launchApp({newInstance: true});
   });
 
-  beforeEach(async () => {
-    await device.reloadReactNative();
-  });
+  it('should allow a user to sign in', async () => {
+    // Enter email
+    await element(by.id('email-input')).tap();
+    await element(by.id('email-input')).typeText('user@example.com');
 
-  it('should have welcome screen', async () => {
-    await expect(element(by.id('welcome'))).toBeVisible();
-  });
+    // Enter password
+    await element(by.id('password-input')).tap();
+    await element(by.id('password-input')).typeText('password123');
 
-  it('should show hello screen after tap', async () => {
-    await element(by.id('hello_button')).tap();
-    await expect(element(by.text('Hello!!!'))).toBeVisible();
-  });
+    // Tap the Sign In button
+    await element(by.id('sign-in-button')).tap();
 
-  it('should show world screen after tap', async () => {
-    await element(by.id('world_button')).tap();
-    await expect(element(by.text('World!!!'))).toBeVisible();
+    // You can add more checks here to confirm that the login was successful
+    // For example, checking for an element that's only visible when the user is logged in
   });
 });
