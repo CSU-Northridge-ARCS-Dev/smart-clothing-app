@@ -48,6 +48,7 @@ export default function HomeScreen({ navigation }) {
   const initializeHealthConnect = async () => {
     const result = await initialize();
     console.log({ result });
+    return result;
   };
 
   const checkAvailability = async () => {
@@ -70,10 +71,10 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  const requestPermissions = () => {
+  const requestJSPermissions = () => {
     requestPermission([
       {
-        // if changing this, also change in app.json (located in the project root folder) or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
+        // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
         accessType: "read",
         recordType: "Steps",
       },
@@ -89,6 +90,7 @@ export default function HomeScreen({ navigation }) {
   const grantedPermissions = () => {
     getGrantedPermissions().then((permissions) => {
       console.log("Granted permissions ", { permissions });
+      return permissions;
     });
   };
 
@@ -143,9 +145,25 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     // checkAvailability();
     // initializeHealthConnect();
-    // getGrantedPermissions();
-    // requestPermissions();
+    // grantedPermissions();
+    // requestJSPermissions();
+
+    // a shitload of debugging statements below
     checkAvailability();
+    console.log("Hit check availability");
+    initializeHealthConnect().then((initialized) => {
+      console.log("Hit health connect initialized")
+      if (initialized) {
+        console.log("Hit initialized");
+        grantedPermissions().then((permissions) => {
+          console.log("Hit granted permissions");
+          if (!permissions || permissions.length === 0) {
+            requestJSPermissions();
+            console.log("Hit requesting permissions");
+          }
+        });
+      }
+    });
   }, []);
 
   const route = useRoute();
@@ -180,7 +198,7 @@ export default function HomeScreen({ navigation }) {
         </Button>
         <Button
           title="Request sample permissions"
-          onPress={requestPermissions}
+          onPress={requestJSPermissions}
         >
           Request permissions
         </Button>
