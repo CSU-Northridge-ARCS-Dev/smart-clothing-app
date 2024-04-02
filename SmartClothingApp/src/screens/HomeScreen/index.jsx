@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Linking } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 import { Button, Text } from "react-native-paper";
@@ -44,12 +44,14 @@ const getTodayDate = (): Date => {
 };
 
 export default function HomeScreen({ navigation }) {
+  // test functions start
   const initializeHealthConnect = async () => {
     const result = await initialize();
     console.log({ result });
   };
 
   const checkAvailability = async () => {
+
     const status = await getSdkStatus();
     if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
       console.log("SDK is available");
@@ -57,14 +59,40 @@ export default function HomeScreen({ navigation }) {
 
     if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
       console.log("SDK is not available");
+      navigation.navigate("HealthConnectNotAvailable");
     }
 
     if (
       status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
     ) {
       console.log("SDK is not available, provider update required");
+      navigation.navigate("HealthConnectNeedsUpdate");
     }
   };
+
+  const requestPermissions = () => {
+    requestPermission([
+      {
+        // if changing this, also change in app.json (located in the project root folder) or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
+        accessType: "read",
+        recordType: "Steps",
+      },
+      {
+        accessType: "write",
+        recordType: "Steps",
+      },
+    ]).then((permissions) => {
+      console.log("Granted permissions on request ", { permissions });
+    });
+  };
+
+  const grantedPermissions = () => {
+    getGrantedPermissions().then((permissions) => {
+      console.log("Granted permissions ", { permissions });
+    });
+  };
+
+  // sample data functions
   const insertSampleData = () => {
     insertRecords([
       {
@@ -110,27 +138,15 @@ export default function HomeScreen({ navigation }) {
       console.log("Aggregated record: ", { result });
     });
   };
+  // test functions end
 
-  const requestSamplePermissions = () => {
-    requestPermission([
-      {
-        accessType: "read",
-        recordType: "Steps",
-      },
-      {
-        accessType: "write",
-        recordType: "Steps",
-      },
-    ]).then((permissions) => {
-      console.log("Granted permissions on request ", { permissions });
-    });
-  };
-
-  const grantedPermissions = () => {
-    getGrantedPermissions().then((permissions) => {
-      console.log("Granted permissions ", { permissions });
-    });
-  };
+  useEffect(() => {
+    // checkAvailability();
+    // initializeHealthConnect();
+    // getGrantedPermissions();
+    // requestPermissions();
+    checkAvailability();
+  }, []);
 
   const route = useRoute();
   const navigate = (screen) => {
@@ -164,7 +180,7 @@ export default function HomeScreen({ navigation }) {
         </Button>
         <Button
           title="Request sample permissions"
-          onPress={requestSamplePermissions}
+          onPress={requestPermissions}
         >
           Request permissions
         </Button>
