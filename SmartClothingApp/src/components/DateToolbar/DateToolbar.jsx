@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
-  Button,
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Platform,
+  StatusBar
 } from "react-native";
 import { AppHeader } from "../../components";
 import ActivityRings from "../../components/visualizations/ActivityRings/ActivityRings";
@@ -22,6 +21,16 @@ import { updateHeartRateDateRange, updateSleepDataDateRange } from "../../action
 
 const DateToolbar = (props) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+    const openDatePicker = () => {
+    setShowDatePicker(true);
+    StatusBar.setBarStyle("dark-content");
+  };
+
+  const closeDatePicker = () => {
+    setShowDatePicker(false);
+    StatusBar.setBarStyle("light-content");
+  };
+
   const heartRateDates = useSelector((state) => state.app.heartRateDateRangeData);
   const sleepDataDates = useSelector((state) => state.app.sleepDataDateRangeData);
   let dates;
@@ -103,6 +112,7 @@ const DateToolbar = (props) => {
 
     // Format date range
     const formattedEndDate = endDate.toLocaleDateString('en-US', {
+      weekday: 'short',
       month: 'short',
       day: 'numeric',
       year: 'numeric'
@@ -139,10 +149,10 @@ const DateToolbar = (props) => {
         </View>
       </View>
       {showDatePicker && 
-        <BaseCalendar 
+      <BaseCalendar 
           dateType={props.dateType} 
           onSuccess={handleDateRangeSuccess}
-          /> 
+        /> 
       }
     </>
   );
