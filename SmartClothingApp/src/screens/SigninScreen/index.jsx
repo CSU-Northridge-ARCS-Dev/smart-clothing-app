@@ -95,7 +95,9 @@ const SigninScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+    style={styles.container}
+    testID="scrollViewId">
       <HeroSection />
       <View style={styles.content}>
         <Text
