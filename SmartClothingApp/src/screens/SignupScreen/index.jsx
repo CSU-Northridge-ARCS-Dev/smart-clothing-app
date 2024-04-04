@@ -150,7 +150,7 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView>
+    <ScrollView testID="scrollViewId">
       <HeroSection />
       <View style={styles.content}>
         <ToSModal
@@ -160,6 +160,7 @@ const SignupScreen = ({ navigation }) => {
           closeModal={() => closeModal("modal1")}
           onRequestClose={toggleModalVisibility}
           toggleModalVisibility={toggleModalVisibility}
+          testID="signup-terms-modal"
         ></ToSModal>
         <Text
           variant="headlineMedium"
@@ -183,6 +184,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={error.fname.length > 0}
+            testID="signup-fname-input"
           />
           <HelperText type="error" visible={error.fname.length > 0}>
             {error.fname}
@@ -198,6 +200,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={error.lname.length > 0}
+            testID="signup-lname-input"
           />
           <HelperText type="error" visible={error.lname.length > 0}>
             {error.lname}
@@ -213,6 +216,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={error.email.length > 0}
+            testID="signup-email-input"
           />
           <HelperText type="error" visible={error.email.length > 0}>
             {error.email}
@@ -232,6 +236,7 @@ const SignupScreen = ({ navigation }) => {
               error.password.length > 0 || user.password != user.repassword
             }
             style={styles.textInput}
+            testID="signup-password-input"
           />
           <Icon
             name={lockStatusPassword === "locked" ? "lock" : "unlock-alt"}
@@ -256,6 +261,7 @@ const SignupScreen = ({ navigation }) => {
             }}
             error={user.password != user.repassword}
             style={styles.textInput}
+            testID="signup-repassword-input"
           />
           <Icon
             name={lockStatusRepassword === "locked" ? "lock" : "unlock-alt"}
@@ -275,6 +281,7 @@ const SignupScreen = ({ navigation }) => {
             onPress={() => {
               handleAgreement();
             }}
+            testID="signup-terms-checkbox"
           />
         <Text style={error.accepted?.length > 0 ? styles.errorText : null}>
           {error.accepted?.length > 0 ? error.accepted : "User Agreement"}
@@ -307,7 +314,7 @@ const SignupScreen = ({ navigation }) => {
         </View>
         {/* <GoogleButton /> */}
         <View style={{ marginVertical: verticalScale(10) }}>
-          <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
+          <Button mode="text" onPress={() => navigation.navigate("SignIn")} testID="signup-submit-button">
             Already have an account? Sign in.
           </Button>
         </View>

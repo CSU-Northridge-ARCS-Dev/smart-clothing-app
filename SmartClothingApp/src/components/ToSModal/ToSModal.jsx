@@ -20,10 +20,11 @@ const ToSModal = (props) => {
       transparent={true}
       visible={props.visible}
       onRequestClose={props.toggleModalVisibility}
+      testID="signup-terms-modal"
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <ScrollView>
+          <ScrollView testID="scrollViewModal">
             <Text style={styles.modalTextTitle}>
               Smart Textile Clothing Devices App - Terms of Use
             </Text>
@@ -189,6 +190,7 @@ const ToSModal = (props) => {
                   onPress={() => {
                     props.setIsTermsAccepted(!props.isTermsAccepted);
                   }}
+                  testID="signup-terms-modal-checkbox"
                 />
                 <Text style={styles.modalText}>{"I Agree"}</Text>
               </View>

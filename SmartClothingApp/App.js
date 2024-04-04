@@ -20,10 +20,10 @@ import {
 import SplashScreen from "react-native-splash-screen";
 
 
+// For Testing purposes only
+import { LogBox } from "react-native";
 // Ignore all log notifications if it's in the test environment
-if (__DEV__ && process.env.NODE_ENV === 'test') {
-  LogBox.ignoreAllLogs();
-}
+LogBox.ignoreAllLogs();
 
 
 const store = configureStore();
