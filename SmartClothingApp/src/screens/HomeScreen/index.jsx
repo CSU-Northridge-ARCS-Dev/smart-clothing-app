@@ -35,7 +35,7 @@ export default function HomeScreen({ navigation }) {
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
-        <Text style={AppStyle.title}>Hello, {firstName}</Text>
+        <Text style={AppStyle.title} testID="greeting-text">Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Today Status

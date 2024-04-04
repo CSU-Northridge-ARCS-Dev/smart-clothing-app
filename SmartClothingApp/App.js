@@ -19,6 +19,13 @@ import {
 } from "./src/actions/userActions.js";
 import SplashScreen from "react-native-splash-screen";
 
+
+// Ignore all log notifications if it's in the test environment
+if (__DEV__ && process.env.NODE_ENV === 'test') {
+  LogBox.ignoreAllLogs();
+}
+
+
 const store = configureStore();
 
 export default function App() {
