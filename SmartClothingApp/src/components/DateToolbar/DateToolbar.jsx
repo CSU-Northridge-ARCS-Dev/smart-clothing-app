@@ -50,23 +50,24 @@ const DateToolbar = (props) => {
   }
 
   const dispatch = useDispatch();
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-  });
-
 
 
   const handleDateRangeSuccess = (startDate, endDate) => {
     // Handle the selected date range here
-    const startDateString = new Date(startDate).toISOString();
-    const endDateObject = new Date(endDate)
+
+    const startDateObject = new Date(startDate);
+    const endDateObject = new Date(endDate);
+
+    // console.log(startDateObject);
+    // startDateObject.setHours(0, 0, 0, 0);
 
     endDateObject.setHours(39);
     endDateObject.setMinutes(59);
     endDateObject.setSeconds(59);
     endDateObject.setMilliseconds(999);
 
+    const startDateString = startDateObject.toISOString();
+    console.log(startDateString);
     const endDateString = endDateObject.toISOString();
 
     // console.log("start", startDate);
@@ -99,38 +100,17 @@ const DateToolbar = (props) => {
   const formatDateRange = () => {
     const startDate = new Date(dates.startDate);
     const endDate = new Date(dates.endDate);
-    
-    const startOptions = { weekday: 'long', month: 'long', day: 'numeric' };
-    const endOptions = { month: 'long', day: 'numeric', year: 'numeric' };
 
-    const formattedStartDate = startDate.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-       ...(props.dateType === 'single' && { year: 'numeric' }),
-    });
+    const formattedStartDate = startDate.toLocaleDateString('en-US', { timeZone: 'UTC' });
 
     // Format date range
-    const formattedEndDate = endDate.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    const formattedEndDate = endDate.toLocaleDateString('en-US', { timeZone: 'UTC' });
     
     return props.dateType === 'period' ? `${formattedStartDate} - ${formattedEndDate}` : `${formattedStartDate}`;
 };
 
-  // const formattedDate = selected.toLocaleDateString("en-US", {
-  //   weekday: "long",
-  //   month: "long",
-  //   day: "numeric",
-  //   year: "numeric",
-  // });
 
   useEffect(() => {
-    console.log(dates.startDate);
-    console.log(dates.endDate);
   }, [dates.startDate, dates.endDate]);
 
   return (
