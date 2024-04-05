@@ -3,6 +3,9 @@
 ## Introduction
 The Smart Clothing App is a mobile platform interfacing with sensor-equipped wearables to collect and analyze real-time biometric data. Stored on Firestore real-time database cloud platforms, and locally, this data provides student athletes and their coaches with performance insights and personalized training recommendations. Additionally, it provides injury prevention and data sharing capabilities, the app integrates seamlessly into existing digital health ecosystems. All features are presented via an intuitive, user-friendly interface, ensuring easy access and comprehension of complex biometric data.
 
+**Tech Stack**
+* [![React][React.js]][React-url]
+
 ## Table of Contents
 - Project Goals
 - Setting up the application
@@ -47,21 +50,18 @@ A more outlined description can be found here: https://arcs.center/a-framework-f
     - Export data to a JSON/CSV format to a third-party platform like Boracle
   - Performance insights
     - Show trends and insights based on the data
-## Setting Up the Application
-
+  
+## Application Setup
 - Ensure node version is up to date
 - Contact admin for setting up .env file
 - Download Expo Go app on your mobile device.
-
-### Setting Up .env File
 - You will need a .env file that is used to hold API keys. This file is not uploaded on github for security reasons.
 - Create a .env file outside of the src folder and enter the API keys. To get the API keys contact the project admin.
 
 ## Resources
 - Expo Doc link: https://docs.expo.dev/get-started/installation/ 
-- React Bootstrap doc: https://react-bootstrap.netlify.app/docs/getting-started/introduction
 
-## Running the Application
+## Application Running
 ```bash
 cd smartclothingapp
 npx expo start
@@ -73,14 +73,18 @@ To bypass login/signup page:
 ## Development Etiquette
 - Stable branch will be used to store the most stable version of the application. This branch must have a functioning and running application all the time.
 - Main branch can be used to work together and for implementation and testing etc. Code must be able to run.
-- All the other branches will be used for development and testing. 
+- All the other branches will be used for development and testing.
+- Pull requests must be reviewed and tested thoroughly before approval.
 
 ## Troubleshooting
 - Error Code: "Main" has not been registered.
     - Run: ```npx expo start --clear```
-- Must have JDKs 8, 11, and 17
+- Must have JDK 17 to run the latest version.
 - Android Studio Build, PATH variable:
     - go to settings
     - type in: ```edit system variables```
     - add ```C:\\Users\\ReplaceWithYourUser\\AppData\\Local\\Android\Sdk``` (this path can be found from Android Studio by going to the SDK Manager)
     - set sdk.dir to the same path as well
+- Should Android build use the old path for JDK instead of the new one set up (even after deletion)
+    - You must go to the android folder and run the command ./gradlew stop to stop the old daemon process
+
