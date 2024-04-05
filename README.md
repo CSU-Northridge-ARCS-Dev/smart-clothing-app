@@ -88,3 +88,5 @@ To bypass login/signup page:
 - Should Android build use the old path for JDK instead of the new one set up (even after deletion)
     - You must go to the android folder and run the command ./gradlew stop to stop the old daemon process
 
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
