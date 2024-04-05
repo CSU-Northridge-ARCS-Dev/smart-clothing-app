@@ -9,13 +9,11 @@ The Smart Clothing App is a mobile platform interfacing with sensor-equipped wea
 * [![Firebase][Firebase]][Firebase-url]
 
 ## Table of Contents
-- <a href="#project-goals">>Project Goals</a>
-- Setting up the application
-- .env file
-- Resources
-- Launch
-- Development Etiquette
-- Troubleshooting
+- <a href="#project-goals">Project Goals</a>
+- <a href="#application-setup">Application Setup</a>
+- <a href="#application-launch">Application Launch</a>
+- <a href="#development-etiquette">Development Etiquette</a>
+- <a href="#troubleshooting">Troubleshooting</a>
 
 ## Project Goals
 Smart textile products integrate the design research (environment and communication), physiology (human), and textile technology (E-textiles) all together. However, smart textiles are blind to many consumers with no sufficient knowledge in wearable technology to understand and analyze the real-time vital signs. Therefore, the main goal of this research is to figure out:
@@ -60,10 +58,7 @@ A more outlined description can be found here: https://arcs.center/a-framework-f
 - You will need a .env file that is used to hold API keys. This file is not uploaded on github for security reasons.
 - Create a .env file outside of the src folder and enter the API keys. To get the API keys contact the project admin.
 
-## Resources
-- Expo Doc link: https://docs.expo.dev/get-started/installation/ 
-
-## Application Running
+## Application Launch
 ```bash
 cd smartclothingapp
 npx expo start
