@@ -59,8 +59,8 @@ describe('Sign-up flow', () => {
     await waitFor(element(by.id('signup-terms-modal')))
       .toBeVisible()
       .whileElement(by.id('scrollViewModal'))
-      .scrollTo('bottom');
-      //.scroll(400, 'down');
+      .scroll(400, 'down');
+      //.scrollTo('bottom');
     //await element(by.id('signup-terms-modal-checkbox')).tap();
     await element(by.id('signup-terms-checkbox')).tap();
 
