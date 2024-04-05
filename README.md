@@ -9,7 +9,7 @@ The Smart Clothing App is a mobile platform interfacing with sensor-equipped wea
 * [![Firebase][Firebase]][Firebase-url]
 
 ## Table of Contents
-- Project Goals
+- <a href="#project-goals">>Project Goals</a>
 - Setting up the application
 - .env file
 - Resources
@@ -90,7 +90,7 @@ To bypass login/signup page:
 - Should Android build use the old path for JDK instead of the new one set up (even after deletion)
     - You must go to the android folder and run the command ./gradlew stop to stop the old daemon process
 
-[React Native]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React Native]: https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [ReactNative-url]: https://reactnative.dev/
 [Expo]: https://img.shields.io/badge/expo-1C1E24?style=for-the-badge&logo=expo&logoColor=#D04A37
 [Expo-url]: https://expo.dev/
