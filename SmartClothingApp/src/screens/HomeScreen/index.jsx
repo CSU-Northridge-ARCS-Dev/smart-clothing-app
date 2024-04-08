@@ -1,7 +1,7 @@
 import React, { useEffect, Linking } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
-import { Button, Text } from "react-native-paper";
+import { Button, Modal, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
@@ -54,20 +54,21 @@ export default function HomeScreen({ navigation }) {
   const checkAvailability = async () => {
 
     const status = await getSdkStatus();
+    console.log({ status });
     if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
       console.log("SDK is available");
     }
 
     if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
       console.log("SDK is not available");
-      navigation.navigate("HealthConnectNotAvailable");
+      setModalVisible(true);
     }
 
     if (
       status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
     ) {
       console.log("SDK is not available, provider update required");
-      navigation.navigate("HealthConnectNeedsUpdate");
+      setModalVisible(true);
     }
   };
 
@@ -75,6 +76,7 @@ export default function HomeScreen({ navigation }) {
     requestPermission([
       {
         // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
+        // need to add heart rate & sleep data
         accessType: "read",
         recordType: "Steps",
       },
@@ -142,6 +144,10 @@ export default function HomeScreen({ navigation }) {
   };
   // test functions end
 
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [sdkStatus, setSdkStatus] = React.useState(null);
+
+  //convert the navs to modals
   useEffect(() => {
     // checkAvailability();
     // initializeHealthConnect();
@@ -158,13 +164,29 @@ export default function HomeScreen({ navigation }) {
         grantedPermissions().then((permissions) => {
           console.log("Hit granted permissions");
           if (!permissions || permissions.length === 0) {
-            requestJSPermissions();
-            console.log("Hit requesting permissions");
+            requestJSPermissions().then(() => {
+              console.log("recieved permissions")
+            }).catch((error) => {
+              console.log("Error requesting permissions", error);
+            });
           }
+        }).catch((error) => {
+          console.log("Error getting permissions", error);
         });
       }
+    }).catch((error) => {
+      console.log("Error initializing health connect", error);
     });
   }, []);
+
+  const openGooglePlayStore = async () => {
+    const healthConnectBetaUrl = "market://details?id=com.google.android.apps.healthdata";
+    if (await Linking.canOpenURL(healthConnectBetaUrl)) {
+      Linking.openURL(healthConnectBetaUrl);
+    } else {
+      console.error("Cannot open Google Play Store");
+    }
+  };
 
   const route = useRoute();
   const navigate = (screen) => {
@@ -256,6 +278,31 @@ export default function HomeScreen({ navigation }) {
           Heartbeat Rate
         </Text>
         <HeartRateChart />
+      </View>
+      <View style={{ marginTop: 20 }}>
+        <Modal
+          visible={modalVisible}
+          transparent={false}
+          animationType="slide"
+          onDismiss={() => {}}
+          contentContainerStyle={{
+            backgroundColor: AppColor.primaryContainer,
+            padding: 20,
+          }}
+          onRequestClose={() => {setModalVisible(false)}}
+        >
+          <View>
+            <Text>
+              {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE 
+              ? "SDK is not available."
+              : "SDK requires an update."}
+            </Text>
+            { sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
+              <Button title="Update Health Connect" onPress={openGooglePlayStore} />
+            )}
+            <Button title="Go Back" onPress={() => setModalVisible(false)} />
+          </View>
+        </Modal>
       </View>
     </ScrollView>
   );
