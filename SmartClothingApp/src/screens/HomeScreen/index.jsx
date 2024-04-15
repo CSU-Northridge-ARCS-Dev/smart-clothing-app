@@ -54,9 +54,30 @@ export default function HomeScreen({ navigation }) {
   const checkAvailability = async () => {
 
     const status = await getSdkStatus();
+    setSdkStatus(status);
     console.log({ status });
     if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
       console.log("SDK is available");
+      initializeHealthConnect().then((initialized) => {
+        console.log("Hit health connect initialized")
+        if (initialized) {
+          console.log("Hit initialized");
+          grantedPermissions().then((permissions) => {
+            console.log("Hit granted permissions");
+            if (!permissions || permissions.length === 0) {
+              requestJSPermissions().then(() => {
+                console.log("recieved permissions")
+              }).catch((error) => {
+                console.log("Error requesting permissions", error);
+              });
+            }
+          }).catch((error) => {
+            console.log("Error getting permissions", error);
+          });
+        }
+      }).catch((error) => {
+        console.log("Error initializing health connect", error);
+      });
     }
 
     if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
@@ -157,26 +178,7 @@ export default function HomeScreen({ navigation }) {
     // a shitload of debugging statements below
     checkAvailability();
     console.log("Hit check availability");
-    initializeHealthConnect().then((initialized) => {
-      console.log("Hit health connect initialized")
-      if (initialized) {
-        console.log("Hit initialized");
-        grantedPermissions().then((permissions) => {
-          console.log("Hit granted permissions");
-          if (!permissions || permissions.length === 0) {
-            requestJSPermissions().then(() => {
-              console.log("recieved permissions")
-            }).catch((error) => {
-              console.log("Error requesting permissions", error);
-            });
-          }
-        }).catch((error) => {
-          console.log("Error getting permissions", error);
-        });
-      }
-    }).catch((error) => {
-      console.log("Error initializing health connect", error);
-    });
+    // moved to checkAvailability
   }, []);
 
   const openGooglePlayStore = async () => {
@@ -291,12 +293,14 @@ export default function HomeScreen({ navigation }) {
           }}
           onRequestClose={() => {setModalVisible(false)}}
         >
+          {console.log("Modal visible: ", modalVisible)}
           <View>
             <Text>
               {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE 
               ? "SDK is not available."
               : "SDK requires an update."}
             </Text>
+            {console.log("sdk status from inside the modal:", sdkStatus, "availability update val: ", SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)}
             { sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
               <Button title="Update Health Connect" onPress={openGooglePlayStore} />
             )}
@@ -307,7 +311,8 @@ export default function HomeScreen({ navigation }) {
     </ScrollView>
   );
 }
-
+// modeal above is not rending, need to fix that
+// sdkStatus is reading the correct value to cause render
 const styles = StyleSheet.create({
   container: {
     flex: 1,

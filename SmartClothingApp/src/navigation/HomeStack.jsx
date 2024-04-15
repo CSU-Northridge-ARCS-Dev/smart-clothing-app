@@ -103,8 +103,6 @@ const HomeNavigationStack = () => {
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="HealthConnectUnavailable" component={HealthConnectUnavailable} />
-      <Stack.Screen name="HealthConnectNeedsUpdate" component={HealthConnectNeedsUpdate} />
     </Stack.Navigator>
   );
 };
