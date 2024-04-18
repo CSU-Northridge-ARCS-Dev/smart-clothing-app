@@ -10,355 +10,426 @@
 import Foundation
 import HealthKit
 
-// Swift Decorate to export Class to Objective-c
-// Declares Controller Class
-
+/*
+* Swift Decorator to export Class to Objective-c. 
+*/
 @objc(Controller)
 class Controller: NSObject {
   
-  //  Declares the HealthKit store for our app
-  let healthStore = HKHealthStore()
-  
-  // Checking if the HealthKit is avaliable on the users device
-  @objc
-  func findHealthData(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
-    if HKHealthStore.isHealthDataAvailable() {
-      print("Health Data is avaliable on this device")
-      resolve(true)
-    } else {
-      print("Health Data is not avaliable on this device")
-      reject("UNAVALIABLE", "HealthKit data is not avaliable", nil)
-    }
+    //  Declares the HealthKit store for our app
+    let healthStore = HKHealthStore()
     
-  }
+    // Checking if the HealthKit is avaliable on the users device
+    @objc
+    func findHealthData(_ resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
+        if HKHealthStore.isHealthDataAvailable() {
+        print("Health Data is avaliable on this device")
+        resolve(true)
+        } else {
+        print("Health Data is not avaliable on this device")
+        reject("UNAVALIABLE", "HealthKit data is not avaliable", nil)
+        }
+        
+    }
   
-  // Function Method to request Authorization from Healthkit
-  @available(iOS 15.0, *)
-  @objc
-  func requestAuthorization(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    // Function Method to request Authorization from Healthkit
+    @available(iOS 15.0, *)
+    @objc
+    func requestAuthorization(
+        _ resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
       
-      // Health data types we want to show in our app
-      let allTypes: Set<HKSampleType> = [
-        HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!,
-        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)!,
-        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.restingHeartRate)!,
-        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRateVariabilitySDNN)!,
+        // Health data types we want to show in our app
+        let allTypes: Set<HKSampleType> = [
+            HKObjectType.categoryType(forIdentifier: HKCategoryTypeIdentifier.sleepAnalysis)!,
+            HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRate)!,
+            HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.restingHeartRate)!,
+            HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.heartRateVariabilitySDNN)!,
 
-        // Activity rings.
-        // Percentage of ring can be calculated as follows: value (energy burned or time) / goal (same quantity).
-        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleMoveTime)!,
-        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.activeEnergyBurned)!,
-        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleExerciseTime)!,
-        HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleStandTime)!,
-      ]
+            // Activity rings.
+            // Percentage of ring can be calculated as follows: value (energy burned or time) / goal (same quantity).
+            HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleMoveTime)!,
+            HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.activeEnergyBurned)!,
+            HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleExerciseTime)!,
+            HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.appleStandTime)!,
+        ]
       
-      // Check if Health Data is available on the device
-      if HKHealthStore.isHealthDataAvailable() {
-          let healthStore = HKHealthStore()
+        // Check if Health Data is available on the device
+        if HKHealthStore.isHealthDataAvailable() {
+            let healthStore = HKHealthStore()
           
-          // Request authorization to the data
-          healthStore.requestAuthorization(toShare: nil, read: allTypes) { success, error in
-              if success {
-                  print("User has granted permission for health data to be read")
-                  resolve(true)
-              } else {
-                  reject("UNAVLIABLE", "Permission denied for health data to be read", error)
-              }
-          }
-      } else {
-          reject("UNAVLIABLE", "Health data is not available on this device", nil)
-      }
-  }
+            // Request authorization to the data
+            healthStore.requestAuthorization(toShare: nil, read: allTypes) { success, error in
+                if success {
+                    print("User has granted permission for health data to be read")
+                    resolve(true)
+                } else {
+                    reject("UNAVLIABLE", "Permission denied for health data to be read", error)
+                }
+            }
+        } else {
+            reject("UNAVLIABLE", "Health data is not available on this device", nil)
+        }
+    }
   
-  // read heart rate data function
-  @objc
-  func readHeartRateData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-          let healthStore = HKHealthStore()
+    /*
+    * Fetch heart rate data given a start date and an end date and format it on return.
+    */
+    @objc
+    func readHeartRateData(
+        _ startDateIso: String,
+        _ endDateIso: String,
+        resolver resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let healthStore = HKHealthStore()
 
-          guard HKHealthStore.isHealthDataAvailable() else {
-              let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
-              reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
-              return
-          }
+        guard HKHealthStore.isHealthDataAvailable() else {
+            let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
+            reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
+            return
+        }
 
-          guard let quantityType = HKObjectType.quantityType(forIdentifier: .heartRate) else {
-              return // Guard against nil quantity type
-          }
+        guard let quantityType = HKObjectType.quantityType(forIdentifier: .heartRate) else {
+            let error = NSError(domain: "YourAppDomain", code: 2, userInfo: [NSLocalizedDescriptionKey: "Heart Rate data is not available."])
+            reject("HEART_RATE_DATA_NOT_AVAILABLE", "Heart Rate data is not available.", error)
+            return // Guard against nil quantity type
+        }
 
-          let endDate = Date()
-          let startDate = Calendar.current.date(byAdding: .day, value: -14, to: endDate)! // Last 14 days
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
 
-          let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
+        guard let startDate = dateFormatter.date(from: startDateIso), let endDate = dateFormatter.date(from: endDateIso) else {
+            let error = NSError(domain: "YourAppDomain", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid date format. Dates must be in ISO 8601 format."])
+            reject("INVALID_DATE_FORMAT", "Invalid date format. Dates must be in ISO 8601 format.", error)
+            return
+        }
 
-          let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
 
-          let dateFormatter = DateFormatter()
-          dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-          dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
 
-          let heartRateQuery = HKSampleQuery(sampleType: quantityType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
-              if let error = error {
-                  reject("QUERY_FAILED", "Failed to query heart rate data", error as NSError?)
-              } else {
-                  var heartRateData = [[String: Any]]()
+        let heartRateQuery = HKSampleQuery(sampleType: quantityType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
+            if let error = error {
+                reject("QUERY_FAILED", "Failed to query heart rate data", error as NSError?)
+                return
+            }
 
-                  for sample in results as? [HKQuantitySample] ?? [] {
-                      let heartRateValue = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-                      let sampleDate = sample.startDate
-                      let iso8601DateString = dateFormatter.string(from: sampleDate)
+            var heartRateData = [[String: Any]]()
 
-                      let dataPoint: [String: Any] = [
-                          "heartRate": heartRateValue,
-                          "date": iso8601DateString
-                      ]
-                      heartRateData.append(dataPoint)
-                  }
+            for sample in results as? [HKQuantitySample] ?? [] {
+                let heartRateValue = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                let sampleDate = sample.startDate
+                let iso8601DateString = dateFormatter.string(from: sampleDate)
 
-                  resolve(heartRateData)
-              }
-          }
+                let dataPoint: [String: Any] = [
+                    "heartRate": heartRateValue,
+                    "date": iso8601DateString
+                ]
+                heartRateData.append(dataPoint)
+            }
 
-          healthStore.execute(heartRateQuery)
-      }
+            resolve(heartRateData)
+        }
+
+        healthStore.execute(heartRateQuery)
+    }
   
-  @objc
-  func readHeartRateVariabilityData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-          let healthStore = HKHealthStore()
+    /*
+    * Fetch heart rate variability data given a start date and an end date and format it on return.
+    */
+    @objc
+    func readHeartRateVariabilityData(
+        _ startDateIso: String,
+        _ endDateIso: String,
+        resolver resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let healthStore = HKHealthStore()
 
-          guard HKHealthStore.isHealthDataAvailable() else {
-              let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
-              reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
-              return
-          }
+        guard HKHealthStore.isHealthDataAvailable() else {
+            let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
+            reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
+            return
+        }
 
-          guard let quantityType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else {
-              return // Guard against nil quantity type
-          }
+        guard let quantityType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else {
+            let error = NSError(domain: "YourAppDomain", code: 2, userInfo: [NSLocalizedDescriptionKey: "HRV data is not available."])
+            reject("HRV_DATA_NOT_AVAILABLE", "HRV data is not available.", error)
+            return
+        }
 
-          // Request authorization to access heart rate variability data
-          healthStore.requestAuthorization(toShare: nil, read: Set([quantityType])) { success, error in
-              if !success {
-                  reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for heart rate variability data", error as NSError?)
-                  return
-              }
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
 
-              // Authorization granted, proceed with the heart rate variability query
-              let endDate = Date()
-              let startDate = Calendar.current.date(byAdding: .day, value: -14, to: endDate)! // Last 28 days
+        guard let startDate = dateFormatter.date(from: startDateIso), let endDate = dateFormatter.date(from: endDateIso) else {
+            let error = NSError(domain: "YourAppDomain", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid date format. Dates must be in ISO 8601 format."])
+            reject("INVALID_DATE_FORMAT", "Invalid date format. Dates must be in ISO 8601 format.", error)
+            return
+        }
 
-              let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
+        // Request authorization to access heart rate variability data
+        healthStore.requestAuthorization(toShare: nil, read: Set([quantityType])) { success, error in
+            if !success {
+                reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for heart rate variability data", error as NSError?)
+                return
+            }
 
-              // Sort descriptor for sorting samples by start date
-              let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+            // Authorization granted, proceed with the heart rate variability query
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
 
-              // Date formatter to convert dates to ISO 8601 format
-              let dateFormatter = DateFormatter()
-              dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-              dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+            // Sort descriptor for sorting samples by start date
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
 
-              // Create a sample query for heart rate variability data
-              let hrvQuery = HKSampleQuery(sampleType: quantityType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
-                  if let error = error {
-                      reject("QUERY_FAILED", "Failed to query heart rate variability data", error as NSError?)
-                  } else {
-                      var hrvData = [[String: Any]]()
+            // Create a sample query for heart rate variability data
+            let hrvQuery = HKSampleQuery(sampleType: quantityType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
+                if let error = error {
+                    reject("QUERY_FAILED", "Failed to query heart rate variability data", error as NSError?)
+                    return
+                }
 
-                      // Handle the results to extract heart rate variability values and dates
-                      for sample in results as? [HKQuantitySample] ?? [] {
-                          let hrvValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
-                          let sampleDate = sample.startDate
-                          let iso8601DateString = dateFormatter.string(from: sampleDate)
+                var hrvData = [[String: Any]]()
 
-                          let dataPoint: [String: Any] = [
-                              "heart_rate_value": hrvValue,
-                              "date": iso8601DateString
-                          ]
-                          hrvData.append(dataPoint)
-                      }
+                // Handle the results to extract heart rate variability values and dates
+                for sample in results as? [HKQuantitySample] ?? [] {
+                    let hrvValue = sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli))
+                    let sampleDate = sample.startDate
+                    let iso8601DateString = dateFormatter.string(from: sampleDate)
 
-                      // Resolve the promise with the extracted data
-                      resolve(hrvData)
-                  }
-              }
+                    let dataPoint: [String: Any] = [
+                        "heartRateVariability": hrvValue,
+                        "date": iso8601DateString
+                    ]
+                    hrvData.append(dataPoint)
+                }
 
-              // Execute the heart rate variability query
-              healthStore.execute(hrvQuery)
-          }
-      }
+                // Resolve the promise with the extracted data
+                resolve(hrvData)
+            }
+
+            // Execute the heart rate variability query
+            healthStore.execute(hrvQuery)
+        }
+    }
+
+    /*
+    * Fetch resting heart rate data given a start date and an end date and format it on return.
+    */
+    @objc
+    func readRestingHeartRateData(
+        _ startDateIso: String,
+        _ endDateIso: String,
+        resolver resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let healthStore = HKHealthStore()
+
+        guard HKHealthStore.isHealthDataAvailable() else {
+            let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
+            reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
+            return
+        }
+
+        guard let quantityType = HKObjectType.quantityType(forIdentifier: .restingHeartRate) else {
+            let error = NSError(domain: "YourAppDomain", code: 2, userInfo: [NSLocalizedDescriptionKey: "Resting Heart Rate data is not available."])
+            reject("RESTING_HEART_RATE_DATA_NOT_AVAILABLE", "Resting Heart Rate data is not available.", error)
+            return
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+
+        guard let startDate = dateFormatter.date(from: startDateIso), let endDate = dateFormatter.date(from: endDateIso) else {
+            let error = NSError(domain: "YourAppDomain", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid date format. Dates must be in ISO 8601 format."])
+            reject("INVALID_DATE_FORMAT", "Invalid date format. Dates must be in ISO 8601 format.", error)
+            return
+        }
+
+        // Request authorization to access resting heart rate data
+        healthStore.requestAuthorization(toShare: nil, read: Set([quantityType])) { success, error in
+            if !success {
+                reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for resting heart rate data", error as NSError?)
+                return
+            }
+
+            // Authorization granted, proceed with the resting heart rate query
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
+
+            // Sort descriptor for sorting samples by start date
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+
+            // Create a sample query for resting heart rate data
+            let heartRateQuery = HKSampleQuery(sampleType: quantityType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
+                if let error = error {
+                    reject("QUERY_FAILED", "Failed to query resting heart rate data", error as NSError?)
+                    return
+                }
+
+                var heartRateData = [[String: Any]]()
+
+                // Handle the results to extract heart rate values and dates
+                for sample in results as? [HKQuantitySample] ?? [] {
+                    let restingHeartRateValue = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
+                    let sampleDate = sample.startDate
+                    let iso8601DateString = dateFormatter.string(from: sampleDate)
+
+                    let dataPoint: [String: Any] = [
+                        "restingHeartRateValue": restingHeartRateValue,
+                        "date": iso8601DateString
+                    ]
+                    heartRateData.append(dataPoint)
+                }
+
+                // Resolve the promise with the extracted data
+                resolve(heartRateData)
+            }
+
+            // Execute the resting heart rate query
+            healthStore.execute(heartRateQuery)
+        }
+    }
   
-  @objc
-  func readRestingHeartRateData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-          let healthStore = HKHealthStore()
-
-          guard HKHealthStore.isHealthDataAvailable() else {
-              let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
-              reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
-              return
-          }
-
-          guard let quantityType = HKObjectType.quantityType(forIdentifier: .restingHeartRate) else {
-              return // Guard against nil quantity type
-          }
-
-          // Request authorization to access resting heart rate data
-          healthStore.requestAuthorization(toShare: nil, read: Set([quantityType])) { success, error in
-              if !success {
-                  reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for resting heart rate data", error as NSError?)
-                  return
-              }
-
-              // Authorization granted, proceed with the resting heart rate query
-              let endDate = Date()
-              let startDate = Calendar.current.date(byAdding: .day, value: -14, to: endDate)! // Last 14 days
-
-              let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
-
-              // Sort descriptor for sorting samples by start date
-              let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-
-              // Date formatter to convert dates to ISO 8601 format
-              let dateFormatter = DateFormatter()
-              dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-              dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-
-              // Create a sample query for resting heart rate data
-              let heartRateQuery = HKSampleQuery(sampleType: quantityType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
-                  if let error = error {
-                      reject("QUERY_FAILED", "Failed to query resting heart rate data", error as NSError?)
-                  } else {
-                      var heartRateData = [[String: Any]]()
-
-                      // Handle the results to extract heart rate values and dates
-                      for sample in results as? [HKQuantitySample] ?? [] {
-                          let heartRateValue = sample.quantity.doubleValue(for: HKUnit(from: "count/min"))
-                          let sampleDate = sample.startDate
-                          let iso8601DateString = dateFormatter.string(from: sampleDate)
-
-                          let dataPoint: [String: Any] = [
-                              "heartRateValue": heartRateValue,
-                              "date": iso8601DateString
-                          ]
-                          heartRateData.append(dataPoint)
-                      }
-
-                      // Resolve the promise with the extracted data
-                      resolve(heartRateData)
-                  }
-              }
-
-              // Execute the resting heart rate query
-              healthStore.execute(heartRateQuery)
-          }
-      }
-  
-  @available(iOS 16.0, *)
-  @objc
-  func readSleepData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-         let healthStore = HKHealthStore()
-         
-         guard HKHealthStore.isHealthDataAvailable() else {
-             let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
-             reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
-             return
-         }
-         
-         guard let categoryType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
-             // Guard against nil category type
-             return
-         }
-         
-         // Request authorization to access sleep data
-         healthStore.requestAuthorization(toShare: nil, read: [categoryType]) { success, error in
-             if !success {
-                 reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for sleep data", error)
-                 return
-             }
-             
-             // Authorization granted, proceed with the sleep query
-             let endDate = Date()
-             let startDate = Calendar.current.date(byAdding: .month, value: -1, to: endDate)! // 28 days past
-             
-             let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
-             
-             // Sort descriptor for sorting samples by start date
-             let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
-             
-             // Date formatter to convert dates to ISO 8601 format
-             let dateFormatter = DateFormatter()
-             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-             dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
-             
-             var sleepData = [[String: Any]]()
-             
-             // Create a sample query for sleep data
-             let sleepQuery = HKSampleQuery(sampleType: categoryType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
-                 if let error = error {
-                     reject("QUERY_FAILED", "Failed to query sleep data", error)
-                 } else {
-                     // Handle the results to extract sleep values and dates
-                     for sample in results as? [HKCategorySample] ?? [] {
-                         var sleepValue: String
-                         
-                         switch sample.value {
-                            case HKCategoryValueSleepAnalysis.inBed.rawValue:
-                                sleepValue = "In Bed"
-                            case HKCategoryValueSleepAnalysis.awake.rawValue:
-                                sleepValue = "Awake"
-                            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
-                                sleepValue = "Core"
-                            case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
-                                sleepValue = "Deep"
-                            case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
-                                sleepValue = "REM"
-                            case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
-                                sleepValue = "Unspecified"
-                            default:
-                                sleepValue = "Unknown"
-                         }
-                         
-                         let startDate = sample.startDate
-                         let endDate = sample.endDate
-                         
-                         // Debug
-                         print("[DEBUG] VALUE: \(sleepValue)")
-                         
-                         let iso8601StartDateString = dateFormatter.string(from: startDate)
-                         let iso8601EndDateString = dateFormatter.string(from: endDate)
-                         
-                         let dataPoint: [String: Any] = [
-                             "sleepValue": sleepValue,
-                             "startDate": iso8601StartDateString,
-                             "endDate": iso8601EndDateString
-                         ]
-                         sleepData.append(dataPoint)
-                     }
-                     
-                     // Resolve the promise with the extracted data
-                     resolve(sleepData)
-                 }
-             }
-             
-             // Execute the query
-             healthStore.execute(sleepQuery)
-         }
-  }
-
-    // TODO refactor.
+    /*
+    * Fetch sleep data phases given a start date and an end date and format it on return.
+    */
     @available(iOS 16.0, *)
     @objc
-    func readActivityRingsData(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+    func func readSleepData(
+        _ startDateIso: String,
+        _ endDateIso: String,
+        resolver resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        let healthStore = HKHealthStore()
+        
+        guard HKHealthStore.isHealthDataAvailable() else {
+            let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
+            reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
+            return
+        }
+        
+        guard let categoryType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
+            let error = NSError(domain: "YourAppDomain", code: 2, userInfo: [NSLocalizedDescriptionKey: "Sleep data is not available."])
+            reject("SLEEP_DATA_NOT_AVAILABLE", "Sleep data is not available.", error)
+            return
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        
+        guard let startDate = dateFormatter.date(from: startDateIso), let endDate = dateFormatter.date(from: endDateIso) else {
+            let error = NSError(domain: "YourAppDomain", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid date format. Dates must be in ISO 8601 format."])
+            reject("INVALID_DATE_FORMAT", "Invalid date format. Dates must be in ISO 8601 format.", error)
+            return
+        }
+        
+        // Request authorization to access sleep data
+        healthStore.requestAuthorization(toShare: nil, read: Set([categoryType])) { success, error in
+            if !success {
+                reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for sleep data", error)
+                return
+            }
+            
+            // Authorization granted, proceed with the sleep query
+            let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: [])
+            
+            // Sort descriptor for sorting samples by start date
+            let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)
+            
+            // Create a sample query for sleep data
+            let sleepQuery = HKSampleQuery(sampleType: categoryType, predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: [sortDescriptor]) { (query, results, error) in
+                if let error = error {
+                    reject("QUERY_FAILED", "Failed to query sleep data", error)
+                    return
+                }
+
+                var sleepData = [[String: Any]]()
+
+                // Handle the results to extract sleep values and dates
+                for sample in results as? [HKCategorySample] ?? [] {
+                    var sleepValue: String
+
+                    switch sample.value {
+                        case HKCategoryValueSleepAnalysis.inBed.rawValue:
+                            sleepValue = "In Bed"
+                        case HKCategoryValueSleepAnalysis.awake.rawValue:
+                            sleepValue = "Awake"
+                        case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
+                            sleepValue = "Core"
+                        case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                            sleepValue = "Deep"
+                        case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                            sleepValue = "REM"
+                        case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
+                            sleepValue = "Unspecified"
+                        default:
+                            sleepValue = "Unknown"
+                    }
+
+                    let iso8601StartDateString = dateFormatter.string(from: sample.startDate)
+                    let iso8601EndDateString = dateFormatter.string(from: sample.endDate)
+
+                    let dataPoint: [String: Any] = [
+                        "sleepValue": sleepValue,
+                        "startDate": iso8601StartDateString,
+                        "endDate": iso8601EndDateString
+                    ]
+                    sleepData.append(dataPoint)
+                }
+
+                // Resolve the promise with the extracted data
+                resolve(sleepData)
+            }
+
+            // Execute the query
+            healthStore.execute(sleepQuery)
+        }
+    }
+
+    /*
+    * Fetch activity rings data given a start date and an end date and format it on return.
+    */
+    @available(iOS 16.0, *)
+    @objc
+    func readActivityRingsData(
+        _ startDateIso: String,
+        _ endDateIso: String,
+        resolver resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
         let healthStore = HKHealthStore();
 
         // Check for health data availability.
         guard HKHealthStore.isHealthDataAvailable() else {
-             let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
-             reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
-             return
+            let error = NSError(domain: "YourAppDomain", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."])
+            reject("HEALTH_KIT_NOT_AVAILABLE", "HealthKit is not available on this device.", error)
+            return
         }
 
         // Ensure we can request the data type.
-        let activitySummaryType = HKObjectType.activitySummaryType();
+        guard let activitySummaryType = HKObjectType.activitySummaryType() else {
+            let error = NSError(domain: "YourAppDomain", code: 2, userInfo: [NSLocalizedDescriptionKey: "Activity Summary data is not available."])
+            reject("ACTIVITY_SUMMARY_DATA_NOT_AVAILABLE", "Activity Summary data is not available.", error)
+            return
+        }
+
         let readTypes: Set<HKObjectType> = [activitySummaryType];
+
+        // Date formatter to convert ISO 8601 strings to Date objects
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+
+        guard let startDate = dateFormatter.date(from: startDateIso), let endDate = dateFormatter.date(from: endDateIso) else {
+            let error = NSError(domain: "YourAppDomain", code: 3, userInfo: [NSLocalizedDescriptionKey: "Invalid date format. Dates must be in ISO 8601 format."])
+            reject("INVALID_DATE_FORMAT", "Invalid date format. Dates must be in ISO 8601 format.", error)
+            return
+        }
 
         // Request authorization to access activity rings data.
         healthStore.requestAuthorization(toShare: Set(), read: readTypes) { (success, error) in 
@@ -367,14 +438,8 @@ class Controller: NSObject {
                 return
             }
 
-            // Fetch data over the previous 28 days.
-
-            // Build predicate.
+            // Build predicate for the specified date range.
             let calendar = NSCalendar.current
-            let endDate = Date()
-            guard let startDate = calendar.date(byAdding: .month, value: -1, to: endDate) else {
-                fatalError("*** Unable to create the start date ***")
-            }
             let units: Set<Calendar.Component> = [.day, .month, .year, .era]
             var startDateComponents = calendar.dateComponents(units, from: startDate)
             startDateComponents.calendar = calendar
@@ -387,22 +452,15 @@ class Controller: NSObject {
             let query = HKActivitySummaryQuery(predicate: summariesWithinRange) { (query, summariesOrNil, errorOrNil) -> Void in
                 guard let summaries = summariesOrNil else {
                     if let error = errorOrNil {
-                        print("Error fetching activity ring summaries: \(error.localizedDescription)");
-                        reject("AUTHORIZATION_FAILED", "Failed to obtain authorization for activity ring data types", error as NSError?);
+                        reject("QUERY_FAILED", "Failed to query activity rings data", error as NSError?)
                     } else {
                         resolve([]);  // No data available.
                     }
                     return
                 }
 
-                // Store data values.
                 var ringData: [[String: Any]] = [];
 
-                // ISO 8601 datetime format.
-                let dateFormatter = DateFormatter();
-                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-                dateFormatter.timeZone = TimeZone(abbreviation: "UTC");
-                
                 for summary in summaries {
                     let dateComponents = summary.dateComponents(for: calendar);
                     guard let date = calendar.date(from: dateComponents) else { continue }
@@ -427,9 +485,6 @@ class Controller: NSObject {
                     ]
                     
                     ringData.append(dayData)
-
-                    // DEBUG.
-                    print("Current summary: ", dayData);
                 }
 
                 resolve(ringData);
@@ -438,8 +493,11 @@ class Controller: NSObject {
         }
     }
   
-@objc
-  static func requireMainQueueSetup() -> Bool {
-    return true
-  }
+    /*
+    * Expose the methods to React Native.
+    */
+    @objc
+    static func requireMainQueueSetup() -> Bool {
+        return true
+    }
 }
