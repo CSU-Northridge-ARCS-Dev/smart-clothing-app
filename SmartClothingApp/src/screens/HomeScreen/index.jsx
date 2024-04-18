@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
-import { Button, Text } from "react-native-paper";
+import { Button, Modal, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
@@ -31,19 +31,22 @@ import {
   readRecord,
 } from "react-native-health-connect";
 
-const getLastWeekDate = (): Date => {
+const getLastWeekDate = () => {
   return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
 };
 
-const getLastTwoWeeksDate = (): Date => {
+const getLastTwoWeeksDate = () => {
   return new Date(new Date().getTime() - 2 * 7 * 24 * 60 * 60 * 1000);
 };
 
-const getTodayDate = (): Date => {
+const getTodayDate = () => {
   return new Date();
 };
 
 export default function HomeScreen({ navigation }) {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [sdkStatus, setSdkStatus] = useState(null);
+
   const initializeHealthConnect = async () => {
     const result = await initialize();
     console.log({ result });
@@ -51,20 +54,23 @@ export default function HomeScreen({ navigation }) {
 
   const checkAvailability = async () => {
     const status = await getSdkStatus();
+    setSdkStatus(status);
     if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
       console.log("SDK is available");
     }
 
     if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
       console.log("SDK is not available");
+      setModalVisible(true);
     }
-
     if (
       status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
     ) {
       console.log("SDK is not available, provider update required");
+      setModalVisible(true);
     }
   };
+
   const insertSampleData = () => {
     insertRecords([
       {
@@ -132,6 +138,16 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
+  const openGooglePlayStore = async () => {
+    const healthConnectBetaUrl =
+      "market://details?id=com.google.android.apps.healthdata";
+    if (await Linking.canOpenURL(healthConnectBetaUrl)) {
+      Linking.openURL(healthConnectBetaUrl);
+    } else {
+      console.error("Cannot open Google Play Store");
+    }
+  };
+
   const route = useRoute();
   const navigate = (screen) => {
     navigation.navigate(screen, {
@@ -142,7 +158,35 @@ export default function HomeScreen({ navigation }) {
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
-      <DataCollectModal />
+      <View style={{ marginTop: 20 }}>
+        <Modal
+          visible={modalVisible}
+          transparent={false}
+          animationType="slide"
+          contentContainerStyle={{
+            backgroundColor: AppColor.primaryContainer,
+            padding: 20,
+          }}
+          onRequestClose={() => {
+            setModalVisible(false);
+          }}
+        >
+          {console.log("Modal visible: ", modalVisible)}
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContent}>
+              <Text>SDK</Text>
+              {sdkStatus ===
+                SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
+                <Button
+                  title="Update Health Connect"
+                  onPress={openGooglePlayStore}
+                />
+              )}
+              <Button title="Go Back" onPress={() => setModalVisible(false)} />
+            </View>
+          </View>
+        </Modal>
+      </View>
       <View style={styles.body}>
         <Button title="Initialize" onPress={initializeHealthConnect}>
           Initialize
@@ -231,6 +275,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: 60,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Translucent black ovelay
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    alignSelf: "center",
+    elevation: 5,
   },
   body: {
     padding: 10,
