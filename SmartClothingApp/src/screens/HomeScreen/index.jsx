@@ -1,7 +1,7 @@
-import React, { useEffect, Linking } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import React, { useEffect, Linking, useState } from "react";
+import { View, ScrollView, StyleSheet, Modal, Button, Text } from "react-native";
 import { useSelector } from "react-redux";
-import { Button, Modal, Text } from "react-native-paper";
+//import { Button, Modal, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
@@ -165,16 +165,11 @@ export default function HomeScreen({ navigation }) {
   };
   // test functions end
 
-  const [modalVisible, setModalVisible] = React.useState(false);
-  const [sdkStatus, setSdkStatus] = React.useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [sdkStatus, setSdkStatus] = useState(null);
 
   //convert the navs to modals
   useEffect(() => {
-    // checkAvailability();
-    // initializeHealthConnect();
-    // grantedPermissions();
-    // requestJSPermissions();
-
     // a shitload of debugging statements below
     checkAvailability();
     console.log("Hit check availability");
@@ -286,7 +281,6 @@ export default function HomeScreen({ navigation }) {
           visible={modalVisible}
           transparent={false}
           animationType="slide"
-          onDismiss={() => {}}
           contentContainerStyle={{
             backgroundColor: AppColor.primaryContainer,
             padding: 20,
@@ -299,6 +293,7 @@ export default function HomeScreen({ navigation }) {
               {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE 
               ? "SDK is not available."
               : "SDK requires an update."}
+              sample text
             </Text>
             {console.log("sdk status from inside the modal:", sdkStatus, "availability update val: ", SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)}
             { sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
