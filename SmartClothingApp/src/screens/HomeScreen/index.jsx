@@ -1,5 +1,5 @@
-import React, { useEffect, Linking, useState } from "react";
-import { View, ScrollView, StyleSheet, Modal, Button, Text } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, ScrollView, StyleSheet, Modal, Button, Text, Linking } from "react-native";
 import { useSelector } from "react-redux";
 //import { Button, Modal, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
@@ -178,10 +178,14 @@ export default function HomeScreen({ navigation }) {
 
   const openGooglePlayStore = async () => {
     const healthConnectBetaUrl = "market://details?id=com.google.android.apps.healthdata";
-    if (await Linking.canOpenURL(healthConnectBetaUrl)) {
-      Linking.openURL(healthConnectBetaUrl);
-    } else {
-      console.error("Cannot open Google Play Store");
+    try {
+      if (await Linking.canOpenURL(healthConnectBetaUrl)) {
+        Linking.openURL(healthConnectBetaUrl);
+      } else {
+        console.error("Cannot open Google Play Store");
+      }
+    } catch (error) {
+      console.error("Error opening Google Play Store", error);
     }
   };
 
