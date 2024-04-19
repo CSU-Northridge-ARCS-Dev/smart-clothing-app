@@ -4,6 +4,13 @@ const { Controller } = NativeModules;
 import { convertToReadableFormat, getDayFromISODate } from '../dateConversions';
 import { sendSleepData, sendHeartRateData } from '../../actions/userActions';
 
+import {doc, collection, addDoc} from "firebase/firestore";
+import { auth, database } from '../../../firebaseConfig';
+
+/**
+ * INITIALIZATION AND AUTHORIZATION
+ */
+
 // Request read access to health data
 export const findHealthData = async () => {
 
@@ -39,14 +46,78 @@ export const requestHealthKitAuthorization = async () => {
   }
 };
 
-export const readHeartRateData = async () => {
-  try {
-    const heartRateData = await Controller.readHeartRateData();
-    console.log("Heart rate data:", heartRateData);
+/**
+ * DATA QUERIES
+ */
 
-    await sendHeartRateData(heartRateData);
+// ONLY CALLED ONCE AFTER SIGNING UP.
+// Fetch all health data over the past year and store them in the database.
+export const performInitialDataSync = async () => {
+  const userId = auth.currentUser.uid;
+  const user = doc(database, "Users", userId);
+
+  // Fetch needed health collections.
+  const heartRateDataCollection = collection(user, "HeartRateData");
+  const sleepDataCollection = collection(user, "SleepData");
+  const activityDataCollection = collection(user, "ActivityData");
+
+  console.log("Performing initial query...");
+
+  // Define start date (5 years ago) and end date (now).
+  const startDate = new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString();
+  const endDate = new Date().toISOString();
+
+  try {
+    // Heart data.
+    console.log("Fetching heart rate data...");
+    const heartRateData = await getHeartRateData(startDate, endDate);
+    console.log("Heart rate data fetched!");
+
+    // Sleep data.
+    console.log("Fetching sleep data...");
+    const sleepData = await getSleepData(startDate, endDate);
+    console.log("Sleep data fetched!");
+
+    // Activity rings data.
+    console.log("Fetching activity rings data...");
+    const activityRingsData = await getActivityRingsData(startDate, endDate);
+    console.log("Activity rings data fetched!");
+
+    // Upload to Firestore.
+    console.log("Uploading data...");
+    for (const data of heartRateData) {
+      await addDoc(heartRateDataCollection, data);
+    }
+    console.log("Heart rate data uploaded!");
+    for (const data of sleepData) {
+      await addDoc(sleepDataCollection, data);
+    }
+    console.log("Sleep data uploaded!");
+    for (const data of activityRingsData) {
+      await addDoc(activityDataCollection, data);
+    }
+    console.log("Activity rings data uploaded!");
+    console.log("All uploads complete!!!");
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * Fetch heart rate data from a given range of ISO datetimes.
+ * 
+ * @param {string} startDate 
+ * @param {string} endDate 
+ */
+export const getHeartRateData = async (startDate, endDate) => {
+  try {
+    const heartRateData = await Controller.readHeartRateData(startDate, endDate);
+    console.log("Heart rate data recieved:", heartRateData);
+
+    // await sendHeartRateData(heartRateData);
     
-    // Process heart rate data
+    // Process and format heart rate data
     heartRateData.forEach(data => {
       const timestamp = new Date(data.date);
       const heartRate = data.heartRate;
@@ -61,17 +132,17 @@ export const readHeartRateData = async () => {
   }
 };
 
-export const getRestingHeartRateData = async () => {
+export const getRestingHeartRateData = async (startDate, endDate) => {
   try {
-    const restingHeartRateData = await Controller.readRestingHeartRateData();
+    const restingHeartRateData = await Controller.readRestingHeartRateData(startDate, endDate);
     console.log('Resting heart rate Data:', restingHeartRateData);
 
     // Process resting heart rate data
     const processedRestingHeartRateData = restingHeartRateData.map(data => {
-      const heartRateValue = data.heartRateValue;
+      const restingHeartRateValue = data.restingHeartRateValue;
       const date = new Date(data.date);
-      console.log("Resting Heart Rate Value:", heartRateValue, "Date:", date);
-      return { heartRateValue, date };
+      console.log("Resting Heart Rate Value:", restingHeartRateValue, "Date:", date);
+      return { restingHeartRateValue, date };
     });
 
     const heartRateValues = processedRestingHeartRateData.map(dataPoint => dataPoint.heartRateValue);
@@ -87,16 +158,16 @@ export const getRestingHeartRateData = async () => {
 };
 
 
-export const getHeartRateVariabilityData = async () => {
+export const getHeartRateVariabilityData = async (startDate, endDate) => {
   try {
-    const readHeartRateVariabilityData = await Controller.readHeartRateVariabilityData();
+    const readHeartRateVariabilityData = await Controller.readHeartRateVariabilityData(startDate, endDate);
     console.log('Heart rate variability Data:', readHeartRateVariabilityData);
 
     // Process resting heart rate data
     readHeartRateVariabilityData.forEach(data => {
       // console.log("data", data)
       const timestamp = data.date;
-      const heartRateVariability = data.heart_rate_value;
+      const heartRateVariability = data.heartRateVariability;
       console.log("Timestamp..:", timestamp, "Heart rate varaibility:", heartRateVariability);
 
       return {heartRateVariability, timestamp};
@@ -109,17 +180,23 @@ export const getHeartRateVariabilityData = async () => {
   }
 };
 
-export const getSleepData = async () => {
+/**
+ * Fetch sleep phases data from a given range of ISO datetimes.
+ * 
+ * @param {string} startDate 
+ * @param {string} endDate
+ */
+export const getSleepData = async (startDate, endDate) => {
   const { Controller } = NativeModules;
   try {
-    const sleepData = await Controller.readSleepData();
+    const sleepData = await Controller.readSleepData(startDate, endDate);
     // console.log('Raw sleep Data:', sleepData);
     console.log("----------");
     console.log("SLEEP DATA");
     console.log("----------");
 
     console.log("Sleep data sent!");
-    await sendSleepData(sleepData);
+    // await sendSleepData(sleepData);
     
     // Process sleepData as needed. Keep datetimes in ISO.
     const processedSleepData = sleepData.map((dataPoint) => {
@@ -139,11 +216,17 @@ export const getSleepData = async () => {
   }
 };
 
-export const getActivityRingsData = async () => {
+/**
+ * Fetch ring values and their goals over a given range of ISO datetimes.
+ * 
+ * @param {string} startDate 
+ * @param {string} endDate 
+ */
+export const getActivityRingsData = async (startDate, endDate) => {
   const { Controller } = NativeModules;
 
   try {
-    const activityRingsData = await Controller.readActivityRingsData();
+    const activityRingsData = await Controller.readActivityRingsData(startDate, endDate);
     // console.log("Raw activity rings data: ", activityRingsData);
     console.log("--------------");
     console.log("ACTIVITY RINGS");

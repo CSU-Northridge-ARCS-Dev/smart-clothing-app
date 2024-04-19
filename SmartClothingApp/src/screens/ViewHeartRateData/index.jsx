@@ -10,7 +10,8 @@ import { useSelector } from "react-redux";
 import { CartesianChart, Scatter } from "victory-native";
 import inter from "../../../assets/fonts/inter-medium.ttf";
 import { useFont } from "@shopify/react-native-skia";
-import { queryHeartRateData } from "../../actions/userActions";
+// import { queryHeartRateData } from "../../actions/userActions";
+import FirebaseHealthKitService from "../../services/AppleHealthKit/firebaseHealthKitService";
 
 const ViewHeartRateData = ({ route }) => {
   const font = useFont(inter, 14);
@@ -32,7 +33,8 @@ const ViewHeartRateData = ({ route }) => {
       try {
         // console.log(dates.startDate);
         // console.log(dates.endDate);
-        const result = await queryHeartRateData(dates.startDate, dates.endDate);
+        // const result = await queryHeartRateData(dates.startDate, dates.endDate);
+        const result = await FirebaseHealthKitService.queryHeartRateData(dates.startDate, dates.endDate);
         if (result.length > 0) {
           const heartRates = result.map((entry) => entry.heartRate);
           const min = Math.min(...heartRates);

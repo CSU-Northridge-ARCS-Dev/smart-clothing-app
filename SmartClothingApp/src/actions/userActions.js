@@ -42,8 +42,6 @@ import {
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
 
-import { getSleepData, readHeartRateData } from "../utils/AppleHealthKit/AppleHealthKitUtils.js";
-
 const loginWithEmail = (user) => {
   return {
     type: LOGIN_WITH_EMAIL,
@@ -369,113 +367,113 @@ export const deleteAccount = () => {
   };
 };
 
-export const querySleepData = async (startDate, endDate) => {
-  try {
-    //get the user ID
-    const userId = auth.currentUser.uid;
+// export const querySleepData = async (startDate, endDate) => {
+//   try {
+//     //get the user ID
+//     const userId = auth.currentUser.uid;
 
-    //make a reference to the doc with the user ID
-    const userRef = doc(database, "Users", userId);
+//     //make a reference to the doc with the user ID
+//     const userRef = doc(database, "Users", userId);
 
-    // create a query to filter documents within the date range
-    const dataQuery = query(
-      collection(userRef, "SleepData"),
-      where("startDate", ">=", startDate),
-      where("startDate", "<=", endDate),
-      orderBy("startDate", "asc")
-    );
+//     // create a query to filter documents within the date range
+//     const dataQuery = query(
+//       collection(userRef, "SleepData"),
+//       where("startDate", ">=", startDate),
+//       where("startDate", "<=", endDate),
+//       orderBy("startDate", "asc")
+//     );
 
-    // Execute the query to get the result
-    const dataSnapshot = await getDocs(dataQuery);
+//     // Execute the query to get the result
+//     const dataSnapshot = await getDocs(dataQuery);
 
-    const fetchedData = [];
-    dataSnapshot.forEach((doc) => {
-      const data = doc.data();
-      if (data.endDate >= startDate && data.endDate <= endDate) {
-        fetchedData.push({ ...data });
-      }
-    });
+//     const fetchedData = [];
+//     dataSnapshot.forEach((doc) => {
+//       const data = doc.data();
+//       if (data.endDate >= startDate && data.endDate <= endDate) {
+//         fetchedData.push({ ...data });
+//       }
+//     });
 
-    return fetchedData;
-  } catch (error) {
-    console.error("Error fetching data: ", error);
-    return [];
-  }
-};
+//     return fetchedData;
+//   } catch (error) {
+//     console.error("Error fetching data: ", error);
+//     return [];
+//   }
+// };
 
-export const queryHeartRateData = async (startDate, endDate) => {
-  try {
-    //get the user ID
-    const userId = auth.currentUser.uid;
+// export const queryHeartRateData = async (startDate, endDate) => {
+//   try {
+//     //get the user ID
+//     const userId = auth.currentUser.uid;
 
-    //make a reference to the doc with the user ID
-    const userRef = doc(database, "Users", userId);
+//     //make a reference to the doc with the user ID
+//     const userRef = doc(database, "Users", userId);
 
-    // Create a query to filter documents within the date range
-    const dataQuery = query(
-      collection(userRef, "HeartRateData"),
-      where("date", ">=", startDate),
-      where("date", "<=", endDate)
-    );
+//     // Create a query to filter documents within the date range
+//     const dataQuery = query(
+//       collection(userRef, "HeartRateData"),
+//       where("date", ">=", startDate),
+//       where("date", "<=", endDate)
+//     );
 
-    // execute the query to get the result
-    const dataSnapshot = await getDocs(dataQuery);
+//     // execute the query to get the result
+//     const dataSnapshot = await getDocs(dataQuery);
 
-    // get the documents
-    const fetchedData = [];
-    dataSnapshot.forEach((doc) => {
-      fetchedData.push({ ...doc.data() });
-    });
+//     // get the documents
+//     const fetchedData = [];
+//     dataSnapshot.forEach((doc) => {
+//       fetchedData.push({ ...doc.data() });
+//     });
 
-    return fetchedData;
-  } catch (error) {
-    console.error("Error fetching data: ", error);
-    return [];
-  }
-};
+//     return fetchedData;
+//   } catch (error) {
+//     console.error("Error fetching data: ", error);
+//     return [];
+//   }
+// };
 
-export const sendSleepData = async (sleepData) => {
-  console.log("Sleep invoked!");
+// export const sendSleepData = async (sleepData) => {
+//   console.log("Sleep invoked!");
 
-  //get the user ID
-  const userId = auth.currentUser.uid;
+//   //get the user ID
+//   const userId = auth.currentUser.uid;
 
-  //make a reference to the doc with the user ID
-  const userRef = doc(database, "Users", userId);
+//   //make a reference to the doc with the user ID
+//   const userRef = doc(database, "Users", userId);
 
-  // get documents inside SleepData
-  const sleepDataCollection = collection(userRef, "SleepData");
+//   // get documents inside SleepData
+//   const sleepDataCollection = collection(userRef, "SleepData");
 
-  // get docs from SleepData
-  // const sleepDocs = await getDocs(sleepDataCollection);
+//   // get docs from SleepData
+//   // const sleepDocs = await getDocs(sleepDataCollection);
 
-  console.log("sleepDataCollection", sleepDataCollection);
-  // console.log("sleepDocs: ", sleepDocs);
+//   console.log("sleepDataCollection", sleepDataCollection);
+//   // console.log("sleepDocs: ", sleepDocs);
 
-  for (const data of sleepData) {
-    await addDoc(sleepDataCollection, data);
-  }
-};
+//   for (const data of sleepData) {
+//     await addDoc(sleepDataCollection, data);
+//   }
+// };
 
-export const sendHeartRateData = async (heartRateData) => {
-  console.log("Heart rate invoked!");
+// export const sendHeartRateData = async (heartRateData) => {
+//   console.log("Heart rate invoked!");
 
-  //get the user ID
-  const userId = auth.currentUser.uid;
+//   //get the user ID
+//   const userId = auth.currentUser.uid;
 
-  //make a reference to the doc with the user ID
-  const userRef = doc(database, "Users", userId);
+//   //make a reference to the doc with the user ID
+//   const userRef = doc(database, "Users", userId);
 
-  // get documents inside HeartRateData
-  const heartRateDataCollection = collection(userRef, "HeartRateData");
+//   // get documents inside HeartRateData
+//   const heartRateDataCollection = collection(userRef, "HeartRateData");
 
-  // get docs from HeartRateData
-  // const heartRateDocs = await getDocs(heartRateDataCollection);
+//   // get docs from HeartRateData
+//   // const heartRateDocs = await getDocs(heartRateDataCollection);
 
-  console.log("heartRateDataCollection", heartRateDataCollection);
-  // console.log("heartRateDocs: ", heartRateDocs);
+//   console.log("heartRateDataCollection", heartRateDataCollection);
+//   // console.log("heartRateDocs: ", heartRateDocs);
 
-  for (const data of heartRateData) {
-    await addDoc(heartRateDataCollection, data);
-  }
-};
+//   for (const data of heartRateData) {
+//     await addDoc(heartRateDataCollection, data);
+//   }
+// };

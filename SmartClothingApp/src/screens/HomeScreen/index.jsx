@@ -5,7 +5,8 @@ import { Button, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
-import { getSleepData, readHeartRateData } from "../../utils/AppleHealthKit/AppleHealthKitUtils.js";
+// import { getSleepData, readHeartRateData } from "../../utils/AppleHealthKit/AppleHealthKitUtils.js";
+import FirebaseHealthKitService from "../../services/AppleHealthKit/firebaseHealthKitService.js";
 import {
   ActivityCard,
   AppHeader,
@@ -31,23 +32,26 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
-  // const sendData = async () => {
-  //   try {
-  //     await getSleepData();
-  //     await readHeartRateData();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
+  const performInitialDataSync = async () => {
+    try {
+      await FirebaseHealthKitService.performInitialDataSync();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   // useEffect(() => {
-  //   const fetchData = async () => {
-  //     await getSleepData();
-  //     await readHeartRateData();
+  //   const performInitialDataSync = async () => {
+  //     await FirebaseHealthKitService.performInitialDataSync();
   //   }
-  //   fetchData()
+  //   performInitialDataSync()
   //   .catch(error => console.error(error));
   // }, [])  // run once
+
+  useEffect(() => {
+    // Initialize firebase user meta (put this after logging in or signing up instead).
+    new FirebaseHealthKitService();
+  })
 
   const firstName = useSelector((state) => state.user.firstName);
   return (
@@ -55,7 +59,7 @@ export default function HomeScreen({ navigation }) {
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
-        {/* <Button onPress={async () => {await sendData();}}>Send Sleep & Heart Rate Data</Button> */}
+        <Button onPress={async () => {await performInitialDataSync();}}>INITIAL DATA SYNC</Button>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>

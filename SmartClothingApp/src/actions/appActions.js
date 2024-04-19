@@ -43,8 +43,10 @@ export const updateSleepDataDateRangeData = (startDate, endDate) => {
 
 export const updateActivityRings = () => {
   return async (dispatch) => {
-    // Load in all past 7 days.
-    const ringData = await getActivityRingsData();
+    // TODO switch to query from firestore than from native module.
+    // Load in data of this week so far.
+    const { startDateIso, endDateIso } = getCurrentWeekDateRange();
+    const ringData = await getActivityRingsData(startDateIso, endDateIso);
     console.log(`Ring data: ${JSON.stringify(ringData)}`);
 
     for (const dayData of ringData) {
@@ -67,6 +69,32 @@ export const updateActivityRings = () => {
     }
   };
 };
+
+/** TODO move to utils
+ * Get the ISO strings for the past week since Sunday. The week range is Sunday to Saturday.
+ * ex) If today is Wednesday, this would get the ISO string from this Sunday and the ISO string
+ * of today.
+ * 
+ * @returns { string, string }
+ */
+function getCurrentWeekDateRange() {
+  const today = new Date();
+  const todayIndex = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
+  const sunday = new Date(today);
+
+  // Set sunday to the beginning of the week.
+  sunday.setDate(today.getDate() - todayIndex);
+  sunday.setHours(0, 0, 0, 0); // Start of Sunday.
+
+  const endDate = new Date(today);
+  endDate.setHours(23, 59, 59, 999); // End of current day.
+
+  // Convert to ISO 8601 format.
+  const startDateIso = sunday.toISOString();
+  const endDateIso = endDate.toISOString();
+
+  return { startDateIso, endDateIso };
+}
 
 export const updateHeartRateDateRange = (startDate, endDate) => {
   return async (dispatch) => {

@@ -18,8 +18,9 @@ import {
 } from "@shopify/react-native-skia";
 import { scaleLinear, tickStep, ticks } from "d3";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
-import { querySleepData } from "../../actions/userActions";
+import { querySleepData, syncSleepData } from "../../actions/userActions";
 import { calculateTotalDuration } from "../../utils/dateConversions";
+import FirebaseHealthKitService from "../../services/AppleHealthKit/firebaseHealthKitService";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
@@ -46,7 +47,8 @@ const ViewSleepData = ({ route }) => {
       try {
         // console.log(dates.startDate);
         // console.log(dates.endDate);
-        const result = await querySleepData(dates.startDate, dates.endDate);
+        // const result = await querySleepData(dates.startDate, dates.endDate);
+        const result = await FirebaseHealthKitService.querySleepData(dates.startDate, dates.endDate);
         setSleepDataUnparsed(result);
         console.log("UNPARSED SLEEP DATA: ", result)
         // result.forEach(item => {
