@@ -17,14 +17,14 @@ RCT_EXTERN_METHOD(requestAuthorization:(RCTPromiseResolveBlock)resolve rejecter:
 
 RCT_EXTERN_METHOD(findHealthData:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(readHeartRateData:(NSString *)startDateIso endDateIso:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(readHeartRateData:(NSString *)startDateIso withEndDate:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(readHeartRateVariabilityData:(NSString *)startDateIso endDateIso:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(readHeartRateVariabilityData:(NSString *)startDateIso withEndDate:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(readRestingHeartRateData:(NSString *)startDateIso endDateIso:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(readRestingHeartRateData:(NSString *)startDateIso withEndDate:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(readSleepData:(NSString *)startDateIso endDateIso:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(readSleepData:(NSString *)startDateIso withEndDate:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
-RCT_EXTERN_METHOD(readActivityRingsData:(NSString *)startDateIso endDateIso:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(readActivityRingsData:(NSString *)startDateIso withEndDate:(NSString *)endDateIso resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
 
 @end

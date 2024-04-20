@@ -76,7 +76,7 @@ class Controller: NSObject {
     /*
     * Fetch heart rate data given a start date and an end date and format it on return.
     */
-    @objc
+    @objc(readHeartRateData:withEndDate:resolver:rejecter:)
     func readHeartRateData(
         _ startDateIso: String,
         _ endDateIso: String,
@@ -140,7 +140,7 @@ class Controller: NSObject {
     /*
     * Fetch heart rate variability data given a start date and an end date and format it on return.
     */
-    @objc
+    @objc(readHeartRateVariabilityData:withEndDate:resolver:rejecter:)
     func readHeartRateVariabilityData(
         _ startDateIso: String,
         _ endDateIso: String,
@@ -218,7 +218,7 @@ class Controller: NSObject {
     /*
     * Fetch resting heart rate data given a start date and an end date and format it on return.
     */
-    @objc
+    @objc(readRestingHeartRateData:withEndDate:resolver:rejecter:)
     func readRestingHeartRateData(
         _ startDateIso: String,
         _ endDateIso: String,
@@ -297,8 +297,8 @@ class Controller: NSObject {
     * Fetch sleep data phases given a start date and an end date and format it on return.
     */
     @available(iOS 16.0, *)
-    @objc
-    func func readSleepData(
+    @objc(readSleepData:withEndDate:resolver:rejecter:)
+    func readSleepData(
         _ startDateIso: String,
         _ endDateIso: String,
         resolver resolve: @escaping RCTPromiseResolveBlock,
@@ -395,7 +395,7 @@ class Controller: NSObject {
     * Fetch activity rings data given a start date and an end date and format it on return.
     */
     @available(iOS 16.0, *)
-    @objc
+    @objc(readActivityRingsData:withEndDate:resolver:rejecter:)
     func readActivityRingsData(
         _ startDateIso: String,
         _ endDateIso: String,
@@ -412,11 +412,7 @@ class Controller: NSObject {
         }
 
         // Ensure we can request the data type.
-        guard let activitySummaryType = HKObjectType.activitySummaryType() else {
-            let error = NSError(domain: "YourAppDomain", code: 2, userInfo: [NSLocalizedDescriptionKey: "Activity Summary data is not available."])
-            reject("ACTIVITY_SUMMARY_DATA_NOT_AVAILABLE", "Activity Summary data is not available.", error)
-            return
-        }
+        let activitySummaryType = HKObjectType.activitySummaryType()
 
         let readTypes: Set<HKObjectType> = [activitySummaryType];
 

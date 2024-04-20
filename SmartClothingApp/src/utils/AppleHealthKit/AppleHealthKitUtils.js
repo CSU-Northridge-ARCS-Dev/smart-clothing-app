@@ -47,64 +47,6 @@ export const requestHealthKitAuthorization = async () => {
 };
 
 /**
- * DATA QUERIES
- */
-
-// ONLY CALLED ONCE AFTER SIGNING UP.
-// Fetch all health data over the past year and store them in the database.
-export const performInitialDataSync = async () => {
-  const userId = auth.currentUser.uid;
-  const user = doc(database, "Users", userId);
-
-  // Fetch needed health collections.
-  const heartRateDataCollection = collection(user, "HeartRateData");
-  const sleepDataCollection = collection(user, "SleepData");
-  const activityDataCollection = collection(user, "ActivityData");
-
-  console.log("Performing initial query...");
-
-  // Define start date (5 years ago) and end date (now).
-  const startDate = new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString();
-  const endDate = new Date().toISOString();
-
-  try {
-    // Heart data.
-    console.log("Fetching heart rate data...");
-    const heartRateData = await getHeartRateData(startDate, endDate);
-    console.log("Heart rate data fetched!");
-
-    // Sleep data.
-    console.log("Fetching sleep data...");
-    const sleepData = await getSleepData(startDate, endDate);
-    console.log("Sleep data fetched!");
-
-    // Activity rings data.
-    console.log("Fetching activity rings data...");
-    const activityRingsData = await getActivityRingsData(startDate, endDate);
-    console.log("Activity rings data fetched!");
-
-    // Upload to Firestore.
-    console.log("Uploading data...");
-    for (const data of heartRateData) {
-      await addDoc(heartRateDataCollection, data);
-    }
-    console.log("Heart rate data uploaded!");
-    for (const data of sleepData) {
-      await addDoc(sleepDataCollection, data);
-    }
-    console.log("Sleep data uploaded!");
-    for (const data of activityRingsData) {
-      await addDoc(activityDataCollection, data);
-    }
-    console.log("Activity rings data uploaded!");
-    console.log("All uploads complete!!!");
-
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-/**
  * Fetch heart rate data from a given range of ISO datetimes.
  * 
  * @param {string} startDate 
@@ -113,7 +55,7 @@ export const performInitialDataSync = async () => {
 export const getHeartRateData = async (startDate, endDate) => {
   try {
     const heartRateData = await Controller.readHeartRateData(startDate, endDate);
-    console.log("Heart rate data recieved:", heartRateData);
+    // console.log("Heart rate data recieved:", heartRateData);
 
     // await sendHeartRateData(heartRateData);
     
@@ -121,7 +63,7 @@ export const getHeartRateData = async (startDate, endDate) => {
     heartRateData.forEach(data => {
       const timestamp = new Date(data.date);
       const heartRate = data.heartRate;
-      console.log("Timestamp:", timestamp, "Heart rate:", heartRate);
+      // console.log("Timestamp:", timestamp, "Heart rate:", heartRate);
 
       return {heartRate, timestamp};
       
@@ -135,13 +77,13 @@ export const getHeartRateData = async (startDate, endDate) => {
 export const getRestingHeartRateData = async (startDate, endDate) => {
   try {
     const restingHeartRateData = await Controller.readRestingHeartRateData(startDate, endDate);
-    console.log('Resting heart rate Data:', restingHeartRateData);
+    // console.log('Resting heart rate Data:', restingHeartRateData);
 
     // Process resting heart rate data
     const processedRestingHeartRateData = restingHeartRateData.map(data => {
       const restingHeartRateValue = data.restingHeartRateValue;
       const date = new Date(data.date);
-      console.log("Resting Heart Rate Value:", restingHeartRateValue, "Date:", date);
+      // console.log("Resting Heart Rate Value:", restingHeartRateValue, "Date:", date);
       return { restingHeartRateValue, date };
     });
 
@@ -161,14 +103,14 @@ export const getRestingHeartRateData = async (startDate, endDate) => {
 export const getHeartRateVariabilityData = async (startDate, endDate) => {
   try {
     const readHeartRateVariabilityData = await Controller.readHeartRateVariabilityData(startDate, endDate);
-    console.log('Heart rate variability Data:', readHeartRateVariabilityData);
+    // console.log('Heart rate variability Data:', readHeartRateVariabilityData);
 
     // Process resting heart rate data
     readHeartRateVariabilityData.forEach(data => {
       // console.log("data", data)
       const timestamp = data.date;
       const heartRateVariability = data.heartRateVariability;
-      console.log("Timestamp..:", timestamp, "Heart rate varaibility:", heartRateVariability);
+      // console.log("Timestamp..:", timestamp, "Heart rate varaibility:", heartRateVariability);
 
       return {heartRateVariability, timestamp};
 
@@ -191,11 +133,11 @@ export const getSleepData = async (startDate, endDate) => {
   try {
     const sleepData = await Controller.readSleepData(startDate, endDate);
     // console.log('Raw sleep Data:', sleepData);
-    console.log("----------");
-    console.log("SLEEP DATA");
-    console.log("----------");
+    // console.log("----------");
+    // console.log("SLEEP DATA");
+    // console.log("----------");
 
-    console.log("Sleep data sent!");
+    // console.log("Sleep data sent!");
     // await sendSleepData(sleepData);
     
     // Process sleepData as needed. Keep datetimes in ISO.
@@ -205,7 +147,7 @@ export const getSleepData = async (startDate, endDate) => {
         startDate: dataPoint.startDate,
         endDate: dataPoint.endDate
       };
-      console.log(`[${sleepItem.sleepValue.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startDate)} - ${convertToReadableFormat(sleepItem.endDate)}`)
+      // console.log(`[${sleepItem.sleepValue.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startDate)} - ${convertToReadableFormat(sleepItem.endDate)}`)
       return sleepItem
     });
 
@@ -228,9 +170,9 @@ export const getActivityRingsData = async (startDate, endDate) => {
   try {
     const activityRingsData = await Controller.readActivityRingsData(startDate, endDate);
     // console.log("Raw activity rings data: ", activityRingsData);
-    console.log("--------------");
-    console.log("ACTIVITY RINGS");
-    console.log("--------------");
+    // console.log("--------------");
+    // console.log("ACTIVITY RINGS");
+    // console.log("--------------");
 
     // Extract individual energy burned, move, and stand data.
     const processedRingData = activityRingsData.map((dayData) => {
@@ -255,7 +197,7 @@ export const getActivityRingsData = async (startDate, endDate) => {
         standHours: dayData.standHours,
         standHoursGoal: dayData.standHoursGoal
       }
-      console.log(`${getDayFromISODate(dayData.date)}: ${JSON.stringify(currentData)}`);
+      // console.log(`${getDayFromISODate(dayData.date)}: ${JSON.stringify(currentData)}`);
       return currentData;
     })
 

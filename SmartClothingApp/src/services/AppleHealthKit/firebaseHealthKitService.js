@@ -1,4 +1,17 @@
-import {doc, collection, addDoc, CollectionReference} from "firebase/firestore";
+import {
+    collection,
+    addDoc,
+    setDoc,
+    doc,
+    updateDoc,
+    getDoc,
+    getDocs,
+    where,
+    query,
+    getFirestore,
+    deleteDoc,
+    orderBy,
+  } from "firebase/firestore";
 import { auth, database } from '../../../firebaseConfig';
 
 import { getHeartRateData, getSleepData, getActivityRingsData } from "../../utils/AppleHealthKit/AppleHealthKitUtils";
@@ -44,7 +57,7 @@ export default class FirebaseHealthKitService {
         try {
             // Create a query to filter documents within the date range
             const dataQuery = query(
-                collection(userRef, "HeartRateData"),
+                collection(doc(database, "Users", auth.currentUser.uid), "HeartRateData"),
                 where("date", ">=", startDate),
                 where("date", "<=", endDate)
             );
@@ -76,7 +89,7 @@ export default class FirebaseHealthKitService {
         try {
             // Create a query to filter documents within the date range.
             const dataQuery = query(
-                collection(userRef, "SleepData"),
+                collection(doc(database, "Users", auth.currentUser.uid), "SleepData"),
                 where("startDate", ">=", startDate),
                 where("startDate", "<=", endDate),
                 orderBy("startDate", "asc")
@@ -130,8 +143,11 @@ export default class FirebaseHealthKitService {
      * @returns {Promise<null>}
      */
     static async uploadHeartRateData(heartRateData) {
+        console.log("Data received: ", heartRateData);
+        this.heartRateDataCollection = collection(doc(database, "Users", auth.currentUser.uid), "HeartRateData");
         for (const data of heartRateData) {
             await addDoc(this.heartRateDataCollection, data);
+            console.log("Doc added for heart rate data");
         }
     }
 
@@ -142,8 +158,11 @@ export default class FirebaseHealthKitService {
      * @returns {Promise<null>}
      */
     static async uploadSleepData(sleepData) {
+        console.log("Data received: ", sleepData);
+        this.sleepDataCollection = collection(doc(database, "Users", auth.currentUser.uid), "SleepData");
         for (const data of sleepData) {
             await addDoc(this.sleepDataCollection, data);
+            console.log("Doc added for sleep data");
         }
     }
 
@@ -154,8 +173,11 @@ export default class FirebaseHealthKitService {
      * @returns {Promise<null>}
      */
     static async uploadActivityRingsData(activityRingsData) {
+        console.log("Data received: ", activityRingsData);
+        this.activityRingsDataCollection = collection(doc(database, "Users", auth.currentUser.uid), "ActivityRingsData");
         for (const data of activityRingsData) {
             await addDoc(this.activityRingsDataCollection, data);
+            console.log("Doc added for activity rings data");
         }
     }
 

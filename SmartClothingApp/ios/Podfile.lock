@@ -1,17 +1,17 @@
 PODS:
   - boost (1.83.0)
   - DoubleConversion (1.1.6)
-  - EXConstants (15.4.5):
+  - EXConstants (15.4.6):
     - ExpoModulesCore
   - EXFont (11.10.3):
     - ExpoModulesCore
-  - Expo (50.0.13):
+  - Expo (50.0.17):
     - ExpoModulesCore
-  - ExpoFileSystem (16.0.8):
+  - ExpoFileSystem (16.0.9):
     - ExpoModulesCore
   - ExpoKeepAwake (12.8.2):
     - ExpoModulesCore
-  - ExpoModulesCore (1.11.12):
+  - ExpoModulesCore (1.11.13):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -916,7 +916,7 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
-  - react-native-slider (4.5.0):
+  - react-native-slider (4.5.2):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1089,6 +1089,8 @@ PODS:
     - React-jsi (= 0.73.5)
     - React-logger (= 0.73.5)
     - React-perflogger (= 0.73.5)
+  - RNBackgroundFetch (4.2.4):
+    - React-Core
   - RNCAsyncStorage (1.21.0):
     - React-Core
   - RNCPicker (2.6.1):
@@ -1177,6 +1179,7 @@ DEPENDENCIES:
   - React-runtimescheduler (from `../node_modules/react-native/ReactCommon/react/renderer/runtimescheduler`)
   - React-utils (from `../node_modules/react-native/ReactCommon/react/utils`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
@@ -1311,6 +1314,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/utils"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  RNBackgroundFetch:
+    :path: "../node_modules/react-native-background-fetch"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCPicker:
@@ -1333,12 +1338,12 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
-  EXConstants: 988aa430ca0f76b43cd46b66e7fae3287f9cc2fc
+  EXConstants: a5f6276e565d98f9eb4280f81241fc342d641590
   EXFont: f20669cb266ef48b004f1eb1f2b20db96cd1df9f
-  Expo: a7c9bd836cb7c86e699c2539a906c9ff873f19f8
-  ExpoFileSystem: eecaf6796aed0f4dd20042dc2ca2cac6c4bc1185
+  Expo: 2cdb5916749a1509cf88114f1f510bd458630eb4
+  ExpoFileSystem: 74cc0fae916f9f044248433971dcfc8c3befd057
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
-  ExpoModulesCore: 61dc57c6e2a35f2f84baf488146db624e03af4cd
+  ExpoModulesCore: 4a8928a228569301ac4fc4a1e846713e05754d05
   EXSplashScreen: 5538a51beec451bf1fcf5198e3062790e2534df3
   FBLazyVector: 56e0e498dbb513b96c40bac6284729ba4e62672d
   FBReactNativeSpec: 146c741a3f40361f6bc13a4ba284678cbedb5881
@@ -1369,7 +1374,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 7c35cd53a22d0be04d3f26f7881c7fb7dd230216
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
   react-native-skia: 6938bc9afbfaa3a335f53bd37a122fa1af9ea428
-  react-native-slider: 09e5a8b7e766d3b5ae24ec15c5c4ec2679ca0f8c
+  react-native-slider: 7a39874fc1fcdfee48e448fa72cce0a8f2c7c5d6
   react-native-splash-screen: 4312f786b13a81b5169ef346d76d33bc0c6dc457
   React-nativeconfig: 1166714a4f7ea57a0df5c2cb44fbc70f98d580f9
   React-NativeModulesApple: 726664e9829eb5eed8170241000e46ead269a05f
@@ -1391,6 +1396,7 @@ SPEC CHECKSUMS:
   React-runtimescheduler: 814b644a5f456c7df1fba7bcd9914707152527c6
   React-utils: 987a4526a2fc0acdfaf87888adfe0bf9d0452066
   ReactCommon: 2947b0bffd82ea0e58ca7928881152d4c6dae9af
+  RNBackgroundFetch: 7c2d0c55e2b8924ecbdcd56b010feddff0f8463d
   RNCAsyncStorage: 618d03a5f52fbccb3d7010076bc54712844c18ef
   RNCPicker: b18aaf30df596e9b1738e7c1f9ee55402a229dca
   RNDateTimePicker: 8fb39263b721223e095248acaf6f406d5b7f6713
