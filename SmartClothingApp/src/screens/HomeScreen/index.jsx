@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 import { Button, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
+import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 // import { getSleepData, readHeartRateData } from "../../utils/AppleHealthKit/AppleHealthKitUtils.js";
 import FirebaseHealthKitService from "../../services/AppleHealthKit/firebaseHealthKitService.js";
@@ -26,6 +27,9 @@ export default function HomeScreen({ navigation }) {
     93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
     87, 87, 86,
   ];
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
@@ -35,9 +39,16 @@ export default function HomeScreen({ navigation }) {
   const performInitialDataSync = async () => {
     try {
       await FirebaseHealthKitService.performInitialDataSync();
+      setIsLoading(true);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
+  }
+
+  if (isLoading) {
+    return <LoadingOverlay />;
   }
 
   // useEffect(() => {

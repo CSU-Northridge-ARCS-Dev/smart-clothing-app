@@ -4,7 +4,10 @@ import { AppColor } from "../../constants/themes";
 function LoadingOverlay() {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="#1560a4" />
+      <ActivityIndicator size="large" style={{ transform: [{ scaleX: 2 }, { scaleY: 2 }] }} color="#1560a4" />
+      <Text style={{marginTop: 20, fontSize: 24}}>
+        Initializing health data sync...
+      </Text>
     </View>
   );
 }
