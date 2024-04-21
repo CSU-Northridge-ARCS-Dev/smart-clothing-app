@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 import { Button, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
+import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
 
 import {
   ActivityCard,
@@ -24,12 +25,50 @@ export default function HomeScreen({ navigation }) {
     93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
     87, 87, 86,
   ];
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+      async function fetchData() {
+      try {
+        console.log("Fetching data...");
+        setIsLoading(true);
+        await mockAsyncTimeout(2000); // Simulating a 2-second delay
+        console.log("Data fetched successfully!");
+        // Add your data fetching logic here
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+
+  }, []);
+
+  function mockAsyncTimeout(ms) {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  // if (isLoading) {
+  //   return < LoadingOverlay />;
+  // }
+
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
     });
   };
+
   const firstName = useSelector((state) => state.user.firstName);
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
+
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
