@@ -3,6 +3,7 @@ import {
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
+  INITIAL_HEALTH_DATA_SYNC,
 } from "./types";
 import { getActivityRingsData } from "../utils/AppleHealthKit/AppleHealthKitUtils";
 import { getDayFromISODate } from "../utils/dateConversions";
@@ -41,6 +42,13 @@ export const updateSleepDataDateRangeData = (startDate, endDate) => {
   };
 };
 
+export const initialHealthDataSync = (onAccountCreation) => {
+  return {
+    type: INITIAL_HEALTH_DATA_SYNC,
+    payload: { onAccountCreation },
+  };
+};
+
 export const updateActivityRings = () => {
   return async (dispatch) => {
     // TODO switch to query from firestore than from native module.
@@ -53,17 +61,17 @@ export const updateActivityRings = () => {
       const data = {
         ring1: {
           currentValue: dayData.energyBurned,
-          goalValue: dayData.energyBurnedGoal
+          goalValue: dayData.energyBurnedGoal,
         },
         ring2: {
           currentValue: dayData.exerciseTime,
-          goalValue: dayData.exerciseTimeGoal
+          goalValue: dayData.exerciseTimeGoal,
         },
         ring3: {
           currentValue: dayData.standHours,
-          goalValue: dayData.standHoursGoal
+          goalValue: dayData.standHoursGoal,
         },
-      }
+      };
 
       dispatch(updateActivityRingsData(getDayFromISODate(dayData.date), data));
     }

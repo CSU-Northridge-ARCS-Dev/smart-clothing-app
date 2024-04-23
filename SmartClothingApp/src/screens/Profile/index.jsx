@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { TextInput, Button, Text } from "react-native-paper";
-import { AppHeader } from "../../components";
-import { AppFonts, AppStyle } from "../../constants/themes.js";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import { HelperText, TextInput, Button, Text } from "react-native-paper";
+import { AppHeader, DataCollectModal } from "../../components";
+import { AppFonts, AppStyle, AppColor } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useDispatch, useSelector } from "react-redux";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import { auth, database } from "../../../firebaseConfig";
 import {
@@ -182,8 +183,14 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
   return (
-    <ScrollView>
-      <AppHeader title={"Profile"} back={true} menu={false} />
+    <RefreshView>
+      <AppHeader title={previousScreenTitle} back={true} menu={false} />
+      <PersonalModal
+        visible={isPersonalModalVisible}
+        closeModal={closePersonalModal}
+        firstName={firstName}
+        lastName={lastName}
+      />
       <View style={styles.content}>
         <Text
           style={[
@@ -273,7 +280,7 @@ const ProfileScreen = ({ navigation, route }) => {
           <Text style={{ fontSize: 18 }}>{sports}</Text>
         </View>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 

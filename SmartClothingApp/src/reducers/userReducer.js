@@ -70,7 +70,7 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         heartRateData: action.payload,
-      }
+      };
     case UPDATE_EMAIL_SUCCESS:
       return {
         ...state,

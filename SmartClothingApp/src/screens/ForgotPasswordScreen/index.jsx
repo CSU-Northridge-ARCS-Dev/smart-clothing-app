@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import { startSnedPasswordReserEmail } from "../../actions/userActions.js";
 
@@ -34,7 +35,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView>
+    <RefreshView>
       <HeroSection />
       <View style={styles.content}>
         <Text
@@ -93,7 +94,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
           </Button>
         </View>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 const styles = StyleSheet.create({

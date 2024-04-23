@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet } from "react-native";
+
+import { useSelector, useDispatch } from "react-redux";
 import { Button, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
-import LoadingOverlay from "../../components/UI/LoadingOverlay";
+import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
+import { initialHealthDataSync } from "../../actions/appActions.js";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 // import { getSleepData, readHeartRateData } from "../../utils/AppleHealthKit/AppleHealthKitUtils.js";
 import FirebaseHealthKitService from "../../services/AppleHealthKit/firebaseHealthKitService.js";
@@ -21,6 +24,7 @@ import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
   const route = useRoute();
+  const dispatch = useDispatch();
   const defaultData = [
     70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
     71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
@@ -30,57 +34,50 @@ export default function HomeScreen({ navigation }) {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
+
+  useEffect(() => {
+    if (onAccountCreation) {
+      async function fetchData() {
+        try {
+          console.log("Fetching data...");
+          setIsLoading(true);
+          await mockAsyncTimeout(2000); // Simulating a 2-second delay
+          console.log("Data fetched successfully!");
+          // Add your data fetching logic here
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false);
+          dispatch(initialHealthDataSync(false));
+        }
+      }
+
+      fetchData();
+    }
+  }, [onAccountCreation]); // Run effect only when onAccountCreation changes
+
+  function mockAsyncTimeout(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
+
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
     });
   };
 
-  useEffect(() => {
-    // Initialize firebase user meta (put this after logging in or signing up instead).
-    new FirebaseHealthKitService();
-  }, []);
-
-  const performInitialDataSync = async () => {
-    try {
-      setIsLoading(true);
-      await FirebaseHealthKitService.performInitialDataSync();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  const performRefreshData = async () => {
-    try {
-      setIsLoading(true);
-      await FirebaseHealthKitService.updateWithLatestData();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // useEffect(() => {
-  //   const performInitialDataSync = async () => {
-  //     await FirebaseHealthKitService.performInitialDataSync();
-  //   }
-  //   performInitialDataSync()
-  //   .catch(error => console.error(error));
-  // }, [])  // run once
-
-
-
   const firstName = useSelector((state) => state.user.firstName);
+
   return isLoading ? <LoadingOverlay /> : (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
-        <Button onPress={async () => {await performInitialDataSync();}}>INITIAL DATA SYNC (run ONCE)</Button>
-        <Button onPress={async () => {await performRefreshData();}}>REFRESH LATEST DATA</Button>
+        {/* <Button onPress={async () => {await performInitialDataSync();}}>INITIAL DATA SYNC (run ONCE)</Button> */}
+        {/* <Button onPress={async () => {await performRefreshData();}}>REFRESH LATEST DATA</Button> */}
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
@@ -118,7 +115,7 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <HeartRateChart data={defaultData}/>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 }
 

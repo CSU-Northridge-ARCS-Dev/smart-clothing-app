@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
 import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
@@ -33,7 +34,7 @@ const SigninScreen = ({ navigation }) => {
 
   const handleSignInWithEmail = () => {
     if (!isValid()) {
-        return;
+      return;
     }
 
     setIsSubmitting(true);
@@ -74,7 +75,7 @@ const SigninScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <HeroSection />
       <View style={styles.content}>
         <Text
@@ -129,9 +130,9 @@ const SigninScreen = ({ navigation }) => {
             onPress={toggleLockStatus}
           />
         </View>
-          <HelperText type="error" visible={error.password.length > 0}>
-            {error.password}
-          </HelperText>
+        <HelperText type="error" visible={error.password.length > 0}>
+          {error.password}
+        </HelperText>
 
         <View style={styles.checkbox}>
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
@@ -153,7 +154,7 @@ const SigninScreen = ({ navigation }) => {
       <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
         Don't have an account? Sign Up
       </Button>
-    </ScrollView>
+    </RefreshView>
   );
 };
 

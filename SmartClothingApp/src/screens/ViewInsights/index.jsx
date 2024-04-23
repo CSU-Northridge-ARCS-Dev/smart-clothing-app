@@ -16,6 +16,7 @@ import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import RefreshView from "../../components/RefreshView";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -72,12 +73,16 @@ const ViewInsights = ({ route }) => {
     await dispatch(updateActivityRings());
   };
 
+  // useEffect(() => {
+  //   setFocusedRingData(formattedDate);
+  // }, [activityRingsData[formattedDate]]);
+
   useEffect(() => {
     setCurrentDate(currentDate);
   }, [currentDate]);
 
   return (
-    <ScrollView style={[{ flex: 1 }]}>
+    <RefreshView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
         <DateToolbar />
@@ -98,7 +103,7 @@ const ViewInsights = ({ route }) => {
         color={AppColor.ringMove}
         name="Move"
         type="CAL"
-        goal={currentRingData.ring1.goalValue}  // Already rounded by Apple.
+        goal={currentRingData.ring1.goalValue}
         progress={Math.round(currentRingData.ring1.currentValue)}
       ></ActivityChart>
       <ActivityChart
@@ -106,7 +111,7 @@ const ViewInsights = ({ route }) => {
         name="Exercise"
         type="MIN"
         goal={currentRingData.ring2.goalValue}
-        progress={currentRingData.ring2.currentValue}
+        progress={Math.round(currentRingData.ring2.currentValue)}
       ></ActivityChart>
       <ActivityChart
         color={AppColor.ringStand}
@@ -130,7 +135,7 @@ const ViewInsights = ({ route }) => {
           }
         }
       />
-    </ScrollView>
+    </RefreshView>
   );
 };
 

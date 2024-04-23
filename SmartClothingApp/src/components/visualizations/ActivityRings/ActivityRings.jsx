@@ -45,8 +45,7 @@ const ActivityRings = ({
     size: SIZE,
   };
 
-  // Calculate percentage fills.
-  const ringProps = [
+ const ringProps = [
     {  // Big move ring.
       totalProgress: totalProgress.ring1.currentValue / totalProgress.ring1.goalValue,
       ...commonRing1,
@@ -60,6 +59,7 @@ const ActivityRings = ({
       ...commonRing3,
     },
   ];
+  
   return (
     <Canvas style={[{ flex: 1, width: canvasWidth, height: canvasHeight }]}>
       {ringProps.map((ring, index) => {

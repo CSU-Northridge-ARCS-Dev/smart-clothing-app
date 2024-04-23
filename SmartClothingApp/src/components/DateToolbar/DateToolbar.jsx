@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
-  Button,
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Platform,
+  StatusBar
 } from "react-native";
 import { AppHeader } from "../../components";
 import ActivityRings from "../../components/visualizations/ActivityRings/ActivityRings";
@@ -22,10 +21,20 @@ import { updateHeartRateDateRange, updateSleepDataDateRange } from "../../action
 
 const DateToolbar = (props) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+    const openDatePicker = () => {
+    setShowDatePicker(true);
+    StatusBar.setBarStyle("dark-content");
+  };
+
+  const closeDatePicker = () => {
+    setShowDatePicker(false);
+    StatusBar.setBarStyle("light-content");
+  };
+
   const heartRateDates = useSelector((state) => state.app.heartRateDateRangeData);
   const sleepDataDates = useSelector((state) => state.app.sleepDataDateRangeData);
   let dates;
-  switch (props.dateType) {
+  switch (props.dataType) {
     case 'Heart Rate':
       dates = heartRateDates;
       break;
@@ -41,27 +50,28 @@ const DateToolbar = (props) => {
   }
 
   const dispatch = useDispatch();
-  const [dateRange, setDateRange] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-  });
-
 
 
   const handleDateRangeSuccess = (startDate, endDate) => {
     // Handle the selected date range here
-    const startDateString = new Date(startDate).toISOString();
-    const endDateObject = new Date(endDate)
+
+    const startDateObject = new Date(startDate);
+    const endDateObject = new Date(endDate);
+
+    // console.log(startDateObject);
+    // startDateObject.setHours(0, 0, 0, 0);
 
     endDateObject.setHours(39);
     endDateObject.setMinutes(59);
     endDateObject.setSeconds(59);
     endDateObject.setMilliseconds(999);
 
+    const startDateString = startDateObject.toISOString();
+    console.log(startDateString);
     const endDateString = endDateObject.toISOString();
 
-    console.log("start", startDate);
-    console.log("end", endDate);
+    // console.log("start", startDate);
+    // console.log("end", endDate);
 
     handleUpdate(startDateString, endDateString);
   };
@@ -90,34 +100,23 @@ const DateToolbar = (props) => {
   const formatDateRange = () => {
     const startDate = new Date(dates.startDate);
     const endDate = new Date(dates.endDate);
-    
-    const startOptions = { weekday: 'long', month: 'long', day: 'numeric' };
-    const endOptions = { month: 'long', day: 'numeric', year: 'numeric' };
 
-    const startFormatted = startDate.toLocaleDateString('en-US', startOptions);
-    const endFormatted = endDate.toLocaleDateString('en-US', endOptions);
+    const formattedStartDate = startDate.toLocaleDateString('en-US', { timeZone: 'UTC' });
+
+    // Format date range
+    const formattedEndDate = endDate.toLocaleDateString('en-US', { timeZone: 'UTC' });
     
-    return `${startFormatted} - ${endFormatted}`;
+    return props.dateType === 'period' ? `${formattedStartDate} - ${formattedEndDate}` : `${formattedStartDate}`;
 };
 
-  // const formattedDate = selected.toLocaleDateString("en-US", {
-  //   weekday: "long",
-  //   month: "long",
-  //   day: "numeric",
-  //   year: "numeric",
-  // });
 
-  // useEffect(() => {
-  //   setDateRange({
-  //     startDate: dates.startDate,
-  //     endDate: dates.endDate,
-  //   })
-  // }, [dates.startDate, dates.endDate]);
+  useEffect(() => {
+  }, [dates.startDate, dates.endDate]);
 
   return (
     <>
       <View style={styles.dateContainer}>
-        {/* <Text style={styles.title}>{formatDateRange()}</Text> */}
+        <Text style={styles.title}>{formatDateRange()}</Text>
         <View style={styles.iconContainer}>
           <Icon
             name="calendar-alt"
@@ -130,10 +129,10 @@ const DateToolbar = (props) => {
         </View>
       </View>
       {showDatePicker && 
-        <BaseCalendar 
+      <BaseCalendar 
           dateType={props.dateType} 
           onSuccess={handleDateRangeSuccess}
-          /> 
+        /> 
       }
     </>
   );
