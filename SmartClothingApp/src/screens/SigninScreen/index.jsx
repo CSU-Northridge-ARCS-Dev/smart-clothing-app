@@ -6,7 +6,7 @@ import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
 import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 import Icon from "react-native-vector-icons/FontAwesome5";
-import RefreshViews from "../../components/RefreshView/index.jsx";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";

@@ -28,8 +28,8 @@ export const updateActivityRingsData = (day, ringData) => {
   };
 };
 
-const generateRandomValue = () => {
-  return Math.random() * 2;
+const getRandomValue = (goalValue) => {
+  return Math.round(Math.random() * goalValue);
 };
 
 export const updateHeartRateDateRangeData = (startDate, endDate) => {
@@ -55,23 +55,33 @@ export const initialHealthDataSync = (onAccountCreation) => {
 
 export const updateActivityRings = () => {
   return async (dispatch) => {
-    for (const dayData of ringData) {
+    const weekdays = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+
+    for (const dayOfWeek of weekdays) {
       const data = {
         ring1: {
-          currentValue: dayData.energyBurned,
-          goalValue: dayData.energyBurnedGoal,
+          currentValue: getRandomValue(800),
+          goalValue: 800,
         },
         ring2: {
-          currentValue: dayData.exerciseTime,
-          goalValue: dayData.exerciseTimeGoal,
+          currentValue: getRandomValue(90),
+          goalValue: 90,
         },
         ring3: {
-          currentValue: dayData.standHours,
-          goalValue: dayData.standHoursGoal,
+          currentValue: getRandomValue(16),
+          goalValue: 16,
         },
       };
 
-      dispatch(updateActivityRingsData(getDayFromISODate(dayData.date), data));
+      dispatch(updateActivityRingsData(dayOfWeek, data));
     }
   };
 };
