@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
+
+import { useSelector, useDispatch } from "react-redux";
 import { Button, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
+import { initialHealthDataSync } from "../../actions/appActions.js";
 
 import {
   ActivityCard,
@@ -19,6 +21,7 @@ import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
   const route = useRoute();
+  const dispatch = useDispatch();
   const defaultData = [
     70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
     71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
@@ -28,27 +31,31 @@ export default function HomeScreen({ navigation }) {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
+
   useEffect(() => {
+    if (onAccountCreation) {
       async function fetchData() {
-      try {
-        console.log("Fetching data...");
-        setIsLoading(true);
-        await mockAsyncTimeout(2000); // Simulating a 2-second delay
-        console.log("Data fetched successfully!");
-        // Add your data fetching logic here
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
+        try {
+          console.log("Fetching data...");
+          setIsLoading(true);
+          await mockAsyncTimeout(2000); // Simulating a 2-second delay
+          console.log("Data fetched successfully!");
+          // Add your data fetching logic here
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false);
+          dispatch(initialHealthDataSync(false));
+        }
       }
+
+      fetchData();
     }
-
-    fetchData();
-
-  }, []);
+  }, [onAccountCreation]); // Run effect only when onAccountCreation changes
 
   function mockAsyncTimeout(ms) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, ms);
     });
   }

@@ -21,7 +21,6 @@ import DateToolbar from "../../components/DateToolbar/DateToolbar";
 import { querySleepData } from "../../actions/userActions";
 import { calculateTotalDuration } from "../../utils/dateConversions";
 
-
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
   const dates = useSelector((state) => state.app.sleepDataDateRangeData);
@@ -29,23 +28,20 @@ const ViewSleepData = ({ route }) => {
   const [sleepData, setSleepData] = useState([]);
   const [sleepDataUnparsed, setSleepDataUnparsed] = useState([]);
 
-
-
   const data = [
-      { x: 1, y: 10 },   //Deep 0-40
-      { x: 20, y: 110 }, // Core 40-100
-      { x: 40, y: 20 },  // REM 100-160
-      { x: 180, y: 160 }, // Awake 160-200
-      { x: 170, y: 180 }, 
-      { x: 200, y: 10 },
+    { x: 1, y: 10 }, //Deep 0-40
+    { x: 20, y: 110 }, // Core 40-100
+    { x: 40, y: 20 }, // REM 100-160
+    { x: 180, y: 160 }, // Awake 160-200
+    { x: 170, y: 180 },
+    { x: 200, y: 10 },
   ];
 
-
-//Deep 0-46
-// Core 46-100
-// REM 100-160
-// Awake 160-180
-   useEffect(() => {
+  //Deep 0-46
+  // Core 46-100
+  // REM 100-160
+  // Awake 160-180
+  useEffect(() => {
     const fetchSleepData = async () => {
       try {
         // console.log(dates.startDate);
@@ -67,55 +63,56 @@ const ViewSleepData = ({ route }) => {
     fetchSleepData();
   }, [dates.startDate, dates.endDate]);
 
-
-  const parseSleepData = (sleepData) => {  
-    
+  const parseSleepData = (sleepData) => {
     durations = [];
 
     const parsedData = sleepData.reduce((parsedData, item, index) => {
-        // console.log("startDate", startDate, startDate.getTime());
-        // console.log("endDate", endDate, endDate.getTime());
-        // console.log("hours", durationHours);
+      // console.log("startDate", startDate, startDate.getTime());
+      // console.log("endDate", endDate, endDate.getTime());
+      // console.log("hours", durationHours);
 
-        const cumulativeDuration = sleepData.slice(0, index).reduce((sum, stage) => {
-            const start = new Date(stage.startDate);
-            const end = new Date(stage.endDate);
-            return sum + (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duration in hours
+      const cumulativeDuration = sleepData
+        .slice(0, index)
+        .reduce((sum, stage) => {
+          const start = new Date(stage.startDate);
+          const end = new Date(stage.endDate);
+          return sum + (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duration in hours
         }, 0);
 
-        durations.push(cumulativeDuration);
+      durations.push(cumulativeDuration);
 
-        const x = (durations[index] / 24) * 200; // Assuming the x range is 0-200
-        // Deep 0-46
-        // Core 46-100
-        // REM 100-160
-        // Awake 160-180
+      const x = (durations[index] / 24) * 200; // Assuming the x range is 0-200
+      // Deep 0-46
+      // Core 46-100
+      // REM 100-160
+      // Awake 160-180
       let y;
       console.log("phase:", item.sleepValue);
       switch (item.sleepValue) {
-          case "Deep":
-              y = 0; // Deep sleep: 0-46
-              break;
-          case "Core":
-              y = 60; // Core 40-100
-              break;
-          case "Rem":
-              y = 130; //Rem 100-160 
-              break;
-          case "Awake":
-              y = 180; //Awake 160-200 
-              break;
-          default:
-              // Handle unexpected sleepValue
-              break;
+        case "Deep":
+          y = 0; // Deep sleep: 0-46
+          break;
+        case "Core":
+          y = 60; // Core 40-100
+          break;
+        case "Rem":
+          y = 130; //Rem 100-160
+          break;
+        case "Awake":
+          y = 180; //Awake 160-200
+          break;
+        default:
+          // Handle unexpected sleepValue
+          break;
       }
-      if (typeof y !== 'undefined') { // Check if y is defined
+      if (typeof y !== "undefined") {
+        // Check if y is defined
         parsedData.push({ x: x, y: y });
       }
       return parsedData;
     }, []);
-    
-    return parsedData; 
+
+    return parsedData;
   };
 
   const getPhaseDuration = (phaseType) => {
@@ -124,7 +121,7 @@ const ViewSleepData = ({ route }) => {
     //   return { startDate, endDate };
     // });
     // console.log("UNPARSED!!!", sleepDataUnparsed)
-    const dates = sleepDataUnparsed.filter(item => {
+    const dates = sleepDataUnparsed.filter((item) => {
       // console.log(`phaseType: ${item.sleepValue}, item.sleepValue: ${phaseType}`)
       return item.sleepValue === phaseType;
     });
@@ -132,12 +129,12 @@ const ViewSleepData = ({ route }) => {
     //   console.log(JSON.stringify(obj))
     // }
     return calculateTotalDuration(dates);
-  }
-  
+  };
+
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
-      <View style={{padding: 10}}>
+      <View style={{ padding: 10 }}>
         <DateToolbar dateType="single" dataType="Sleep Data" />
       </View>
 
@@ -145,25 +142,41 @@ const ViewSleepData = ({ route }) => {
         <View style={styles.bigIcon}>
           <Icon name="bed" size={40} color={AppColor.primary} />
         </View>
-          <View>
-            <Text style={styles.dataText}>Time in Bed</Text>
-            <Text style={styles.dataSubText}>
-               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("In Bed").totalHours}` : "0"}</Text>
-              <Text style={styles.smallUnits}>hrs </Text>
-               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("In Bed").totalMinutes}` : "0"}</Text>
-              <Text style={styles.smallUnits}>mins</Text>
+        <View>
+          <Text style={styles.dataText}>Time in Bed</Text>
+          <Text style={styles.dataSubText}>
+            <Text>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("In Bed").totalHours}`
+                : "0"}
             </Text>
-          </View>
-          <View>
-            <Text style={styles.dataText}>Time Asleep</Text>
-              <Text style={styles.dataSubText}>
-              <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Unknown").totalHours}` : "0"}</Text>
-              <Text style={styles.smallUnits}>hrs </Text>
-               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Unknown").totalMinutes}` : "0"}</Text>
-              <Text style={styles.smallUnits}>mins</Text>
+            <Text style={styles.smallUnits}>hrs </Text>
+            <Text>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("In Bed").totalMinutes}`
+                : "0"}
             </Text>
-          </View>
-    </View>
+            <Text style={styles.smallUnits}>mins</Text>
+          </Text>
+        </View>
+        <View>
+          <Text style={styles.dataText}>Time Asleep</Text>
+          <Text style={styles.dataSubText}>
+            <Text>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("Unknown").totalHours}`
+                : "0"}
+            </Text>
+            <Text style={styles.smallUnits}>hrs </Text>
+            <Text>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("Unknown").totalMinutes}`
+                : "0"}
+            </Text>
+            <Text style={styles.smallUnits}>mins</Text>
+          </Text>
+        </View>
+      </View>
 
       <View
         style={{
@@ -204,18 +217,17 @@ const ViewSleepData = ({ route }) => {
             },
             formatXLabel(value) {
               if (value === 200) {
-                return "12AM"
+                return "12AM";
               } else if (value === 150) {
-                return "6PM"
+                return "6PM";
               } else if (value === 100) {
-                return "12PM"
+                return "12PM";
               } else if (value === 50) {
-                return "6AM"
-              } else  {
+                return "6AM";
+              } else {
                 return "";
               }
-            }
-
+            },
           }}
         >
           {({ points, chartBounds, yScale }) => (
@@ -246,7 +258,9 @@ const ViewSleepData = ({ route }) => {
       </View>
 
       <View style={{ marginBottom: 100 }}>
-        <Text style={[styles.dataSubText, {textAlign: "center"}]}>Stages</Text>
+        <Text style={[styles.dataSubText, { textAlign: "center" }]}>
+          Stages
+        </Text>
 
         <View style={styles.sleepStage}>
           <View style={styles.infoContainer}>
@@ -259,7 +273,13 @@ const ViewSleepData = ({ route }) => {
               ></View>
               <Text style={styles.infoText}>Awake</Text>
             </View>
-            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Awake").totalHours} hr ${getPhaseDuration("Awake").totalMinutes} min` : "0 hr 0 min"}</Text>
+            <Text style={styles.infoText}>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("Awake").totalHours} hr ${
+                    getPhaseDuration("Awake").totalMinutes
+                  } min`
+                : "0 hr 0 min"}
+            </Text>
           </View>
         </View>
 
@@ -271,7 +291,13 @@ const ViewSleepData = ({ route }) => {
               ></View>
               <Text style={styles.infoText}>REM</Text>
             </View>
-            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Rem").totalHours} hr ${getPhaseDuration("Rem").totalMinutes} min` : "0 hr 0 min"}</Text>
+            <Text style={styles.infoText}>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("Rem").totalHours} hr ${
+                    getPhaseDuration("Rem").totalMinutes
+                  } min`
+                : "0 hr 0 min"}
+            </Text>
           </View>
         </View>
 
@@ -283,7 +309,13 @@ const ViewSleepData = ({ route }) => {
               />
               <Text style={styles.infoText}>Core</Text>
             </View>
-            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Core").totalHours} hr ${getPhaseDuration("Core").totalMinutes} min` : "0 hr 0 min"}</Text>
+            <Text style={styles.infoText}>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("Core").totalHours} hr ${
+                    getPhaseDuration("Core").totalMinutes
+                  } min`
+                : "0 hr 0 min"}
+            </Text>
           </View>
         </View>
 
@@ -295,7 +327,13 @@ const ViewSleepData = ({ route }) => {
               />
               <Text style={styles.infoText}>Deep</Text>
             </View>
-              <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Deep").totalHours} hr ${getPhaseDuration("Deep").totalMinutes} min` : "0 hr 0 min"}</Text>
+            <Text style={styles.infoText}>
+              {sleepDataUnparsed.length > 0
+                ? `${getPhaseDuration("Deep").totalHours} hr ${
+                    getPhaseDuration("Deep").totalMinutes
+                  } min`
+                : "0 hr 0 min"}
+            </Text>
           </View>
         </View>
       </View>
@@ -362,7 +400,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   smallUnits: {
-    fontSize: 17
+    fontSize: 17,
   },
 });
 

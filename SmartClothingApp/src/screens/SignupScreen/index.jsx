@@ -18,6 +18,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 // import GoogleButton from "../../components/GoogleButton";
 
 import { startSignupWithEmail } from "../../actions/userActions.js";
+import { initialHealthDataSync } from "../../actions/appActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -83,6 +84,8 @@ const SignupScreen = ({ navigation }) => {
     dispatch(
       startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
+
+    dispatch(initialHealthDataSync(true));
   };
 
   const toggleLockStatusPassword = () => {
@@ -276,9 +279,9 @@ const SignupScreen = ({ navigation }) => {
               handleAgreement();
             }}
           />
-        <Text style={error.accepted?.length > 0 ? styles.errorText : null}>
-          {error.accepted?.length > 0 ? error.accepted : "User Agreement"}
-        </Text>
+          <Text style={error.accepted?.length > 0 ? styles.errorText : null}>
+            {error.accepted?.length > 0 ? error.accepted : "User Agreement"}
+          </Text>
         </View>
 
         <View>
@@ -341,7 +344,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   errorText: {
-    color:"red",
+    color: "red",
   },
 });
 

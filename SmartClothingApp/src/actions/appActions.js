@@ -3,6 +3,7 @@ import {
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
+  INITIAL_HEALTH_DATA_SYNC,
 } from "./types";
 
 import { getDayFromISODate } from "../utils/dateConversions";
@@ -42,6 +43,13 @@ export const updateSleepDataDateRangeData = (startDate, endDate) => {
   return {
     type: UPDATE_SLEEP_DATA_DATE_RANGE,
     payload: { startDate: startDate, endDate: endDate },
+  };
+};
+
+export const initialHealthDataSync = (onAccountCreation) => {
+  return {
+    type: INITIAL_HEALTH_DATA_SYNC,
+    payload: { onAccountCreation },
   };
 };
 
