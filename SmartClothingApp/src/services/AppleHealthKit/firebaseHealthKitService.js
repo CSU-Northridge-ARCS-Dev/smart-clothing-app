@@ -277,9 +277,7 @@ export default class FirebaseHealthKitService {
     try {
       // Update heart rate data.
       console.log("Updating heart rate data...");
-      const hrStartDate = await this.#getLatestDateFromCollection(
-        collection(doc(database, "Users", auth.currentUser.uid), "HeartRateData")
-      );
+      const hrStartDate = await this.#getLatestDateFromCollection("HeartRateData");
       console.log("hrStartDate: ", hrStartDate);
       const heartRateData = await getHeartRateData(hrStartDate, today);
       console.log("Fetching of heart rate data complete");
@@ -288,9 +286,7 @@ export default class FirebaseHealthKitService {
 
       // Update sleep data.
       console.log("Uploading sleep data...");
-      const sStartDate = await this.#getLatestDateFromCollection(
-        collection(doc(database, "Users", auth.currentUser.uid), "SleepData")
-      );
+      const sStartDate = await this.#getLatestDateFromCollection("SleepData");
       console.log("sStartDate: ", sStartDate)
       const sleepData = await getSleepData(sStartDate, today);
       console.log("Fetching of sleep data complete");
@@ -299,9 +295,7 @@ export default class FirebaseHealthKitService {
 
       // Update activity rings data.
       console.log("Uploading activity rings data...");
-      const arStartDate = await this.#getLatestDateFromCollection(
-        collection(doc(database, "Users", auth.currentUser.uid), "ActivityRingsData")
-      );
+      const arStartDate = await this.#getLatestDateFromCollection("ActivityRingsData");
       console.log("arStartDate: ", arStartDate);
       const activityRingsData = await getActivityRingsData(arStartDate, today);
       console.log("Fetching of activity rings data complete");
@@ -314,16 +308,25 @@ export default class FirebaseHealthKitService {
     }
   }
 
-  // TODO needs unit testing.
+  // TODO needs unit testing, fix hacks.
   /**
    * Fetch the ISO string of a given collection's latest document.
    *
-   * @param {CollectionReference} collection
+   * @param {string} collectionName
    * @returns {Promise<string|null>}
    */
-  static async #getLatestDateFromCollection(collection) {
+  static async #getLatestDateFromCollection(collectionName) {
     try {
-      const latestDoc = query(collection, orderBy("date", "desc"), limit(1));
+      // TODO fix later, quick hack.
+      let latestDoc = null;
+      if (collectionName === "SleepData") {
+        latestDoc = query(collection(doc(database, "Users", auth.currentUser.uid), "SleepData"), orderBy("endDate", "desc"), limit(1));
+      } else if (collectionName === "ActivityRingsData") {
+        latestDoc = query(collection(doc(database, "Users", auth.currentUser.uid), "ActivityRingsData"), orderBy("date", "desc"), limit(1));
+      } else if (collectionName === "HeartRateData") {
+        latestDoc = query(collection(doc(database, "Users", auth.currentUser.uid), "HeartRateData"), orderBy("date", "desc"), limit(1));
+      }
+      console.log(`LATEST DOC FROM ${collectionName}`, latestDoc);
       const snapshot = await getDocs(latestDoc);
       const fetchedData = [];
       snapshot.forEach((doc) => {
@@ -333,7 +336,7 @@ export default class FirebaseHealthKitService {
       if (fetchedData.length == 0) {
         return new Date().toISOString();
       }
-      const latestDate = fetchedData[0].date;
+      const latestDate = (collectionName !== "SleepData") ? fetchedData[0].date : fetchedData[0].endDate;
       console.log(`latestDate: ${latestDate}`);
       return latestDate;
     } catch (error) {

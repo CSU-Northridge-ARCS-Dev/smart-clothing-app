@@ -9,7 +9,6 @@ import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
 import { initialHealthDataSync } from "../../actions/appActions.js";
 import RefreshView from "../../components/RefreshView/index.jsx";
 
-// import { getSleepData, readHeartRateData } from "../../utils/AppleHealthKit/AppleHealthKitUtils.js";
 import FirebaseHealthKitService from "../../services/AppleHealthKit/firebaseHealthKitService.js";
 import {
   ActivityCard,
@@ -42,11 +41,12 @@ export default function HomeScreen({ navigation }) {
         try {
           console.log("Fetching data...");
           setIsLoading(true);
-          await mockAsyncTimeout(2000); // Simulating a 2-second delay
+          // await mockAsyncTimeout(2000); // Simulating a 2-second delay
+          await FirebaseHealthKitService.performInitialDataSync();
           console.log("Data fetched successfully!");
           // Add your data fetching logic here
         } catch (error) {
-          console.error("Error fetching data:", error);
+          console.error("Error on first-time data sync: ", error);
         } finally {
           setIsLoading(false);
           dispatch(initialHealthDataSync(false));
@@ -76,8 +76,6 @@ export default function HomeScreen({ navigation }) {
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
-        {/* <Button onPress={async () => {await performInitialDataSync();}}>INITIAL DATA SYNC (run ONCE)</Button> */}
-        {/* <Button onPress={async () => {await performRefreshData();}}>REFRESH LATEST DATA</Button> */}
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
