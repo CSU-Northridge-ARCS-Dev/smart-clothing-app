@@ -1,5 +1,6 @@
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { AppColor } from "../../constants/themes";
+import { Text } from "react-native-paper";
 
 function LoadingOverlay() {
   return (

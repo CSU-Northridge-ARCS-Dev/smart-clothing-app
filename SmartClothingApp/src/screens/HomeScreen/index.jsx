@@ -36,10 +36,15 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
+  useEffect(() => {
+    // Initialize firebase user meta (put this after logging in or signing up instead).
+    new FirebaseHealthKitService();
+  }, []);
+
   const performInitialDataSync = async () => {
     try {
-      await FirebaseHealthKitService.performInitialDataSync();
       setIsLoading(true);
+      await FirebaseHealthKitService.performInitialDataSync();
     } catch (error) {
       console.error(error);
     } finally {
@@ -47,8 +52,15 @@ export default function HomeScreen({ navigation }) {
     }
   }
 
-  if (isLoading) {
-    return <LoadingOverlay />;
+  const performRefreshData = async () => {
+    try {
+      setIsLoading(true);
+      await FirebaseHealthKitService.updateWithLatestData();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   // useEffect(() => {
@@ -59,18 +71,16 @@ export default function HomeScreen({ navigation }) {
   //   .catch(error => console.error(error));
   // }, [])  // run once
 
-  useEffect(() => {
-    // Initialize firebase user meta (put this after logging in or signing up instead).
-    new FirebaseHealthKitService();
-  })
+
 
   const firstName = useSelector((state) => state.user.firstName);
-  return (
+  return isLoading ? <LoadingOverlay /> : (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
-        <Button onPress={async () => {await performInitialDataSync();}}>INITIAL DATA SYNC</Button>
+        <Button onPress={async () => {await performInitialDataSync();}}>INITIAL DATA SYNC (run ONCE)</Button>
+        <Button onPress={async () => {await performRefreshData();}}>REFRESH LATEST DATA</Button>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>

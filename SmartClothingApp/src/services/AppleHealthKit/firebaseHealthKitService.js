@@ -11,6 +11,7 @@ import {
   getFirestore,
   deleteDoc,
   orderBy,
+  limit
 } from "firebase/firestore";
 import { auth, database } from "../../../firebaseConfig";
 
@@ -160,8 +161,13 @@ export default class FirebaseHealthKitService {
       doc(database, "Users", auth.currentUser.uid),
       "HeartRateData"
     );
+    console.log("Heart rate data collection: ", this.heartRateDataCollection);
     for (const data of heartRateData) {
-      await addDoc(this.heartRateDataCollection, data);
+      try {
+        await addDoc(this.heartRateDataCollection, data);
+      } catch (error) {
+        console.error("Error uploading heart rate doc: ", error);
+      }
       console.log("Doc added for heart rate data");
     }
   }
@@ -178,8 +184,13 @@ export default class FirebaseHealthKitService {
       doc(database, "Users", auth.currentUser.uid),
       "SleepData"
     );
+    console.log("Sleep data collection: ", this.sleepDataCollection);
     for (const data of sleepData) {
-      await addDoc(this.sleepDataCollection, data);
+      try {
+        await addDoc(this.sleepDataCollection, data);
+      } catch (error) {
+        console.error("Error uploading sleep data doc: ", error);
+      }
       console.log("Doc added for sleep data");
     }
   }
@@ -196,8 +207,13 @@ export default class FirebaseHealthKitService {
       doc(database, "Users", auth.currentUser.uid),
       "ActivityRingsData"
     );
+    console.log("Activity rings collection:", this.activityRingsDataCollection)
     for (const data of activityRingsData) {
-      await addDoc(this.activityRingsDataCollection, data);
+      try {
+        await addDoc(this.activityRingsDataCollection, data);
+      } catch (error) {
+        console.error("Error uploading activity rings doc: ", error);
+      }
       console.log("Doc added for activity rings data");
     }
   }
@@ -261,9 +277,10 @@ export default class FirebaseHealthKitService {
     try {
       // Update heart rate data.
       console.log("Updating heart rate data...");
-      const hrStartDate = this.#getLatestDateFromCollection(
-        this.heartRateDataCollection
+      const hrStartDate = await this.#getLatestDateFromCollection(
+        collection(doc(database, "Users", auth.currentUser.uid), "HeartRateData")
       );
+      console.log("hrStartDate: ", hrStartDate);
       const heartRateData = await getHeartRateData(hrStartDate, today);
       console.log("Fetching of heart rate data complete");
       this.uploadHeartRateData(heartRateData);
@@ -271,9 +288,10 @@ export default class FirebaseHealthKitService {
 
       // Update sleep data.
       console.log("Uploading sleep data...");
-      const sStartDate = this.#getLatestDateFromCollection(
-        this.sleepDataCollection
+      const sStartDate = await this.#getLatestDateFromCollection(
+        collection(doc(database, "Users", auth.currentUser.uid), "SleepData")
       );
+      console.log("sStartDate: ", sStartDate)
       const sleepData = await getSleepData(sStartDate, today);
       console.log("Fetching of sleep data complete");
       this.uploadSleepData(sleepData);
@@ -281,9 +299,10 @@ export default class FirebaseHealthKitService {
 
       // Update activity rings data.
       console.log("Uploading activity rings data...");
-      const arStartDate = this.#getLatestDateFromCollection(
-        this.activityRingsDataCollection
+      const arStartDate = await this.#getLatestDateFromCollection(
+        collection(doc(database, "Users", auth.currentUser.uid), "ActivityRingsData")
       );
+      console.log("arStartDate: ", arStartDate);
       const activityRingsData = await getActivityRingsData(arStartDate, today);
       console.log("Fetching of activity rings data complete");
       this.uploadActivityRingsData(activityRingsData);
@@ -304,13 +323,22 @@ export default class FirebaseHealthKitService {
    */
   static async #getLatestDateFromCollection(collection) {
     try {
-      const snapshot = await collection.orderBy("date", "desc").limit(1).get();
-      return snapshot.empty
-        ? null
-        : snapshot.docs[0].data().date.toDate().toISOString();
+      const latestDoc = query(collection, orderBy("date", "desc"), limit(1));
+      const snapshot = await getDocs(latestDoc);
+      const fetchedData = [];
+      snapshot.forEach((doc) => {
+        fetchedData.push({ ...doc.data() });
+      });
+      console.log(`Fetched data from update:`, fetchedData);
+      if (fetchedData.length == 0) {
+        return new Date().toISOString();
+      }
+      const latestDate = fetchedData[0].date;
+      console.log(`latestDate: ${latestDate}`);
+      return latestDate;
     } catch (error) {
       console.error("Error fetching latest document date: ", error);
-      return null;
+      return new Date().toISOString();
     }
   }
 }
