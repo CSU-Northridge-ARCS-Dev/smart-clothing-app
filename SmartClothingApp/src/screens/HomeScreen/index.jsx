@@ -52,6 +52,8 @@ export default function HomeScreen({ navigation }) {
     return result;
   };
 
+  // start area that needs to be moved to a separate file
+
   const checkAvailability = async () => {
 
     const status = await getSdkStatus();
@@ -109,6 +111,8 @@ export default function HomeScreen({ navigation }) {
       return permissions;
     });
   };
+
+  // end area that needs to be moved to a separate file
 
   // sample data functions
   // these functions are for testing purposes only; TO BE REMOVED
