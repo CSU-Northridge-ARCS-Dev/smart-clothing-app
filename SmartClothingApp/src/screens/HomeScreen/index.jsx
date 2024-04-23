@@ -168,9 +168,7 @@ export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [sdkStatus, setSdkStatus] = useState(null);
 
-  //convert the navs to modals
   useEffect(() => {
-    // a shitload of debugging statements below
     checkAvailability();
     console.log("Hit check availability");
     // moved to checkAvailability
@@ -183,9 +181,13 @@ export default function HomeScreen({ navigation }) {
         Linking.openURL(healthConnectBetaUrl);
       } else {
         console.error("Cannot open Google Play Store");
+        // TODO: show error message to user
+        // this one means that we cannot open the google play store and returned from Linking
       }
     } catch (error) {
       console.error("Error opening Google Play Store", error);
+      // TODO: show error message to user
+      // this one means that we cannot open the google play store and errored out of try block
     }
   };
 
@@ -311,8 +313,6 @@ export default function HomeScreen({ navigation }) {
     </ScrollView>
   );
 }
-// modeal above is not rending, need to fix that
-// sdkStatus is reading the correct value to cause render
 const styles = StyleSheet.create({
   container: {
     flex: 1,
