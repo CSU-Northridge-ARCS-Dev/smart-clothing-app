@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { AppHeader } from "../../components";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
@@ -20,6 +20,7 @@ import { scaleLinear, tickStep, ticks } from "d3";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
 import { querySleepData } from "../../actions/userActions";
 import { calculateTotalDuration } from "../../utils/dateConversions";
+import RefreshView from "../../components/RefreshView";
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
@@ -132,7 +133,7 @@ const ViewSleepData = ({ route }) => {
   };
 
   return (
-    <ScrollView>
+    <RefreshView>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
         <DateToolbar dateType="single" dataType="Sleep Data" />
@@ -337,7 +338,7 @@ const ViewSleepData = ({ route }) => {
           </View>
         </View>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 

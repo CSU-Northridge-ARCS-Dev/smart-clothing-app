@@ -16,6 +16,7 @@ import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import RefreshView from "../../components/RefreshView";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
@@ -82,7 +83,7 @@ const ViewInsights = ({ route }) => {
   }, [currentDate]);
 
   return (
-    <ScrollView style={[{ flex: 1 }]}>
+    <RefreshView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
         <DateToolbar />
@@ -135,7 +136,7 @@ const ViewInsights = ({ route }) => {
           // updateDataAtIndex(7, 5);
         }}
       />
-    </ScrollView>
+    </RefreshView>
   );
 };
 

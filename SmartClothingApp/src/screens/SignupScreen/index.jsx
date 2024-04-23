@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -12,6 +12,7 @@ import {
 import { AppColor, AppStyle } from "../../constants/themes";
 import { HeroSection } from "../../components";
 import ToSModal from "../../components/ToSModal/ToSModal";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import Icon from "react-native-vector-icons/FontAwesome5";
 
@@ -153,7 +154,7 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView>
+    <RefreshView>
       <HeroSection />
       <View style={styles.content}>
         <ToSModal
@@ -315,7 +316,7 @@ const SignupScreen = ({ navigation }) => {
           </Button>
         </View>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 

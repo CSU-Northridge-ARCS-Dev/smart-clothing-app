@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Text } from "react-native-paper";
@@ -7,6 +7,7 @@ import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
 import { initialHealthDataSync } from "../../actions/appActions.js";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import {
   ActivityCard,
@@ -77,7 +78,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
@@ -118,7 +119,7 @@ export default function HomeScreen({ navigation }) {
         </Text>
         {/* <HeartRateChart data={defaultData}/> */}
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 }
 

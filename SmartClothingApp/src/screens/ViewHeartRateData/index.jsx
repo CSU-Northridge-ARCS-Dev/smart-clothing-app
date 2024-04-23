@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
+import { View, Text, StyleSheet, Button } from "react-native";
 import { AppHeader } from "../../components";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -11,6 +11,7 @@ import { CartesianChart, Scatter } from "victory-native";
 import inter from "../../../assets/fonts/inter-medium.ttf";
 import { useFont } from "@shopify/react-native-skia";
 import { queryHeartRateData } from "../../actions/userActions";
+import RefreshView from "../../components/RefreshView";
 
 const ViewHeartRateData = ({ route }) => {
   const font = useFont(inter, 14);
@@ -54,7 +55,7 @@ const ViewHeartRateData = ({ route }) => {
   }, [dates.startDate, dates.endDate]);
 
   return (
-    <ScrollView>
+    <RefreshView>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
         <DateToolbar dateType="period" dataType="Heart Rate" />
@@ -145,7 +146,7 @@ const ViewHeartRateData = ({ route }) => {
           )}
         </CartesianChart>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 
