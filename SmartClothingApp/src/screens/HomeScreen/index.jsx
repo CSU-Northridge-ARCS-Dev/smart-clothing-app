@@ -280,7 +280,7 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <HeartRateChart />
       </View>
-      <View style={{ marginTop: 20 }}>
+      <View style={styles.centeredView}>
         <Modal
           visible={modalVisible}
           transparent={false}
@@ -292,18 +292,19 @@ export default function HomeScreen({ navigation }) {
           onRequestClose={() => {setModalVisible(false)}}
         >
           {console.log("Modal visible: ", modalVisible)}
-          <View>
-            <Text>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}
+            >
               {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE 
               ? "SDK is not available."
               : "SDK requires an update."}
-              sample text
             </Text>
-            {console.log("sdk status from inside the modal:", sdkStatus, "availability update val: ", SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)}
-            { sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
-              <Button title="Update Health Connect" onPress={openGooglePlayStore} />
-            )}
-            <Button title="Go Back" onPress={() => setModalVisible(false)} />
+            <View style={styles.buttonContainer}>
+              <Button title="Go Back" onPress={() => setModalVisible(false)} />
+              { sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
+                <Button title="Update Health Connect" onPress={openGooglePlayStore} />
+              )}
+            </View>
           </View>
         </Modal>
       </View>
@@ -329,5 +330,35 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 5, height: 5 },
     backgroundColor: AppColor.primaryContainer,
     padding: 10,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
   },
 });
