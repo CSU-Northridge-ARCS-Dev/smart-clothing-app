@@ -24,7 +24,7 @@ export default function ViewHealthData({ navigation }) {
   return (
     <ScrollView style={{ flex: 1 }}>
       <AppHeader title={"Health Data"} />
-      <View style={{paddingLeft: 10, paddingTop: 10}}>
+      <View style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10}}>
         <DateToolbar dateType="single" />
       </View>
       <DataButton
