@@ -48,6 +48,7 @@ export default function HomeScreen({ navigation }) {
   const initializeHealthConnect = async () => {
     const result = await initialize();
     console.log({ result });
+    setIsHealthConnectInitialized(result);
     return result;
   };
 
@@ -58,36 +59,28 @@ export default function HomeScreen({ navigation }) {
     console.log({ status });
     if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
       console.log("SDK is available");
-      initializeHealthConnect().then((initialized) => {
-        console.log("Hit health connect initialized")
-        if (initialized) {
-          console.log("Hit initialized");
-          grantedPermissions().then((permissions) => {
-            console.log("Hit granted permissions");
-            if (!permissions || permissions.length === 0) {
-              requestJSPermissions().then(() => {
-                console.log("recieved permissions")
-              }).catch((error) => {
-                console.log("Error requesting permissions", error);
-              });
-            }
-          }).catch((error) => {
-            console.log("Error getting permissions", error);
-          });
+
+      const isInitialized = await setIsHealthConnectInitialized();
+      if (!isInitialized) {
+        await initializeHealthConnect();
+      }
+
+      console.log("Hit health connect initialized")
+        console.log("Hit initialized");
+        const permissions = grantedPermissions()
+        console.log("Hit granted permissions");
+        if (!permissions || permissions.length === 0) {
+          requestJSPermissions()
+          console.log("recieved permissions")
         }
-      }).catch((error) => {
-        console.log("Error initializing health connect", error);
-      });
-    }
+      }
 
     if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
       console.log("SDK is not available");
       setModalVisible(true);
     }
 
-    if (
-      status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-    ) {
+    if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
       console.log("SDK is not available, provider update required");
       setModalVisible(true);
     }
@@ -118,6 +111,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   // sample data functions
+  // these functions are for testing purposes only; TO BE REMOVED
   const insertSampleData = () => {
     insertRecords([
       {
@@ -167,6 +161,7 @@ export default function HomeScreen({ navigation }) {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [sdkStatus, setSdkStatus] = useState(null);
+  const [isHealthConnectInitialized, setIsHealthConnectInitialized] = useState(false);
 
   useEffect(() => {
     checkAvailability();
