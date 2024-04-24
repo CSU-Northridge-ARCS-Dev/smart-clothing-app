@@ -44,6 +44,7 @@ const getTodayDate = (): Date => {
 };
 
 export default function HomeScreen({ navigation }) {
+  // start area that needs to be moved to a separate file
   // test functions start
   const initializeHealthConnect = async () => {
     const result = await initialize();
@@ -51,8 +52,6 @@ export default function HomeScreen({ navigation }) {
     setIsHealthConnectInitialized(result);
     return result;
   };
-
-  // start area that needs to be moved to a separate file
 
   const checkAvailability = async () => {
 
