@@ -38,8 +38,8 @@ export default function HomeScreen({ navigation }) {
 
   const performInitialDataSync = async () => {
     try {
-      await FirebaseHealthKitService.performInitialDataSync();
       setIsLoading(true);
+      await FirebaseHealthKitService.performInitialDataSync();
     } catch (error) {
       console.error(error);
     } finally {
@@ -50,19 +50,15 @@ export default function HomeScreen({ navigation }) {
   if (isLoading) {
     return <LoadingOverlay />;
   }
-
-  // useEffect(() => {
-  //   const performInitialDataSync = async () => {
-  //     await FirebaseHealthKitService.performInitialDataSync();
-  //   }
-  //   performInitialDataSync()
-  //   .catch(error => console.error(error));
-  // }, [])  // run once
-
+  
   useEffect(() => {
     // Initialize firebase user meta (put this after logging in or signing up instead).
     new FirebaseHealthKitService();
-  })
+
+    return () => {
+      setIsLoading(false); // Reset loading state when component unmounts
+    };
+  }, []);
 
   const firstName = useSelector((state) => state.user.firstName);
   return (
