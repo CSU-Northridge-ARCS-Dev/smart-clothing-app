@@ -31,15 +31,15 @@ import {
   readRecord,
 } from "react-native-health-connect";
 
-const getLastWeekDate = (): Date => {
+const getLastWeekDate = () => {
   return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
 };
 
-const getLastTwoWeeksDate = (): Date => {
+const getLastTwoWeeksDate = () => {
   return new Date(new Date().getTime() - 2 * 7 * 24 * 60 * 60 * 1000);
 };
 
-const getTodayDate = (): Date => {
+const getTodayDate = () => {
   return new Date();
 };
 
@@ -96,9 +96,26 @@ export default function HomeScreen({ navigation }) {
         recordType: "Steps",
       },
       {
-        accessType: "write",
-        recordType: "Steps",
+      accessType: "read",
+      recordType: "HeartRate",
       },
+      {
+      accessType: "write",
+      recordType: "Steps",
+      },
+      {
+      accessType: "write",
+      recordType: "HeartRate",
+      },
+      {
+      accessType: "read", 
+      recordType: "SleepSession",
+      },
+      {
+      accessType: "write", 
+      recordType: "SleepSession",
+      },
+
     ]).then((permissions) => {
       console.log("Granted permissions on request ", { permissions });
     });
