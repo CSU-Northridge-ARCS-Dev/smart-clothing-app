@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { AppHeader } from "../../components";
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -16,67 +17,153 @@ import {
   rect,
 } from "@shopify/react-native-skia";
 import { scaleLinear, tickStep, ticks } from "d3";
+import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import { querySleepData } from "../../actions/userActions";
+import { calculateTotalDuration } from "../../utils/dateConversions";
+
 
 const ViewSleepData = ({ route }) => {
   const font = useFont(inter, 14);
+  const dates = useSelector((state) => state.app.sleepDataDateRangeData);
   const { previousScreenTitle } = route.params;
+  const [sleepData, setSleepData] = useState([]);
+  const [sleepDataUnparsed, setSleepDataUnparsed] = useState([]);
+
+
+
   const data = [
-    { x: 1, y: 10 },
-    { x: 20, y: 110 },
-    { x: 40, y: 20 },
-    { x: 160, y: 160 },
-    { x: 170, y: 180 },
-    { x: 180, y: 10 },
+      { x: 1, y: 10 },   //Deep 0-40
+      { x: 20, y: 110 }, // Core 40-100
+      { x: 40, y: 20 },  // REM 100-160
+      { x: 180, y: 160 }, // Awake 160-200
+      { x: 170, y: 180 }, 
+      { x: 200, y: 10 },
   ];
 
-  const getDynamicPositionForY = (y, maxRange) => {
-    // Calculate the relative position within the range [0, maxRange]
-    const relativePosition = 1 - Math.min(y / maxRange, 1);
-    return relativePosition;
+
+//Deep 0-46
+// Core 46-100
+// REM 100-160
+// Awake 160-180
+   useEffect(() => {
+    const fetchSleepData = async () => {
+      try {
+        // console.log(dates.startDate);
+        // console.log(dates.endDate);
+        const result = await querySleepData(dates.startDate, dates.endDate);
+        setSleepDataUnparsed(result);
+        // result.forEach(item => {
+        //     console.log("startDate", item.startDate);
+        //     console.log("endDate", item.endDate);
+        // });
+        const parsedData = parseSleepData(result);
+        setSleepData(parsedData);
+      } catch (error) {
+        console.error("Error fetching sleep data:", error);
+        // Handle error
+      }
+    };
+
+    fetchSleepData();
+  }, [dates.startDate, dates.endDate]);
+
+
+  const parseSleepData = (sleepData) => {  
+    
+    durations = [];
+
+    const parsedData = sleepData.reduce((parsedData, item, index) => {
+        // console.log("startDate", startDate, startDate.getTime());
+        // console.log("endDate", endDate, endDate.getTime());
+        // console.log("hours", durationHours);
+
+        const cumulativeDuration = sleepData.slice(0, index).reduce((sum, stage) => {
+            const start = new Date(stage.startDate);
+            const end = new Date(stage.endDate);
+            return sum + (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duration in hours
+        }, 0);
+
+        durations.push(cumulativeDuration);
+
+        const x = (durations[index] / 24) * 200; // Assuming the x range is 0-200
+        // Deep 0-46
+        // Core 46-100
+        // REM 100-160
+        // Awake 160-180
+      let y;
+      console.log("phase:", item.sleepValue);
+      switch (item.sleepValue) {
+          case "Deep":
+              y = 0; // Deep sleep: 0-46
+              break;
+          case "Core":
+              y = 60; // Core 40-100
+              break;
+          case "Rem":
+              y = 130; //Rem 100-160 
+              break;
+          case "Awake":
+              y = 180; //Awake 160-200 
+              break;
+          default:
+              // Handle unexpected sleepValue
+              break;
+      }
+      if (typeof y !== 'undefined') { // Check if y is defined
+        parsedData.push({ x: x, y: y });
+      }
+      return parsedData;
+    }, []);
+    
+    return parsedData; 
   };
 
-  const maxRange = 180;
-
-  const positions = data.map((point) =>
-    getDynamicPositionForY(point.y, maxRange)
-  );
-
-  const colors = positions.map((position) => {
-    if (position >= 0.75) {
-      return AppColor.sleepDeep;
-    } else if (position >= 0.5 && position <= 0.75) {
-      return AppColor.sleepCore;
-    } else if (position >= 0.25 && position <= 0.5) {
-      return AppColor.sleepRem;
-    } else {
-      return AppColor.sleepAwake;
-    }
-  });
-  const colorStops = positions.map((position, index) => ({
-    position,
-    color: colors[index],
-  }));
-
-  // Sort colorStops based on positions
-  colorStops.sort((a, b) => a.position - b.position);
-
-  // Extract sorted positions and colors
-  const sortedPositions = colorStops.map((stop) => stop.position);
-  const sortedColors = colorStops.map((stop) => stop.color);
-
-  const x = ticks(0, 180, 30);
-
+  const getPhaseDuration = (phaseType) => {
+    // const dates = sleepDataUnparsed.map(({ startDate, endDate, sleepValue }) => {
+    //   if (sleepValue !== phaseType) return;
+    //   return { startDate, endDate };
+    // });
+    // console.log("UNPARSED!!!", sleepDataUnparsed)
+    const dates = sleepDataUnparsed.filter(item => {
+      // console.log(`phaseType: ${item.sleepValue}, item.sleepValue: ${phaseType}`)
+      return item.sleepValue === phaseType;
+    });
+    // for (let obj of dates) {
+    //   console.log(JSON.stringify(obj))
+    // }
+    return calculateTotalDuration(dates);
+  }
+  
   return (
     <ScrollView>
       <AppHeader title={previousScreenTitle} back={true} />
-      <DailyMetrics name="Sleep Data" />
+      <View style={{padding: 10}}>
+        <DateToolbar dateType="single" dataType="Sleep Data" />
+      </View>
 
       <View style={styles.title}>
         <View style={styles.bigIcon}>
           <Icon name="bed" size={40} color={AppColor.primary} />
         </View>
-        <Text style={styles.dataText}>Sleep Data</Text>
-      </View>
+          <View>
+            <Text style={styles.dataText}>Time in Bed</Text>
+            <Text style={styles.dataSubText}>
+               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("In Bed").totalHours}` : "0"}</Text>
+              <Text style={styles.smallUnits}>hrs </Text>
+               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("In Bed").totalMinutes}` : "0"}</Text>
+              <Text style={styles.smallUnits}>mins</Text>
+            </Text>
+          </View>
+          <View>
+            <Text style={styles.dataText}>Time Asleep</Text>
+              <Text style={styles.dataSubText}>
+              <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Unknown").totalHours}` : "0"}</Text>
+              <Text style={styles.smallUnits}>hrs </Text>
+               <Text>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Unknown").totalMinutes}` : "0"}</Text>
+              <Text style={styles.smallUnits}>mins</Text>
+            </Text>
+          </View>
+    </View>
 
       <View
         style={{
@@ -90,7 +177,7 @@ const ViewSleepData = ({ route }) => {
       >
         <Text style={styles.infoText}>Sleep Data</Text>
         <CartesianChart
-          data={data}
+          data={sleepData}
           xKey="x"
           yKeys={["y"]}
           domain={{ x: [0, 180, 30], y: [0, 180] }}
@@ -115,6 +202,20 @@ const ViewSleepData = ({ route }) => {
                 return "";
               }
             },
+            formatXLabel(value) {
+              if (value === 200) {
+                return "12AM"
+              } else if (value === 150) {
+                return "6PM"
+              } else if (value === 100) {
+                return "12PM"
+              } else if (value === 50) {
+                return "6AM"
+              } else  {
+                return "";
+              }
+            }
+
           }}
         >
           {({ points, chartBounds, yScale }) => (
@@ -122,7 +223,7 @@ const ViewSleepData = ({ route }) => {
               points={points.y}
               color={AppColor.sleepAwake}
               strokeWidth={6}
-              curveType="linear"
+              curveType="step"
             >
               <LinearGradient
                 start={vec(0, 0)}
@@ -145,7 +246,7 @@ const ViewSleepData = ({ route }) => {
       </View>
 
       <View style={{ marginBottom: 100 }}>
-        <Text style={styles.header}>Stages</Text>
+        <Text style={[styles.dataSubText, {textAlign: "center"}]}>Stages</Text>
 
         <View style={styles.sleepStage}>
           <View style={styles.infoContainer}>
@@ -158,7 +259,7 @@ const ViewSleepData = ({ route }) => {
               ></View>
               <Text style={styles.infoText}>Awake</Text>
             </View>
-            <Text style={styles.infoText}>5 min</Text>
+            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Awake").totalHours} hr ${getPhaseDuration("Awake").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
 
@@ -170,7 +271,7 @@ const ViewSleepData = ({ route }) => {
               ></View>
               <Text style={styles.infoText}>REM</Text>
             </View>
-            <Text style={styles.infoText}>1 hr 56 min</Text>
+            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Rem").totalHours} hr ${getPhaseDuration("Rem").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
 
@@ -182,7 +283,7 @@ const ViewSleepData = ({ route }) => {
               />
               <Text style={styles.infoText}>Core</Text>
             </View>
-            <Text style={styles.infoText}>5 hr 17 min</Text>
+            <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Core").totalHours} hr ${getPhaseDuration("Core").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
 
@@ -194,7 +295,7 @@ const ViewSleepData = ({ route }) => {
               />
               <Text style={styles.infoText}>Deep</Text>
             </View>
-            <Text style={styles.infoText}>11 min</Text>
+              <Text style={styles.infoText}>{sleepDataUnparsed.length > 0 ? `${getPhaseDuration("Deep").totalHours} hr ${getPhaseDuration("Deep").totalMinutes} min` : "0 hr 0 min"}</Text>
           </View>
         </View>
       </View>
@@ -205,7 +306,7 @@ const ViewSleepData = ({ route }) => {
 const styles = StyleSheet.create({
   title: {
     paddingHorizontal: 10,
-    gap: 10,
+    gap: 20,
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
@@ -225,7 +326,7 @@ const styles = StyleSheet.create({
   },
   dataText: {
     color: "black",
-    fontSize: 35,
+    fontSize: 22,
   },
   sleepStage: {
     height: 50,
@@ -249,9 +350,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 10,
   },
-  header: {
-    textAlign: "center",
-    fontSize: 22,
+  dataSubText: {
+    fontSize: 25,
     color: AppColor.primary,
     fontWeight: "bold",
   },
@@ -260,6 +360,9 @@ const styles = StyleSheet.create({
     width: 10,
     borderRadius: 50,
     padding: 16,
+  },
+  smallUnits: {
+    fontSize: 17
   },
 });
 
