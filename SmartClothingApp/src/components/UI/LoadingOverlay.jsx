@@ -2,6 +2,7 @@ import { View, ActivityIndicator, StyleSheet, Text } from "react-native";
 import { AppColor } from "../../constants/themes";
 
 function LoadingOverlay() {
+
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" style={{ transform: [{ scaleX: 2 }, { scaleY: 2 }] }} color="#1560a4" />

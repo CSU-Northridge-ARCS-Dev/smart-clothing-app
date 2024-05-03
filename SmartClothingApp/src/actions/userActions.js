@@ -377,7 +377,7 @@ export const querySleepData = async (startDate, endDate) => {
 
     // create a query to filter documents within the date range
     const dataQuery = query(
-      collection(userRef, "SleepData"),
+      collection(userRef, "SleepDataHC"),
       where("startDate", ">=", startDate),
       where("startDate", "<=", endDate),
       orderBy("startDate", "asc")
@@ -412,8 +412,8 @@ export const queryHeartRateData = async (startDate, endDate) => {
     // Create a query to filter documents within the date range
     const dataQuery = query(
       collection(userRef, "HeartRateDataHC"),
-      where("date", ">=", startDate),
-      where("date", "<=", endDate)
+      where("time", ">=", startDate),
+      where("time", "<=", endDate)
     );
 
     // execute the query to get the result
@@ -442,7 +442,7 @@ export const sendSleepData = async (sleepData) => {
   const userRef = doc(database, "Users", userId);
 
   // get documents inside SleepData
-  const sleepDataCollection = collection(userRef, "SleepData");
+  const sleepDataCollection = collection(userRef, "SleepDataHC");
 
   // // get docs from SleepData
   // const sleepDocs = await getDocs(sleepDataCollection);
@@ -453,6 +453,7 @@ export const sendSleepData = async (sleepData) => {
 };
 
 export const sendHeartRateData = async (heartRateData) => {
+  console.log("heartRateData", heartRateData);
   console.log("Heart rate invoked!");
 
   //get the user ID

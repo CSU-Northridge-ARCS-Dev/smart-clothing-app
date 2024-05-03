@@ -1,15 +1,17 @@
 import React, { useCallback, useState } from "react";
 import { ScrollView, RefreshControl } from "react-native";
+import { updateWithLatestData } from "../../services/HealthConnectServices/FirebaseHealthConnectServices";
 
 function useRefresh() {
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
+  const onRefresh = useCallback(async () => {
+      setRefreshing(true);
+      setTimeout(() => {
+        updateWithLatestData();
+        setRefreshing(false);
+      }, 500);  // Add extra delay.
+    }, []);
 
   return { refreshing, onRefresh };
 }

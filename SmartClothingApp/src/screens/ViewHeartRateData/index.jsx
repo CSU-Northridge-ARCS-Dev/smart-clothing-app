@@ -35,7 +35,7 @@ const ViewHeartRateData = ({ route }) => {
         // console.log(dates.endDate);
         const result = await queryHeartRateData(dates.startDate, dates.endDate);
         if (result.length > 0) {
-          const heartRates = result.map((entry) => entry.heartRate);
+          const heartRates = result.map((entry) => entry.beatsPerMinute);
           const min = Math.min(...heartRates);
           const max = Math.max(...heartRates);
           setMinHeartRate(min);
