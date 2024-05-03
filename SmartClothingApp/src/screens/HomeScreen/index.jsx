@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet, Modal, Button, Text, Linking } from "react-native";
-import { useSelector } from "react-redux";
+import { View, StyleSheet, Modal, Button, Text, Linking } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
 //import { Button, Modal, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
+import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
+import { initialHealthDataSync } from "../../actions/appActions.js";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import {
   ActivityCard,
@@ -158,9 +161,23 @@ export default function HomeScreen({ navigation }) {
         endTime: getTodayDate().toISOString(),
       },
     }).then((result) => {
-      console.log("Retrieved records: ", JSON.stringify({ result }, null, 2));
+      // Iterate over the result array
+      result.forEach((record) => {
+        // Iterate over the samples array within each record
+        record.samples.forEach((sample) => {
+          // Access the beatsPerMinute and time properties
+          const beatsPerMinute = sample.beatsPerMinute;
+          const time = sample.time;
+          console.log("Beats Per Minute:", beatsPerMinute);
+          console.log("Time:", time);
+        });
+      });
     });
   };
+
+  const performInitialDataSync = () => {
+
+  }
 
   const readSampleDataSingle = () => {
     readRecord("Steps", "a7bdea65-86ce-4eb2-a9ef-a87e6a7d9df2").then(
@@ -212,20 +229,63 @@ export default function HomeScreen({ navigation }) {
   };
 
   const route = useRoute();
+  const dispatch = useDispatch();
   const defaultData = [
     70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
     71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
     93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
     87, 87, 86,
   ];
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
+
+  useEffect(() => {
+    if (onAccountCreation) {
+      async function fetchData() {
+        try {
+          console.log("Fetching data...");
+          setIsLoading(true);
+          await mockAsyncTimeout(2000); // Simulating a 2-second delay
+          console.log("Data fetched successfully!");
+          // Add your data fetching logic here
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false);
+          dispatch(initialHealthDataSync(false));
+        }
+      }
+
+      fetchData();
+    }
+  }, [onAccountCreation]); // Run effect only when onAccountCreation changes
+
+  function mockAsyncTimeout(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  // if (isLoading) {
+  //   return < LoadingOverlay />;
+  // }
+
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
     });
   };
+
   const firstName = useSelector((state) => state.user.firstName);
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
+
   return (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
@@ -336,7 +396,7 @@ export default function HomeScreen({ navigation }) {
           </View>
         </Modal>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 }
 const styles = StyleSheet.create({

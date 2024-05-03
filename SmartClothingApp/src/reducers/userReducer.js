@@ -5,6 +5,7 @@ import {
   UPDATE_PROFILE,
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
+  UPDATE_HEART_RATE_DATA,
 } from "../actions/types";
 
 const initialState = {
@@ -20,6 +21,8 @@ const initialState = {
     weight: "No Data",
     sports: "No Data",
   },
+  heartRateData: [],
+  sleepData: [],
 };
 
 const userReducer = (state = initialState, action) => {
@@ -62,6 +65,11 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         userMetricsData: action.payload,
+      };
+    case UPDATE_HEART_RATE_DATA:
+      return {
+        ...state,
+        heartRateData: action.payload,
       };
     case UPDATE_EMAIL_SUCCESS:
       return {

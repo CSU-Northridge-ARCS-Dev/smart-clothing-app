@@ -3,7 +3,10 @@ import {
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
+  INITIAL_HEALTH_DATA_SYNC,
 } from "./types";
+
+import { getDayFromISODate } from "../utils/dateConversions";
 
 export const userMetricsDataModalVisible = (
   visibility,
@@ -43,30 +46,32 @@ export const updateSleepDataDateRangeData = (startDate, endDate) => {
   };
 };
 
+export const initialHealthDataSync = (onAccountCreation) => {
+  return {
+    type: INITIAL_HEALTH_DATA_SYNC,
+    payload: { onAccountCreation },
+  };
+};
+
 export const updateActivityRings = () => {
   return async (dispatch) => {
-    const daysOfWeek = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-
-    for (const day of daysOfWeek) {
-      const randomData = {
-        ring1: generateRandomValue().toFixed(1),
-        ring2: generateRandomValue().toFixed(1),
-        ring3: generateRandomValue().toFixed(1),
+    for (const dayData of ringData) {
+      const data = {
+        ring1: {
+          currentValue: dayData.energyBurned,
+          goalValue: dayData.energyBurnedGoal,
+        },
+        ring2: {
+          currentValue: dayData.exerciseTime,
+          goalValue: dayData.exerciseTimeGoal,
+        },
+        ring3: {
+          currentValue: dayData.standHours,
+          goalValue: dayData.standHoursGoal,
+        },
       };
 
-      // Simulate an async operation (e.g., fetching data)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Dispatch the action to update the activity rings data
-      dispatch(updateActivityRingsData(day, randomData));
+      dispatch(updateActivityRingsData(getDayFromISODate(dayData.date), data));
     }
   };
 };

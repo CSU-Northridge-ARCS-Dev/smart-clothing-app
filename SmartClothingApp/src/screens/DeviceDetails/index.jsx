@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, Image } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 import { useSelector } from "react-redux";
 import { Text, Button } from "react-native-paper";
 
 import { AppHeader } from "../../components";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes";
+import RefreshView from "../../components/RefreshView";
 
 const DeviceDetails = ({ route, navigation }) => {
   const { id } = route.params;
@@ -19,7 +20,7 @@ const DeviceDetails = ({ route, navigation }) => {
   }, [id]);
 
   return (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <AppHeader title={device.name} back={true} />
       <Image source={device.image} style={styles.image} />
       <Text
@@ -39,7 +40,7 @@ const DeviceDetails = ({ route, navigation }) => {
           Back
         </Button>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 const styles = StyleSheet.create({
