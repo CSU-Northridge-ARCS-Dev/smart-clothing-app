@@ -132,8 +132,6 @@ export const insertSampleData = () => {
 };
 
 export const readSampleData = async (dataType, startDate, endDate) => {
-  startDate = new Date(startDate);
-  endDate = new Date(endDate);
   try {
     const data = await readRecords(dataType, {
       timeRangeFilter: {
@@ -155,7 +153,6 @@ export const readSampleData = async (dataType, startDate, endDate) => {
     // for (const record of heartRates) {
     //   await sendHeartRateData(record.samples);
     // }
-
     return data;
   } catch (error) {
     // Handle any errors

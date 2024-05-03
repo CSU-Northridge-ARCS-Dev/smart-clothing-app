@@ -37,7 +37,6 @@ import {
 
 
 import { 
-  readSampleData,
   initializeHealthConnect,
   checkAvailability,
   requestJSPermissions,
@@ -46,6 +45,9 @@ import {
   readSampleDataSingle,
   aggregateSampleData,
 } from "../../services/HealthConnectServices/HealthConnectServices.js";
+
+import { getHeartRateData } from "../../utils/HealthConnectUtils.js";
+import { readSampleData } from "../../services/HealthConnectServices/HealthConnectServices.js";
 
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
@@ -175,36 +177,36 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
-  const readSampleData = async (dataType, startDate, endDate) => {
-    try {
-      const data = await readRecords(dataType, {
-        timeRangeFilter: {
-          operator: "between",
-          startTime: startDate.toISOString(),
-          endTime: endDate.toISOString(),
-        },
-      });
+  // const readSampleData = async (dataType, startDate, endDate) => {
+  //   try {
+  //     const data = await readRecords(dataType, {
+  //       timeRangeFilter: {
+  //         operator: "between",
+  //         startTime: startDate.toISOString(),
+  //         endTime: endDate.toISOString(),
+  //       },
+  //     });
       
-      // const sleepData = await readRecords("SleepSession", {
-      //   timeRangeFilter: {
-      //     operator: "between",
-      //     startTime: getLastYearDate().toISOString(),
-      //     endTime: getTodayDate().toISOString(),
-      //   },
-      // });
+  //     // const sleepData = await readRecords("SleepSession", {
+  //     //   timeRangeFilter: {
+  //     //     operator: "between",
+  //     //     startTime: getLastYearDate().toISOString(),
+  //     //     endTime: getTodayDate().toISOString(),
+  //     //   },
+  //     // });
 
-      // Iterate over the result array
-      // for (const record of heartRates) {
-      //   await sendHeartRateData(record.samples);
-      // }
+  //     // Iterate over the result array
+  //     // for (const record of heartRates) {
+  //     //   await sendHeartRateData(record.samples);
+  //     // }
 
-      return data;
+  //     return data;
 
-    } catch (error) {
-      // Handle any errors
-      console.error("Error reading sample data:", error);
-    }
-  };
+  //   } catch (error) {
+  //     // Handle any errors
+  //     console.error("Error reading sample data:", error);
+  //   }
+  // };
 
   const readSampleDataSingle = () => {
   readRecord("Steps", "a7bdea65-86ce-4eb2-a9ef-a87e6a7d9df2").then((result) => {
@@ -268,7 +270,8 @@ export default function HomeScreen({ navigation }) {
         try {
           console.log("Fetching data...");
           setIsLoading(true);
-          await readSampleData();
+          heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
+          await sendHeartRateData(heartRateData);
           console.log("Data fetched successfully!");
           // Add your data fetching logic here
         } catch (error) {
