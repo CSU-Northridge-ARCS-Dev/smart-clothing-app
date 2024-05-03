@@ -31,6 +31,11 @@ import {
   readRecord,
 } from "react-native-health-connect";
 
+const getLastYearDate = () => {
+  const today = new Date();
+  return new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+};
+
 const getLastWeekDate = () => {
   return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
 };
@@ -146,10 +151,10 @@ export default function HomeScreen({ navigation }) {
   };
 
   const readSampleData = () => {
-    readRecords("Steps", {
+    readRecords("HeartRate", {
       timeRangeFilter: {
         operator: "between",
-        startTime: getLastTwoWeeksDate().toISOString(),
+        startTime: getLastYearDate().toISOString(),
         endTime: getTodayDate().toISOString(),
       },
     }).then((result) => {
