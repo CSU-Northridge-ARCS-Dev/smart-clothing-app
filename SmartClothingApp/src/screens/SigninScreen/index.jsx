@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { GoogleButton, HeroSection } from "../../components";
 import { AppColor, AppStyle } from "../../constants/themes";
 import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
@@ -33,12 +34,6 @@ const SigninScreen = ({ navigation }) => {
 
   const handleSignInWithEmail = () => {
     if (!isValid()) {
-      Alert.alert(
-        "Authentication Error",
-        "Please correct the following errors:\n\n" +
-          (error.email && `${error.email}\n`) +
-          (error.password && `${error.password}`)
-      );
       return;
     }
 
@@ -76,18 +71,11 @@ const SigninScreen = ({ navigation }) => {
     }
 
     setError({ ...errors });
-
     return flag;
   };
 
-  if (firebaseErrorMessages.hasOwnProperty("authError")) {
-    const errorMessage = firebaseErrorMessages[authError];
-
-    Alert.alert("Authentication Error", errorMessage);
-  }
-
   return (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <HeroSection />
       <View style={styles.content}>
         <Text
@@ -113,11 +101,11 @@ const SigninScreen = ({ navigation }) => {
                 setUser({ ...user, email: text });
                 handleClearErrors();
               }}
-              error={error.email.length > 1}
+              error={error.email.length > 0}
             />
           </View>
-          <HelperText type="error" visible={error.email.length > 1}>
-            Email is invalid!
+          <HelperText type="error" visible={error.email.length > 0}>
+            {error.email}
           </HelperText>
         </View>
 
@@ -131,7 +119,7 @@ const SigninScreen = ({ navigation }) => {
               setUser({ ...user, password: text });
               handleClearErrors();
             }}
-            error={error.password.length > 1}
+            error={error.password.length > 0}
             style={styles.textInput}
           />
           <Icon
@@ -142,6 +130,9 @@ const SigninScreen = ({ navigation }) => {
             onPress={toggleLockStatus}
           />
         </View>
+        <HelperText type="error" visible={error.password.length > 0}>
+          {error.password}
+        </HelperText>
 
         <View style={styles.checkbox}>
           <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
@@ -163,7 +154,7 @@ const SigninScreen = ({ navigation }) => {
       <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
         Don't have an account? Sign Up
       </Button>
-    </ScrollView>
+    </RefreshView>
   );
 };
 

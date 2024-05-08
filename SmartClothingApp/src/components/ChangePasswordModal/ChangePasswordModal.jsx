@@ -19,6 +19,7 @@ const ChangePasswordModal = (props) => {
   const [error, setError] = useState({
     current: "",
     new: "",
+    confirm: "",
   });
 
   const handleCancel = () => {
@@ -31,6 +32,7 @@ const ChangePasswordModal = (props) => {
     setError({
       current: "",
       new: "",
+      confirm: "",
     });
     setIsSubmitting(false);
   };
@@ -63,6 +65,12 @@ const ChangePasswordModal = (props) => {
       flag = false;
     }
 
+    if (newPassword !== confirmPassword) {
+      errors.new = "Passwords do not match.";
+      errors.confirm = "Passwords do not match.";
+      flag = false;
+    }
+
     setError({ ...errors });
     return flag;
   };
@@ -72,7 +80,6 @@ const ChangePasswordModal = (props) => {
       return;
     }
     setIsSubmitting(true);
-    console.log(currentPassword);
     const reauthSuccessful = await dispatch(reauthenticate(currentPassword));
 
     if (reauthSuccessful) {
@@ -135,7 +142,7 @@ const ChangePasswordModal = (props) => {
                   handleClearErrors();
                 }}
                 secureTextEntry={!isPasswordVisible}
-                error={error.new.length > 1 || newPassword !== confirmPassword}
+                error={error.new.length > 1}
               />
             </View>
             <HelperText type="error" visible={error.new.length > 1}>
@@ -151,10 +158,10 @@ const ChangePasswordModal = (props) => {
                   handleClearErrors();
                 }}
                 secureTextEntry={!isPasswordVisible}
-                error={newPassword != confirmPassword}
+                error={error.confirm.length > 1}
               />
-              <HelperText type="error" visible={newPassword != confirmPassword}>
-                Passwords do not match.
+              <HelperText type="error" visible={error.confirm.length > 1}>
+                {error.confirm}
               </HelperText>
             </View>
 

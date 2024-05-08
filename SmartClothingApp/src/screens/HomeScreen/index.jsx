@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet, Modal, Button, Text, Linking } from "react-native";
-import { useSelector } from "react-redux";
+import { View, StyleSheet, Modal, Button, Text, Linking } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
 //import { Button, Modal, Text } from "react-native-paper";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
+import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
+import { initialHealthDataSync } from "../../actions/appActions.js";
+import RefreshView from "../../components/RefreshView/index.jsx";
+import { sendHeartRateData } from "../../actions/userActions.js";
 
 import {
   ActivityCard,
@@ -13,8 +17,6 @@ import {
   VentilationChart,
   DataCollectModal,
 } from "../../components";
-
-import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 import {
   aggregateRecord,
@@ -31,84 +33,131 @@ import {
   readRecord,
 } from "react-native-health-connect";
 
-const getLastWeekDate = (): Date => {
-  return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
-};
 
-const getLastTwoWeeksDate = (): Date => {
-  return new Date(new Date().getTime() - 2 * 7 * 24 * 60 * 60 * 1000);
-};
 
-const getTodayDate = (): Date => {
-  return new Date();
-};
+
+import { 
+  initializeHealthConnect,
+  checkAvailability,
+  requestJSPermissions,
+  grantedPermissions,
+  insertSampleData,
+  readSampleDataSingle,
+  aggregateSampleData,
+} from "../../services/HealthConnectServices/HealthConnectServices.js";
+
+import { getHeartRateData } from "../../utils/HealthConnectUtils.js";
+import { readSampleData } from "../../services/HealthConnectServices/HealthConnectServices.js";
+
+import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
   // start area that needs to be moved to a separate file
   // test functions start
+  // test functions end
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [sdkStatus, setSdkStatus] = useState(null);
+  const [isHealthConnectInitialized, setIsHealthConnectInitialized] = useState(false);
+
+  const getLastYearDate = () => {
+    const today = new Date();
+    return new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+  };
+
+  const getLastWeekDate = () => {
+  return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+  };
+
+  const getLastTwoWeeksDate = () => {
+  return new Date(new Date().getTime() - 2 * 7 * 24 * 60 * 60 * 1000);
+  };
+
+  const getTodayDate = () => {
+  return new Date();
+  };
+  //
+
   const initializeHealthConnect = async () => {
-    const result = await initialize();
-    console.log({ result });
-    setIsHealthConnectInitialized(result);
-    return result;
+  const result = await initialize();
+  console.log({ result });
+  setIsHealthConnectInitialized(result);
+  return result;
   };
 
   const checkAvailability = async () => {
+  const status = await getSdkStatus();
+  setSdkStatus(status);
+  console.log({ status });
+  if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
+    console.log("SDK is available");
 
-    const status = await getSdkStatus();
-    setSdkStatus(status);
-    console.log({ status });
-    if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
-      console.log("SDK is available");
-
-      const isInitialized = await setIsHealthConnectInitialized();
-      if (!isInitialized) {
-        await initializeHealthConnect();
-      }
-
-      console.log("Hit health connect initialized")
-        console.log("Hit initialized");
-        const permissions = grantedPermissions()
-        console.log("Hit granted permissions");
-        if (!permissions || permissions.length === 0) {
-          requestJSPermissions()
-          console.log("recieved permissions")
-        }
-      }
-
-    if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
-      console.log("SDK is not available");
-      setModalVisible(true);
+    const isInitialized = await setIsHealthConnectInitialized();
+    if (!isInitialized) {
+      await initializeHealthConnect();
     }
 
-    if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
-      console.log("SDK is not available, provider update required");
-      setModalVisible(true);
+    console.log("Hit health connect initialized");
+    console.log("Hit initialized");
+    const permissions = grantedPermissions();
+    console.log("Hit granted permissions");
+    if (!permissions || permissions.length === 0) {
+      requestJSPermissions();
+      console.log("recieved permissions");
     }
+  }
+
+  if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
+    console.log("SDK is not available");
+    setModalVisible(true);
+  }
+
+  if (
+    status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+  ) {
+    console.log("SDK is not available, provider update required");
+    setModalVisible(true);
+  }
   };
 
   const requestJSPermissions = () => {
-    requestPermission([
-      {
-        // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
-        // need to add heart rate & sleep data
-        accessType: "read",
-        recordType: "Steps",
-      },
-      {
-        accessType: "write",
-        recordType: "Steps",
-      },
-    ]).then((permissions) => {
-      console.log("Granted permissions on request ", { permissions });
-    });
+  requestPermission([
+    {
+      // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
+      // need to add heart rate & sleep data
+      accessType: "read",
+      recordType: "Steps",
+    },
+    {
+      accessType: "read",
+      recordType: "HeartRate",
+    },
+    {
+      accessType: "write",
+      recordType: "Steps",
+    },
+    {
+      accessType: "write",
+      recordType: "HeartRate",
+    },
+    {
+      accessType: "read",
+      recordType: "SleepSession",
+    },
+    {
+      accessType: "write",
+      recordType: "SleepSession",
+    },
+  ]).then((permissions) => {
+    console.log("Granted permissions on request ", { permissions });
+  });
   };
 
   const grantedPermissions = () => {
-    getGrantedPermissions().then((permissions) => {
-      console.log("Granted permissions ", { permissions });
-      return permissions;
-    });
+  getGrantedPermissions().then((permissions) => {
+    console.log("Granted permissions ", { permissions });
+    return permissions;
+  });
   };
 
   // end area that needs to be moved to a separate file
@@ -128,43 +177,56 @@ export default function HomeScreen({ navigation }) {
     });
   };
 
-  const readSampleData = () => {
-    readRecords("Steps", {
-      timeRangeFilter: {
-        operator: "between",
-        startTime: getLastTwoWeeksDate().toISOString(),
-        endTime: getTodayDate().toISOString(),
-      },
-    }).then((result) => {
-      console.log("Retrieved records: ", JSON.stringify({ result }, null, 2));
-    });
-  };
+  // const readSampleData = async (dataType, startDate, endDate) => {
+  //   try {
+  //     const data = await readRecords(dataType, {
+  //       timeRangeFilter: {
+  //         operator: "between",
+  //         startTime: startDate.toISOString(),
+  //         endTime: endDate.toISOString(),
+  //       },
+  //     });
+      
+  //     // const sleepData = await readRecords("SleepSession", {
+  //     //   timeRangeFilter: {
+  //     //     operator: "between",
+  //     //     startTime: getLastYearDate().toISOString(),
+  //     //     endTime: getTodayDate().toISOString(),
+  //     //   },
+  //     // });
+
+  //     // Iterate over the result array
+  //     // for (const record of heartRates) {
+  //     //   await sendHeartRateData(record.samples);
+  //     // }
+
+  //     return data;
+
+  //   } catch (error) {
+  //     // Handle any errors
+  //     console.error("Error reading sample data:", error);
+  //   }
+  // };
 
   const readSampleDataSingle = () => {
-    readRecord("Steps", "a7bdea65-86ce-4eb2-a9ef-a87e6a7d9df2").then(
-      (result) => {
-        console.log("Retrieved record: ", JSON.stringify({ result }, null, 2));
-      }
-    );
+  readRecord("Steps", "a7bdea65-86ce-4eb2-a9ef-a87e6a7d9df2").then((result) => {
+    console.log("Retrieved record: ", JSON.stringify({ result }, null, 2));
+  });
   };
 
   const aggregateSampleData = () => {
-    aggregateRecord({
-      recordType: "Steps",
-      timeRangeFilter: {
-        operator: "between",
-        startTime: getLastWeekDate().toISOString(),
-        endTime: getTodayDate().toISOString(),
-      },
-    }).then((result) => {
-      console.log("Aggregated record: ", { result });
-    });
+  aggregateRecord({
+    recordType: "Steps",
+    timeRangeFilter: {
+      operator: "between",
+      startTime: getLastWeekDate().toISOString(),
+      endTime: getTodayDate().toISOString(),
+    },
+  }).then((result) => {
+    console.log("Aggregated record: ", { result });
+  });
   };
-  // test functions end
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [sdkStatus, setSdkStatus] = useState(null);
-  const [isHealthConnectInitialized, setIsHealthConnectInitialized] = useState(false);
 
   useEffect(() => {
     checkAvailability();
@@ -190,14 +252,58 @@ export default function HomeScreen({ navigation }) {
   };
 
   const route = useRoute();
+  const dispatch = useDispatch();
+  const defaultData = [
+    70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
+    71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
+    93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
+    87, 87, 86,
+  ];
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
+
+  useEffect(() => {
+    if (onAccountCreation) {
+      async function fetchData() {
+        try {
+          console.log("Fetching data...");
+          setIsLoading(true);
+          heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
+          await sendHeartRateData(heartRateData);
+          console.log("Data fetched successfully!");
+          // Add your data fetching logic here
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setIsLoading(false);
+          dispatch(initialHealthDataSync(false));
+        }
+      }
+
+      fetchData();
+    }
+  }, [onAccountCreation]); // Run effect only when onAccountCreation changes
+
+  // if (isLoading) {
+  //   return < LoadingOverlay />;
+  // }
+
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
     });
   };
+
   const firstName = useSelector((state) => state.user.firstName);
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
+
   return (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
@@ -278,7 +384,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Heartbeat Rate
         </Text>
-        <HeartRateChart />
+        {/* <HeartRateChart data={defaultData}/> */}
       </View>
       <View style={styles.centeredView}>
         <Modal
@@ -308,7 +414,7 @@ export default function HomeScreen({ navigation }) {
           </View>
         </Modal>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 }
 const styles = StyleSheet.create({

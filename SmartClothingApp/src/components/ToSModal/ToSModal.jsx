@@ -182,20 +182,21 @@ const ToSModal = (props) => {
 
             <Text style={styles.modalText}>Acceptance of Terms</Text>
 
-            <View style={styles.checkbox}>
-              <Checkbox
-                status={props.isTermsAccepted ? "checked" : "unchecked"}
-                onPress={() => {
-                  props.setIsTermsAccepted(!props.isTermsAccepted);
-                }}
-              />
-
-              <Text style={styles.modalText}>{"I Agree"}</Text>
-            </View>
+            {typeof props.isTermsAccepted !== 'undefined' && (
+              <View style={styles.checkbox}>
+                <Checkbox
+                  status={props.isTermsAccepted ? "checked" : "unchecked"}
+                  onPress={() => {
+                    props.setIsTermsAccepted(!props.isTermsAccepted);
+                  }}
+                />
+                <Text style={styles.modalText}>{"I Agree"}</Text>
+              </View>
+            )}
 
             <TouchableOpacity
               style={styles.closeModalButton}
-              onPress={props.toggleModalVisibility}
+              onPress={props.toggleModalVisibility || props.closeModal}
             >
               <Icon name="times-circle" size={30} color="black" />
             </TouchableOpacity>

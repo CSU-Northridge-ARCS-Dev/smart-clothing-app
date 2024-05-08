@@ -16,20 +16,30 @@ import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import RefreshView from "../../components/RefreshView";
 
 const ViewInsights = ({ route }) => {
   const { previousScreenTitle } = route.params;
   const dispatch = useDispatch();
   const activityRingsData = useSelector((state) => state.app.activityRingsData);
   const [currentRingData, setCurrentRingData] = useState({
-    ring1: 0,
-    ring2: 0,
-    ring3: 0,
+    ring1: {
+      currentValue: 0,
+      goalValue: 800, // Initial cap.
+    },
+    ring2: {
+      currentValue: 0,
+      goalValue: 90, // Initial cap.
+    },
+    ring3: {
+      currentValue: 0,
+      goalValue: 16, // Initial cap.
+    },
   });
 
-  const maxCal = 800;
-  const maxMin = 30;
-  const maxHrs = 12;
+  // const maxCal = 800;
+  // const maxMin = 30;
+  // const maxHrs = 12;
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -42,9 +52,7 @@ const ViewInsights = ({ route }) => {
     }
   };
 
-  // console.log(activityRingsData);
-
-  const handleRingPress = (day) => {
+  const setFocusedRingData = (day) => {
     const currentRingData = {
       ring1: activityRingsData[day].ring1,
       ring2: activityRingsData[day].ring2,
@@ -54,23 +62,28 @@ const ViewInsights = ({ route }) => {
     setCurrentRingData(currentRingData);
   };
 
+  const handleRingPress = (day) => {
+    setFocusedRingData(day);
+  };
+
   const handleUpdate = async () => {
     await dispatch(updateActivityRings());
   };
 
   const formattedDate = currentDate.toLocaleDateString("en-US", {
     weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
   });
+
+  // useEffect(() => {
+  //   setFocusedRingData(formattedDate);
+  // }, [activityRingsData[formattedDate]]);
 
   useEffect(() => {
     setCurrentDate(currentDate);
   }, [currentDate]);
 
   return (
-    <ScrollView style={[{ flex: 1 }]}>
+    <RefreshView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
         <DateToolbar />
@@ -91,22 +104,22 @@ const ViewInsights = ({ route }) => {
         color={AppColor.ringMove}
         name="Move"
         type="CAL"
-        goal={maxCal}
-        progress={314}
+        goal={currentRingData.ring1.goalValue} // Already rounded by Apple.
+        progress={currentRingData.ring1.currentValue}
       ></ActivityChart>
       <ActivityChart
         color={AppColor.ringExercise}
         name="Exercise"
         type="MIN"
-        goal={maxMin}
-        progress={15}
+        goal={currentRingData.ring2.goalValue} // Already rounded by Apple.
+        progress={currentRingData.ring2.currentValue}
       ></ActivityChart>
       <ActivityChart
         color={AppColor.ringStand}
         name="Stand"
         type="HRS"
-        goal={maxHrs}
-        progress={3}
+        goal={currentRingData.ring3.goalValue}
+        progress={currentRingData.ring3.currentValue}
       ></ActivityChart>
       {showDatePicker && (
         <DateTimePicker
@@ -123,7 +136,7 @@ const ViewInsights = ({ route }) => {
           // updateDataAtIndex(7, 5);
         }}
       />
-    </ScrollView>
+    </RefreshView>
   );
 };
 

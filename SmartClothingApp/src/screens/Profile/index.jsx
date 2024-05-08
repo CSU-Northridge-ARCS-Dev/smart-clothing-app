@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { HelperText, TextInput, Button, Text } from "react-native-paper";
 import { AppHeader, DataCollectModal } from "../../components";
 import { AppFonts, AppStyle, AppColor } from "../../constants/themes.js";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useDispatch, useSelector } from "react-redux";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import { auth, database } from "../../../firebaseConfig";
 import {
@@ -81,7 +82,7 @@ const ProfileScreen = ({ navigation, route }) => {
   }, [dob]);
 
   return (
-    <ScrollView>
+    <RefreshView>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
       <PersonalModal
         visible={isPersonalModalVisible}
@@ -207,7 +208,7 @@ const ProfileScreen = ({ navigation, route }) => {
           <Text style={{ fontSize: 18 }}>{sports}</Text>
         </View>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 

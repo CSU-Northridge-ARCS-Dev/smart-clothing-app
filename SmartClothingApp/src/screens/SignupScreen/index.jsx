@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -12,12 +12,14 @@ import {
 import { AppColor, AppStyle } from "../../constants/themes";
 import { HeroSection } from "../../components";
 import ToSModal from "../../components/ToSModal/ToSModal";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
 import { startSignupWithEmail } from "../../actions/userActions.js";
+import { initialHealthDataSync } from "../../actions/appActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -42,6 +44,7 @@ const SignupScreen = ({ navigation }) => {
     email: "",
     password: "",
     repassword: "",
+    accepted: "",
   });
 
   const handleClear = () => {
@@ -72,25 +75,7 @@ const SignupScreen = ({ navigation }) => {
   };
 
   const handleSignUpWithEmail = () => {
-    let errorMessage = "";
-
-    if (!isTermsAccepted) {
-      errorMessage +=
-        "You must agree to the user agreement to create an account.\n";
-    }
-
     if (!isValid()) {
-      errorMessage +=
-        "\nPlease correct the following errors:\n" +
-        (error.fname ? `${error.fname}\n` : "") +
-        (error.lname ? `${error.lname}\n` : "") +
-        (error.email ? `${error.email}\n` : "") +
-        (error.password ? `${error.password}\n` : "") +
-        (error.repassword ? `${error.repassword}` : "");
-    }
-
-    if (errorMessage) {
-      Alert.alert("Sign-up Error", errorMessage);
       return;
     }
 
@@ -100,6 +85,8 @@ const SignupScreen = ({ navigation }) => {
     dispatch(
       startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
+
+    dispatch(initialHealthDataSync(true));
   };
 
   const toggleLockStatusPassword = () => {
@@ -147,6 +134,11 @@ const SignupScreen = ({ navigation }) => {
       errors.repassword = "Passwords did not match.";
       flag = false;
     }
+    if (!isTermsAccepted) {
+      errors.accepted = "You have to agree to the terms of services.";
+      flag = false;
+    }
+
     setError({ ...errors });
     return flag;
   };
@@ -162,7 +154,7 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView>
+    <RefreshView>
       <HeroSection />
       <View style={styles.content}>
         <ToSModal
@@ -194,10 +186,10 @@ const SignupScreen = ({ navigation }) => {
               setUser({ ...user, fname: text });
               handleClearErrors();
             }}
-            error={error.fname.length > 1}
+            error={error.fname.length > 0}
           />
-          <HelperText type="error" visible={error.fname.length > 1}>
-            Please enter first name.
+          <HelperText type="error" visible={error.fname.length > 0}>
+            {error.fname}
           </HelperText>
         </View>
         <View>
@@ -209,10 +201,10 @@ const SignupScreen = ({ navigation }) => {
               setUser({ ...user, lname: text });
               handleClearErrors();
             }}
-            error={error.lname.length > 1}
+            error={error.lname.length > 0}
           />
-          <HelperText type="error" visible={error.lname.length > 1}>
-            Please enter last name.
+          <HelperText type="error" visible={error.lname.length > 0}>
+            {error.lname}
           </HelperText>
         </View>
         <View>
@@ -224,10 +216,10 @@ const SignupScreen = ({ navigation }) => {
               setUser({ ...user, email: text });
               handleClearErrors();
             }}
-            error={error.email.length > 1}
+            error={error.email.length > 0}
           />
-          <HelperText type="error" visible={error.email.length > 1}>
-            Please enter a valid email.
+          <HelperText type="error" visible={error.email.length > 0}>
+            {error.email}
           </HelperText>
         </View>
         <View style={styles.inputContainer}>
@@ -241,7 +233,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={
-              error.password.length > 1 || user.password != user.repassword
+              error.password.length > 0 || user.password != user.repassword
             }
             style={styles.textInput}
           />
@@ -252,7 +244,7 @@ const SignupScreen = ({ navigation }) => {
             style={styles.icon}
             onPress={toggleLockStatusPassword}
           />
-          <HelperText type="error" visible={error.password.length > 1}>
+          <HelperText type="error" visible={error.password.length > 0}>
             {error.password}
           </HelperText>
         </View>
@@ -277,7 +269,7 @@ const SignupScreen = ({ navigation }) => {
             onPress={toggleLockStatusRepassword}
           />
           <HelperText type="error" visible={user.password != user.repassword}>
-            Passwords do not match.
+            {error.repassword}
           </HelperText>
         </View>
 
@@ -288,7 +280,9 @@ const SignupScreen = ({ navigation }) => {
               handleAgreement();
             }}
           />
-          <Text>User Agreement</Text>
+          <Text style={error.accepted?.length > 0 ? styles.errorText : null}>
+            {error.accepted?.length > 0 ? error.accepted : "User Agreement"}
+          </Text>
         </View>
 
         <View>
@@ -322,7 +316,7 @@ const SignupScreen = ({ navigation }) => {
           </Button>
         </View>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 
@@ -349,6 +343,9 @@ const styles = StyleSheet.create({
   btnContainer: {
     marginVertical: 10,
     flexDirection: "row",
+  },
+  errorText: {
+    color: "red",
   },
 });
 

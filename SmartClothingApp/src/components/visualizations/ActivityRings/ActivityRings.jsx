@@ -45,20 +45,21 @@ const ActivityRings = ({
     size: SIZE,
   };
 
-  const ringProps = [
-    {
-      totalProgress: totalProgress.ring1,
+ const ringProps = [
+    {  // Big move ring.
+      totalProgress: totalProgress.ring1.currentValue / totalProgress.ring1.goalValue,
       ...commonRing1,
     },
-    {
-      totalProgress: totalProgress.ring2,
+    {  // Medium exercise ring.
+      totalProgress: totalProgress.ring2.currentValue / totalProgress.ring2.goalValue,
       ...commonRing2,
     },
-    {
-      totalProgress: totalProgress.ring3,
+    {  // Small stand ring.
+      totalProgress: totalProgress.ring3.currentValue / totalProgress.ring3.goalValue,
       ...commonRing3,
     },
   ];
+  
   return (
     <Canvas style={[{ flex: 1, width: canvasWidth, height: canvasHeight }]}>
       {ringProps.map((ring, index) => {
