@@ -12,6 +12,54 @@ import {
     openHealthConnectDataManagement,
     readRecord,
   } from "react-native-health-connect";
+import { Platform } from "react-native";
+
+  const HealthModule = {
+    isInitialized: async () => {
+      if (Platform.OS === "ios") {
+        // iOS
+      } else {
+
+      }
+    },
+
+    isAvailable: async () => {
+      if (Platform.OS === "ios") {
+        // iOS
+      } else {
+          const status = await getSdkStatus();
+          setSdkStatus(status);
+          console.log({ status });
+          if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
+            console.log("SDK is available");
+      
+            const isInitialized = await setIsHealthConnectInitialized();
+            if (!isInitialized) {
+              await initializeHealthConnect();
+            }
+      
+            console.log("Hit health connect initialized")
+              console.log("Hit initialized");
+              const permissions = grantedPermissions()
+              console.log("Hit granted permissions");
+              if (!permissions || permissions.length === 0) {
+                requestJSPermissions()
+                console.log("recieved permissions")
+              }
+            }
+      
+          if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
+            console.log("SDK is not available");
+            setModalVisible(true);
+          }
+      
+          if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+            console.log("SDK is not available, provider update required");
+            setModalVisible(true);
+          }
+        };
+      }
+  }
 
   export default function HealthModule() {
 
