@@ -65,7 +65,7 @@ async function getLatestDateFromCollection(collectionName) {
         ? fetchedData[0].time
         : fetchedData[0].endDate;
     console.log(`latestDate: ${latestDate}`);
-    return latestDate;
+    return new Date(latestDate);
   } catch (error) {
     console.error("Error fetching latest document date: ", error);
     return new Date().toISOString();
@@ -75,15 +75,17 @@ async function getLatestDateFromCollection(collectionName) {
 export async function updateWithLatestData() {
   console.log("Performing fetching of latest data...");
 
-  const today = new Date().toISOString();
-  console.log("today", today);
+  const nextDate = new Date();
 
   try {
     // Update heart rate data.
     console.log("Updating heart rate data...");
     const hrStartDate = await getLatestDateFromCollection("HeartRateDataHC");
+    hrStartDate.setMinutes(hrStartDate.getMinutes() + 1);
+
     console.log("hrStartDate: ", hrStartDate);
-    const heartRateData = await getHeartRateData(hrStartDate, today);
+    console.log("nextDate", nextDate);
+    const heartRateData = await getHeartRateData(hrStartDate, nextDate);
     console.log("Fetching of heart rate data complete");
     await sendHeartRateData(heartRateData);
     console.log("Uploading of heart rate data complete!");

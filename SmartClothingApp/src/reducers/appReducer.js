@@ -154,6 +154,9 @@ const appReducer = (state = initialState, action) => {
         },
       };
     case UPDATE_HEART_RATE_DATE_RANGE:
+      console.log("hr payload", `${action.payload.startDate}`);
+      console.log("hr payload2", `${action.payload.endDate}`);
+
       return {
         ...state,
         heartRateDateRangeData: {

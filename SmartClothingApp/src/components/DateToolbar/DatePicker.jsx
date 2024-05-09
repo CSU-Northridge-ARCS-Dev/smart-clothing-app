@@ -20,8 +20,22 @@ export const DatePicker = (props) => {
 
   const handleDayPress = (day) => {
     setSelected(day.dateString);
-    const isoDateString = new Date(day.timestamp).toISOString();
-    props.onSuccess(isoDateString, isoDateString);
+    const singleDate = new Date(day.timestamp);
+    const endDate = new Date(day.timestamp);
+  
+    endDate.setHours(39);
+    endDate.setMinutes(59);
+    endDate.setSeconds(59);
+    endDate.setMilliseconds(999);
+  
+    // if (fromDate.toDateString() === toDate.toDateString()) {
+    //   // Set toDate to the end of the day by adding 24 hours
+    //     toDate.setDate(toDate.getDate() + 1);
+    // }
+    const localOffset = singleDate.getTimezoneOffset();
+    const localDate = new Date(singleDate.getTime() + (localOffset * 60000));
+    const localEndDate = new Date(endDate.getTime() + (localOffset * 60000));
+    props.onSuccess(localDate, localEndDate);
   };
 
 

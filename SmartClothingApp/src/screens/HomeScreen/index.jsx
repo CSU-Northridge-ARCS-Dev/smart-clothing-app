@@ -7,7 +7,7 @@ import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
 import { initialHealthDataSync } from "../../actions/appActions.js";
 import RefreshView from "../../components/RefreshView/index.jsx";
-import { sendHeartRateData } from "../../actions/userActions.js";
+import { sendHeartRateData, sendSleepData } from "../../actions/userActions.js";
 
 import {
   ActivityCard,
@@ -46,7 +46,7 @@ import {
   aggregateSampleData,
 } from "../../services/HealthConnectServices/HealthConnectServices.js";
 
-import { getHeartRateData } from "../../utils/HealthConnectUtils.js";
+import { getHeartRateData, getSleepData } from "../../utils/HealthConnectUtils.js";
 import { readSampleData } from "../../services/HealthConnectServices/HealthConnectServices.js";
 
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
@@ -271,7 +271,9 @@ export default function HomeScreen({ navigation }) {
           console.log("Fetching data...");
           setIsLoading(true);
           heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
+          sleepData = await getSleepData(getLastYearDate(), getTodayDate());
           await sendHeartRateData(heartRateData);
+          await sendSleepData(sleepData);
           console.log("Data fetched successfully!");
           // Add your data fetching logic here
         } catch (error) {

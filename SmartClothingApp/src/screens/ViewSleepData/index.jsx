@@ -64,8 +64,32 @@ const ViewSleepData = ({ route }) => {
     fetchSleepData();
   }, [dates.startDate, dates.endDate]);
 
+  const createTimeLabel = (sleepData, value) => {
+
+      const earliestStartTime = new Date(Math.min(...sleepData.map(item => new Date(item.startTime))));
+      const latestEndTime = new Date(Math.max(...sleepData.map(item => new Date(item.endTime))));
+      const totalDurationHours = (latestEndTime.getTime() - earliestStartTime.getTime()) / (1000 * 60 * 60);
+
+      const baseTime = new Date(earliestStartTime); // Clone the earliest start time
+
+      baseTime.setMinutes(baseTime.getMinutes() + value * (totalDurationHours * 60) / 200); // Calculate the time for the current value
+      const hours = baseTime.getHours();
+      const minutes = baseTime.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+
+      // Convert hours to 12-hour format
+      const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+      const formattedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+
+      return `${formattedHours}:${formattedMinutes}${ampm}`;
+  }
+
   const parseSleepData = (sleepData) => {
     durations = [];
+
+    const earliestStartTime = new Date(Math.min(...sleepData.map(item => new Date(item.startTime))));
+    const latestEndTime = new Date(Math.max(...sleepData.map(item => new Date(item.endTime))));
+    const totalDurationHours = (latestEndTime.getTime() - earliestStartTime.getTime()) / (1000 * 60 * 60);
 
     const parsedData = sleepData.reduce((parsedData, item, index) => {
       // console.log("startDate", startDate, startDate.getTime());
@@ -75,31 +99,31 @@ const ViewSleepData = ({ route }) => {
       const cumulativeDuration = sleepData
         .slice(0, index)
         .reduce((sum, stage) => {
-          const start = new Date(stage.startDate);
-          const end = new Date(stage.endDate);
+          const start = new Date(stage.startTime);
+          const end = new Date(stage.endTime);
           return sum + (end.getTime() - start.getTime()) / (1000 * 60 * 60); // Duration in hours
         }, 0);
 
       durations.push(cumulativeDuration);
 
-      const x = (durations[index] / 24) * 200; // Assuming the x range is 0-200
+      const x = (durations[index] / totalDurationHours) * 200; // Assuming the x range is 0-200
       // Deep 0-46
       // Core 46-100
       // REM 100-160
       // Awake 160-180
       let y;
-      console.log("phase:", item.sleepValue);
-      switch (item.sleepValue) {
-        case "Deep":
+      // console.log("phase:", item.stage);
+      switch (item.stage) {
+        case 5:
           y = 0; // Deep sleep: 0-46
           break;
-        case "Core":
+        case 4:
           y = 60; // Core 40-100
           break;
-        case "Rem":
+        case 6:
           y = 130; //Rem 100-160
           break;
-        case "Awake":
+        case 1:
           y = 180; //Awake 160-200
           break;
         default:
@@ -124,11 +148,12 @@ const ViewSleepData = ({ route }) => {
     // console.log("UNPARSED!!!", sleepDataUnparsed)
     const dates = sleepDataUnparsed.filter((item) => {
       // console.log(`phaseType: ${item.sleepValue}, item.sleepValue: ${phaseType}`)
-      return item.sleepValue === phaseType;
+      return item.stage === phaseType;
     });
     // for (let obj of dates) {
     //   console.log(JSON.stringify(obj))
     // }
+
     return calculateTotalDuration(dates);
   };
 
@@ -148,13 +173,13 @@ const ViewSleepData = ({ route }) => {
           <Text style={styles.dataSubText}>
             <Text>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("In Bed").totalHours}`
+                ? `${getPhaseDuration(2).totalHours}`
                 : "0"}
             </Text>
             <Text style={styles.smallUnits}>hrs </Text>
             <Text>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("In Bed").totalMinutes}`
+                ? `${getPhaseDuration(2).totalMinutes}`
                 : "0"}
             </Text>
             <Text style={styles.smallUnits}>mins</Text>
@@ -165,13 +190,13 @@ const ViewSleepData = ({ route }) => {
           <Text style={styles.dataSubText}>
             <Text>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("Unknown").totalHours}`
+                ? `${getPhaseDuration(3).totalHours}`
                 : "0"}
             </Text>
             <Text style={styles.smallUnits}>hrs </Text>
             <Text>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("Unknown").totalMinutes}`
+                ? `${getPhaseDuration(3).totalMinutes}`
                 : "0"}
             </Text>
             <Text style={styles.smallUnits}>mins</Text>
@@ -218,13 +243,15 @@ const ViewSleepData = ({ route }) => {
             },
             formatXLabel(value) {
               if (value === 200) {
-                return "12AM";
+                return `${createTimeLabel(sleepDataUnparsed, value)}`;
               } else if (value === 150) {
-                return "6PM";
+                return `${createTimeLabel(sleepDataUnparsed, value)}`;
               } else if (value === 100) {
-                return "12PM";
+                return `${createTimeLabel(sleepDataUnparsed, value)}`;
               } else if (value === 50) {
-                return "6AM";
+                return `${createTimeLabel(sleepDataUnparsed, value)}`;
+              } else if (value === 0) {
+                return `${createTimeLabel(sleepDataUnparsed, value)}`;
               } else {
                 return "";
               }
@@ -276,8 +303,8 @@ const ViewSleepData = ({ route }) => {
             </View>
             <Text style={styles.infoText}>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("Awake").totalHours} hr ${
-                    getPhaseDuration("Awake").totalMinutes
+                ? `${getPhaseDuration(1).totalHours} hr ${
+                    getPhaseDuration(1).totalMinutes
                   } min`
                 : "0 hr 0 min"}
             </Text>
@@ -294,8 +321,8 @@ const ViewSleepData = ({ route }) => {
             </View>
             <Text style={styles.infoText}>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("Rem").totalHours} hr ${
-                    getPhaseDuration("Rem").totalMinutes
+                ? `${getPhaseDuration(6).totalHours} hr ${
+                    getPhaseDuration(6).totalMinutes
                   } min`
                 : "0 hr 0 min"}
             </Text>
@@ -312,8 +339,8 @@ const ViewSleepData = ({ route }) => {
             </View>
             <Text style={styles.infoText}>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("Core").totalHours} hr ${
-                    getPhaseDuration("Core").totalMinutes
+                ? `${getPhaseDuration(4).totalHours} hr ${
+                    getPhaseDuration(4).totalMinutes
                   } min`
                 : "0 hr 0 min"}
             </Text>
@@ -330,8 +357,8 @@ const ViewSleepData = ({ route }) => {
             </View>
             <Text style={styles.infoText}>
               {sleepDataUnparsed.length > 0
-                ? `${getPhaseDuration("Deep").totalHours} hr ${
-                    getPhaseDuration("Deep").totalMinutes
+                ? `${getPhaseDuration(5).totalHours} hr ${
+                    getPhaseDuration(5).totalMinutes
                   } min`
                 : "0 hr 0 min"}
             </Text>

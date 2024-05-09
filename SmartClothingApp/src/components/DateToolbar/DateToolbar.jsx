@@ -33,7 +33,10 @@ const DateToolbar = (props) => {
 
   const heartRateDates = useSelector((state) => state.app.heartRateDateRangeData);
   const sleepDataDates = useSelector((state) => state.app.sleepDataDateRangeData);
-  let dates;
+  let dates = {
+    startDate: new Date(),
+    endDate: new Date(),
+  };
   switch (props.dataType) {
     case 'Heart Rate':
       dates = heartRateDates;
@@ -42,10 +45,12 @@ const DateToolbar = (props) => {
       dates = sleepDataDates;
       break;
     default:
-      dates = {
-        startDate: new Date(),
-        endDate: new Date(),
-      };
+      if (props.dataType != undefined) {
+        dates = {
+          startDate: new Date(),
+          endDate: new Date(),
+        };
+      }
       break;
   }
 
@@ -54,21 +59,17 @@ const DateToolbar = (props) => {
 
   const handleDateRangeSuccess = (startDate, endDate) => {
     // Handle the selected date range here
-
-    const startDateObject = new Date(startDate);
-    const endDateObject = new Date(endDate);
+    console.log("mystery start date", startDate);
 
     // console.log(startDateObject);
     // startDateObject.setHours(0, 0, 0, 0);
 
-    endDateObject.setHours(39);
-    endDateObject.setMinutes(59);
-    endDateObject.setSeconds(59);
-    endDateObject.setMilliseconds(999);
 
-    const startDateString = startDateObject.toISOString();
-    console.log(startDateString);
-    const endDateString = endDateObject.toISOString();
+    const startDateString = startDate.toISOString();
+    console.log("startDateString", startDateString);
+    const endDateString = endDate.toISOString();
+    console.log("endDateString", endDateString);
+
 
     // console.log("start", startDate);
     // console.log("end", endDate);
@@ -86,6 +87,7 @@ const DateToolbar = (props) => {
   const handleUpdate = async (startDate, endDate) => {
     switch (props.dataType) {
       case "Heart Rate":
+        console.log("laliho!");
         await dispatch(updateHeartRateDateRange(startDate, endDate));
         break;
       case "Sleep Data":
@@ -101,11 +103,17 @@ const DateToolbar = (props) => {
     const startDate = new Date(dates.startDate);
     const endDate = new Date(dates.endDate);
 
-    const formattedStartDate = startDate.toLocaleDateString('en-US', { timeZone: 'UTC' });
+    const formattedStartDate = startDate.toLocaleDateString('en-US');
+    console.log(props.dateType);
+    if(props.dateType === 'single') {
+      console.log("start", formattedStartDate);
+    }
 
-    // Format date range
-    const formattedEndDate = endDate.toLocaleDateString('en-US', { timeZone: 'UTC' });
     
+    // Format date range
+    const formattedEndDate = endDate.toLocaleDateString('en-US');
+    console.log("end1", endDate);
+
     return props.dateType === 'period' ? `${formattedStartDate} - ${formattedEndDate}` : `${formattedStartDate}`;
 };
 

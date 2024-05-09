@@ -33,14 +33,15 @@ export function convertToReadableFormat(isoString) {
 
 // Calculate total hours and minutes given two ISO 8601 datetimes.
 export function calculateTotalDuration(dates) {
+  // console.log(dates);
   // Initialize total duration in milliseconds
   let totalDurationMs = 0;
 
   // Loop through each date range object
-  dates.forEach(({ endDate, startDate }) => {
+  dates.forEach(({ endTime, startTime }) => {
     // Parse dates and calculate difference
-    const end = new Date(endDate);
-    const start = new Date(startDate);
+    const end = new Date(endTime);
+    const start = new Date(startTime);
     const durationMs = end - start;
 
     // Accumulate total duration
