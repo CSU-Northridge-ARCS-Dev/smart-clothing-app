@@ -7,11 +7,11 @@ import { act } from 'react-test-renderer';
 import { getByText, getByProps, waitFor } from '@testing-library/react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack'; 
-import configureStore from '../../src/store.js';
+import configureStore from '../../../src/store.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
-import HomeScreen from '../../src/screens/HomeScreen/index.jsx'
-import SettingsScreen from '../../src/screens/Settings/index.jsx'
+import HomeScreen from '../../../src/screens/HomeScreen/index.jsx'
+import SettingsScreen from '../../../src/screens/Settings/index.jsx'
 
 
 
@@ -74,9 +74,9 @@ jest.mock('firebase/firestore', () => ({
     }),
   }))
 
-  jest.mock('react-native-vector-icons/MaterialIcons', () => require('../__mocks__/react-native-vector-icons').MaterialIcons);
-  jest.mock('react-native-vector-icons/FontAwesome5', () => require('../__mocks__/react-native-vector-icons').FontAwesome5);
-  jest.mock('@shopify/react-native-skia', () => require('../__mocks__/@shopify__react-native-skia'));
+  jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../__mocks__/react-native-vector-icons.js').MaterialIcons);
+  jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../__mocks__/react-native-vector-icons.js').FontAwesome5);
+  jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
   jest.mock('../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
     return jest.fn(({ ring, center, strokeWidth, scale }) => (
       <div>
