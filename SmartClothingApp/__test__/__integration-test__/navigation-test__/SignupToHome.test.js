@@ -7,16 +7,16 @@ import { act } from 'react-test-renderer';
 import { getByText, getByProps, waitFor } from '@testing-library/react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack'; 
-import configureStore from '../../src/store.js';
-import rootReducer from '../../src/store.js'; 
-import AppRouter from '../../src/navigation/index.js';
+import configureStore from '../../../src/store.js';
+import rootReducer from '../../../src/store.js'; 
+import AppRouter from '../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
 
 
 
 // Mock Firebase Authentication
-jest.mock('../../firebaseConfig.js', () => ({
+jest.mock('../../../firebaseConfig.js', () => ({
     auth: {
       signupWithEmail: jest.fn(() => Promise.resolve()),
       startUpdateProfile: jest.fn(() => Promise.resolve()),
@@ -37,7 +37,7 @@ jest.mock('../../firebaseConfig.js', () => ({
     },
 }));
 
-jest.mock('../../src/utils/localStorage.js', () => ({
+jest.mock('../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
 }));
 
@@ -70,7 +70,7 @@ jest.mock('firebase/auth', () => ({
 //         isFromSignUpScreen: true,
 //     }),
 // }));
-jest.mock('../../src/actions/appActions.js', () => {
+jest.mock('../../../src/actions/appActions.js', () => {
     return {
       ...jest.requireActual('../../src/actions/appActions.js'), // if you want to keep the original implementations of other functions
       userMetricsDataModalVisible: jest.fn((visibility, isFromSignUpScreen = true) => {
@@ -105,10 +105,10 @@ jest.mock('firebase/firestore', () => ({
     }),
 }))
 
-jest.mock('react-native-vector-icons/MaterialIcons', () => require('../__mocks__/react-native-vector-icons').MaterialIcons);
-jest.mock('react-native-vector-icons/FontAwesome5', () => require('../__mocks__/react-native-vector-icons').FontAwesome5);
-jest.mock('@shopify/react-native-skia', () => require('../__mocks__/@shopify__react-native-skia'));
-jest.mock('../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../__mocks__/react-native-vector-icons.js').MaterialIcons);
+jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../__mocks__/react-native-vector-icons.js').FontAwesome5);
+jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
+jest.mock('../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
   return jest.fn(({ ring, center, strokeWidth, scale }) => (
     <div>
       Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
@@ -127,7 +127,7 @@ jest.mock('victory-native', () => {
     useChartPressState: MockUseChartPressState,
   };
 });
-jest.mock('../../src/actions/appActions', () => ({
+jest.mock('../../../src/actions/appActions', () => ({
   userMetricsDataModalVisible: jest.fn().mockReturnValue({
     type: 'USER_METRICS_DATA_MODAL_VISIBLE',
     payload: {

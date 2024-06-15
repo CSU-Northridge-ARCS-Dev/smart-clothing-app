@@ -1,13 +1,22 @@
+# Define the name of the workflow
 name: Test React Native App testing
 
+
+# Specify the events that trigger the workflow
 on:
+  # Trigger the workflow when a pull request is opened, synchronized, or reopened
   pull_request:
+  # Allow manually triggering the workflow from the GitHub Actions interface
   workflow_dispatch:
+  # Trigger the workflow when code is pushed to branches named "testing"
   push:
     branches: [testing]
 
+
+# Define the jobs to run as part of the workflow
 jobs:
   tests:
+    # Specify the type of runner that the job will run on. "ubuntu-latest" indicates the job will run on the latest version of Ubuntu
     runs-on: ubuntu-latest
 
     strategy:
