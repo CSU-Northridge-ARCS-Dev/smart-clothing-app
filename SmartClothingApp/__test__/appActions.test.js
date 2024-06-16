@@ -2,9 +2,12 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import {
     userMetricsDataModalVisible,
-    updateActivityRings,
+    updateActivityRingsData,
     updateHeartRateDateRangeData,
     updateSleepDataDateRangeData,
+    updateActivityRings,
+    updateHeartRateDateRange,
+    updateSleepDataDateRange
   } from '../src/actions/appActions.js'; 
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
@@ -55,6 +58,7 @@ jest.mock('firebase/auth', () => ({
 
 
 describe('User Metrics Actions', () => {
+  
   it('should create an action to toggle user metrics data modal visibility', () => {
     const expectedAction = {
       type: USER_METRICS_DATA_MODAL_VISIBLE,
@@ -64,6 +68,41 @@ describe('User Metrics Actions', () => {
       },
     };
     expect(userMetricsDataModalVisible(true, true)).toEqual(expectedAction);
+  });
+  
+  it('should create an action to toggle activity ring data', () => {
+    const day = "Monday"
+    const ringData = { ring1: '1.0', ring2: '1.0', ring3: '1.0' };
+    
+    const expectedAction = {
+      type: UPDATE_ACTIVITY_RINGS_DATA,
+      payload: {
+        day: day,
+        rings: ringData
+      }
+    }
+
+    expect(updateActivityRingsData(day, ringData)).toEqual(expectedAction);
+  });
+
+  it('should create an action to update heart rate date range', () => {
+    const startDate = '2024-01-01';
+    const endDate = '2024-01-07';
+    const expectedAction = {
+      type: UPDATE_HEART_RATE_DATE_RANGE,
+      payload: { startDate, endDate },
+    };
+    expect(updateHeartRateDateRangeData(startDate, endDate)).toEqual(expectedAction);
+  });
+
+  it('should create an action to update sleep data date range', () => {
+    const startDate = '2024-01-01';
+    const endDate = '2024-01-07';
+    const expectedAction = {
+      type: UPDATE_SLEEP_DATA_DATE_RANGE,
+      payload: { startDate, endDate },
+    };
+    expect(updateSleepDataDateRangeData(startDate, endDate)).toEqual(expectedAction);
   });
 
   it('should dispatch actions to update activity rings data', async () => {
@@ -86,52 +125,55 @@ describe('User Metrics Actions', () => {
     }));
 
     await store.dispatch(updateActivityRings());
-    expect(store.getActions()).toContainEqual(expectedActions[0]);
+    const actions = store.getActions();
 
-    // Restore the original implementation
+    expectedActions.forEach((expectedAction, index) => {
+      expect(actions[index]).toEqual(expectedAction);
+    });
+
     Math.random.mockRestore();
+
   }, 10000);
 
+  it('should dispatch actions to update heart rate data date range', async () => {
+    const store = mockStore({});
 
-  // it('should dispatch actions to update activity rings data', async () => {
-  //   const store = mockStore({});
-  //   const day = 'Monday';
-  //   const ringData = { ring1: '1.0', ring2: '1.5', ring3: '0.5' };
+    const startDate = new Date(2024, 6, 9)
+    const endDate = new Date(2024, 6, 15)
 
-  //   // Mock the random value generator if necessary or ensure predictable output for tests
-  //   jest.spyOn(Math, 'random').mockReturnValue(0.5);
-
-  //   const expectedActions = [
-  //     {
-  //       type: UPDATE_ACTIVITY_RINGS_DATA,
-  //       payload: { day, rings: ringData },
-  //     },
-  //   ];
-
-  //   await store.dispatch(updateActivityRings());
-  //   expect(store.getActions()).toContainEqual(expectedActions[0]);
-
-  //   // Restore the original implementation
-  //   Math.random.mockRestore();
-  // }, 10000);
-
-  it('should create an action to update heart rate date range', () => {
-    const startDate = '2024-01-01';
-    const endDate = '2024-01-07';
     const expectedAction = {
       type: UPDATE_HEART_RATE_DATE_RANGE,
-      payload: { startDate, endDate },
-    };
-    expect(updateHeartRateDateRangeData(startDate, endDate)).toEqual(expectedAction);
-  });
+      payload: {
+        startDate: startDate,
+        endDate: endDate
+      }
+    }
 
-  it('should create an action to update sleep data date range', () => {
-    const startDate = '2024-01-01';
-    const endDate = '2024-01-07';
+    await store.dispatch(updateHeartRateDateRange(startDate, endDate));
+    const actions = store.getActions();
+
+    expect(actions[0]).toEqual(expectedAction);
+
+  }, 10000);
+
+  it('should dispatch actions to update sleep data date range', async () => {
+    const store = mockStore({});
+
+    const startDate = new Date(2024, 6, 9)
+    const endDate = new Date(2024, 6, 15)
+
     const expectedAction = {
       type: UPDATE_SLEEP_DATA_DATE_RANGE,
-      payload: { startDate, endDate },
-    };
-    expect(updateSleepDataDateRangeData(startDate, endDate)).toEqual(expectedAction);
-  });
+      payload: {
+        startDate: startDate,
+        endDate: endDate
+      }
+    }
+
+    await store.dispatch(updateSleepDataDateRange(startDate, endDate));
+    const actions = store.getActions();
+
+    expect(actions[0]).toEqual(expectedAction);
+
+  }, 10000);
 });
