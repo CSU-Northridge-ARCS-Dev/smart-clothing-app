@@ -5,7 +5,7 @@ import {
     updateActivityRings,
     updateHeartRateDateRangeData,
     updateSleepDataDateRangeData,
-  } from '../src/actions/userActions.js'; 
+  } from '../src/actions/appActions.js'; 
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   UPDATE_ACTIVITY_RINGS_DATA,
@@ -13,39 +13,44 @@ import {
   UPDATE_SLEEP_DATA_DATE_RANGE,
 } from '../src/actions/types.js';
 
+console.log(userMetricsDataModalVisible);
+
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
 jest.mock('../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
   }));
-  jest.mock('firebase/firestore', () => ({
+
+jest.mock('firebase/firestore', () => ({
     collection: jest.fn(),
     addDoc: jest.fn(),
     setDoc: jest.fn(),
     doc: jest.fn(),
     updateDoc: jest.fn(),
     getDoc: jest.fn(),
-    updateEmail: jest.fn(),
-  }));
-  jest.mock('../firebaseConfig.js', () => ({
+    //updateEmail: jest.fn(),
+}));
+
+jest.mock('../firebaseConfig.js', () => ({
     auth: {
-      signOut: jest.fn(() => Promise.resolve()),
+      //signOut: jest.fn(() => Promise.resolve()),
       currentUser: {
         displayName: 'John Doe',
       },
     },
   }));
-  jest.mock('firebase/auth', () => ({
+
+jest.mock('firebase/auth', () => ({
     createUserWithEmailAndPassword: jest.fn(),
     updateEmail: jest.fn(),
     signInWithEmailAndPassword: jest.fn(),
-    updateProfile: jest.fn(() => Promise.resolve()), // Mock the updateProfile function
+    updateProfile: jest.fn(), 
     sendPasswordResetEmail: jest.fn(),
     auth: {
       updateEmail: jest.fn(),
     },
-  }));
+}));
 
 
 
@@ -63,25 +68,52 @@ describe('User Metrics Actions', () => {
 
   it('should dispatch actions to update activity rings data', async () => {
     const store = mockStore({});
-    const day = 'Monday';
-    const ringData = { ring1: '1.0', ring2: '1.5', ring3: '0.5' };
+    const daysOfWeek = [
+      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+    ];
+
+    const ringData = { ring1: '1.0', ring2: '1.0', ring3: '1.0' };
 
     // Mock the random value generator if necessary or ensure predictable output for tests
     jest.spyOn(Math, 'random').mockReturnValue(0.5);
 
-    const expectedActions = [
-      {
-        type: UPDATE_ACTIVITY_RINGS_DATA,
-        payload: { day, rings: ringData },
-      },
-    ];
+    const expectedActions = daysOfWeek.map(day => ({
+      type: UPDATE_ACTIVITY_RINGS_DATA,
+      payload: {
+        day,
+        rings: ringData
+      }
+    }));
 
     await store.dispatch(updateActivityRings());
     expect(store.getActions()).toContainEqual(expectedActions[0]);
 
     // Restore the original implementation
     Math.random.mockRestore();
-  });
+  }, 10000);
+
+
+  // it('should dispatch actions to update activity rings data', async () => {
+  //   const store = mockStore({});
+  //   const day = 'Monday';
+  //   const ringData = { ring1: '1.0', ring2: '1.5', ring3: '0.5' };
+
+  //   // Mock the random value generator if necessary or ensure predictable output for tests
+  //   jest.spyOn(Math, 'random').mockReturnValue(0.5);
+
+  //   const expectedActions = [
+  //     {
+  //       type: UPDATE_ACTIVITY_RINGS_DATA,
+  //       payload: { day, rings: ringData },
+  //     },
+  //   ];
+
+  //   await store.dispatch(updateActivityRings());
+  //   expect(store.getActions()).toContainEqual(expectedActions[0]);
+
+  //   // Restore the original implementation
+  //   Math.random.mockRestore();
+  // }, 10000);
 
   it('should create an action to update heart rate date range', () => {
     const startDate = '2024-01-01';

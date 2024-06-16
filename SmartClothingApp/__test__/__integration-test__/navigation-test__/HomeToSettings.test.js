@@ -16,7 +16,7 @@ import SettingsScreen from '../../../src/screens/Settings/index.jsx'
 
 
 // Mock Firebase Authentication
-jest.mock('../../firebaseConfig.js', () => ({
+jest.mock('../../../firebaseConfig.js', () => ({
     auth: {
       loginWithEmail: jest.fn(() => Promise.resolve()),
       startLoginWithEmail: jest.fn(() => Promise.resolve()),
@@ -36,7 +36,7 @@ jest.mock('../../firebaseConfig.js', () => ({
     },
   }));
 
-  jest.mock('../../src/utils/localStorage.js', () => ({
+  jest.mock('../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
     storeUID: jest.fn(),
     getUID: jest.fn(),
@@ -77,7 +77,7 @@ jest.mock('firebase/firestore', () => ({
   jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../__mocks__/react-native-vector-icons.js').MaterialIcons);
   jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../__mocks__/react-native-vector-icons.js').FontAwesome5);
   jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
-  jest.mock('../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+  jest.mock('../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
     return jest.fn(({ ring, center, strokeWidth, scale }) => (
       <div>
         Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
