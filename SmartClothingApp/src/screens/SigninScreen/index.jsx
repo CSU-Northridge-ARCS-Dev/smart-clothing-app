@@ -180,7 +180,11 @@ const SigninScreen = ({ navigation }) => {
         </Button>
       </View>
       {/* <GoogleButton /> */}
-      <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
+      <Button 
+        mode="text" 
+        onPress={() => navigation.navigate("SignUp")}
+        testID="sign-up-button"
+      >
         Don't have an account? Sign Up
       </Button>
     </ScrollView>
