@@ -6,8 +6,12 @@ name: Test React Native App testing
 on:
   # Trigger the workflow when a pull request is opened, synchronized, or reopened
   pull_request:
+    # nothing
+
   # Allow manually triggering the workflow from the GitHub Actions interface
   workflow_dispatch:
+    # nothing
+
   # Trigger the workflow when code is pushed to branches named "testing"
   push:
     branches: [testing]
@@ -19,27 +23,36 @@ jobs:
     # Specify the type of runner that the job will run on. "ubuntu-latest" indicates the job will run on the latest version of Ubuntu
     runs-on: ubuntu-latest
 
+    # Define a strategy for running the job with different configurations
     strategy:
       matrix:
+        # Define a strategy for running the job with different configurations
         node-version: [18.x]
 
+    # Define a series of steps to be executed as part of the job
     steps:
+      # Step to check out the repository code into the workflow runner
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step to set up the specified version of Node.js on the runner
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
+          # Use the Node.js version specified in the matrix configuration
           node-version: ${{ matrix.node-version }}
 
+      # Step to install the project dependencies
       - name: Install Dependencies
         run: npm install
         working-directory: SmartClothingApp
 
+      # Step to run the tests in the project
       - name: Run Tests
         run: npm test -- -u
         working-directory: SmartClothingApp
 
+      # Step to print a success message if all previous steps were successful
       - name: Success Message
         if: success()
         run: echo "Regression testing completed successfully!"
