@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import ViewInsights from '../src/screens/ViewInsights/index.jsx'; 
-import DateToolbar from '../src/components/DateToolbar/DateToolbar.jsx';
+import ViewInsights from '../../../../src/screens/ViewInsights/index.jsx'; 
+import DateToolbar from '../../../../src/components/DateToolbar/DateToolbar.jsx';
 import DateTimePicker, {
     DateTimePickerAndroid,
   } from "@react-native-community/datetimepicker";
-import configureStore from '../src/store.js';
+import configureStore from '../../../../src/store.js';
 import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import renderer from 'react-test-renderer';
@@ -15,7 +15,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 
-jest.mock('../src/utils/localStorage.js', () => ({
+jest.mock('../../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
 }));
 
@@ -27,7 +27,7 @@ jest.mock('firebase/firestore', () => ({
 }))
 
 // Mock Firebase Authentication
-jest.mock('../firebaseConfig.js', () => ({
+jest.mock('../../../../firebaseConfig.js', () => ({
     auth: {
         currentUser: {
             uid: {
@@ -52,7 +52,7 @@ jest.mock('firebase/auth', () => ({
 
 
 
-jest.mock('@shopify/react-native-skia', () => require('./__mocks__/@shopify__react-native-skia.js'));
+jest.mock('@shopify/react-native-skia', () => require('../../../__mocks__/@shopify__react-native-skia.js'));
 
 jest.mock('victory-native', () => {
     // Mock the specific components and functionalities you use
@@ -77,17 +77,17 @@ jest.mock('victory-native', () => {
     ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
   }));
 
-  jest.mock('react-native-vector-icons/MaterialIcons', () => require('./__mocks__/react-native-vector-icons.js').MaterialIcons);
-  jest.mock('react-native-vector-icons/FontAwesome5', () => require('./__mocks__/react-native-vector-icons.js').FontAwesome5);
-  jest.mock('@shopify/react-native-skia', () => require('./__mocks__/@shopify__react-native-skia.js'));
-  jest.mock('../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+  jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons.js').MaterialIcons);
+  jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons.js').FontAwesome5);
+  jest.mock('@shopify/react-native-skia', () => require('../../../__mocks__/@shopify__react-native-skia.js'));
+  jest.mock('../../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
     return jest.fn(({ ring, center, strokeWidth, scale }) => (
       <div>
         Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
       </div>
     ));
   });
-  jest.mock('../src/components/visualizations/ActivityChart/ActivityChart.jsx', () => {
+  jest.mock('../../../../src/components/visualizations/ActivityChart/ActivityChart.jsx', () => {
     const MockActivityChart = ({ color, name, type, goal, progress }) => (
       <div data-testid="mock-activity-chart">
         <div>{`Mock ActivityChart: ${name}`}</div>
@@ -148,46 +148,56 @@ jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
 const Stack = createStackNavigator();
 
 describe('ViewInsights', () => {
-    let component;
-    let store;
+  let component;
+  let store;
 
-    beforeEach(() => {
-        store = configureStore();
-
-        jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
-
+  beforeEach(() => {
+    // Prevents console log warning 
+    jest.spyOn(console, 'error').mockImplementation((message) => {
+      if (message.includes('Warning: An update to')) {
+        return;
+      }
+      console.error(message);
     });
-    afterEach(() => {
-        jest.clearAllMocks();
+
+    jest.useFakeTimers();
+
+    store = configureStore();
+
+    jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
+
+  });
+  afterEach(() => {
+      jest.clearAllMocks();
+  });
+  
+
+  it('renders correctly', () => {
+    let component;
+    component = renderer.create(
+      <ReduxProvider store={store}>
+        <PaperProvider>
+          <NavigationContainer>
+            <Stack.Navigator>
+              <Stack.Screen
+                name="ViewInsights"
+                component={ViewInsights}
+                initialParams={{ previousScreenTitle: 'Test Title' }}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </PaperProvider>
+      </ReduxProvider>
+      );
+
+    expect(component.toJSON()).toMatchSnapshot(); 
+  });
+
+  it('renders DateTimePicker when forced by prop', () => {
+      const { getByTestId } = render(<MyComponent forceShowDatePicker={true} />);
+      expect(getByTestId('date-time-picker')).toBeTruthy();
     });
     
-
-    it('renders correctly', () => {
-        let component;
-        component = renderer.create(
-            <ReduxProvider store={store}>
-              <PaperProvider>
-                <NavigationContainer>
-                  <Stack.Navigator>
-                    <Stack.Screen
-                      name="ViewInsights"
-                      component={ViewInsights}
-                      initialParams={{ previousScreenTitle: 'Test Title' }}
-                    />
-                  </Stack.Navigator>
-                </NavigationContainer>
-              </PaperProvider>
-            </ReduxProvider>
-          );
-
-        expect(component.toJSON()).toMatchSnapshot(); 
-    });
-
-    it('renders DateTimePicker when forced by prop', () => {
-        const { getByTestId } = render(<MyComponent forceShowDatePicker={true} />);
-        expect(getByTestId('date-time-picker')).toBeTruthy();
-      });
-      
       
     
 });
