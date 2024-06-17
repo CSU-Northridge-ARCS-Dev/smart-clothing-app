@@ -7,9 +7,9 @@ import { act } from 'react-test-renderer';
 import { getByText, getByProps, waitFor, cleanup } from '@testing-library/react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack'; 
-import configureStore from '../../../src/store.js';
-import rootReducer from '../../../src/store.js'; 
-import AppRouter from '../../../src/navigation/index.js';
+import configureStore from '../../../../src/store.js';
+import rootReducer from '../../../../src/store.js'; 
+import AppRouter from '../../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
 import { getAllByRole, getByTestId } from '@testing-library/react';
@@ -17,12 +17,12 @@ import { getAllByRole, getByTestId } from '@testing-library/react';
 
 
 
-jest.mock('../../../src/utils/localStorage.js', () => ({
+jest.mock('../../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
 }));
 
 // Mock Firebase Authentication
-jest.mock('../../../firebaseConfig.js', () => ({
+jest.mock('../../../../firebaseConfig.js', () => ({
   auth: {
     loginWithEmail: jest.fn(() => Promise.resolve()),
     startLoginWithEmail: jest.fn(() => Promise.resolve()),
@@ -58,7 +58,7 @@ jest.mock('firebase/auth', () => ({
       })),
 }))
 
-jest.mock('../../../src/utils/localStorage.js', () => ({
+jest.mock('../../../../src/utils/localStorage.js', () => ({
   storeUID: jest.fn(),
 }))
 
@@ -84,10 +84,10 @@ jest.mock('firebase/firestore', () => ({
   }),
 }))
 
-jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../__mocks__/react-native-vector-icons.js').MaterialIcons);
-jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../__mocks__/react-native-vector-icons.js').FontAwesome5);
-jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
-jest.mock('../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons.js').MaterialIcons);
+jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons.js').FontAwesome5);
+jest.mock('@shopify/react-native-skia', () => require('../../../__mocks__/@shopify__react-native-skia.js'));
+jest.mock('../../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
   return jest.fn(({ ring, center, strokeWidth, scale }) => (
     <div>
       Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}

@@ -7,16 +7,16 @@ import { act } from 'react-test-renderer';
 import { getByText, getByProps, waitFor } from '@testing-library/react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack'; 
-import configureStore from '../../../src/store.js';
-import rootReducer from '../../../src/store.js'; 
-import AppRouter from '../../../src/navigation/index.js';
+import configureStore from '../../../../src/store.js';
+import rootReducer from '../../../../src/store.js'; 
+import AppRouter from '../../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
 
 
 
 // Mock Firebase Authentication
-jest.mock('../../../firebaseConfig.js', () => ({
+jest.mock('../../../../firebaseConfig.js', () => ({
     auth: {
       signupWithEmail: jest.fn(() => Promise.resolve()),
       startUpdateProfile: jest.fn(() => Promise.resolve()),
@@ -37,7 +37,7 @@ jest.mock('../../../firebaseConfig.js', () => ({
     },
 }));
 
-jest.mock('../../../src/utils/localStorage.js', () => ({
+jest.mock('../../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
 }));
 
@@ -70,7 +70,7 @@ jest.mock('firebase/auth', () => ({
 //         isFromSignUpScreen: true,
 //     }),
 // }));
-jest.mock('../../../src/actions/appActions.js', () => {
+jest.mock('../../../../src/actions/appActions.js', () => {
     return {
       ...jest.requireActual('../../src/actions/appActions.js'), // if you want to keep the original implementations of other functions
       userMetricsDataModalVisible: jest.fn((visibility, isFromSignUpScreen = true) => {
@@ -105,10 +105,10 @@ jest.mock('firebase/firestore', () => ({
     }),
 }))
 
-jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../__mocks__/react-native-vector-icons.js').MaterialIcons);
-jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../__mocks__/react-native-vector-icons.js').FontAwesome5);
-jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
-jest.mock('../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons.js').MaterialIcons);
+jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons.js').FontAwesome5);
+jest.mock('@shopify/react-native-skia', () => require('../../../__mocks__/@shopify__react-native-skia.js'));
+jest.mock('../../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
   return jest.fn(({ ring, center, strokeWidth, scale }) => (
     <div>
       Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
@@ -127,7 +127,7 @@ jest.mock('victory-native', () => {
     useChartPressState: MockUseChartPressState,
   };
 });
-jest.mock('../../../src/actions/appActions', () => ({
+jest.mock('../../../../src/actions/appActions', () => ({
   userMetricsDataModalVisible: jest.fn().mockReturnValue({
     type: 'USER_METRICS_DATA_MODAL_VISIBLE',
     payload: {
@@ -168,107 +168,119 @@ function TestComponent() {
 
 
 describe('SignUpToHome Integration Test', () => {
-    it('should navigate from Sign-In to Sign-Up to Dashboard', async () => {
+  beforeEach(() => {
+    // Prevents 'wrap act()' console log warning 
+    jest.spyOn(console, 'error').mockImplementation((message) => {
+      if (message.includes('Warning: An update to')) {
+        return;
+      }
+      console.error(message);
+    });
+
+    jest.useFakeTimers();
+  });
+
+  it('should navigate from Sign-In to Sign-Up to Dashboard', async () => {
   
-        const store = configureStore();
+    const store = configureStore();
     
-        // Wrap TestComponent with Providers and render
-        const { getAllByTestId, getByText, getAllByRole } = render(
-            <StoreProvider store={store}>
-            <PaperProvider >
-                <TestComponent />
-            </PaperProvider>
-            </StoreProvider>
-        );
-    
-        // 1) Start in Sign In Screen
+    // Wrap TestComponent with Providers and render
+      const { getAllByTestId, getByText, getAllByRole } = render(
+          <StoreProvider store={store}>
+          <PaperProvider >
+              <TestComponent />
+          </PaperProvider>
+          </StoreProvider>
+      );
+  
+      // 1) Start in Sign In Screen
 
-        // Find "Don't have an account? Sign Up"
-        var buttons = getAllByRole('button');
-        console.log(buttons.length);
-        const dontHaveAccountLink =  buttons[2];
-    
-        // Click "Don't have an account? Sign Up"
-        await act(() => {
-            fireEvent.press(dontHaveAccountLink);
-        });
-    
-        // Navigates to SignUp after successful login
-        await waitFor(() => {
-            expect(getByText('Sign Up')).toBeTruthy();
-        });
-
-
-        // 2) SignUp renders here:
-
-        // Find Inputs
-        const inputFields = getAllByTestId('text-input-outlined');
-        console.log(inputFields.length);
-        const firstNameInput =  inputFields[0];
-        const lastNameInput =  inputFields[1];
-        const emailInput = inputFields[2]; 
-        const passwordInput = inputFields[3];  
-        const confirmPasswordInput =  inputFields[4];
+      // Find "Don't have an account? Sign Up"
+      var buttons = getAllByRole('button');
+      //console.log(buttons.length);
+      const dontHaveAccountLink =  buttons[2];
+  
+      // Click "Don't have an account? Sign Up"
+      await act(() => {
+          fireEvent.press(dontHaveAccountLink);
+      });
+  
+      // Navigates to SignUp after successful login
+      await waitFor(() => {
+          expect(getByText('Sign Up')).toBeTruthy();
+      });
 
 
+      // 2) SignUp renders here:
 
-        // Find "Don't have an account? Sign Up"
-        buttons = getAllByTestId('button');
-        console.log(buttons.length);
-        var signUpButton =  buttons[1];
+      // Find Inputs
+      const inputFields = getAllByTestId('text-input-outlined');
+      //console.log(inputFields.length);
+      const firstNameInput =  inputFields[0];
+      const lastNameInput =  inputFields[1];
+      const emailInput = inputFields[2]; 
+      const passwordInput = inputFields[3];  
+      const confirmPasswordInput =  inputFields[4];
 
 
-        // Enter credentials and press Sign In Button
-        await act(() => {
-            fireEvent.changeText(firstNameInput, 'LordTest');
-        });
-        await act(() => {
-            fireEvent.changeText(lastNameInput, 'Smith');
-        });
-        await act(() => {
-            fireEvent.changeText(emailInput, 'test100@gmail.com');
-        });
-        await act(() => {
-            fireEvent.changeText(passwordInput, 'password123');
-        });
-        await act(() => {
-            fireEvent.changeText(confirmPasswordInput, 'password123');
-        });
 
-        // Find TOS Checkmark 
-        var userAgreements = getAllByRole('checkbox');
-        // console.log(userAgreements.length);
-        // await act(() => {
-        //     userAgreements.forEach(checkbox => fireEvent.press(checkbox));
-        // });
-        expect(userAgreements[0].props.accessibilityState.checked).toBe(false);
-        await act(() => {
-            fireEvent.press(userAgreements[0])
-        });
-        // console.log(userAgreements.length);
+      // Find "Don't have an account? Sign Up"
+      buttons = getAllByTestId('button');
+      //console.log(buttons.length);
+      var signUpButton =  buttons[1];
 
-        var userAgreements = getAllByRole('checkbox');
-        // console.log(userAgreements.length);
-        await act(() => {
-            fireEvent.press(userAgreements[0])
-        });
-        await waitFor(() => {
-            expect(userAgreements[0].props.accessibilityState.checked).toBe(true);
-        });
-        // await act(() => {
-        //     fireEvent.press(userAgreements[1])
-        // });
-        buttons = getAllByTestId('button');
-        console.log(buttons.length);
-        signUpButton =  buttons[1];
 
-        await act(() => {
-            fireEvent.press(signUpButton);
-        });
-    
-        // Navigates to Dashboard after successful login
-        await waitFor(() => {
-            expect(getByText('Dashboard')).toBeTruthy();
-        });
-    }, 10000);
+      // Enter credentials and press Sign In Button
+      await act(() => {
+          fireEvent.changeText(firstNameInput, 'LordTest');
+      });
+      await act(() => {
+          fireEvent.changeText(lastNameInput, 'Smith');
+      });
+      await act(() => {
+          fireEvent.changeText(emailInput, 'test100@gmail.com');
+      });
+      await act(() => {
+          fireEvent.changeText(passwordInput, 'password123');
+      });
+      await act(() => {
+          fireEvent.changeText(confirmPasswordInput, 'password123');
+      });
+
+      // Find TOS Checkmark 
+      var userAgreements = getAllByRole('checkbox');
+      // console.log(userAgreements.length);
+      // await act(() => {
+      //     userAgreements.forEach(checkbox => fireEvent.press(checkbox));
+      // });
+      expect(userAgreements[0].props.accessibilityState.checked).toBe(false);
+      await act(() => {
+          fireEvent.press(userAgreements[0])
+      });
+      // console.log(userAgreements.length);
+
+      var userAgreements = getAllByRole('checkbox');
+      // console.log(userAgreements.length);
+      await act(() => {
+          fireEvent.press(userAgreements[0])
+      });
+      await waitFor(() => {
+          expect(userAgreements[0].props.accessibilityState.checked).toBe(true);
+      });
+      // await act(() => {
+      //     fireEvent.press(userAgreements[1])
+      // });
+      buttons = getAllByTestId('button');
+      //console.log(buttons.length);
+      signUpButton =  buttons[1];
+
+      await act(() => {
+          fireEvent.press(signUpButton);
+      });
+  
+      // Navigates to Dashboard after successful login
+      await waitFor(() => {
+          expect(getByText('Dashboard')).toBeTruthy();
+      });
+  }, 10000);
 });

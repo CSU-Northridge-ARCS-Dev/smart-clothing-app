@@ -4,11 +4,11 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { act } from 'react-test-renderer';
 import thunk from 'redux-thunk';
-import SigninScreen from '../../../src/screens/SigninScreen';
-import { startLoginWithEmail } from '../../../src/actions/userActions';
+import SigninScreen from '../../../../src/screens/SigninScreen';
+import { startLoginWithEmail } from '../../../../src/actions/userActions';
 
 
-jest.mock('../../../src/utils/localStorage.js', () => ({
+jest.mock('../../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
   storeUID: jest.fn(),
 }));
@@ -19,7 +19,7 @@ jest.mock('firebase/firestore', () => ({
   setDoc: jest.fn(),
 }))
 
-jest.mock('../../../firebaseConfig.js', () => ({
+jest.mock('../../../../firebaseConfig.js', () => ({
   auth: {
     loginWithEmail: jest.fn(() => Promise.resolve()),
     startLoginWithEmail: jest.fn(() => Promise.resolve()),
@@ -51,7 +51,7 @@ jest.mock('firebase/auth', () => ({
   },
 }));
 
-jest.mock('../../../src/actions/userActions.js', () => ({
+jest.mock('../../../../src/actions/userActions.js', () => ({
   startLoginWithEmail: jest.fn((email, password) => {
     return () => Promise.resolve();
   }),
