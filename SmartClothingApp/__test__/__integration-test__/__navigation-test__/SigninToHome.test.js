@@ -4,7 +4,7 @@ import React, {useState} from 'react';
 import { render } from '@testing-library/react-native';
 import {fireEvent } from '@testing-library/react-native';
 import { act } from 'react-test-renderer';
-import { getByText, getByProps, waitFor } from '@testing-library/react-native';
+import { getByText, getByProps, waitFor, cleanup } from '@testing-library/react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack'; 
 import configureStore from '../../../src/store.js';
@@ -12,6 +12,7 @@ import rootReducer from '../../../src/store.js';
 import AppRouter from '../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
+import { getAllByRole, getByTestId } from '@testing-library/react';
 
 
 
@@ -143,6 +144,26 @@ function TestComponent() {
 
 
 describe('SignUpToHome Integration Test', () => {
+  beforeEach(() => {
+    // Prevents 'wrap act()' console log warning 
+    jest.spyOn(console, 'error').mockImplementation((message) => {
+      if (message.includes('Warning: An update to')) {
+        return;
+      }
+      console.error(message);
+    });
+
+    jest.useFakeTimers();
+  });
+
+ // Clean up after each test by resetting the alert spy
+ afterEach(() => {
+    jest.clearAllTimers();
+    jest.clearAllMocks();
+    cleanup();
+  });
+
+
   it('should navigate from Sign-In to Dashboard', async () => {
 
     // Configure Redux Store with Combined Reducer
@@ -154,7 +175,7 @@ describe('SignUpToHome Integration Test', () => {
     const store = configureStore();
 
     // Wrap TestComponent with Providers and render
-    const { getAllByTestId, getByText } = render(
+    const { getAllByTestId, getByText, getAllByRole } = render(
       <StoreProvider store={store}>
         <PaperProvider >
           <TestComponent />
@@ -163,8 +184,8 @@ describe('SignUpToHome Integration Test', () => {
     );
 
     // Find Inputs and Buttons 
-    const inputFields = getAllByTestId('text-input-outlined');
-    const buttons = getAllByTestId('button');
+    const inputFields = getAllByTestId('text-input-outline');
+    const buttons = getAllByRole('button');
 
     const emailInput =  inputFields[0];
     const passwordInput =  inputFields[1];

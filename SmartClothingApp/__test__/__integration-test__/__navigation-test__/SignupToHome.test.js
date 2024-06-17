@@ -184,7 +184,7 @@ describe('SignUpToHome Integration Test', () => {
         // 1) Start in Sign In Screen
 
         // Find "Don't have an account? Sign Up"
-        var buttons = getAllByTestId('button');
+        var buttons = getAllByRole('button');
         console.log(buttons.length);
         const dontHaveAccountLink =  buttons[2];
     
