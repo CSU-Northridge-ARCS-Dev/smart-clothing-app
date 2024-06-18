@@ -162,41 +162,41 @@ describe('Home to Profile Navigation', () => {
   it('Navigates from main Profile Screen to Edit Personal Info Screen', async () => {
     store = configureStore();
 
-        const { getByText, getAllByText } = render(
-            <StoreProvider store={store}>
-            <PaperProvider> 
-                <TestComponent2 />
-            </PaperProvider>
-            </StoreProvider>
-        );
+      const { getByText, getAllByText } = render(
+        <StoreProvider store={store}>
+          <PaperProvider> 
+              <TestComponent2 />
+          </PaperProvider>
+        </StoreProvider>
+      );
 
-        const editPersonalTextElement = getByText('Edit Profile');
-        const editPersonalView = editPersonalTextElement.parent || editPersonalTextElement;
+      const editPersonalTextElement = getByText('Edit Profile');
+      const editPersonalView = editPersonalTextElement.parent || editPersonalTextElement;
 
-        await act(() => {
-            fireEvent.press(editPersonalView);
-        });
+      await act(() => {
+        fireEvent.press(editPersonalView);
+      });
 
-        const editFirstNameElements = getAllByText('First Name');
-        const editLastNameElements = getAllByText('Last Name');
+      const editFirstNameElements = getAllByText('First Name');
+      const editLastNameElements = getAllByText('Last Name');
 
-        await waitFor(() => {
-            expect(editFirstNameElements[0]).toBeTruthy();
-        });
-        await waitFor(() => {
-            expect(editLastNameElements[0]).toBeTruthy();
-        });
+      await waitFor(() => {
+        expect(editFirstNameElements[0]).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(editLastNameElements[0]).toBeTruthy();
+      });
   });
 
   it('Navigates from main Profile Screen to Metrics Data Screen', async () => {
     store = configureStore();
 
     const { getByText, getAllByText } = render(
-        <StoreProvider store={store}>
+      <StoreProvider store={store}>
         <PaperProvider> 
             <TestComponent2 />
         </PaperProvider>
-        </StoreProvider>
+      </StoreProvider>
     );
 
     const editMetricsTextElement = getByText('Edit Profile');
