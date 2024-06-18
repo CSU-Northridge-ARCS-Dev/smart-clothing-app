@@ -870,6 +870,17 @@ exports[`ViewInsights renders correctly 1`] = `
                                     }
                                   }
                                 >
+                                  <Text
+                                    style={
+                                      {
+                                        "color": "black",
+                                        "fontSize": 20,
+                                        "textAlign": "left",
+                                      }
+                                    }
+                                  >
+                                    6/18/2024
+                                  </Text>
                                   <View
                                     style={
                                       {

@@ -134,7 +134,7 @@ describe('Home to Profile Navigation', () => {
   it('Navigates from Home to Profile screen', async () => {
     store = configureStore();
 
-    const { getAllByTestId, getByText } = render(
+    const { getByTestId, getByText, debug } = render(
         <StoreProvider store={store}>
         <PaperProvider> 
             <TestComponent1 />
@@ -142,14 +142,16 @@ describe('Home to Profile Navigation', () => {
         </StoreProvider>
     );
 
-    const dropDownMenu = getAllByTestId('menu-action');
+    debug();
+
+    const dropDownMenu = getByTestId('menu-action');
     await act(() => {
-        fireEvent.press(dropDownMenu[0])
+        fireEvent.press(dropDownMenu)
     });
 
-    const menuItem = getAllByTestId('menu-item');
+    const menuItem = getByTestId('edit-profile-item');
     await act(() => {
-        fireEvent.press(menuItem[0])
+        fireEvent.press(menuItem)
     });
 
     await waitFor(() => {
