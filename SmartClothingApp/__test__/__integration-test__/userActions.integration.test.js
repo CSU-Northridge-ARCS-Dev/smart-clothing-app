@@ -15,6 +15,7 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import App from '../../App'; // Assuming App is the root component
 import AppHeader from '../../src/components/AppHeader';
+import ProfileScreen from '../../src/screens/Profile';
 
 import AppTheme from '../../src/constants/themes'; 
 
@@ -32,6 +33,7 @@ const mockStore = configureMockStore(middlewares);
 jest.mock('../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
     storeUID: jest.fn(),
+    getUID: jest.fn(),
   }));
 
 jest.mock('../../firebaseConfig', () => ({
@@ -42,6 +44,15 @@ jest.mock('../../firebaseConfig', () => ({
     },
   },
 }));
+
+jest.mock('../../firebaseConfig', () => ({
+    auth: {
+        signOut: jest.fn(() => Promise.resolve()),
+        currentUser: {
+            displayName: 'John Doe',
+        },
+    }
+  }));
 
 jest.mock('firebase/auth', () => ({
   createUserWithEmailAndPassword: jest.fn(),
@@ -65,20 +76,7 @@ jest.mock('firebase/firestore', () => ({
     setDoc: jest.fn(),
     doc: jest.fn(() => ({ setDoc: jest.fn() })),
     updateDoc: jest.fn(),
-    getDoc: jest.fn().mockReturnValue({
-      exists: jest.fn().mockReturnValue(true), // Mock 'exists' as a function
-      data: jest.fn().mockReturnValue({
-        height: "6541",
-        weight: "55",
-        age: "666",
-        gender: "male",
-        sports: "running",
-        dob: {
-          seconds: 1627852800, // Example timestamp for July 2, 2021
-          nanoseconds: 0, // Firestore Timestamps include nanoseconds, but it's often okay to mock them as 0 in tests
-        },
-      }), // Mock 'data' as a function
-    }),
+    getDoc: jest.fn(),
   }));
 
 
@@ -104,14 +102,6 @@ jest.mock('victory-native', () => {
     useChartPressState: MockUseChartPressState,
   };
 });
-// jest.mock('../../src/actions/appActions', () => ({
-//   userMetricsDataModalVisible: jest.fn().mockReturnValue({
-//     type: 'USER_METRICS_DATA_MODAL_VISIBLE',
-//     payload: {
-//       visibility: false,
-//       isFromSignUpScreen: false,
-//   }}),
-// }));
 
 // Mocks ViewSleepData 
 jest.mock('d3', () => ({
@@ -138,7 +128,10 @@ jest.mock('@react-navigation/native', () => {
         goBack: jest.fn(),
       }),
       useRoute: () => ({
-        name: 'Previous Screen',
+        //name: 'Previous Screen',
+        params: {
+            previousScreenTitle: 'Home',
+          },
       }),
     };
   });
@@ -146,28 +139,40 @@ jest.mock('@react-navigation/native', () => {
 
 
 
-const initialState = {
-  auth: {
-    uid: '123',
-    displayName: 'John Doe',
-  },
-  user: {
-    profile: {},
-    metrics: {},
-  },
-};
+
+
 
 describe('User Actions Integration Test', () => {
   let store;
 
   beforeEach(() => {
-    store = mockStore(initialState);
+    jest.spyOn(console, 'error').mockImplementation((message) => {
+        if (message.includes('Warning: An update to')) {
+          return;
+        }
+        console.error(message);
+      });
+  
+    jest.useFakeTimers();
+
   });
 
   it('should log out the user', async () => {
+    const initialState = {
+        auth: {
+          uid: '123',
+          displayName: 'John Doe',
+        },
+        user: {
+          profile: {},
+          metrics: {},
+        },
+      };
+    
+    store = mockStore(initialState);
     store.dispatch = jest.fn(store.dispatch);
 
-    const { getByTestId, queryByText, getAllByTestId, getByText, getAllByRole, debug  } = render(
+    const { getByTestId, queryByText, debug  } = render(
         <Provider store={store}>
           <PaperProvider >
             <NavigationContainer>
@@ -179,7 +184,7 @@ describe('User Actions Integration Test', () => {
         </Provider>
     );
 
-    debug(); // Log the rendered output to inspect the component tree
+    // debug(); // Log the rendered output to inspect the component tree
 
     const menuButton = getByTestId("menu-action");
 
@@ -214,6 +219,84 @@ describe('User Actions Integration Test', () => {
       expect(actions).toContainEqual({ type: 'showErrorToast', payload: 'User logged out!' });
     });
   });
+
+
+  it('should update the user profile', async () => {
+    store.dispatch = jest.fn(store.dispatch);
+
+    const initialState = {
+        uuid: null,
+        firstName: null,
+        lastName: null,
+        email: null,
+        authError: null,
+        user: {
+            userMetricsData: {
+                gender: "No Data",
+                dob: new Date(),
+                height: "No Data",
+                weight: "No Data",
+                sports: "No Data",
+            },
+        }
+      };
+    
+    store = mockStore(initialState);
+    store.dispatch = jest.fn(store.dispatch);
+
+    const { getByTestId, queryByText, debug } = render(
+        <Provider store={store}>
+          <PaperProvider >
+            <NavigationContainer>
+                <View>
+                    <ProfileScreen  route={{ params: { previousScreenTitle: 'Home' } }}/>
+                </View>
+            </NavigationContainer>
+          </PaperProvider>
+        </Provider>
+    );
+
+    debug(); 
+
+    const editPersonalButton = getByTestId("edit-personal-button");
+    await act(() => {
+        fireEvent.press(editPersonalButton );
+    });
+
+    await waitFor(() => {
+        expect(getByTestId("personal-modal-content")).not.toBeNull();
+      });
+
+    const firstNameInput = getByTestId("first-name-input");
+    await act(() => {
+      fireEvent.changeText(firstNameInput, 'John');
+    });
+
+    const lastNameInput = getByTestId("last-name-input");
+    await act(() => {
+      fireEvent.changeText(lastNameInput, 'Doe');
+    });
+
+    let savePersonalButton
+    await waitFor(() => {
+        savePersonalButton = getByTestId("save-personal-button");
+    });
+    await act(() => {
+        fireEvent.press(savePersonalButton );
+    });
+
+    //const lastNadfameInput = getByTestId("last-ndfasdfasdame-input");
+
+    await waitFor(() => {
+        expect(store.dispatch).toHaveBeenCalledWith(expect.any(Function));
+        const actions = store.getActions();
+        expect(actions).toContainEqual({
+          type: 'UPDATE_PROFILE',
+          payload: ['John', 'Doe'],
+        });
+      });
+  });
+
 
 //   it('should update the user profile', async () => {
 //     store.dispatch = jest.fn(store.dispatch);
