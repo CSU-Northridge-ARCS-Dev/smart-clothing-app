@@ -129,7 +129,7 @@ describe('Dashboard to Settings Integration Test', () => {
   let store;
 
   beforeEach(() => {
-    // Prevents 'wrap act()' console log warning 
+    // Prevents console log warning 
     jest.spyOn(console, 'error').mockImplementation((message) => {
       if (message.includes('Warning: An update to')) {
         return;
@@ -143,7 +143,7 @@ describe('Dashboard to Settings Integration Test', () => {
   it('Should navigate from Dashboard to Settings Screen', async() => {
       store = configureStore();
 
-      const { getAllByTestId, getByText } = render(
+      const { getByTestId, getByText } = render(
           <StoreProvider store={store}>
           <PaperProvider> 
               <TestComponent1 />
@@ -151,20 +151,20 @@ describe('Dashboard to Settings Integration Test', () => {
           </StoreProvider>
       );
 
-      const dropDownMenu1 = getAllByTestId('menu-action');
+      const dropDownMenu1 = getByTestId('menu-action');
       await act(() => {
-          fireEvent.press(dropDownMenu1[0])
+          fireEvent.press(dropDownMenu1)
       });
 
-      const dropDownMenu2 = getAllByTestId('cross-fade-icon-current');
-      await act(() => {
-          fireEvent.press(dropDownMenu2[0])
-      });
+      // const dropDownMenu2 = getByTestId('cross-fade-icon-current');
+      // await act(() => {
+      //     fireEvent.press(dropDownMenu2[0])
+      // });
 
-      const menuItem = getAllByTestId('menu-item');
+      const menuItem = getByTestId('settings-privacy-item');
       console.log(menuItem.length);
       await act(() => {
-          fireEvent.press(menuItem[1])
+          fireEvent.press(menuItem)
       });
 
       await waitFor(() => {
