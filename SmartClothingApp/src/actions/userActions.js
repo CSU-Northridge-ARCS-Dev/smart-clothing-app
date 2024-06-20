@@ -234,6 +234,7 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
       })
       .catch((error) => {
         console.log(error);
+        console.log(firebaseErrorsMessages[error.code]);
         dispatch(toastError(firebaseErrorsMessages[error.code]));
       });
   };
