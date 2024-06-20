@@ -32,6 +32,7 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
   updatePassword,
+  signOut,
 } from 'firebase/auth';
 import { toastError } from "../src/actions/toastActions.js";
 import { 
@@ -74,6 +75,7 @@ jest.mock('firebase/auth', () => ({
   reauthenticateWithCredential: jest.fn(),
   updatePassword: jest.fn(),
   storeUID: jest.fn(),
+  signOut: jest.fn(),
   auth: {
     updateEmail: jest.fn(),
   },
@@ -205,6 +207,7 @@ describe('Async User Actions', () => {
     it('should call storeUID with user UID on successful login', async () => {
       const user = { uid: 'testUID', email: 'test@example.com', displayName: 'John Doe' };
       const store = mockStore({});
+
       signInWithEmailAndPassword.mockResolvedValue({ user });
 
       await store.dispatch(startLoginWithEmail('test@example.com', 'password123'));
@@ -219,8 +222,13 @@ describe('Async User Actions', () => {
 
       await store.dispatch(startLoginWithEmail('test@example.com', 'password123'));
 
+      await flushPromises();
+
       const actions = store.getActions();
-      expect(actions[0]).toEqual(toastError('The password is invalid or the user does not have a password.'));
+
+      const expectedErrorsMessage = firebaseErrorsMessages[error.code] || "Wrong password.";
+
+      expect(actions[0]).toEqual(toastError(expectedErrorsMessage));
     });
 
     it('should dispatch LOGOUT and toastError on successful logout', async () => {
@@ -236,25 +244,38 @@ describe('Async User Actions', () => {
 
   });
 
+
+
+
   // ### Profile Update Actions
 
   describe('Profile Update Actions', () => {
     it('should dispatch UPDATE_PROFILE on successful profile update', async () => {
-      // const store = mockStore({});
+      const store = mockStore({});
       
-      // updateProfile.mockResolvedValue();
+      updateProfile.mockResolvedValue();
 
-      // await store.dispatch(startUpdateProfile('John', 'Doe'));  
+      await store.dispatch(startUpdateProfile('John', 'Doe'));  
 
-      // const action = store.getActions();
-      // expect(action[0]).toEqual({
-      //   type: UPDATE_PROFILE,
-      //   payload: ['John', 'Doe'],
-      // }); 
+      const action = store.getActions();
+      expect(action[0]).toEqual({
+        type: UPDATE_PROFILE,
+        payload: ['John', 'Doe'],
+      }); 
     });
 
     it('should dispatch toastError with appropriate message on profile update failure', async () => {
+      const error = { code: '' };
+      const store = mockStore({});
       
+      updateProfile.mockRejectedValue(new Error('Error updating profile!'));
+
+      await store.dispatch(startUpdateProfile('John', 'Doe'));  
+
+      await flushPromises();
+
+      const action = store.getActions();
+      expect(action[0]).toEqual(toastError('Error updating profile!')); 
     });
   });
 
