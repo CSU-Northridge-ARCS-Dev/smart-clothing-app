@@ -13,7 +13,9 @@ import {
   startUpdateProfile,
   startUpdateUserData,
   startLoadUserData,
-  updateEmail as updateUserEmailAction, // Rename this import to avoid conflict
+  updateUserEmail,
+  startSnedPasswordReserEmail,
+  updateUserPassword,
 } from '../src/actions/userActions.js'; 
 import { 
   LOGIN_WITH_EMAIL,
@@ -427,21 +429,157 @@ describe('Async User Actions', () => {
     });
   });
 
+
+
+
   // ### Email and Password Actions
 
   describe('Email and Password Actions', () => {
-    it('should call updateEmail and dispatch UPDATE_EMAIL_SUCCESS on successful email update', async () => {});
+    it('should call updateEmail and dispatch UPDATE_EMAIL_SUCCESS on successful email update', async () => {
+      const store = mockStore({});
+      const newEmail = 'newemail@example.com';
 
-    it('should dispatch toastError with appropriate message on email update failure', async () => {});
+      // Mock the updateEmail function to resolve
+      updateEmail.mockResolvedValue();
 
-    it('should call sendPasswordResetEmail and log success message', async () => {});
+      await store.dispatch(updateUserEmail(newEmail));
 
-    it('should log error message on password reset email failure', async () => {});
+      // Wait for all promises to resolve
+      await flushPromises();
 
-    it('should call updatePassword and log success message', async () => {});
+      const actions = store.getActions();
 
-    it('should dispatch toastError with appropriate message on password update failure', async () => {});
+      expect(updateEmail).toHaveBeenCalledWith(auth.currentUser, newEmail);
+      expect(actions[0]).toEqual({
+        type: UPDATE_EMAIL_SUCCESS,
+        payload: newEmail,
+      });
+    });
+
+    it('should dispatch toastError with appropriate message on email update failure', async () => {
+      const store = mockStore({});
+      const newEmail = 'newemail@example.com';
+      const error = { code: "auth/email-already-in-use" };
+
+      // Mock the updateEmail function to reject
+      updateEmail.mockRejectedValue(error);
+
+      await store.dispatch(updateUserEmail(newEmail));
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      const actions = store.getActions();
+
+      expect(updateEmail).toHaveBeenCalledWith(auth.currentUser, newEmail);
+      expect(actions[0]).toEqual(toastError(firebaseErrorsMessages[error.code]));
+    });
+
+    it('should call sendPasswordResetEmail and log success message', async () => {
+      const email = 'test@example.com';
+
+      // Mock the sendPasswordResetEmail function to resolve
+      sendPasswordResetEmail.mockResolvedValue();
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log');
+
+      await startSnedPasswordReserEmail(email);
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(sendPasswordResetEmail).toHaveBeenCalledWith(auth, email);
+      expect(consoleLogSpy).toHaveBeenCalledWith("###### Password reset email sent!");
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+    });
+
+    it('should log error message on password reset email failure', async () => {
+      const email = 'test@example.com';
+      const error = new Error('Failed to send password reset email');
+
+      // Mock the sendPasswordResetEmail function to reject
+      sendPasswordResetEmail.mockRejectedValue(error);
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log');
+
+      await startSnedPasswordReserEmail(email);
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(sendPasswordResetEmail).toHaveBeenCalledWith(auth, email);
+      expect(consoleLogSpy).toHaveBeenCalledWith(error);
+      expect(consoleLogSpy).toHaveBeenCalledWith(new Error('Failed to send password reset email'));
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+    });
+
+    it('should call updatePassword and log success message', async () => {
+      const store = mockStore({});
+      const newPassword = 'newPassword123';
+      const user = { uid: 'testUID' };
+
+      // Mock the currentUser
+      auth.currentUser = user;
+
+      // Mock the updatePassword function to resolve
+      updatePassword.mockResolvedValue();
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log');
+
+      await store.dispatch(updateUserPassword(newPassword));
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(updatePassword).toHaveBeenCalledWith(user, newPassword);
+      expect(consoleLogSpy).toHaveBeenCalledWith("Password update success");
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+    });
+
+    it('should dispatch toastError with appropriate message on password update failure', async () => {
+      const store = mockStore({});
+      const newPassword = 'pass';
+      const user = { uid: 'testUID' };
+      const error = { code: 'auth/weak-password' };
+
+      // Mock the currentUser
+      auth.currentUser = user;
+
+      // Mock the updatePassword function to reject
+      updatePassword.mockImplementation(() => {
+        throw error; // Simulate synchronous error for testing
+      });
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      await store.dispatch(updateUserPassword(newPassword));
+
+      const actions = store.getActions();
+
+      expect(updatePassword).toHaveBeenCalledWith(user, newPassword);
+      expect(actions[0]).toEqual({
+        type: 'showErrorToast',
+        payload: firebaseErrorsMessages[error.code],
+      });
+      expect(consoleLogSpy).toHaveBeenCalledWith("Password update failure");
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+      });
   });
+
+
+
 
   // ### Reauthentication Actions
 
@@ -452,6 +590,9 @@ describe('Async User Actions', () => {
 
     it('should return false if currentPassword is not provided', async () => {});
   });
+
+
+
 
   // ### Data Query Actions
 
@@ -469,6 +610,9 @@ describe('Async User Actions', () => {
     it('should log error message on query failure for queryHeartRateData', async () => {});
   });
 
+
+
+
   // ### Account Deletion Actions
 
   describe('Account Deletion Actions', () => {
@@ -480,116 +624,3 @@ describe('Async User Actions', () => {
   });
 });
 
-
-
-
-
-// describe('Async Auth Actions', () => {
-
-//   it('returns LOGIN_WITH_EMAIL and user ', async () => {
-
-//   });
-
-//   it('dispatches LOGOUT action when startLogout is called', async () => {
-//     const expectedActions = [
-//       {
-//         type: 'LOGOUT',
-//       },
-//       {
-//         payload: 'User logged out!',
-//         type: 'showErrorToast',
-//       },
-//     ];
-//     const store = mockStore({});
-//     await store.dispatch(startLogout());
-//     expect(store.getActions()).toEqual(expectedActions);
-//     expect(auth.signOut).toHaveBeenCalled();
-//   });
-
-//   it('logs error when startLogout fails', async () => {
-//     const consoleLogSpy = jest.spyOn(console, 'log');
-//     consoleLogSpy.mockImplementation(() => {});
-//     // Mocking signOut to simulate an error
-//     auth.signOut.mockRejectedValue(new Error('Error logging out!'));
-//     const store = mockStore({});
-//     await store.dispatch(startLogout());
-//     const consoleLogCalls = consoleLogSpy.mock.calls;
-//     consoleLogCalls.forEach((call) => {
-//       console.log('Captured log:', call[0]);
-//     });
-//     consoleLogSpy.mockRestore();
-//   });
-
-//   it('dispatches UPDATE_PROFILE action when startUpdateProfile is called successfully', async () => {
-//     const expectedActions = [
-//       {
-//         type: 'UPDATE_PROFILE',
-//         payload: ['John', 'Doe'],
-//       },
-//     ];
-//     const store = mockStore({});
-//     await store.dispatch(startUpdateProfile('John', 'Doe'));
-//     expect(store.getActions()).toEqual(expectedActions);
-//   });
-
-//   it('logs error when startUpdateProfile fails', async () => {
-//     const consoleErrorSpy = jest.spyOn(console, 'error');
-//     consoleErrorSpy.mockImplementation(() => {});
-//     // Mocking updateProfile to simulate an error
-//     updateProfile.mockRejectedValue(new Error('Error updating profile!'));
-//     const store = mockStore({});
-//     await store.dispatch(startUpdateProfile('John', 'Doe'));
-//     const consoleErrorCalls = consoleErrorSpy.mock.calls;
-//     consoleErrorCalls.forEach((call) => {
-//       console.error('Captured error:', call[0]);
-//     });
-//     consoleErrorSpy.mockRestore();
-//   });
-
-//   it('logs error and dispatches action when startUpdateUserData fails', async () => {
-//     const consoleErrorSpy = jest.spyOn(console, 'error');
-//     consoleErrorSpy.mockImplementation(() => {});
-//     // Mocking setDoc to simulate an error
-//     const errorMessage = 'Error adding user data to database!';
-//     setDoc.mockRejectedValue(new Error(errorMessage));
-//     const store = mockStore({});
-//     await store.dispatch(startUpdateUserData({ /* your user metrics data here */ }));
-//     // Check that the error is logged
-//     const consoleErrorCalls = consoleErrorSpy.mock.calls;
-//     consoleErrorCalls.forEach((call) => {
-//       console.error('Captured error:', call[0]);
-//       expect(call[0].message).toBe(errorMessage);
-//     });
-//     consoleErrorSpy.mockRestore();
-//   });
-
-//   it('logs error when startLoadUserData fails', async () => {
-//     const consoleErrorSpy = jest.spyOn(console, 'error');
-//     consoleErrorSpy.mockImplementation(() => {});
-//     // Mocking getDoc to simulate an error
-//     const userDocRef = doc(collection, 'Users', 'user123');
-//     getDoc.mockRejectedValue(new Error('Error loading user data from database!'));
-//     const store = mockStore({});
-//     await store.dispatch(startLoadUserData());
-//     const consoleErrorCalls = consoleErrorSpy.mock.calls;
-//     consoleErrorCalls.forEach((call) => {
-//       console.error('Captured error:', call[0]);
-//     });
-//     consoleErrorSpy.mockRestore();
-//   });
-  
-//   it('dispatches UPDATE_USER_METRICS_DATA action when startUpdateUserData is called successfully', async () => {
-//     // Mocking setDoc to simulate success
-//     setDoc.mockResolvedValue();
-//     const expectedActions = [
-//       {
-//         type: 'UPDATE_USER_METRICS_DATA',
-//         payload: { /* your user metrics data here */ },
-//       },
-//     ];
-//     const store = mockStore({});
-//     await store.dispatch(startUpdateUserData({ /* your user metrics data here */ }));
-//     expect(store.getActions()).toEqual(expectedActions);
-//   });
-  
-// });
