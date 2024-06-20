@@ -1,6 +1,7 @@
 import { auth } from '../firebaseConfig.js';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { setDoc, getDoc, doc } from 'firebase/firestore';
 import { firebaseErrorsMessages } from '../src/utils/firebaseErrorsMessages.js';
 import { render, waitFor } from "@testing-library/react"
 import flushPromises from 'flush-promises';
@@ -279,28 +280,151 @@ describe('Async User Actions', () => {
     });
   });
 
+
+
+
   // ### User Data Actions
 
   describe('User Data Actions', () => {
     it('should call setDoc and dispatch UPDATE_USER_METRICS_DATA on successful user data update', async () => {
+      const store = mockStore({});
+      const userData = { metrics: 'some metrics data' };
       
+      // Mock the doc and setDoc functions
+      const mockDoc = jest.fn();
+      doc.mockReturnValue(mockDoc);
+      setDoc.mockResolvedValue();
+
+      await store.dispatch(startUpdateUserData(userData));
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      const actions = store.getActions();
+
+      expect(setDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        userData
+      );
+      expect(storeMetrics).toHaveBeenCalledWith(userData);
+      expect(actions[0]).toEqual({
+        type: UPDATE_USER_METRICS_DATA,
+        payload: userData
+      });
     });
 
-    it('should store user metrics data in local storage on successful user data update', async () => {});
+    it('should store user metrics data in local storage on successful user data update', async () => {
+      const store = mockStore({});
+      const userData = { metrics: 'some metrics data' };
+      
+      // Mock the doc and setDoc functions
+      const mockDoc = jest.fn();
+      doc.mockReturnValue(mockDoc);
+      setDoc.mockResolvedValue();
+
+      await store.dispatch(startUpdateUserData(userData));
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(storeMetrics).toHaveBeenCalledWith(userData);
+    });
 
     it('should log error message on user data update failure', async () => {
+      const store = mockStore({});
+      const userData = { metrics: 'some metrics data' };
+      const error = new Error('Failed to update user data');
       
+      // Mock the doc and setDoc functions
+      const mockDoc = jest.fn();
+      doc.mockReturnValue(mockDoc);
+      setDoc.mockRejectedValue(error);
+
+      await store.dispatch(startUpdateUserData(userData));
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      const actions = store.getActions();
+
+      expect(setDoc).toHaveBeenCalledWith(
+        expect.anything(),
+        userData
+      );
+      expect(storeMetrics).not.toHaveBeenCalled();
+      expect(actions).toEqual([]);
     });
 
-    it('should call getDoc and dispatch UPDATE_USER_METRICS_DATA if user data exists', async () => {});
+    it('should call getDoc and dispatch UPDATE_USER_METRICS_DATA if user data exists', async () => {
+      const store = mockStore({});
+      const userData = { metrics: 'some metrics data' };
 
-    it('should log a message if user data does not exist', async () => {});
+      // Mock the doc and getDoc functions
+      const mockDoc = jest.fn();
+      doc.mockReturnValue(mockDoc);
+      getDoc.mockResolvedValue({
+        exists: () => true,
+        data: () => userData
+      });
+
+      await store.dispatch(startLoadUserData());
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      const actions = store.getActions();
+
+      expect(getDoc).toHaveBeenCalledWith(mockDoc);
+      expect(actions[0]).toEqual({
+        type: UPDATE_USER_METRICS_DATA,
+        payload: userData
+      });
+    });
+
+    it('should log a message if user data does not exist', async () => {
+      const store = mockStore({});
+    
+      // Mock the doc and getDoc functions
+      const mockDoc = jest.fn();
+      doc.mockReturnValue(mockDoc);
+      getDoc.mockResolvedValue({
+        exists: () => false,
+      });
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log');
+
+      await store.dispatch(startLoadUserData());
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(getDoc).toHaveBeenCalledWith(mockDoc);
+      expect(consoleLogSpy).toHaveBeenCalledWith("User data doesn't exist in the database!");
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+    });
 
     it('should log error message on user data load failure', async () => {
-      
-    });
+      const store = mockStore({});
+      const error = new Error('Failed to load user data');
 
-    
+      // Mock the doc and getDoc functions
+      const mockDoc = jest.fn();
+      doc.mockReturnValue(mockDoc);
+      getDoc.mockRejectedValue(error);
+
+      await store.dispatch(startLoadUserData());
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      const actions = store.getActions();
+
+      expect(getDoc).toHaveBeenCalledWith(mockDoc);
+      expect(actions).toEqual([]);
+    });
   });
 
   // ### Email and Password Actions
