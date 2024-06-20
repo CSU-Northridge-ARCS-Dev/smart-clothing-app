@@ -1,13 +1,13 @@
 import React from 'react';
-import ViewSleepData from '../src/screens/ViewSleepData/index.jsx'; 
-import configureStore from '../src/store.js';
+import ViewSleepData from '../../../../src/screens/ViewSleepData/index.jsx'; 
+import configureStore from '../../../../src/store.js';
 import { Provider } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import renderer from 'react-test-renderer';
 import { render, waitFor } from '@testing-library/react-native';
 
 
-jest.mock('../src/utils/localStorage.js', () => ({
+jest.mock('../../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
 }));
 
@@ -19,7 +19,7 @@ jest.mock('firebase/firestore', () => ({
 }))
 
 // Mock Firebase Authentication
-jest.mock('../firebaseConfig.js', () => ({
+jest.mock('../../../../firebaseConfig.js', () => ({
     auth: {
         currentUser: {
             uid: {
@@ -44,7 +44,7 @@ jest.mock('firebase/auth', () => ({
 
 
 
-jest.mock('@shopify/react-native-skia', () => require('./__mocks__/@shopify__react-native-skia'));
+jest.mock('@shopify/react-native-skia', () => require('../../../__mocks__/@shopify__react-native-skia'));
 
 jest.mock('victory-native', () => {
     // Mock the specific components and functionalities you use
@@ -69,10 +69,10 @@ jest.mock('victory-native', () => {
     ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
   }));
 
-  jest.mock('react-native-vector-icons/MaterialIcons', () => require('./__mocks__/react-native-vector-icons').MaterialIcons);
-  jest.mock('react-native-vector-icons/FontAwesome5', () => require('./__mocks__/react-native-vector-icons').FontAwesome5);
-  jest.mock('@shopify/react-native-skia', () => require('./__mocks__/@shopify__react-native-skia'));
-  jest.mock('../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+  jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons').MaterialIcons);
+  jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons').FontAwesome5);
+  jest.mock('@shopify/react-native-skia', () => require('../../../__mocks__/@shopify__react-native-skia'));
+  jest.mock('../../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
     return jest.fn(({ ring, center, strokeWidth, scale }) => (
       <div>
         Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
