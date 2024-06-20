@@ -248,7 +248,10 @@ export const startLoginWithEmail = (email, password) => {
       .then((userCredential) => {
         const user = userCredential.user;
 
+        console.log(user);
+
         storeUID(user.uid); // store the user UID securely in local storages
+        
         console.log("Logged in successfully!");
         console.log(user);
 

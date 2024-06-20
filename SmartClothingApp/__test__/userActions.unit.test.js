@@ -3,6 +3,8 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { firebaseErrorsMessages } from '../src/utils/firebaseErrorsMessages.js';
 import { render, waitFor } from "@testing-library/react"
+import flushPromises from 'flush-promises';
+import { storeUID, storeMetrics } from "../src/utils/localStorage.js";
 import {
   startSignupWithEmail,
   startLoginWithEmail,
@@ -35,11 +37,12 @@ import { toastError } from "../src/actions/toastActions.js";
 import { 
   userMetricsDataModalVisible 
 } from '../src/actions/appActions';
-import flushPromises from 'flush-promises';
 
 
 jest.mock('../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
+  storeUID: jest.fn(),
+  storeMetrics: jest.fn()
 }));
 
 jest.mock('firebase/firestore', () => ({
@@ -49,7 +52,7 @@ jest.mock('firebase/firestore', () => ({
   doc: jest.fn(),
   updateDoc: jest.fn(),
   getDoc: jest.fn(),
-  //updateEmail: jest.fn(),
+  updateEmail: jest.fn(),
 }));
 
 jest.mock('../firebaseConfig.js', () => ({
@@ -70,6 +73,7 @@ jest.mock('firebase/auth', () => ({
   EmailAuthProvider: jest.fn(),
   reauthenticateWithCredential: jest.fn(),
   updatePassword: jest.fn(),
+  storeUID: jest.fn(),
   auth: {
     updateEmail: jest.fn(),
   },
@@ -97,9 +101,6 @@ jest.mock('../src/actions/toastActions', () => ({
 }));
 
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 
 
@@ -152,17 +153,6 @@ describe('Async User Actions', () => {
 
       expect(updateProfile).toHaveBeenCalledWith(expect.anything(), { displayName: 'John Doe' });
     });
-    
-
-
-
-
-
-
-
-
-
-
 
     it('should dispatch toastError with appropriate message on sign-up failure', async () => {
       const error = { code: "auth/email-already-in-use" };
@@ -187,45 +177,29 @@ describe('Async User Actions', () => {
       });
     });
 
-    it('should dispatch toastError with appropriate message on sign-up failure', async () => {
-      const error = { code: "auth/email-already-in-use" };
-      const store = mockStore({});
-
-      createUserWithEmailAndPassword.mockRejectedValue(error);
-      //createUserWithEmailAndPassword.mockImplementation(() => Promise.reject({ code: "auth/email-already-in-use" }));
-      // jest.spyOn(auth, 'createUserWithEmailAndPassword').mockImplementation(async (email, password) => {
-      //   throw error;
-      // });
-      //createUserWithEmailAndPassword.mockRejectedValue(error);
-      // const createUmockCreateUserWithEmailAndPassword = () => {
-      //   throw error;
-      // };
-      // createUserWithEmailAndPassword.mockImplementation(createUmockCreateUserWithEmailAndPassword);
-
-      await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
-
-      const actions = store.getActions();
-      console.log(actions);
-
-      const expectedErrorMessage = firebaseErrorMessages[error.code] || "Email address already in use";
-      // expect(actions[0]).toEqual(toastError(expectedErrorsMessage));
-
-      expect(actions[0]).toThrow({
-        type: 'showErrorToast',
-        payload: expectedErrorMessage,
-      });
-    });
-
     it('should dispatch LOGIN_WITH_EMAIL and startLoadUserData on successful login', async () => {
       const user = { uid: 'testUID', email: 'test@example.com', displayName: 'John Doe' };
       const store = mockStore({});
+      
       signInWithEmailAndPassword.mockResolvedValue({ user });
 
       await store.dispatch(startLoginWithEmail('test@example.com', 'password123'));
 
+      await flushPromises();
+
       const actions = store.getActions();
-      expect(actions[0].type).toEqual(LOGIN_WITH_EMAIL);
-      expect(actions[1].type).toEqual('UPDATE_USER_METRICS_DATA');
+
+      expect(storeUID).toHaveBeenCalledWith(expect.anything());
+
+      expect(actions[0]).toEqual({
+        type: 'LOGIN_WITH_EMAIL',
+        payload: {
+          uuid: 'testUID',
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'test@example.com'
+        }
+      });
     });
 
     it('should call storeUID with user UID on successful login', async () => {
@@ -266,7 +240,17 @@ describe('Async User Actions', () => {
 
   describe('Profile Update Actions', () => {
     it('should dispatch UPDATE_PROFILE on successful profile update', async () => {
+      // const store = mockStore({});
       
+      // updateProfile.mockResolvedValue();
+
+      // await store.dispatch(startUpdateProfile('John', 'Doe'));  
+
+      // const action = store.getActions();
+      // expect(action[0]).toEqual({
+      //   type: UPDATE_PROFILE,
+      //   payload: ['John', 'Doe'],
+      // }); 
     });
 
     it('should dispatch toastError with appropriate message on profile update failure', async () => {
