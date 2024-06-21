@@ -251,7 +251,7 @@ export const startLoginWithEmail = (email, password) => {
         console.log(user);
 
         storeUID(user.uid); // store the user UID securely in local storages
-        
+
         console.log("Logged in successfully!");
         console.log(user);
 
@@ -367,6 +367,8 @@ export const updateUserEmail = (newEmail) => {
 export const deleteAccount = () => {
   return async (dispatch) => {
     try {
+      console.log("deleteAccount()")
+
       const user = auth.currentUser;
       const uid = user.uid;
       const docRef = doc(database, "Users", uid);
