@@ -1,11 +1,23 @@
-import { auth } from '../firebaseConfig.js';
+import { auth, database } from '../firebaseConfig.js';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { setDoc, getDoc, doc } from 'firebase/firestore';
 import { firebaseErrorsMessages } from '../src/utils/firebaseErrorsMessages.js';
 import { render, waitFor } from "@testing-library/react"
 import flushPromises from 'flush-promises';
 import { storeUID, storeMetrics } from "../src/utils/localStorage.js";
+import { 
+  setDoc, 
+  getDoc, 
+  getDocs,
+  doc,
+  collection,
+  addDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  deleteDoc,
+} from 'firebase/firestore';
 import {
   startSignupWithEmail,
   startLoginWithEmail,
@@ -16,6 +28,11 @@ import {
   updateUserEmail,
   startSnedPasswordReserEmail,
   updateUserPassword,
+  reauthenticate,
+  querySleepData,
+  queryHeartRateData,
+  deleteAccount,
+  logout,
 } from '../src/actions/userActions.js'; 
 import { 
   LOGIN_WITH_EMAIL,
@@ -41,6 +58,7 @@ import { toastError } from "../src/actions/toastActions.js";
 import { 
   userMetricsDataModalVisible 
 } from '../src/actions/appActions';
+import { type } from '@testing-library/react-native/build/user-event/type/type.js';
 
 
 jest.mock('../src/utils/localStorage.js', () => ({
@@ -55,17 +73,26 @@ jest.mock('firebase/firestore', () => ({
   setDoc: jest.fn(),
   doc: jest.fn(),
   updateDoc: jest.fn(),
+  query: jest.fn(),
+  where: jest.fn(),
+  orderBy: jest.fn(),
   getDoc: jest.fn(),
+  getDocs: jest.fn(),
   updateEmail: jest.fn(),
+  deleteDoc: jest.fn(),
 }));
 
 jest.mock('../firebaseConfig.js', () => ({
   auth: {
     signOut: jest.fn(() => Promise.resolve()),
     currentUser: {
+      uid: 'testUID',
       displayName: 'John Doe',
+      delete: jest.fn().mockResolvedValue(), 
+      signOut: jest.fn().mockResolvedValue(),
     },
   },
+  database: {},
 }));
 
 jest.mock('firebase/auth', () => ({
@@ -74,7 +101,10 @@ jest.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: jest.fn(),
   updateProfile: jest.fn(() => Promise.resolve()), // Mock the updateProfile function
   sendPasswordResetEmail: jest.fn(),
-  EmailAuthProvider: jest.fn(),
+  // EmailAuthProvider: jest.fn(),
+  EmailAuthProvider: {
+    credential: jest.fn(),
+  },
   reauthenticateWithCredential: jest.fn(),
   updatePassword: jest.fn(),
   storeUID: jest.fn(),
@@ -110,7 +140,6 @@ jest.mock('../src/actions/toastActions', () => ({
 
 
 
-
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
@@ -120,12 +149,12 @@ describe('Async User Actions', () => {
 
   beforeEach(() => {
     // Prevents console log warning 
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-      if (message.includes('Warning: An update to')) {
-        return;
-      }
-      console.error(message);
-    });
+    // jest.spyOn(console, 'error').mockImplementation((message) => {
+    //   if (message.includes('Warning: An update to')) {
+    //     return;
+    //   }
+    //   console.error(message);
+    // });
 
     jest.useFakeTimers();
 
@@ -584,11 +613,86 @@ describe('Async User Actions', () => {
   // ### Reauthentication Actions
 
   describe('Reauthentication Actions', () => {
-    it('should call reauthenticateWithCredential and log success message on successful reauthentication', async () => {});
+    it('should call reauthenticateWithCredential and log success message on successful reauthentication', async () => {
+      const store = mockStore({});
 
-    it('should dispatch toastError with appropriate message on reauthentication failure', async () => {});
+      const currentPassword = 'newPassword123';
 
-    it('should return false if currentPassword is not provided', async () => {});
+      // Mock the reauthenticateWithCredential function to resolve
+      reauthenticateWithCredential.mockResolvedValue();
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log');
+
+      const returnValue = await store.dispatch(reauthenticate(currentPassword));
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(reauthenticateWithCredential).toHaveBeenCalledWith(auth.currentUser, EmailAuthProvider.credential(auth.currentUser.email, currentPassword));
+      expect(consoleLogSpy).toHaveBeenCalledWith("Reauthentication success");
+      expect(returnValue).toBe(true);
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+
+    });
+
+    it('should dispatch toastError with appropriate message on reauthentication failure', async () => {
+      const store = mockStore({});
+      const currentPassword = 'newPassword123';
+      const user = { email: 'test@example.com', uid: 'testUID' };
+      const error = { code: 'auth/wrong-password' };
+
+      // Mock the currentUser
+      auth.currentUser = user;
+
+      // Mock the EmailAuthProvider.credential function
+      const mockCredential = { providerId: 'password' };
+      EmailAuthProvider.credential.mockReturnValue(mockCredential);
+
+      // Mock the reauthenticateWithCredential function to reject
+      reauthenticateWithCredential.mockRejectedValue(error);
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      const returnValue = await store.dispatch(reauthenticate(currentPassword));
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      const actions = store.getActions();
+
+      expect(reauthenticateWithCredential).toHaveBeenCalledWith(auth.currentUser, mockCredential);
+      expect(actions[0]).toEqual({
+        type: 'showErrorToast',
+        payload: firebaseErrorsMessages[error.code],
+      });
+      expect(consoleLogSpy).toHaveBeenCalledWith("Reauthentication failure");
+      expect(returnValue).toBe(false);
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+
+    });
+
+    it('should return false if currentPassword is not provided', async () => {
+      const store = mockStore({});
+
+       // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+
+      const returnValue = await store.dispatch(reauthenticate(''));
+
+      const actions = store.getActions();
+
+      expect(actions[0]).toEqual({
+        type: 'showErrorToast',
+        payload: 'Current password is required.', 
+      });
+      expect(returnValue).toBe(false);
+    });
   });
 
 
@@ -597,17 +701,144 @@ describe('Async User Actions', () => {
   // ### Data Query Actions
 
   describe('Data Query Actions', () => {
-    it('should execute query with the correct date range for querySleepData', async () => {});
+    
+    it('should execute query with the correct date range for querySleepData', async () => {
+      const startDate = new Date('2023-01-01');
+      const endDate = new Date('2023-01-31');
 
-    it('should return the correct data within the specified date range for querySleepData', async () => {});
+      const mockCollectionRef = {};
+      const mockQuery = {};
+      const mockSnapshot = { forEach: jest.fn() };
 
-    it('should log error message on query failure for querySleepData', async () => {});
+      doc.mockReturnValue(mockCollectionRef);
+      collection.mockReturnValue(mockCollectionRef);
+      query.mockReturnValue(mockQuery);
+      getDocs.mockResolvedValue(mockSnapshot);
 
-    it('should execute query with the correct date range for queryHeartRateData', async () => {});
+      await querySleepData(startDate, endDate);
 
-    it('should return the correct data within the specified date range for queryHeartRateData', async () => {});
+      // Wait for all promises to resolve
+      await flushPromises();
 
-    it('should log error message on query failure for queryHeartRateData', async () => {});
+      expect(doc).toHaveBeenCalledWith(expect.anything(), "Users", 'testUID');
+      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "SleepData");
+      expect(query).toHaveBeenCalledWith(
+        mockCollectionRef,
+        where("startDate", ">=", startDate),
+        where("startDate", "<=", endDate),
+        orderBy("startDate", "asc")
+      );
+      expect(getDocs).toHaveBeenCalledWith(mockQuery);
+    });
+
+    it('should return the correct data within the specified date range for querySleepData', async () => {
+      const startDate = new Date('2023-01-01');
+      const endDate = new Date('2023-01-31');
+
+      const mockCollectionRef = {};
+      const mockQuery = {};
+      const mockData = [
+        { startDate: new Date('2023-01-02'), endDate: new Date('2023-01-02'), data: 'testData1' },
+        { startDate: new Date('2023-01-15'), endDate: new Date('2023-01-15'), data: 'testData2' },
+      ];
+      const mockSnapshot = {
+        forEach: (callback) => mockData.forEach(doc => callback({ data: () => doc })),
+      };
+
+      doc.mockReturnValue(mockCollectionRef);
+      collection.mockReturnValue(mockCollectionRef);
+      query.mockReturnValue(mockQuery);
+      getDocs.mockResolvedValue(mockSnapshot);
+
+      const result = await querySleepData(startDate, endDate);
+
+      expect(result).toEqual([
+        { startDate: new Date('2023-01-02'), endDate: new Date('2023-01-02'), data: 'testData1' },
+        { startDate: new Date('2023-01-15'), endDate: new Date('2023-01-15'), data: 'testData2' },
+      ]);
+    });
+
+    it('should log error message on query failure for querySleepData', async () => {
+      const startDate = new Date('2023-01-01');
+      const endDate = new Date('2023-01-31');
+
+      const errorMessage = "Error fetching data";
+      console.error = jest.fn(); // Ensure this is the only mock of console.error
+
+      getDocs.mockRejectedValue(new Error(errorMessage));
+
+      const result = await querySleepData(startDate, endDate);
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith("Error fetching data: ", expect.any(Error));
+    });
+
+    it('should execute query with the correct date range for queryHeartRateData', async () => {
+      const startDate = new Date('2023-01-01');
+      const endDate = new Date('2023-01-31');
+
+      const mockCollectionRef = {};
+      const mockQuery = {};
+      const mockSnapshot = { forEach: jest.fn() };
+
+      doc.mockReturnValue(mockCollectionRef);
+      collection.mockReturnValue(mockCollectionRef);
+      query.mockReturnValue(mockQuery);
+      getDocs.mockResolvedValue(mockSnapshot);
+
+      await queryHeartRateData(startDate, endDate);
+
+      expect(doc).toHaveBeenCalledWith(database, "Users", 'testUID');
+      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "HeartRateData");
+      expect(query).toHaveBeenCalledWith(
+        mockCollectionRef,
+        where("date", ">=", startDate),
+        where("date", "<=", endDate)
+      );
+      expect(getDocs).toHaveBeenCalledWith(mockQuery);
+    });
+
+    it('should return the correct data within the specified date range for queryHeartRateData', async () => {
+      const startDate = new Date('2023-01-01');
+      const endDate = new Date('2023-01-31');
+
+      const mockCollectionRef = {};
+      const mockQuery = {};
+      const mockData = [
+        { date: new Date('2023-01-02'), heartRate: 72 },
+        { date: new Date('2023-01-15'), heartRate: 75 },
+      ];
+      const mockSnapshot = {
+        forEach: (callback) => mockData.forEach(doc => callback({ data: () => doc })),
+      };
+
+      doc.mockReturnValue(mockCollectionRef);
+      collection.mockReturnValue(mockCollectionRef);
+      query.mockReturnValue(mockQuery);
+      getDocs.mockResolvedValue(mockSnapshot);
+
+      const result = await queryHeartRateData(startDate, endDate);
+
+      expect(result).toEqual([
+        { date: new Date('2023-01-02'), heartRate: 72 },
+        { date: new Date('2023-01-15'), heartRate: 75 },
+      ]);
+    });
+
+    it('should log error message on query failure for queryHeartRateData', async () => {
+      const startDate = new Date('2023-01-01');
+      const endDate = new Date('2023-01-31');
+
+      const errorMessage = "Error fetching data";
+      console.error = jest.fn(); // Ensure this is the only mock of console.error
+
+      getDocs.mockRejectedValue(new Error(errorMessage));
+
+      const result = await queryHeartRateData(startDate, endDate);
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith("Error fetching data: ", expect.any(Error));
+    });
   });
 
 
@@ -616,11 +847,54 @@ describe('Async User Actions', () => {
   // ### Account Deletion Actions
 
   describe('Account Deletion Actions', () => {
-    it('should call delete and deleteDoc on successful account deletion', async () => {});
+    
+    it('should call delete and deleteDoc on successful account deletion', async () => {
+      const store = mockStore({});
+      const user = auth.currentUser;
 
-    it('should sign out and dispatch LOGOUT on successful account deletion', async () => {});
+      const mockDocRef = {};
+      const database = {};
 
-    it('should dispatch toastError with appropriate message on account deletion failure', async () => {});
+      doc.mockReturnValue(mockDocRef);
+      deleteDoc.mockResolvedValue();
+
+      await store.dispatch(deleteAccount());
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(doc).toHaveBeenCalledWith(database, "Users", 'testUID');
+      expect(user.delete).toHaveBeenCalled();
+      expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
+    });
+
+    it('should sign out and dispatch LOGOUT on successful account deletion', async () => {
+      const store = mockStore({});
+      const user = auth.currentUser;
+  
+      await store.dispatch(deleteAccount());
+  
+      const actions = store.getActions();
+  
+      expect(user.signOut).toHaveBeenCalled();
+      expect(actions).toContainEqual({ type: 'LOGOUT' });
+      expect(actions).toContainEqual(toastError("User account has been deleted"));
+    });
+
+    it('should dispatch toastError with appropriate message on account deletion failure', async () => {
+      const store = mockStore({});
+      const user = auth.currentUser;
+      const errorMessage = "An error occurred";
+  
+      user.delete.mockRejectedValue(new Error(errorMessage));
+  
+      await store.dispatch(deleteAccount());
+  
+      const actions = store.getActions();
+  
+      expect(actions).toContainEqual(toastError(errorMessage));
+      expect(console.error).toHaveBeenCalledWith("Error deleting account:", expect.any(Error));
+    });
   });
 });
 
