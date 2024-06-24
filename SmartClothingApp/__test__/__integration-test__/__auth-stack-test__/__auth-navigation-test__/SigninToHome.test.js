@@ -13,8 +13,7 @@ import AppRouter from '../../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
 import { getAllByRole, getByTestId } from '@testing-library/react';
-
-
+import { getSdkStatus, SdkAvailabilityStatus } from 'react-native-health-connect';
 
 
 jest.mock('../../../../src/utils/localStorage.js', () => ({
@@ -124,6 +123,16 @@ jest.mock('d3', () => ({
   }),
   tickStep: jest.fn().mockReturnValue(50),
   ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
+}));
+
+// Mock the react-native-health-connect module
+jest.mock('react-native-health-connect', () => ({
+  getSdkStatus: jest.fn(),
+  SdkAvailabilityStatus: {
+    SDK_AVAILABLE: 1,
+    SDK_UNAVAILABLE: 2,
+    SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED: 3,
+  },
 }));
 
 

@@ -400,10 +400,10 @@ export const querySleepData = async (startDate, endDate) => {
 
     // create a query to filter documents within the date range
     const dataQuery = query(
-      collection(userRef, "SleepData"),
-      where("startDate", ">=", startDate),
-      where("startDate", "<=", endDate),
-      orderBy("startDate", "asc")
+      collection(userRef, "SleepDataHC"),
+      where("startTime", ">=", startDate),
+      where("startTime", "<=", endDate),
+      orderBy("startTime", "asc")
     );
 
     // Execute the query to get the result
@@ -412,7 +412,7 @@ export const querySleepData = async (startDate, endDate) => {
     const fetchedData = [];
     dataSnapshot.forEach((doc) => {
       const data = doc.data();
-      if (data.endDate >= startDate && data.endDate <= endDate) {
+      if (data.endTime >= startDate && data.endTime <= endDate) {
         fetchedData.push({ ...data });
       }
     });
@@ -434,9 +434,9 @@ export const queryHeartRateData = async (startDate, endDate) => {
 
     // Create a query to filter documents within the date range
     const dataQuery = query(
-      collection(userRef, "HeartRateData"),
-      where("date", ">=", startDate),
-      where("date", "<=", endDate)
+      collection(userRef, "HeartRateDataHC"),
+      where("time", ">=", startDate),
+      where("time", "<=", endDate)
     );
 
     // execute the query to get the result
@@ -452,5 +452,44 @@ export const queryHeartRateData = async (startDate, endDate) => {
   } catch (error) {
     console.error("Error fetching data: ", error);
     return [];
+  }
+};
+
+export const sendSleepData = async (sleepData) => {
+  console.log("sleepData", sleepData);
+  console.log("Sleep invoked!");
+
+  //get the user ID
+  const userId = auth.currentUser.uid;
+
+  //make a reference to the doc with the user ID
+  const userRef = doc(database, "Users", userId);
+
+  // get documents inside SleepData
+  const sleepDataCollection = collection(userRef, "SleepDataHC");
+
+  // // get docs from SleepData
+  // const sleepDocs = await getDocs(sleepDataCollection);
+
+  for (const data of sleepData) {
+    await addDoc(sleepDataCollection, data);
+  }
+};
+
+export const sendHeartRateData = async (heartRateData) => {
+  console.log("heartRateData", heartRateData);
+  console.log("Heart rate invoked!");
+
+  //get the user ID
+  const userId = auth.currentUser.uid;
+
+  //make a reference to the doc with the user ID
+  const userRef = doc(database, "Users", userId);
+
+  // get documents inside HeartRateData
+  const heartRateDataCollection = collection(userRef, "HeartRateDataHC");
+
+  for (const data of heartRateData) {
+    await addDoc(heartRateDataCollection, data);
   }
 };

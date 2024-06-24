@@ -12,7 +12,7 @@ const HeartRateChart = ({ dataArray }) => {
 
   // Check if dataArray is not empty before mapping
   if (dataArray && dataArray.length > 0) {
-    heartRates = dataArray.map((entry) => entry.heartRate);
+    heartRates = dataArray.map((entry) => entry.beatsPerMinute);
   }
 
   // heartRates = dataArray.map((entry) => entry.heartRate);

@@ -352,14 +352,19 @@ exports[`ViewInsights renders correctly 1`] = `
                           }
                         >
                           <RCTScrollView
+                            refreshControl={
+                              <RefreshControlMock
+                                onRefresh={[Function]}
+                                refreshing={false}
+                              />
+                            }
                             style={
-                              [
-                                {
-                                  "flex": 1,
-                                },
-                              ]
+                              {
+                                "flex": 1,
+                              }
                             }
                           >
+                            <RCTRefreshControl />
                             <View>
                               <View
                                 style={
@@ -879,7 +884,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                       }
                                     }
                                   >
-                                    6/23/2024
+                                    6/24/2024
                                   </Text>
                                   <View
                                     style={
@@ -1736,7 +1741,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                   Mock ActivityChart: Move
                                 </div>
                                 <div>
-                                  Type: CAL, Goal: 800, Progress: 314, Color: rgb(9, 14, 62)
+                                  Type: CAL, Goal: 800, Progress: 0, Color: rgb(9, 14, 62)
                                 </div>
                               </div>
                               <div
@@ -1746,7 +1751,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                   Mock ActivityChart: Exercise
                                 </div>
                                 <div>
-                                  Type: MIN, Goal: 30, Progress: 15, Color: rgb(33, 100, 180)
+                                  Type: MIN, Goal: 90, Progress: 0, Color: rgb(33, 100, 180)
                                 </div>
                               </div>
                               <div
@@ -1756,7 +1761,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                   Mock ActivityChart: Stand
                                 </div>
                                 <div>
-                                  Type: HRS, Goal: 12, Progress: 3, Color: rgb(6, 188, 255)
+                                  Type: HRS, Goal: 16, Progress: 0, Color: rgb(6, 188, 255)
                                 </div>
                               </div>
                               <View

@@ -97,6 +97,28 @@ jest.mock('firebase/firestore', () => ({
     };
   });
 
+    // ADD MORE MOCKS HERE AS HOME PAGE IS UPDATED ... LACK OF MOCKS CAUSE MOST ISSUES HERE
+
+jest.mock('../../../../src/actions/appActions', () => ({
+  initialHealthDataSync: jest.fn().mockReturnValue({
+    type: 'INITIAL_HEALTH_DATA_SYNC',
+    payload: { onAccountCreation: true },
+  }),
+}));
+
+// Mock the react-native-health-connect module
+jest.mock('react-native-health-connect', () => ({
+  getSdkStatus: jest.fn(),
+  SdkAvailabilityStatus: {
+    SDK_AVAILABLE: 1,
+    SDK_UNAVAILABLE: 2,
+    SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED: 3,
+  },
+}));
+
+
+
+
 
 // Create a StackNavigator with your Sign-In and Dashboard screens
 const Stack = createStackNavigator();

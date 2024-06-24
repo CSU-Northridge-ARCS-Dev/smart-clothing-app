@@ -12,6 +12,8 @@ import {
   ViewInsights,
   ViewHeartRateData,
   ViewSleepData,
+  HealthConnectNeedsUpdate,
+  HealthConnectUnavailable,
 } from "../screens";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Icon from "react-native-vector-icons/MaterialIcons";

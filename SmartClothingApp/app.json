@@ -1,4 +1,6 @@
 {
+  "name": "SmartClothingApp",
+  "displayName": "SmartClothingApp",
   "expo": {
     "name": "SmartClothingApp",
     "slug": "SmartClothingApp",
@@ -13,9 +15,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.arcs.smartclothingapp"

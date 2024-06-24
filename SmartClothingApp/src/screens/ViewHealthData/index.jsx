@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { AppHeader } from "../../components";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { useRoute } from "@react-navigation/native";
@@ -13,6 +7,7 @@ import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import DailyMetrics from "../../components/DailyMetrics/DailyMetrics";
 import DataButton from "../../components/UI/DataButton";
 import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import RefreshView from "../../components/RefreshView";
 
 export default function ViewHealthData({ navigation }) {
   const route = useRoute();
@@ -22,9 +17,9 @@ export default function ViewHealthData({ navigation }) {
     });
   };
   return (
-    <ScrollView style={{ flex: 1 }}>
+    <RefreshView style={{ flex: 1 }}>
       <AppHeader title={"Health Data"} />
-      <View style={{paddingLeft: 10, paddingRight: 10, paddingTop: 10}}>
+      <View style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 10 }}>
         <DateToolbar dateType="single" />
       </View>
       <DataButton
@@ -43,6 +38,6 @@ export default function ViewHealthData({ navigation }) {
         navigate={navigate}
         solid
       />
-    </ScrollView>
+    </RefreshView>
   );
 }

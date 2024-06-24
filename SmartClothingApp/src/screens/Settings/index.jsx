@@ -3,10 +3,11 @@ import { ScrollView, View, Text, StyleSheet, StatusBar } from "react-native";
 import { AppHeader } from "../../components";
 import { AppFonts, AppColor, AppStyle } from "../../constants/themes";
 import { useDispatch } from "react-redux";
+import RefreshView from "../../components/RefreshView";
 
 import UpdateEmailModal from "../../components/UpdateEmailModal/UpdateEmailModal";
 import DeleteAccountModal from "../../components/DeleteAccountModal/DeleteAccountModal";
-import ChangePasswordModal from "../../components/ChangePasswordModal/ChangePasswordModal"
+import ChangePasswordModal from "../../components/ChangePasswordModal/ChangePasswordModal";
 import ToSModal from "../../components/ToSModal/ToSModal";
 import SettingsButton from "../../components/UI/SettingsButton";
 
@@ -32,7 +33,7 @@ const SettingsScreen = ({ navigation, route }) => {
   };
 
   return (
-    <ScrollView>
+    <RefreshView>
       <AppHeader title={previousScreenTitle} back={true} menu={false} />
       <UpdateEmailModal
         visible={isModalVisible.modal1}
@@ -45,7 +46,7 @@ const SettingsScreen = ({ navigation, route }) => {
 
       <ChangePasswordModal
         visible={isModalVisible.changePasswordModal}
-        closeModal={() => closeModal("changePasswordModal")} 
+        closeModal={() => closeModal("changePasswordModal")}
       ></ChangePasswordModal>
 
       <ToSModal
@@ -90,7 +91,7 @@ const SettingsScreen = ({ navigation, route }) => {
           description="Review terms of services"
         />
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 
@@ -102,7 +103,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: "center",
-    gap: 30, 
+    gap: 30,
     marginBottom: 24,
   },
   selectBtn: {

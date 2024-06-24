@@ -12,6 +12,7 @@ import rootReducer from '../../../../src/store.js';
 import AppRouter from '../../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
+import { initialHealthDataSync } from '../../../../src/actions/appActions';
 
 
 
@@ -134,6 +135,10 @@ jest.mock('../../../../src/actions/appActions', () => ({
       visibility: true,
       isFromSignUpScreen: true,
   }}),
+  initialHealthDataSync: jest.fn().mockReturnValue({
+    type: 'INITIAL_HEALTH_DATA_SYNC',
+    payload: { onAccountCreation: true },
+  }),
 }));
 // jest.mock('../../src/actions/appActions', () => ({
 //   userMetricsDataModalVisible: jest.fn().mockReturnValue({
@@ -152,6 +157,38 @@ jest.mock('d3', () => ({
   tickStep: jest.fn().mockReturnValue(50),
   ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
 }));
+
+// Mock the react-native-health-connect module
+jest.mock('react-native-health-connect', () => ({
+  getSdkStatus: jest.fn(),
+  SdkAvailabilityStatus: {
+    SDK_AVAILABLE: 1,
+    SDK_UNAVAILABLE: 2,
+    SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED: 3,
+  },
+}));
+
+// // Mock the initialHealthDataSync action
+// jest.mock('../../../../src/actions/appActions', () => ({
+//   initialHealthDataSync: jest.fn().mockReturnValue({
+//     type: 'INITIAL_HEALTH_DATA_SYNC',
+//     payload: { onAccountCreation: true },
+//   }),
+//   // ... other actions if needed
+// }));
+
+
+// // Mock the startSignupWithEmail action creator
+// jest.mock('../../../../src/actions/userActions', () => ({
+//   startSignupWithEmail: jest.fn(() => {
+//     return (dispatch) => {
+//       return Promise.resolve(); // Mock successful signup
+//     };
+//   }),
+// }));
+
+
+
   
   
   // Create a StackNavigator with your Sign-In and Dashboard screens
@@ -174,7 +211,7 @@ describe('SignUpToHome Integration Test', () => {
       if (message.includes('Warning: An update to')) {
         return;
       }
-      console.error(message);
+      //console.error(message);
     });
 
     jest.useFakeTimers();
@@ -232,13 +269,13 @@ describe('SignUpToHome Integration Test', () => {
 
       // Enter credentials and press Sign In Button
       await act(() => {
-          fireEvent.changeText(firstNameInput, 'LordTest');
+          fireEvent.changeText(firstNameInput, 'First');
       });
       await act(() => {
-          fireEvent.changeText(lastNameInput, 'Smith');
+          fireEvent.changeText(lastNameInput, 'Last');
       });
       await act(() => {
-          fireEvent.changeText(emailInput, 'test100@gmail.com');
+          fireEvent.changeText(emailInput, 'test@gmail.com');
       });
       await act(() => {
           fireEvent.changeText(passwordInput, 'password123');
@@ -260,26 +297,56 @@ describe('SignUpToHome Integration Test', () => {
       // console.log(userAgreements.length);
 
       var userAgreements = getAllByRole('checkbox');
-      // console.log(userAgreements.length);
+
+      // 1 
+      console.log('--------- 1 : Start ---------');
+      console.log(userAgreements.length);
+      console.log('1.A: checked:' + userAgreements[0].props.accessibilityState.checked);
+      console.log('1.A: disabled:' + userAgreements[0].props.accessibilityState.disabled);
+      console.log('1.B: checked:' + userAgreements[1].props.accessibilityState.checked);
+      console.log('1.B: disabled:' + userAgreements[1].props.accessibilityState.disabled);
+
+      // 2
       await act(() => {
           fireEvent.press(userAgreements[0])
       });
+      console.log('--------- 2 : Press checkbox ---------');
+      console.log(userAgreements.length);
+      console.log('2.A: checked:' + userAgreements[0].props.accessibilityState.checked);
+      console.log('2.A: disabled:' + userAgreements[0].props.accessibilityState.disabled);
+      console.log('2.B: checked:' + userAgreements[1].props.accessibilityState.checked);
+      console.log('2.B: disabled:' + userAgreements[1].props.accessibilityState.disabled);
+
       await waitFor(() => {
           expect(userAgreements[0].props.accessibilityState.checked).toBe(true);
       });
+
+      // // 3
       // await act(() => {
-      //     fireEvent.press(userAgreements[1])
+      //   fireEvent.press(userAgreements[1])
       // });
+      // console.log('--------- 3 : Press Modal checkbox ---------');
+      // console.log(userAgreements.length);
+      // console.log(userAgreements[0].props.accessibilityState.checked);
+      // console.log(userAgreements[1].props.accessibilityState.checked);
+
+
       buttons = getAllByTestId('button');
-      //console.log(buttons.length);
+      console.log(buttons.length);
       signUpButton =  buttons[1];
 
       await act(() => {
           fireEvent.press(signUpButton);
       });
-  
+      console.log('--------- 4 : Sign Up Button ---------');
+      console.log(userAgreements.length);
+      // console.log('4.A: checked:' + userAgreements[0].props.accessibilityState.checked);
+      // console.log('4.A: disabled:' + userAgreements[0].props.accessibilityState.disabled);
+      // console.log('4.B: checked:' + userAgreements[1].props.accessibilityState.checked);
+      // console.log('4.B: disabled:' + userAgreements[1].props.accessibilityState.disabled);
+    
       // Navigates to Dashboard after successful login
-      await waitFor(() => {
+        await waitFor(() => {
           expect(getByText('Dashboard')).toBeTruthy();
       });
   }, 10000);

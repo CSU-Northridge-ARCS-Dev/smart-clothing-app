@@ -7,6 +7,7 @@ import {
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
+  INITIAL_HEALTH_DATA_SYNC,
 } from "../actions/types";
 
 const initialState = {
@@ -15,42 +16,106 @@ const initialState = {
   // userMetricsData Modal sub-states
   userMetricsDataModalVisible: false,
   isFromSignUpScreen: false,
+  onAccountCreation: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
   activityRingsData: {
     Sunday: {
-      ring1: 0, // Default value for Sunday, Ring 1
-      ring2: 0, // Default value for Sunday, Ring 2
-      ring3: 0, // Default value for Sunday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0,
+      },
     },
     Monday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0,
+      },
     },
     Tuesday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0,
+      },
     },
     Wednesday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0,
+      },
     },
     Thursday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0,
+      },
     },
     Friday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0,
+      },
     },
     Saturday: {
-      ring1: 0, // Default value for Monday, Ring 1
-      ring2: 0, // Default value for Monday, Ring 2
-      ring3: 0, // Default value for Monday, Ring 3
+      ring1: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring2: {
+        currentValue: 0,
+        goalValue: 0,
+      },
+      ring3: {
+        currentValue: 0,
+        goalValue: 0,
+      },
     },
   },
   heartRateDateRangeData: {
@@ -72,6 +137,12 @@ const appReducer = (state = initialState, action) => {
         userMetricsDataModalVisible: action.payload.visibility,
         isFromSignUpScreen: action.payload.isFromSignUpScreen,
       };
+    case INITIAL_HEALTH_DATA_SYNC:
+      console.log(`Initial health data sync... ${action.payload}`);
+      return {
+        ...state,
+        onAccountCreation: action.payload.onAccountCreation,
+      };
     case UPDATE_ACTIVITY_RINGS_DATA:
       return {
         ...state,
@@ -83,6 +154,9 @@ const appReducer = (state = initialState, action) => {
         },
       };
     case UPDATE_HEART_RATE_DATE_RANGE:
+      console.log("hr payload", `${action.payload.startDate}`);
+      console.log("hr payload2", `${action.payload.endDate}`);
+
       return {
         ...state,
         heartRateDateRangeData: {

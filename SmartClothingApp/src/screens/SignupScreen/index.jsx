@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { horizontalScale, verticalScale } from "../../utils/scale";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -12,12 +12,14 @@ import {
 import { AppColor, AppStyle } from "../../constants/themes";
 import { HeroSection } from "../../components";
 import ToSModal from "../../components/ToSModal/ToSModal";
+import RefreshView from "../../components/RefreshView/index.jsx";
 
 import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
 import { startSignupWithEmail } from "../../actions/userActions.js";
+import { initialHealthDataSync } from "../../actions/appActions.js";
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -83,6 +85,8 @@ const SignupScreen = ({ navigation }) => {
     dispatch(
       startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
+
+    dispatch(initialHealthDataSync(true));
   };
 
   const toggleLockStatusPassword = () => {
@@ -150,7 +154,7 @@ const SignupScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView>
+    <RefreshView>
       <HeroSection />
       <View style={styles.content}>
         <ToSModal
@@ -276,9 +280,9 @@ const SignupScreen = ({ navigation }) => {
               handleAgreement();
             }}
           />
-        <Text style={error.accepted?.length > 0 ? styles.errorText : null}>
-          {error.accepted?.length > 0 ? error.accepted : "User Agreement"}
-        </Text>
+          <Text style={error.accepted?.length > 0 ? styles.errorText : null}>
+            {error.accepted?.length > 0 ? error.accepted : "User Agreement"}
+          </Text>
         </View>
 
         <View>
@@ -312,7 +316,7 @@ const SignupScreen = ({ navigation }) => {
           </Button>
         </View>
       </View>
-    </ScrollView>
+    </RefreshView>
   );
 };
 
@@ -341,7 +345,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   errorText: {
-    color:"red",
+    color: "red",
   },
 });
 

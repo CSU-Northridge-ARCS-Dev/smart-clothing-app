@@ -36,7 +36,22 @@ class DateRangePicker extends Component {
           isToDatePicked: true,
           markedDates: mMarkedDates,
         });
-        this.props.onSuccess(this.state.fromDate, day.dateString);
+        const fromDate = new Date(this.state.fromDate);
+        const toDate = new Date(day.dateString);
+        if (fromDate.toDateString() === toDate.toDateString()) {
+            toDate.setHours(39);
+            toDate.setMinutes(59);
+            toDate.setSeconds(59);
+            toDate.setMilliseconds(999);
+        }
+        // if (fromDate.toDateString() === toDate.toDateString()) {
+        //   // Set toDate to the end of the day by adding 24 hours
+        //     toDate.setDate(toDate.getDate() + 1);
+        // }
+        const localOffset = fromDate.getTimezoneOffset();
+        const localDate = new Date(fromDate.getTime() + (localOffset * 60000));
+        const localEndDate = new Date(toDate.getTime() + (localOffset * 60000));
+        this.props.onSuccess(localDate, localEndDate);
       } else {
         this.setupStartMarker(day);
       }
