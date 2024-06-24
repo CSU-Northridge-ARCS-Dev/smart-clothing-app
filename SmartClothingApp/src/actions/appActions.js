@@ -53,7 +53,7 @@ export const initialHealthDataSync = (onAccountCreation) => {
   };
 };
 
-export const updateActivityRings = () => {
+export const updateActivityRings = (ringData) => {
   return async (dispatch) => {
     for (const dayData of ringData) {
       const data = {
@@ -75,6 +75,28 @@ export const updateActivityRings = () => {
     }
   };
 };
+// export const updateActivityRings = () => {
+//   return async (dispatch) => {
+//     for (const dayData of ringData) {
+//       const data = {
+//         ring1: {
+//           currentValue: dayData.energyBurned,
+//           goalValue: dayData.energyBurnedGoal,
+//         },
+//         ring2: {
+//           currentValue: dayData.exerciseTime,
+//           goalValue: dayData.exerciseTimeGoal,
+//         },
+//         ring3: {
+//           currentValue: dayData.standHours,
+//           goalValue: dayData.standHoursGoal,
+//         },
+//       };
+
+//       dispatch(updateActivityRingsData(getDayFromISODate(dayData.date), data));
+//     }
+//   };
+// };
 
 export const updateHeartRateDateRange = (startDate, endDate) => {
   return async (dispatch) => {

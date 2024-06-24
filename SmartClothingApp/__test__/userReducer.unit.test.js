@@ -19,12 +19,16 @@ describe('userReducer', () => {
       weight: "No Data",
       sports: "No Data",
     },
+    sleepData: [],
+    heartRateData: [],
   };
 
   it('should return the initial state', () => {
     const state = userReducer(undefined, {});
     const expectedState = {
       ...initialState,
+      ...initialState.heartRateData,
+      //...initialState.sleepData,
       userMetricsData: {
         ...initialState.userMetricsData,
         dob: state.userMetricsData.dob // Use the date from the state returned by the reducer

@@ -66,11 +66,11 @@ const userReducer = (state = initialState, action) => {
         ...state,
         userMetricsData: action.payload,
       };
-    case UPDATE_HEART_RATE_DATA:
-      return {
-        ...state,
-        heartRateData: action.payload,
-      };
+    // case UPDATE_HEART_RATE_DATA:
+    //   return {
+    //     ...state,
+    //     heartRateData: action.payload,
+    //   };
     case UPDATE_EMAIL_SUCCESS:
       return {
         ...state,
