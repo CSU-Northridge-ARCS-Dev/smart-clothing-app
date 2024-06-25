@@ -724,6 +724,91 @@ describe('Async User Actions', () => {
 
 
 
+  // ### Account Deletion Actions
+
+  describe('Account Deletion Actions', () => {
+    
+    it('should call delete and deleteDoc on successful account deletion', async () => {
+      auth.currentUser = {
+        delete: jest.fn().mockResolvedValue(undefined),
+        uid: 'testUID',
+      };
+
+      const store = mockStore({});
+      const user = auth.currentUser;
+      //const user = { email: 'test@example.com', uid: 'testUID' };
+
+      const mockDocRef = {};
+      const database = {};
+
+      doc.mockReturnValue(mockDocRef);
+      // user.delete.mockResolvedValue();
+      deleteDoc.mockResolvedValue();
+
+      await store.dispatch(deleteAccount());
+
+      // Wait for all promises to resolve
+      await flushPromises();
+
+      expect(doc).toHaveBeenCalledWith(database, "Users", 'testUID');
+      expect(user.delete).toHaveBeenCalled();
+      expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
+    });
+
+    it('should sign out and dispatch LOGOUT on successful account deletion', async () => {
+      auth.currentUser = {
+        delete: jest.fn().mockResolvedValue(undefined),
+        uid: 'testUID',
+      };
+
+      const store = mockStore({});
+      const user = auth;
+
+      const mockDocRef = {};
+      const database = {};
+
+      doc.mockReturnValue(mockDocRef);
+      // user.delete.mockResolvedValue();
+      deleteDoc.mockResolvedValue();
+  
+      await store.dispatch(deleteAccount());
+
+      // Wait for all promises to resolve
+      await flushPromises();
+  
+      const actions = store.getActions();
+  
+      expect(user.signOut).toHaveBeenCalled();
+      expect(actions).toContainEqual({ type: 'LOGOUT' });
+      expect(actions).toContainEqual(toastError("User account has been deleted"));
+    });
+
+    it('should dispatch toastError with appropriate message on account deletion failure', async () => {
+      auth.currentUser = {
+        delete: jest.fn().mockResolvedValue(undefined),
+        uid: 'testUID',
+      };
+      console.error = jest.fn();
+
+      const store = mockStore({});
+      const user = auth.currentUser;
+      const errorMessage = "An error occurred";
+  
+      user.delete.mockRejectedValue(new Error(errorMessage));
+  
+      await store.dispatch(deleteAccount());
+  
+      const actions = store.getActions();
+  
+      expect(actions).toContainEqual(toastError(errorMessage));
+      expect(console.error).toHaveBeenCalledWith("Error deleting account:", expect.any(Error));
+    });
+  });
+
+
+
+
+
   // ### Data Query Actions
 
   describe('Data Query Actions', () => {
@@ -899,89 +984,6 @@ describe('Async User Actions', () => {
 
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith("Error fetching data: ", expect.any(Error));
-    });
-  });
-
-
-
-
-  // ### Account Deletion Actions
-
-  describe('Account Deletion Actions', () => {
-    
-    it('should call delete and deleteDoc on successful account deletion', async () => {
-      auth.currentUser = {
-        delete: jest.fn().mockResolvedValue(undefined),
-        uid: 'testUID',
-      };
-
-      const store = mockStore({});
-      const user = auth.currentUser;
-      //const user = { email: 'test@example.com', uid: 'testUID' };
-
-      const mockDocRef = {};
-      const database = {};
-
-      doc.mockReturnValue(mockDocRef);
-      // user.delete.mockResolvedValue();
-      deleteDoc.mockResolvedValue();
-
-      await store.dispatch(deleteAccount());
-
-      // Wait for all promises to resolve
-      await flushPromises();
-
-      expect(doc).toHaveBeenCalledWith(database, "Users", 'testUID');
-      expect(user.delete).toHaveBeenCalled();
-      expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
-    });
-
-    it('should sign out and dispatch LOGOUT on successful account deletion', async () => {
-      auth.currentUser = {
-        delete: jest.fn().mockResolvedValue(undefined),
-        uid: 'testUID',
-      };
-
-      const store = mockStore({});
-      const user = auth;
-
-      const mockDocRef = {};
-      const database = {};
-
-      doc.mockReturnValue(mockDocRef);
-      // user.delete.mockResolvedValue();
-      deleteDoc.mockResolvedValue();
-  
-      await store.dispatch(deleteAccount());
-
-      // Wait for all promises to resolve
-      await flushPromises();
-  
-      const actions = store.getActions();
-  
-      expect(user.signOut).toHaveBeenCalled();
-      expect(actions).toContainEqual({ type: 'LOGOUT' });
-      expect(actions).toContainEqual(toastError("User account has been deleted"));
-    });
-
-    it('should dispatch toastError with appropriate message on account deletion failure', async () => {
-      auth.currentUser = {
-        delete: jest.fn().mockResolvedValue(undefined),
-        uid: 'testUID',
-      };
-
-      const store = mockStore({});
-      const user = auth.currentUser;
-      const errorMessage = "An error occurred";
-  
-      user.delete.mockRejectedValue(new Error(errorMessage));
-  
-      await store.dispatch(deleteAccount());
-  
-      const actions = store.getActions();
-  
-      expect(actions).toContainEqual(toastError(errorMessage));
-      expect(console.error).toHaveBeenCalledWith("Error deleting account:", expect.any(Error));
     });
   });
 
