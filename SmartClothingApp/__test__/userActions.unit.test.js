@@ -33,6 +33,8 @@ import {
   queryHeartRateData,
   deleteAccount,
   logout,
+  sendSleepData,
+  sendHeartRateData,
 } from '../src/actions/userActions.js'; 
 import { 
   LOGIN_WITH_EMAIL,
@@ -981,6 +983,94 @@ describe('Async User Actions', () => {
       expect(actions).toContainEqual(toastError(errorMessage));
       expect(console.error).toHaveBeenCalledWith("Error deleting account:", expect.any(Error));
     });
+  });
+
+
+
+
+    // ### Data Insertion Actions
+
+  describe('Data Insertion Actions', () => {
+    it('should send sleep data and call addDoc for each data entry', async () => {
+      const store = mockStore({});
+      const sleepData = [
+        { date: '2023-01-01', duration: 8 },
+        { date: '2023-01-02', duration: 7 },
+      ];
+      
+      const mockCollectionRef = {};
+      doc.mockReturnValue(mockCollectionRef);
+      collection.mockReturnValue(mockCollectionRef);
+      addDoc.mockResolvedValue();
+
+      await sendSleepData(sleepData);
+
+      expect(doc).toHaveBeenCalledWith(expect.anything(), "Users", 'testUID');
+      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "SleepDataHC");
+      expect(addDoc).toHaveBeenCalledTimes(sleepData.length);
+      sleepData.forEach((data, index) => {
+        expect(addDoc).toHaveBeenNthCalledWith(index + 1, mockCollectionRef, data);
+      });
+    });
+
+    // it('should log an error message if addDoc fails', async () => {
+    //   const sleepData = [
+    //     { date: '2023-01-01', duration: 8 },
+    //     { date: '2023-01-02', duration: 7 },
+    //   ];
+      
+    //   const errorMessage = "Error adding document";
+    //   console.error = jest.fn(); // Ensure this is the only mock of console.error
+
+    //   const mockCollectionRef = {};
+    //   doc.mockReturnValue(mockCollectionRef);
+    //   collection.mockReturnValue(mockCollectionRef);
+    //   addDoc.mockRejectedValue(new Error(errorMessage));
+
+    //   await sendSleepData(sleepData);
+
+    //   expect(console.error).toHaveBeenCalledWith("Error adding document:", expect.any(Error));
+    // });
+
+    it('should send heart rate data and call addDoc for each data entry', async () => {
+      const store = mockStore({});
+      const heartRateData = [
+        { date: '2023-01-01', heartRate: 72 },
+        { date: '2023-01-02', heartRate: 75 },
+      ];
+      
+      const mockCollectionRef = {};
+      doc.mockReturnValue(mockCollectionRef);
+      collection.mockReturnValue(mockCollectionRef);
+      addDoc.mockResolvedValue();
+
+      await sendHeartRateData(heartRateData);
+
+      expect(doc).toHaveBeenCalledWith(expect.anything(), "Users", 'testUID');
+      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "HeartRateDataHC");
+      expect(addDoc).toHaveBeenCalledTimes(heartRateData.length);
+      heartRateData.forEach((data, index) => {
+        expect(addDoc).toHaveBeenNthCalledWith(index + 1, mockCollectionRef, data);
+      });
+    });
+
+    // it('should log an error message if addDoc fails', async () => {
+    //   const heartRateData = [
+    //     { date: '2023-01-01', heartRate: 72 },
+    //     { date: '2023-01-02', heartRate: 75 },
+    //   ];
+      
+    //   const errorMessage = "Error adding document";
+    //   console.error = jest.fn(); // Ensure this is the only mock of console.error
+
+    //   doc.mockReturnValue({});
+    //   collection.mockReturnValue({});
+    //   addDoc.mockRejectedValue(new Error(errorMessage));
+
+    //   await sendHeartRateData(heartRateData);
+
+    //   expect(console.error).toHaveBeenCalledWith("Error adding document:", expect.any(Error));
+    // });
   });
 });
 
