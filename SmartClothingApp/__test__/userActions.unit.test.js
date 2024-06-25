@@ -82,18 +82,45 @@ jest.mock('firebase/firestore', () => ({
   deleteDoc: jest.fn(),
 }));
 
+// Alias the delete method to mockDelete
+// Object.defineProperty(auth.currentUser, 'mockDelete', {
+//   value: auth.currentUser.delete,
+//   writable: true,
+// });
+
 jest.mock('../firebaseConfig.js', () => ({
   auth: {
-    signOut: jest.fn(() => Promise.resolve()),
     currentUser: {
       uid: 'testUID',
       displayName: 'John Doe',
-      delete: jest.fn().mockResolvedValue(), 
-      signOut: jest.fn().mockResolvedValue(),
+      //delete: jest.fn(() => Promise.resolve()),
+      delete: jest.fn().mockResolvedValue(undefined),
+      uid: 'test-uid',
+      signOut: jest.fn().mockResolvedValue(undefined),
     },
+    signOut: jest.fn(() => Promise.resolve()),
   },
   database: {},
 }));
+// jest.mock('../firebaseConfig.js', () => ({
+//   auth: {
+//     signOut: jest.fn(() => Promise.resolve()),
+//     currentUser: {
+//       uid: 'testUID',
+//       displayName: 'John Doe',
+//       //delete: jest.fn(() => Promise.resolve()),
+//       delete: jest.fn(),
+//       signOut: jest.fn().mockResolvedValue(),
+//     },
+//   },
+//   database: {},
+// }));
+// Alias the delete method to mockDelete
+// Object.defineProperty(auth.currentUser, 'mockDelete', {
+//   value: auth.currentUser.delete,
+//   writable: true,
+// });
+
 
 jest.mock('firebase/auth', () => ({
   createUserWithEmailAndPassword: jest.fn(),
@@ -109,9 +136,6 @@ jest.mock('firebase/auth', () => ({
   updatePassword: jest.fn(),
   storeUID: jest.fn(),
   signOut: jest.fn(),
-  auth: {
-    updateEmail: jest.fn(),
-  },
 }));
 
 jest.mock('../src/actions/appActions', () => ({
@@ -721,7 +745,7 @@ describe('Async User Actions', () => {
       await flushPromises();
 
       expect(doc).toHaveBeenCalledWith(expect.anything(), "Users", 'testUID');
-      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "SleepData");
+      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "SleepDataHC");
       expect(query).toHaveBeenCalledWith(
         mockCollectionRef,
         where("startDate", ">=", startDate),
@@ -734,48 +758,83 @@ describe('Async User Actions', () => {
     it('should return the correct data within the specified date range for querySleepData', async () => {
       const startDate = new Date('2023-01-01');
       const endDate = new Date('2023-01-31');
-
+  
       const mockCollectionRef = {};
       const mockQuery = {};
       const mockData = [
-        { startDate: new Date('2023-01-02'), endDate: new Date('2023-01-02'), data: 'testData1' },
-        { startDate: new Date('2023-01-15'), endDate: new Date('2023-01-15'), data: 'testData2' },
+        { startTime: new Date('2023-01-02'), endTime: new Date('2023-01-02'), data: 'testData1' },
+        { startTime: new Date('2023-01-15'), endTime: new Date('2023-01-15'), data: 'testData2' },
       ];
       const mockSnapshot = {
         forEach: (callback) => mockData.forEach(doc => callback({ data: () => doc })),
       };
-
-      doc.mockReturnValue(mockCollectionRef);
+  
       collection.mockReturnValue(mockCollectionRef);
+      doc.mockReturnValue(mockCollectionRef);
       query.mockReturnValue(mockQuery);
       getDocs.mockResolvedValue(mockSnapshot);
-
+  
       const result = await querySleepData(startDate, endDate);
-
+  
       expect(result).toEqual([
-        { startDate: new Date('2023-01-02'), endDate: new Date('2023-01-02'), data: 'testData1' },
-        { startDate: new Date('2023-01-15'), endDate: new Date('2023-01-15'), data: 'testData2' },
+        { startTime: new Date('2023-01-02'), endTime: new Date('2023-01-02'), data: 'testData1' },
+        { startTime: new Date('2023-01-15'), endTime: new Date('2023-01-15'), data: 'testData2' },
       ]);
+  
+      expect(collection).toHaveBeenCalledWith(mockCollectionRef, 'SleepDataHC');
+      expect(query).toHaveBeenCalledWith(
+        mockCollectionRef,
+        where('startTime', '>=', startDate),
+        where('startTime', '<=', endDate),
+        orderBy('startTime', 'asc')
+      );
+      expect(getDocs).toHaveBeenCalledWith(mockQuery);
     });
+    // it('should return the correct data within the specified date range for querySleepData', async () => {
+    //   const startDate = new Date('2023-01-01');
+    //   const endDate = new Date('2023-01-31');
+
+    //   const mockCollectionRef = {};
+    //   const mockQuery = {};
+    //   const mockData = [
+    //     { startDate: new Date('2023-01-02'), endDate: new Date('2023-01-02'), data: 'testData1' },
+    //     { startDate: new Date('2023-01-15'), endDate: new Date('2023-01-15'), data: 'testData2' },
+    //   ];
+    //   const mockSnapshot = {
+    //     forEach: (callback) => mockData.forEach(doc => callback({ data: () => doc })),
+    //   };
+
+    //   doc.mockReturnValue(mockCollectionRef);
+    //   collection.mockReturnValue(mockCollectionRef);
+    //   query.mockReturnValue(mockQuery);
+    //   getDocs.mockResolvedValue(mockSnapshot);
+
+    //   const result = await querySleepData(startDate, endDate);
+
+    //   expect(result).toEqual([
+    //     { startDate: new Date('2023-01-02'), endDate: new Date('2023-01-02'), data: 'testData1' },
+    //     { startDate: new Date('2023-01-15'), endDate: new Date('2023-01-15'), data: 'testData2' },
+    //   ]);
+    // });
 
     it('should log error message on query failure for querySleepData', async () => {
-      const startDate = new Date('2023-01-01');
-      const endDate = new Date('2023-01-31');
+      const startTime = new Date('2023-01-01');
+      const endTime = new Date('2023-01-31');
 
       const errorMessage = "Error fetching data";
       console.error = jest.fn(); // Ensure this is the only mock of console.error
 
       getDocs.mockRejectedValue(new Error(errorMessage));
 
-      const result = await querySleepData(startDate, endDate);
+      const result = await querySleepData(startTime, endTime);
 
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith("Error fetching data: ", expect.any(Error));
     });
 
     it('should execute query with the correct date range for queryHeartRateData', async () => {
-      const startDate = new Date('2023-01-01');
-      const endDate = new Date('2023-01-31');
+      const startTime = new Date('2023-01-01');
+      const endTime = new Date('2023-01-31');
 
       const mockCollectionRef = {};
       const mockQuery = {};
@@ -786,14 +845,14 @@ describe('Async User Actions', () => {
       query.mockReturnValue(mockQuery);
       getDocs.mockResolvedValue(mockSnapshot);
 
-      await queryHeartRateData(startDate, endDate);
+      await queryHeartRateData(startTime, endTime);
 
       expect(doc).toHaveBeenCalledWith(database, "Users", 'testUID');
-      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "HeartRateData");
+      expect(collection).toHaveBeenCalledWith(mockCollectionRef, "HeartRateDataHC");
       expect(query).toHaveBeenCalledWith(
         mockCollectionRef,
-        where("date", ">=", startDate),
-        where("date", "<=", endDate)
+        where("time", ">=", startTime),
+        where("time", "<=", endTime)
       );
       expect(getDocs).toHaveBeenCalledWith(mockQuery);
     });
@@ -849,13 +908,20 @@ describe('Async User Actions', () => {
   describe('Account Deletion Actions', () => {
     
     it('should call delete and deleteDoc on successful account deletion', async () => {
+      auth.currentUser = {
+        delete: jest.fn().mockResolvedValue(undefined),
+        uid: 'testUID',
+      };
+
       const store = mockStore({});
       const user = auth.currentUser;
+      //const user = { email: 'test@example.com', uid: 'testUID' };
 
       const mockDocRef = {};
       const database = {};
 
       doc.mockReturnValue(mockDocRef);
+      // user.delete.mockResolvedValue();
       deleteDoc.mockResolvedValue();
 
       await store.dispatch(deleteAccount());
@@ -869,10 +935,25 @@ describe('Async User Actions', () => {
     });
 
     it('should sign out and dispatch LOGOUT on successful account deletion', async () => {
+      auth.currentUser = {
+        delete: jest.fn().mockResolvedValue(undefined),
+        uid: 'testUID',
+      };
+
       const store = mockStore({});
-      const user = auth.currentUser;
+      const user = auth;
+
+      const mockDocRef = {};
+      const database = {};
+
+      doc.mockReturnValue(mockDocRef);
+      // user.delete.mockResolvedValue();
+      deleteDoc.mockResolvedValue();
   
       await store.dispatch(deleteAccount());
+
+      // Wait for all promises to resolve
+      await flushPromises();
   
       const actions = store.getActions();
   
@@ -882,6 +963,11 @@ describe('Async User Actions', () => {
     });
 
     it('should dispatch toastError with appropriate message on account deletion failure', async () => {
+      auth.currentUser = {
+        delete: jest.fn().mockResolvedValue(undefined),
+        uid: 'testUID',
+      };
+
       const store = mockStore({});
       const user = auth.currentUser;
       const errorMessage = "An error occurred";
