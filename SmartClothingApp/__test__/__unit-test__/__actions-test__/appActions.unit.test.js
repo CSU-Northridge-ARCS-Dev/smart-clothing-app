@@ -9,22 +9,22 @@ import {
     updateHeartRateDateRange,
     updateSleepDataDateRange,
     initialHealthDataSync
-  } from '../src/actions/appActions.js'; 
+  } from '../../../src/actions/appActions.js'; 
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
   INITIAL_HEALTH_DATA_SYNC
-} from '../src/actions/types.js';
-import { getDayFromISODate } from '../src/utils/dateConversions';
+} from '../../../src/actions/types.js';
+import { getDayFromISODate } from '../../../src/utils/dateConversions.js';
 
 console.log(userMetricsDataModalVisible);
 
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
-jest.mock('../src/utils/localStorage.js', () => ({
+jest.mock('../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
   }));
 
@@ -38,7 +38,7 @@ jest.mock('firebase/firestore', () => ({
     //updateEmail: jest.fn(),
 }));
 
-jest.mock('../firebaseConfig.js', () => ({
+jest.mock('../../../firebaseConfig.js', () => ({
     auth: {
       //signOut: jest.fn(() => Promise.resolve()),
       currentUser: {
@@ -58,7 +58,7 @@ jest.mock('firebase/auth', () => ({
     },
 }));
 
-jest.mock('../src/utils/dateConversions', () => ({
+jest.mock('../../../src/utils/dateConversions', () => ({
   getDayFromISODate: jest.fn((date) => 'Monday') // Mocking this to always return 'Monday' for simplicity
 }));
 

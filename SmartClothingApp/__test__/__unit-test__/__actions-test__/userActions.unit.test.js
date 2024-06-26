@@ -1,10 +1,10 @@
-import { auth, database } from '../firebaseConfig.js';
+import { auth, database } from '../../../firebaseConfig.js';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { firebaseErrorsMessages } from '../src/utils/firebaseErrorsMessages.js';
+import { firebaseErrorsMessages } from '../../../src/utils/firebaseErrorsMessages.js';
 import { render, waitFor } from "@testing-library/react"
 import flushPromises from 'flush-promises';
-import { storeUID, storeMetrics } from "../src/utils/localStorage.js";
+import { storeUID, storeMetrics } from "../../../src/utils/localStorage.js";
 import { 
   setDoc, 
   getDoc, 
@@ -35,7 +35,7 @@ import {
   logout,
   sendSleepData,
   sendHeartRateData,
-} from '../src/actions/userActions.js'; 
+} from '../../../src/actions/userActions.js'; 
 import { 
   LOGIN_WITH_EMAIL,
   SIGNUP_WITH_EMAIL,
@@ -44,7 +44,7 @@ import {
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
-} from '../src/actions/types';
+} from '../../../src/actions/types.js';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -56,14 +56,14 @@ import {
   updatePassword,
   signOut,
 } from 'firebase/auth';
-import { toastError } from "../src/actions/toastActions.js";
+import { toastError } from "../../../src/actions/toastActions.js";
 import { 
   userMetricsDataModalVisible 
-} from '../src/actions/appActions';
+} from '../../../src/actions/appActions.js';
 import { type } from '@testing-library/react-native/build/user-event/type/type.js';
 
 
-jest.mock('../src/utils/localStorage.js', () => ({
+jest.mock('../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
   storeUID: jest.fn(),
   storeMetrics: jest.fn()
@@ -90,7 +90,7 @@ jest.mock('firebase/firestore', () => ({
 //   writable: true,
 // });
 
-jest.mock('../firebaseConfig.js', () => ({
+jest.mock('../../../firebaseConfig.js', () => ({
   auth: {
     currentUser: {
       uid: 'testUID',
@@ -140,14 +140,14 @@ jest.mock('firebase/auth', () => ({
   signOut: jest.fn(),
 }));
 
-jest.mock('../src/actions/appActions', () => ({
+jest.mock('../../../src/actions/appActions', () => ({
   userMetricsDataModalVisible: jest.fn(() => ({
     type: 'USER_METRICS_DATA_MODAL_VISIBLE',
     payload: { visibility: true, isFromSignUpScreen: true },
   })),
 }));
 
-jest.mock('../src/actions/toastActions', () => ({
+jest.mock('../../../src/actions/toastActions', () => ({
   toastError: jest.fn((message) => ({
     type: 'showErrorToast',
     payload: message,

@@ -1,5 +1,5 @@
 // Import the functions and AsyncStorage
-import { storeUID, getUID, storeMetrics, getMetrics } from '../src/utils/localStorage.js'; // Update the path to where your functions are located
+import { storeUID, getUID, storeMetrics, getMetrics } from '../../../src/utils/localStorage.js'; // Update the path to where your functions are located
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock AsyncStorage
