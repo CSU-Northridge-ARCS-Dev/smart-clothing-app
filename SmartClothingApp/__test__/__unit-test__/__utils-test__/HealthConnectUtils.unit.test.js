@@ -1,4 +1,4 @@
-import { getHeartRateData, getSleepData } from '../../src/utils/HealthConnectUtils';
+import { getHeartRateData, getSleepData } from '../../../src/utils/HealthConnectUtils';
 
 describe('HealthConnectUtils', () => {
   it('should fetch heart rate data correctly between two dates', async () => { });

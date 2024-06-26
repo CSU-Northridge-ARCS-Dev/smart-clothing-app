@@ -1,4 +1,9 @@
-import { initializeHealthConnect, checkAvailability, requestJSPermissions, grantedPermissions, insertSampleData, readSampleData, readSampleDataSingle, aggregateSampleData } from '../../src/services/HealthConnectServices';
+import { initializeHealthConnect, checkAvailability, requestJSPermissions, grantedPermissions, insertSampleData, readSampleData, readSampleDataSingle, aggregateSampleData } from '../../../src/services/HealthConnectServices/HealthConnectServices';
+
+
+
+
+
 
 describe('HealthConnectServices', () => {
   it('should initialize Health Connect successfully and log the result', async () => { });

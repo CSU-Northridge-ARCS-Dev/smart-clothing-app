@@ -1,4 +1,4 @@
-import HealthModule from './HealthModule';
+import HealthModule from '../../../src/utils/HealthModule';
 
 describe('HealthModule', () => {
   it('should initialize the Health Connect SDK and set initialization status', async () => { });
