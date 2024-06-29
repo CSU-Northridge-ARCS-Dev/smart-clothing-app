@@ -113,7 +113,7 @@ export const grantedPermissions = () => {
     return permissions;
   });
 };
-
+//-----------------------------------------------------------------
 // end area that needs to be moved to a separate file
 
 // sample data functions
@@ -177,4 +177,27 @@ export const aggregateSampleData = () => {
   }).then((result) => {
     console.log("Aggregated record: ", { result });
   });
+
+
+
+
+  // I added this
+  
+  // const openGooglePlayStore = async () => {
+  //   const healthConnectBetaUrl = "market://details?id=com.google.android.apps.healthdata";
+  //   try {
+  //     if (await Linking.canOpenURL(healthConnectBetaUrl)) {
+  //       Linking.openURL(healthConnectBetaUrl);
+  //     } else {
+  //       console.error("Cannot open Google Play Store");
+  //       // TODO: show error message to user
+  //       // this one means that we cannot open the google play store and returned from Linking
+  //     }
+  //   } catch (error) {
+  //     console.error("Error opening Google Play Store", error);
+  //     // TODO: show error message to user
+  //     // this one means that we cannot open the google play store and errored out of try block
+  //   }
+  // };
+
 };
