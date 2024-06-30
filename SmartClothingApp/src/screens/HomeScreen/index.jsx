@@ -73,22 +73,22 @@ export default function HomeScreen({ navigation }) {
 
 
   // MIGHT MOVE THIS TO HEALTHCONNECTSERVICES
-  // const openGooglePlayStore = async () => {
-  //   const healthConnectBetaUrl = "market://details?id=com.google.android.apps.healthdata";
-  //   try {
-  //     if (await Linking.canOpenURL(healthConnectBetaUrl)) {
-  //       Linking.openURL(healthConnectBetaUrl);
-  //     } else {
-  //       console.error("Cannot open Google Play Store");
-  //       // TODO: show error message to user
-  //       // this one means that we cannot open the google play store and returned from Linking
-  //     }
-  //   } catch (error) {
-  //     console.error("Error opening Google Play Store", error);
-  //     // TODO: show error message to user
-  //     // this one means that we cannot open the google play store and errored out of try block
-  //   }
-  // };
+  const openGooglePlayStore = async () => {
+    const healthConnectBetaUrl = "market://details?id=com.google.android.apps.healthdata";
+    try {
+      if (await Linking.canOpenURL(healthConnectBetaUrl)) {
+        Linking.openURL(healthConnectBetaUrl);
+      } else {
+        console.error("Cannot open Google Play Store");
+        // TODO: show error message to user
+        // this one means that we cannot open the google play store and returned from Linking
+      }
+    } catch (error) {
+      console.error("Error opening Google Play Store", error);
+      // TODO: show error message to user
+      // this one means that we cannot open the google play store and errored out of try block
+    }
+  };
 
 
   const route = useRoute();
@@ -230,7 +230,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <RefreshView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
@@ -271,7 +271,35 @@ export default function HomeScreen({ navigation }) {
         </Text>
         {/* <HeartRateChart data={defaultData}/> */}
       </View>
-    </ScrollView>
+      <View style={styles.centeredView}>
+         <Modal
+          visible={modalVisible}
+          transparent={false}
+          animationType="slide"
+          contentContainerStyle={{
+            backgroundColor: AppColor.primaryContainer,
+            padding: 20,
+          }}
+          onRequestClose={() => {setModalVisible(false)}}
+        >
+          {console.log("Modal visible: ", modalVisible)}
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}
+            >
+              {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE 
+              ? "SDK is not available."
+              : "SDK requires an update."}
+            </Text>
+            <View style={styles.buttonContainer}>
+              <Button title="Go Back" onPress={() => setModalVisible(false)} />
+              { sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
+                <Button title="Update Health Connect" onPress={openGooglePlayStore} />
+              )}
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </RefreshView>
   );
 }
 
