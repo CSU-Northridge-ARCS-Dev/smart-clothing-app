@@ -44,14 +44,15 @@ import {
   insertSampleData,
   readSampleDataSingle,
   aggregateSampleData,
-} from "../../services/HealthConnectServices/HealthConnectServices.js";
+} from "../../services/HealthConnectServices/useHealthConnect.js";
 
 import { getHeartRateData, getSleepData } from "../../utils/HealthConnectUtils.js";
-import { readSampleData } from "../../services/HealthConnectServices/HealthConnectServices.js";
+import { readSampleData } from "../../services/HealthConnectServices/useHealthConnect.js";
 
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
-import useHealthConnect from "../../hooks/useHealthConnect";
+import useHealthConnect from "../../services/HealthConnectServices/useHealthConnect.js";
+import HealthConnectModal  from "../../components/HealthConnectModal/index.jsx";
 
 
 export default function HomeScreen({ navigation }) {
@@ -59,175 +60,103 @@ export default function HomeScreen({ navigation }) {
   // test functions start
   // test functions end
 
-  // const [modalVisible, setModalVisible] = useState(false);
-  // const [sdkStatus, setSdkStatus] = useState(null);
-  // const [isHealthConnectInitialized, setIsHealthConnectInitialized] = useState(false);
+  const { checkAvailability, sdkStatus, modalVisible, setModalVisible } = useHealthConnect();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { modalVisible, sdkStatus, isHealthConnectInitialized, setModalVisible, setSdkStatus, setIsHealthConnectInitialized } = useHealthConnect();
-
-  useEffect(() => {
-    initializeHealthServices();
-    console.log("Hit check availability");
-    // moved to checkAvailability
-  }, []);
-
-
-  // MIGHT MOVE THIS TO HEALTHCONNECTSERVICES
-  const openGooglePlayStore = async () => {
-    const healthConnectBetaUrl = "market://details?id=com.google.android.apps.healthdata";
-    try {
-      if (await Linking.canOpenURL(healthConnectBetaUrl)) {
-        Linking.openURL(healthConnectBetaUrl);
-      } else {
-        console.error("Cannot open Google Play Store");
-        // TODO: show error message to user
-        // this one means that we cannot open the google play store and returned from Linking
-      }
-    } catch (error) {
-      console.error("Error opening Google Play Store", error);
-      // TODO: show error message to user
-      // this one means that we cannot open the google play store and errored out of try block
-    }
-  };
-
+  const dispatch = useDispatch();
+  const firstName = useSelector((state) => state.user.firstName);
+  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
 
   const route = useRoute();
-  const dispatch = useDispatch();
   const defaultData = [
     70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
     71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
     93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
     87, 87, 86,
   ];
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
-  
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
     });
   };
 
-  const firstName = useSelector((state) => state.user.firstName);
 
 
 
-  useEffect(() => {
-    if (onAccountCreation) {
-      if (Platform.OS === 'android') {
-        fetchAndStoreHCData();
-      } else if (Platform.OS === 'ios') {
-        // fetchAndStoreHKData();
-      }
-    }
-  }, [onAccountCreation]);
-
-
-
-  const fetchAndStoreHCData = async () => {
-    try {
-      console.log("Fetching data...");
-      setIsLoading(true);
-      const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
-      const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
-      await sendHeartRateData(heartRateData);
-      await sendSleepData(sleepData);
-      console.log("Data fetched successfully!");
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
-      dispatch(initialHealthDataSync(false));
-    }
-  };
-
-  
-  const getLastYearDate = () => {
-    const today = new Date();
-    return new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-  };
-
-  const getLastWeekDate = () => {
-  return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
-  };
-
-  const getLastTwoWeeksDate = () => {
-  return new Date(new Date().getTime() - 2 * 7 * 24 * 60 * 60 * 1000);
-  };
-
-  const getTodayDate = () => {
-  return new Date();
-  };
-  //
-
-  if (isLoading) {
-    return <LoadingOverlay />;
-  }
-
-
-
-
-
-  
-  
-// OLD NAME: checkAvailability 
+  // OLD NAME: checkAvailability 
   const initializeHealthServices = async () => {
     console.log("initializeHealthServices");
 
     if (Platform.OS === 'android') {
       try {
         await checkAvailability();
-        // const status = await getSdkStatus();
-        // setSdkStatus(status);
-        // console.log({ status });
-        // if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
-        //   console.log("SDK is available");
 
-        //   const isInitialized = await setIsHealthConnectInitialized();
-        //   if (!isInitialized) {
-        //     await initializeHealthConnect();
-        //   }
-
-        //   console.log("Hit health connect initialized");
-        //   console.log("Hit initialized");
-        //   const permissions = grantedPermissions();
-        //   console.log("Hit granted permissions");
-        //   if (!permissions || permissions.length === 0) {
-        //     requestJSPermissions();
-        //     console.log("recieved permissions");
-        //   }
-        // }
-
-        // if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
-        //   console.log("SDK is not available");
-        //   setModalVisible(true);
-        // }
-
-        // if (
-        //   status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-        // ) {
-        //   console.log("SDK is not available, provider update required");
-        //   setModalVisible(true);
-        // }
       } catch (error) {
         console.error("Error checking availability:", error);
       }
     } else if (Platform.OS === 'ios') {
-        // try {
-        //   await initializeHealthKit();
-        //   const permissionsGranted = await requestHealthKitPermissions();
-        //   if (permissionsGranted) {
-        //     console.log("HealthKit permissions granted");
-        //   } else {
-        //     console.log("HealthKit permissions denied");
-        //   }
-        // } catch (error) {
-        //   console.error("Error initializing HealthKit:", error);
-        // }
+
     }
   };
+
+  useEffect(() => {
+    initializeHealthServices();
+    console.log("Hit check availability");
+  }, []);
+
+
+//   useEffect(() => {
+//     if (onAccountCreation) {
+//       if (Platform.OS === 'android') {
+//         fetchAndStoreHCData();
+//       } else if (Platform.OS === 'ios') {
+//         // fetchAndStoreHKData();
+//       }
+//     }
+//   }, [onAccountCreation]);
+
+
+
+//   const fetchAndStoreHCData = async () => {
+//     try {
+//       console.log("Fetching data...");
+//       setIsLoading(true);
+//       const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
+//       const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
+//       await sendHeartRateData(heartRateData);
+//       await sendSleepData(sleepData);
+//       console.log("Data fetched successfully!");
+//     } catch (error) {
+//       console.error("Error fetching data:", error);
+//     } finally {
+//       setIsLoading(false);
+//       dispatch(initialHealthDataSync(false));
+//     }
+//   };
+
+  
+//   const getLastYearDate = () => {
+//     const today = new Date();
+//     return new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+//   };
+
+//   const getLastWeekDate = () => {
+//   return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
+//   };
+
+//   const getLastTwoWeeksDate = () => {
+//   return new Date(new Date().getTime() - 2 * 7 * 24 * 60 * 60 * 1000);
+//   };
+
+//   const getTodayDate = () => {
+//   return new Date();
+//   };
+  //
+
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
+
 
   return (
     <RefreshView style={styles.container}>
@@ -271,34 +200,12 @@ export default function HomeScreen({ navigation }) {
         </Text>
         {/* <HeartRateChart data={defaultData}/> */}
       </View>
-      <View style={styles.centeredView}>
-         <Modal
-          visible={modalVisible}
-          transparent={false}
-          animationType="slide"
-          contentContainerStyle={{
-            backgroundColor: AppColor.primaryContainer,
-            padding: 20,
-          }}
-          onRequestClose={() => {setModalVisible(false)}}
-        >
-          {console.log("Modal visible: ", modalVisible)}
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}
-            >
-              {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE 
-              ? "SDK is not available."
-              : "SDK requires an update."}
-            </Text>
-            <View style={styles.buttonContainer}>
-              <Button title="Go Back" onPress={() => setModalVisible(false)} />
-              { sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
-                <Button title="Update Health Connect" onPress={openGooglePlayStore} />
-              )}
-            </View>
-          </View>
-        </Modal>
-      </View>
+      <HealthConnectModal 
+        visible={modalVisible} 
+        onClose={() => setModalVisible(false)} 
+        sdkStatus={sdkStatus}
+        onAccountCreation={onAccountCreation}
+        />
     </RefreshView>
   );
 }

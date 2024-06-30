@@ -17,7 +17,7 @@ import { auth, database } from "../../../firebaseConfig";
 
 import { useState } from "react";
 
-import { readSampleData } from "./HealthConnectServices";
+import { readSampleData } from "./useHealthConnect";
 import { getHeartRateData } from "../../utils/HealthConnectUtils";
 import { sendHeartRateData } from "../../actions/userActions";
 
