@@ -18,7 +18,6 @@ const initialState = {
     gender: "No Data",
     dob: new Date(),
     height: "No Data",
-    weight: "No Data",
     sports: "No Data",
   },
   heartRateData: [],

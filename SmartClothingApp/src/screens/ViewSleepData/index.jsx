@@ -45,16 +45,22 @@ const ViewSleepData = ({ route }) => {
   useEffect(() => {
     const fetchSleepData = async () => {
       try {
-        // console.log(dates.startDate);
-        // console.log(dates.endDate);
+        console.log("Fetching sleep data for dates:", dates.startDate, dates.endDate);
+
         const result = await querySleepData(dates.startDate, dates.endDate);
+        console.log("Raw sleep data fetched:", result);
+
         setSleepDataUnparsed(result);
-        // result.forEach(item => {
-        //     console.log("startDate", item.startDate);
-        //     console.log("endDate", item.endDate);
-        // });
+        result.forEach(item => {
+            console.log("startDate", item.startDate);
+            console.log("endDate", item.endDate);
+            console.log("Stage:", item.stage);
+        });
+
         const parsedData = parseSleepData(result);
+        console.log("Parsed sleep data:", parsedData);
         setSleepData(parsedData);
+
       } catch (error) {
         console.error("Error fetching sleep data:", error);
         // Handle error
@@ -92,9 +98,13 @@ const ViewSleepData = ({ route }) => {
     const totalDurationHours = (latestEndTime.getTime() - earliestStartTime.getTime()) / (1000 * 60 * 60);
 
     const parsedData = sleepData.reduce((parsedData, item, index) => {
-      // console.log("startDate", startDate, startDate.getTime());
-      // console.log("endDate", endDate, endDate.getTime());
-      // console.log("hours", durationHours);
+      const startDate = new Date(item.startTime);
+      const endDate = new Date(item.endTime);
+      const durationHours = (endDate - startDate) / (1000 * 60 * 60);
+      
+      console.log("startDate", startDate, startDate.getTime());
+      console.log("endDate", endDate, endDate.getTime());
+      console.log("hours", durationHours);
 
       const cumulativeDuration = sleepData
         .slice(0, index)

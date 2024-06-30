@@ -58,6 +58,7 @@ async function getLatestDateFromCollection(collectionName) {
     });
     console.log(`Fetched data from update:`, fetchedData);
     if (fetchedData.length == 0) {
+      console.log('fetched Data is empty');
       return new Date().toISOString();
     }
     const latestDate =

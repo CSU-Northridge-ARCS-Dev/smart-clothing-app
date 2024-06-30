@@ -9,6 +9,8 @@ import BreathingRateChart from "./visualizations/BreathingRateChart";
 import HeartRateChart from "./visualizations/HeartRateChart";
 import VentilationChart from "./visualizations/VentilationChart";
 import DataCollectModal from "./DataCollectModal";
+import RefreshView from "./RefreshView";
+import HealthContnectModal from "./HealthConnectModal";
 
 export {
   GoogleButton,
@@ -22,4 +24,6 @@ export {
   HeartRateChart,
   ActivityCard,
   DataCollectModal,
+  RefreshView,
+  HealthContnectModal,
 };

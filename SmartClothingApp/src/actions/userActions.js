@@ -400,10 +400,10 @@ export const querySleepData = async (startDate, endDate) => {
 
     // create a query to filter documents within the date range
     const dataQuery = query(
-      collection(userRef, "SleepDataHC"),
-      where("startTime", ">=", startDate),
-      where("startTime", "<=", endDate),
-      orderBy("startTime", "asc")
+      collection(userRef, "SleepData"),
+      where("startDate", ">=", startDate),
+      where("startDate", "<=", endDate),
+      orderBy("startDate", "asc")
     );
 
     // Execute the query to get the result
@@ -429,24 +429,35 @@ export const queryHeartRateData = async (startDate, endDate) => {
     //get the user ID
     const userId = auth.currentUser.uid;
 
+    console.log(`[queryHeartRateData] - Start: ${new Date().toISOString()}`);
+    console.log('queryHeartRateData - userId', userId);
+
     //make a reference to the doc with the user ID
     const userRef = doc(database, "Users", userId);
 
+    console.log('queryHeartRateData - userRef', userRef);
+
     // Create a query to filter documents within the date range
     const dataQuery = query(
-      collection(userRef, "HeartRateDataHC"),
-      where("time", ">=", startDate),
-      where("time", "<=", endDate)
+      collection(userRef, "HeartRateData"),
+      where("date", ">=", startDate),
+      where("date", "<=", endDate)
     );
+
+    console.log('queryHeartRateData - dataQuery', dataQuery);
 
     // execute the query to get the result
     const dataSnapshot = await getDocs(dataQuery);
+
+    console.log('queryHeartRateData - dataSnapshot', dataSnapshot);
 
     // get the documents
     const fetchedData = [];
     dataSnapshot.forEach((doc) => {
       fetchedData.push({ ...doc.data() });
     });
+
+    console.log('queryHeartRateData - fetchedData', fetchedData);
 
     return fetchedData;
   } catch (error) {
@@ -466,7 +477,7 @@ export const sendSleepData = async (sleepData) => {
   const userRef = doc(database, "Users", userId);
 
   // get documents inside SleepData
-  const sleepDataCollection = collection(userRef, "SleepDataHC");
+  const sleepDataCollection = collection(userRef, "SleepData");
 
   // // get docs from SleepData
   // const sleepDocs = await getDocs(sleepDataCollection);

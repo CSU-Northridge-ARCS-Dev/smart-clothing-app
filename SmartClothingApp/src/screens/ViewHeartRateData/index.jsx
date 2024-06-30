@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, Button, ScrollView } from "react-native";
 import { AppHeader } from "../../components";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -31,22 +31,31 @@ const ViewHeartRateData = ({ route }) => {
   useEffect(() => {
     const fetchHeartRateData = async () => {
       try {
-        // console.log(dates.startDate);
-        // console.log(dates.endDate);
-        const result = await queryHeartRateData(dates.startDate, dates.endDate);
+        console.log("[fetchHeartRateData] Fetching data for dates:", dates.startDate, dates.endDate);
+
+        const result = queryHeartRateData(dates.startDate, dates.endDate);
+        console.log("[fetchHeartRateData] Fetched heart rate data:", result);
+
         if (result.length > 0) {
           const heartRates = result.map((entry) => entry.beatsPerMinute);
+          console.log("[fetchHeartRateData] Heart rates:", heartRates);
+
           const min = Math.min(...heartRates);
           const max = Math.max(...heartRates);
+          console.log("[fetchHeartRateData] Min heart rate:", min);
+          console.log("[fetchHeartRateData] Max heart rate:", max);
+
           setMinHeartRate(min);
           setMaxHeartRate(max);
         } else {
+          console.log("[fetchHeartRateData] Min and Max heart rate: null");
+
           setMinHeartRate(null);
           setMaxHeartRate(null);
         }
         setHeartRateData(result);
       } catch (error) {
-        console.error("Error fetching heart rate data:", error);
+        console.error("[fetchHeartRateData] Error fetching heart rate data:", error);
         // Handle error
       }
     };
