@@ -390,13 +390,19 @@ export const deleteAccount = () => {
   };
 };
 
+
 export const querySleepData = async (startDate, endDate) => {
   try {
     //get the user ID
     const userId = auth.currentUser.uid;
 
+    console.log(`[querySleepData] - Start: ${new Date().toISOString()}`);
+    console.log('[querySleepData] - userId', userId);
+
     //make a reference to the doc with the user ID
     const userRef = doc(database, "Users", userId);
+
+    console.log('[querySleepData] - userRef', userRef);
 
     // create a query to filter documents within the date range
     const dataQuery = query(
@@ -406,16 +412,20 @@ export const querySleepData = async (startDate, endDate) => {
       orderBy("startDate", "asc")
     );
 
+    console.log('[querySleepData] - dataQuery', dataQuery);
+
     // Execute the query to get the result
     const dataSnapshot = await getDocs(dataQuery);
 
     const fetchedData = [];
     dataSnapshot.forEach((doc) => {
       const data = doc.data();
-      if (data.endTime >= startDate && data.endTime <= endDate) {
+      if (data.endDate >= startDate && data.endDate <= endDate) {
         fetchedData.push({ ...data });
       }
     });
+
+    console.log('[querySleepData] - fetchedData', fetchedData);
 
     return fetchedData;
   } catch (error) {
@@ -430,12 +440,12 @@ export const queryHeartRateData = async (startDate, endDate) => {
     const userId = auth.currentUser.uid;
 
     console.log(`[queryHeartRateData] - Start: ${new Date().toISOString()}`);
-    console.log('queryHeartRateData - userId', userId);
+    console.log('[queryHeartRateData] - userId', userId);
 
     //make a reference to the doc with the user ID
     const userRef = doc(database, "Users", userId);
 
-    console.log('queryHeartRateData - userRef', userRef);
+    console.log('[queryHeartRateData] - userRef', userRef);
 
     // Create a query to filter documents within the date range
     const dataQuery = query(
@@ -444,7 +454,7 @@ export const queryHeartRateData = async (startDate, endDate) => {
       where("date", "<=", endDate)
     );
 
-    console.log('queryHeartRateData - dataQuery', dataQuery);
+    console.log('[queryHeartRateData] - dataQuery', dataQuery);
 
     // execute the query to get the result
     const dataSnapshot = await getDocs(dataQuery);
@@ -455,7 +465,7 @@ export const queryHeartRateData = async (startDate, endDate) => {
       fetchedData.push({ ...doc.data() });
     });
 
-    console.log('queryHeartRateData - fetchedData', fetchedData);
+    console.log('[queryHeartRateData] - fetchedData', fetchedData);
 
     return fetchedData;
   } catch (error) {
