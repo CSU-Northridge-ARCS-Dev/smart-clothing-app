@@ -449,8 +449,6 @@ export const queryHeartRateData = async (startDate, endDate) => {
     // execute the query to get the result
     const dataSnapshot = await getDocs(dataQuery);
 
-    console.log('queryHeartRateData - dataSnapshot', dataSnapshot);
-
     // get the documents
     const fetchedData = [];
     dataSnapshot.forEach((doc) => {
