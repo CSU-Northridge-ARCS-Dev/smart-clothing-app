@@ -1,4 +1,4 @@
-import { readSampleData } from "../services/HealthConnectServices/HealthConnectServices";
+import { readSampleData } from "../services/HealthConnectServices/HealthConnectServices.js";
 
 // refactor later into a single function
 export const getHeartRateData = async (startDate, endDate) => {

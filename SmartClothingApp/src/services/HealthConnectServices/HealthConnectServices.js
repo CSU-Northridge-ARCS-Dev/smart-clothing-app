@@ -13,6 +13,7 @@ import {
   readRecord,
 } from "react-native-health-connect";
 
+
 //need to be put into utils
 const getLastYearDate = () => {
   const today = new Date();
@@ -32,49 +33,85 @@ const getTodayDate = () => {
 };
 //
 
-export const initializeHealthConnect = async () => {
+export const initializeHealthConnect = async (setIsHealthConnectInitialized) => {
+  console.log("\nInitializing Health Connect");
+
   const result = await initialize();
-  console.log({ result });
+  console.log("Health Connect Initialized");
+  console.log("__result = initialize()", result);
+  
   setIsHealthConnectInitialized(result);
+  console.log("Health Connect Initialized");
+
   return result;
 };
 
-export const checkAvailability = async () => {
+
+export const checkAvailability = async (setModalVisible, setSdkStatus, setIsHealthConnectInitialized, setPermissions) => {
+  console.log("\nChecking availability of Health Connect SDK");
+
   const status = await getSdkStatus();
-  setSdkStatus(status);
-  console.log({ status });
+  console.log("__SDK status: ", status);
+
+  await setSdkStatus(status);
+  console.log("__SDK status set");
+
   if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
-    console.log("SDK is available");
+    console.log("__SDK is available");
 
     const isInitialized = await setIsHealthConnectInitialized();
+    console.log("__isInitialized", isInitialized);
     if (!isInitialized) {
-      await initializeHealthConnect();
+      await initializeHealthConnect(setIsHealthConnectInitialized);
+      console.log("Hit health connect initialized");
+    } else {
+      console.log("Failed to initialize health connect");
     }
 
-    console.log("Hit health connect initialized");
-    console.log("Hit initialized");
-    const permissions = grantedPermissions();
-    console.log("Hit granted permissions");
+
+
+    const permissions = await grantedPermissions();
+    console.log("Hit granted permissions after health connect initialization");
+    console.log("Permission Status: ", permissions);
+
     if (!permissions || permissions.length === 0) {
-      requestJSPermissions();
-      console.log("recieved permissions");
+       setModalVisible(true);
+       setPermissions(false);
+       console.log("Permissions are not granted, setting modal visible")
+
+    //  requestJSPermissions handled in HealthConnectModal
+        await requestJSPermissions();
+    //   //console.log("recieved permissions");
+    } else {
+      console.log("User has permissions already");
+      setPermissions(true);
+      console.log("Permissions are granted");
+
+      console.log("Updating health data... [to be implemented]");
     }
   }
 
   if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
-    console.log("SDK is not available");
+    console.log("__SDK is not available");
+    console.log("Permissions are not granted, setting modal visible")
+    console.log("Hit set modal visible");
     setModalVisible(true);
   }
 
   if (
     status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
   ) {
-    console.log("SDK is not available, provider update required");
+    console.log("__SDK is not available, provider update required");
+    console.log("Permissions are not granted, setting modal visible")
+    console.log("Hit set modal visible");
     setModalVisible(true);
   }
 };
 
-export const requestJSPermissions = () => {
+
+
+
+export const requestJSPermissions = (setPermissions) => {
   requestPermission([
     {
       // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
@@ -103,15 +140,27 @@ export const requestJSPermissions = () => {
       recordType: "SleepSession",
     },
   ]).then((permissions) => {
+    setPermissions(true);
     console.log("Granted permissions on request ", { permissions });
+    console.log("Permissions status set to true");
   });
 };
 
-export const grantedPermissions = () => {
-  getGrantedPermissions().then((permissions) => {
-    console.log("Granted permissions ", { permissions });
+// export const grantedPermissions = () => {
+//   getGrantedPermissions().then((permissions) => {
+//     console.log("Granted permissions ", { permissions });
+//     return permissions;
+//   });
+// };
+export const grantedPermissions = async () => {
+  try {
+    const permissions = await getGrantedPermissions();
+    console.log("Granted permissions: ", permissions);
     return permissions;
-  });
+  } catch (error) {
+    console.error("Error fetching granted permissions: ", error);
+    return [];
+  }
 };
 
 // end area that needs to be moved to a separate file
