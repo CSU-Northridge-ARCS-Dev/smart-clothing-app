@@ -111,8 +111,8 @@ export const checkAvailability = async (setModalVisible, setSdkStatus, setIsHeal
 
 
 
-export const requestJSPermissions = () => {
-  requestPermission([
+export const requestJSPermissions = async (setPermissions) => {
+  await requestPermission([
     {
       // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
       // need to add heart rate & sleep data
