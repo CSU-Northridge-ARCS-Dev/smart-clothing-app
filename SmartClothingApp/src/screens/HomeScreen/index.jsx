@@ -193,6 +193,7 @@ export default function HomeScreen({ navigation }) {
         modalVisible={modalVisible}
         sdkStatus={sdkStatus}
         permissions={permissions}
+        setPermissions={setPermissions}
         setModalVisible={setModalVisible}
         openGooglePlayStore={openGooglePlayStore}
         />
