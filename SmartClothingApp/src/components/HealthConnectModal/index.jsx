@@ -15,8 +15,9 @@ import {
   openHealthConnectDataManagement,
   readRecord,
 } from "react-native-health-connect";
+import { requestJSPermissions } from "../../services/HealthConnectServices/HealthConnectServices";
 
-const HealthConnectModal = ({ modalVisible, sdkStatus, setPermissions, setModalVisible, openGooglePlayStore }) => {
+const HealthConnectModal = ({ modalVisible, sdkStatus, permissions, setModalVisible, openGooglePlayStore }) => {
   
   console.log("Rendering HealthConnectModal");
 
@@ -24,16 +25,16 @@ const HealthConnectModal = ({ modalVisible, sdkStatus, setPermissions, setModalV
     const handlePermissions = async () => {
       if (modalVisible) {
         console.log("Modal is visible. Checking permissions...");
-        const permissions = await grantedPermissions();
+        //const permissions = await grantedPermissions();
         console.log("Permissions:", permissions);
 
-        if (permissions && permissions.length > 0) {
+        if (permissions) {
           console.log("Permissions granted.");
-          setPermissionsG(true);
+          //setPermissions(true);
           setModalVisible(false); // Close the modal if permissions are granted
         } else {
           console.log("Permissions not granted. Requesting permissions...");
-          await requestJSPermissions(setPermissions);
+          await requestJSPermissions();
         }
       }
     };
@@ -41,6 +42,16 @@ const HealthConnectModal = ({ modalVisible, sdkStatus, setPermissions, setModalV
     handlePermissions();
 
   }, [modalVisible]);
+
+  useEffect(() => {
+    async function grantPermission() {
+      if (permissions) {
+        await requestJSPermissions();
+      }
+    };
+    grantPermission();
+  }, [permissions]);
+
 
   return (
     <View style={styles.centeredView}>

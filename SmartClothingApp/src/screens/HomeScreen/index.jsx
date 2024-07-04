@@ -114,7 +114,7 @@ export default function HomeScreen({ navigation }) {
       async function fetchData() {
         try {
           console.log("Fetching data...");
-          setIsFetchingData(true);
+          //setIsFetchingData(true);
           //setIsLoading(true);
           const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
           const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
@@ -192,7 +192,7 @@ export default function HomeScreen({ navigation }) {
       <HealthConnectModal 
         modalVisible={modalVisible}
         sdkStatus={sdkStatus}
-        setPermissions={setPermissions}
+        permissions={permissions}
         setModalVisible={setModalVisible}
         openGooglePlayStore={openGooglePlayStore}
         />

@@ -79,12 +79,12 @@ export const checkAvailability = async (setModalVisible, setSdkStatus, setIsHeal
        setPermissions(false);
        console.log("Permissions are not granted, setting modal visible")
 
-    //  requestJSPermissions handled in HealthConnectModal
-        await requestJSPermissions();
+      // 
+       // await requestJSPermissions();
     //   //console.log("recieved permissions");
     } else {
       console.log("User has permissions already");
-      setPermissions(true);
+      //setPermissions(true); 
       console.log("Permissions are granted");
 
       console.log("Updating health data... [to be implemented]");
@@ -111,7 +111,7 @@ export const checkAvailability = async (setModalVisible, setSdkStatus, setIsHeal
 
 
 
-export const requestJSPermissions = (setPermissions) => {
+export const requestJSPermissions = () => {
   requestPermission([
     {
       // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
