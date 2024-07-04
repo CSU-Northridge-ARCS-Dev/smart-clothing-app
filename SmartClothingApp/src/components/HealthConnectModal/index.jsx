@@ -1,4 +1,4 @@
-import { React, useEffect } from 'react';
+import { React, useEffect, useState } from 'react';
 import { View, Modal, Button, Text, StyleSheet } from 'react-native';
 import { AppColor } from "../../constants/themes";
 import {
@@ -53,10 +53,11 @@ const HealthConnectModal = ({ modalVisible, sdkStatus, permissions, setPermissio
   // }, [permissions]);
 
 
+ // Modal to display if SDK is not available or requires an update
   return (
     <View style={styles.centeredView}>
       <Modal
-        visible={modalVisible}
+        visible={false}  // Visbility set to false because not needed. 
         transparent={false}
         animationType="slide"
         contentContainerStyle={{

@@ -1,7 +1,11 @@
 import { View, ActivityIndicator, StyleSheet, Text } from "react-native";
 import { AppColor } from "../../constants/themes";
 
-function LoadingOverlay() {
+function LoadingOverlay({ visible }) {
+
+  if (!visible) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>

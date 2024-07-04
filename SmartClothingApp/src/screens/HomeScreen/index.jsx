@@ -115,7 +115,7 @@ export default function HomeScreen({ navigation }) {
         try {
           console.log("Fetching data...");
           //setIsFetchingData(true);
-          //setIsLoading(true);
+          setIsLoading(true);
           const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
           const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
           await sendHeartRateData(heartRateData);
@@ -124,31 +124,33 @@ export default function HomeScreen({ navigation }) {
         } catch (error) {
           console.error("Error fetching data:", error);
         } finally {
-          setIsLoading(false);
-          console.log("Loading complete!");
-
           dispatch(initialHealthDataSync(false));
           console.log("Dispatched initialHealthDataSync");
+
+          setIsLoading(false);
+          console.log("Loading complete!");
         }
       }
       fetchData();
     }
   }, [onAccountCreation, isHealthConnectInitialized, permissions]);
+  
 
-  // if (isLoading || isFetchingData) {
+  // if (isLoading) {
   //   return <LoadingOverlay />;
   // } 
 
   // if(!isHealthConnectInitialized) {
   //   setIsLoading(true);
   // } else {
-  //   setIsLoading(false);
+  //   //setIsLoading(false);
   // }
 
 
 
   return (
     <RefreshView style={styles.container}>
+      {<LoadingOverlay visible={isLoading}/>}
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
