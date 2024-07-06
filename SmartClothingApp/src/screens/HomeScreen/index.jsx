@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
-import { initialHealthDataSync } from "../../actions/appActions.js";
+import { initialHealthDataSync } from "../../actions/healthConnectActions.js";
 import RefreshView from "../../components/RefreshView/index.jsx";
 import { sendHeartRateData, sendSleepData } from "../../actions/userActions.js";
 
