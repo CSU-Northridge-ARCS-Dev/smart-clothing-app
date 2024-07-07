@@ -11,6 +11,7 @@ import RefreshView from "../../components/RefreshView/index.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
 
+
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(true);

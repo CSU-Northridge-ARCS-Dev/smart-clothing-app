@@ -5,7 +5,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import LoadingOverlay from "../../components/UI/LoadingOverlay.jsx";
-import { initialHealthDataSync } from "../../actions/healthConnectActions.js";
+import { 
+  initialHealthDataSync, 
+  setHealthConnectLoadingScreen, 
+  checkAvailability  
+} from "../../actions/healthConnectActions.js";
 import RefreshView from "../../components/RefreshView/index.jsx";
 import { sendHeartRateData, sendSleepData } from "../../actions/userActions.js";
 
@@ -18,54 +22,27 @@ import {
   DataCollectModal,
 } from "../../components";
 
-import {
-  aggregateRecord,
-  getGrantedPermissions,
-  initialize,
-  insertRecords,
-  getSdkStatus,
-  readRecords,
-  requestPermission,
-  revokeAllPermissions,
-  SdkAvailabilityStatus,
-  openHealthConnectSettings,
-  openHealthConnectDataManagement,
-  readRecord,
-} from "react-native-health-connect";
-
+import { getHeartRateData, getSleepData } from "../../utils/HealthConnectUtils.js";
+import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 import HealthConnectModal from "../../components/HealthConnectModal/index.jsx";
 
-import { 
-  initializeHealthConnect,
-  checkAvailability,
-  requestJSPermissions,
-  grantedPermissions,
-  insertSampleData,
-  readSampleDataSingle,
-  aggregateSampleData,
-} from "../../services/HealthConnectServices/HealthConnectServices.js";
-
-import { getHeartRateData, getSleepData } from "../../utils/HealthConnectUtils.js";
-//import { readSampleData } from "../../services/HealthConnectServices/HealthConnectServices.js";
-
-import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
 export default function HomeScreen({ navigation }) {
-  // start area that needs to be moved to a separate file
-  // test functions start
-  // test functions end
-
-  const [modalVisible, setModalVisible] = useState(false);
-  const [sdkStatus, setSdkStatus] = useState(null);
-  const [permissions, setPermissions] = useState(false);
-  const [isFetchingData, setIsFetchingData] = useState(false);
-  const [isHealthConnectInitialized, setIsHealthConnectInitialized] = useState(false);
-
+  
   const dispatch = useDispatch();
-  const route = useRoute();
+
   const firstName = useSelector((state) => state.user.firstName);
-  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
-  const [isLoading, setIsLoading] = useState(false);
+  const onAccountCreation = useSelector((state) => state.healthConnect.onAccountCreation);
+  const permissions = useSelector((state) => state.healthConnect.permissions);
+  const sdkStatus = useSelector((state) => state.healthConnect.sdkStatus);
+  const isHealthConnectInitialized = useSelector((state) => state.healthConnect.isHealthConnectInitialized);
+  const healthConnectModalVisible  = useSelector((state) => state.healthConnect.healthConnectModalVisible);
+  const isLoading = useSelector((state) => state.healthConnect.healthConnectLoadingScreen)
+
+  const route = useRoute();
+
+  // might use redux for this so it can be shown in all screens 
+  //const [isLoading, setIsLoading] = useState(false);
 
   const getLastYearDate = () => {
     const today = new Date();
@@ -104,18 +81,26 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     console.log("Checking Availability and Asking Permission...");
-    checkAvailability(setModalVisible, setSdkStatus, setIsHealthConnectInitialized, setPermissions);
+    //checkAvailability(setModalVisible, setSdkStatus, setIsHealthConnectInitialized, setPermissions);
+    dispatch(checkAvailability());
     console.log("Hit check availability");
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     console.log("Checking Permissions...");
+    console.log("[HomeScreen] onAccountCreation: ", onAccountCreation);
+    console.log("[HomeScreen] isHealthConnectInitialized: ", isHealthConnectInitialized);
+    console.log("[HomeScreen] permissions: ", permissions);
+    console.log("[HomeScreen] sdkStatus: ", sdkStatus);
+    console.log("[HomeScreen] healthConnectModalVisible: ", healthConnectModalVisible);
+    console.log("[HomeScreen] isLoading: ", isLoading);
+
     if (onAccountCreation && isHealthConnectInitialized && permissions) {
       async function fetchData() {
         try {
           console.log("Fetching data...");
           //setIsFetchingData(true);
-          setIsLoading(true);
+          dispatch(setHealthConnectLoadingScreen(true));
           const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
           const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
           await sendHeartRateData(heartRateData);
@@ -127,13 +112,14 @@ export default function HomeScreen({ navigation }) {
           dispatch(initialHealthDataSync(false));
           console.log("Dispatched initialHealthDataSync");
 
-          setIsLoading(false);
+          // setIsLoading(false);
+          dispatch(setHealthConnectLoadingScreen(false));
           console.log("Loading complete!");
         }
       }
       fetchData();
     }
-  }, [onAccountCreation, isHealthConnectInitialized, permissions]);
+  }, [onAccountCreation, isHealthConnectInitialized, permissions, dispatch]);
   
 
   // if (isLoading) {
@@ -150,7 +136,7 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <RefreshView style={styles.container}>
-      {<LoadingOverlay visible={isLoading}/>}
+      {isLoading && <LoadingOverlay visible={isLoading}/>}
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
@@ -192,11 +178,11 @@ export default function HomeScreen({ navigation }) {
         {/* <HeartRateChart data={defaultData}/> */}
       </View>
       <HealthConnectModal 
-        modalVisible={modalVisible}
+        modalVisible={healthConnectModalVisible }
         sdkStatus={sdkStatus}
         permissions={permissions}
-        setPermissions={setPermissions}
-        setModalVisible={setModalVisible}
+        setPermissions={(permissions) => dispatch(setPermissions(permissions))}
+        setModalVisible={(healthConnectModalVisible ) => dispatch(setHealthConnectModalVisible(healthConnectModalVisible ))}
         openGooglePlayStore={openGooglePlayStore}
         />
     </RefreshView>

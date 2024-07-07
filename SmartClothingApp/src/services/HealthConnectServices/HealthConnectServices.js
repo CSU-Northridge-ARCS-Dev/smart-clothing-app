@@ -14,102 +14,39 @@ import {
 } from "react-native-health-connect";
 
 
-//need to be put into utils
-const getLastYearDate = () => {
-  const today = new Date();
-  return new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-};
-
-const getLastWeekDate = () => {
-  return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
-};
-
-const getLastTwoWeeksDate = () => {
-  return new Date(new Date().getTime() - 2 * 7 * 24 * 60 * 60 * 1000);
-};
-
-const getTodayDate = () => {
-  return new Date();
-};
-//
-
-export const initializeHealthConnect = async (setIsHealthConnectInitialized) => {
-  console.log("\nInitializing Health Connect");
-
+export const initializeHealthConnect = async () => {
+  console.log("\n\n[HealthConnectServices] Initializing Health Connect");
   const result = await initialize();
-  console.log("Health Connect Initialized");
-  console.log("__result = initialize()", result);
-  
-  setIsHealthConnectInitialized(result);
-  console.log("Health Connect Initialized");
-
+  console.log("[HealthConnectServices] Health Connect Initialized");
+  console.log("[HealthConnectServices] Initialization result: ", result);
   return result;
 };
 
-
-export const checkAvailability = async (setModalVisible, setSdkStatus, setIsHealthConnectInitialized, setPermissions) => {
-  console.log("\nChecking availability of Health Connect SDK");
-
+export const checkSdkStatus = async () => {
+  console.log("\n[HealthConnectServices] Checking SDK status");
   const status = await getSdkStatus();
-  console.log("__SDK status: ", status);
-
-  await setSdkStatus(status);
-  console.log("__SDK status set");
-
-  if (status === SdkAvailabilityStatus.SDK_AVAILABLE) {
-    console.log("__SDK is available");
-
-    const isInitialized = await setIsHealthConnectInitialized();
-    console.log("__isInitialized", isInitialized);
-    if (!isInitialized) {
-      await initializeHealthConnect(setIsHealthConnectInitialized);
-      console.log("Hit health connect initialized");
-    } else {
-      console.log("Failed to initialize health connect");
-    }
-
-
-
-    const permissions = await grantedPermissions();
-    console.log("Hit granted permissions after health connect initialization");
-    console.log("Permission Status: ", permissions);
-
-    if (!permissions || permissions.length === 0) {
-       setModalVisible(true);
-       setPermissions(false);
-       console.log("Permissions are not granted, setting modal visible")
-
-      // 
-       // await requestJSPermissions();
-    //   //console.log("recieved permissions");
-    } else {
-      console.log("User has permissions already");
-      //setPermissions(true); 
-      console.log("Permissions are granted");
-
-      console.log("Updating health data... [to be implemented]");
-    }
-  }
-
-  if (status === SdkAvailabilityStatus.SDK_UNAVAILABLE) {
-    console.log("__SDK is not available");
-    console.log("Permissions are not granted, setting modal visible")
-    console.log("Hit set modal visible");
-    setModalVisible(true);
-  }
-
-  if (
-    status === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-  ) {
-    console.log("__SDK is not available, provider update required");
-    console.log("Permissions are not granted, setting modal visible")
-    console.log("Hit set modal visible");
-    setModalVisible(true);
-  }
+  console.log("[HealthConnectServices] SDK status: ", status);
+  return status;
 };
 
+export const getSdkAvailabilityStatus = async () => {
+  console.log("\n\n[HealthConnectServices] Checking SDK availability status");
+  const status = await SdkAvailabilityStatus.SDK_AVAILABLE;
+  console.log("[HealthConnectServices] SDK availability status: ", status);
+  return status;
+};
 
-
+export const checkDevicePermissions = async () => {
+  console.log("\n\n[HealthConnectServices] Checking device permissions");
+  try {
+    const permissions = await getGrantedPermissions();
+    console.log("[HealthConnectServices] Granted permissions: ", permissions);
+    return permissions;
+  } catch (error) {
+    console.error("[HealthConnectServices] Error fetching granted permissions: ", error);
+    return [];
+  }
+};
 
 export const requestJSPermissions = async (setPermissions) => {
   await requestPermission([
@@ -139,29 +76,20 @@ export const requestJSPermissions = async (setPermissions) => {
       accessType: "write",
       recordType: "SleepSession",
     },
-  ]).then((permissions) => {
-    setPermissions(true);
-    console.log("Granted permissions on request ", { permissions });
-    console.log("Permissions status set to true");
-  });
+    ]).then((permissions) => {
+      setPermissions(true);
+      console.log("Granted permissions on request ", { permissions });
+      console.log("Permissions status set to true");
+
+      return permissions;
+    });
+
 };
 
-// export const grantedPermissions = () => {
-//   getGrantedPermissions().then((permissions) => {
-//     console.log("Granted permissions ", { permissions });
-//     return permissions;
-//   });
-// };
-export const grantedPermissions = async () => {
-  try {
-    const permissions = await getGrantedPermissions();
-    console.log("Granted permissions: ", permissions);
-    return permissions;
-  } catch (error) {
-    console.error("Error fetching granted permissions: ", error);
-    return [];
-  }
-};
+
+
+
+
 
 // end area that needs to be moved to a separate file
 

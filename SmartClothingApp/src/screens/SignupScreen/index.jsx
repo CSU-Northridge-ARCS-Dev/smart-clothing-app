@@ -19,11 +19,19 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 // import GoogleButton from "../../components/GoogleButton";
 
 import { startSignupWithEmail } from "../../actions/userActions.js";
-import { initialHealthDataSync } from "../../actions/healthConnectActions.js";
+import {
+  initialHealthDataSync,
+  setHealthConnectModalVisible ,
+  setPermissions,
+} from "../../actions/healthConnectActions.js";
+
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.user.authError);
+  //const setModalVisible = useSelector((state) => state.healthConnect.setModalVisible);
+  //const healthConnectModalVisible = useSelector((state) => state.healthConnect.healthConnectModalVisible); // Updated
+
   const [isSubmitting, setIsSubmitting] = useState(true);
   const [lockStatusPassword, setLockStatusPassword] = useState("locked");
   const [lockStatusRepassword, setLockStatusRepassword] = useState("locked");
@@ -87,6 +95,7 @@ const SignupScreen = ({ navigation }) => {
     );
 
     dispatch(initialHealthDataSync(true));
+    // dispatch(setHealthConnectModalVisible(false));
   };
 
   const toggleLockStatusPassword = () => {

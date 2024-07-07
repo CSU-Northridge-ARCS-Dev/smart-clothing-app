@@ -3,11 +3,6 @@ import {
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
-  INITIAL_HEALTH_DATA_SYNC,
-  SET_PERMISSIONS,
-  SET_SDK_STATUS,
-  SET_HEALTH_CONNECT_INITIALIZED,
-  SET_MODAL_VISIBLE,
 } from "./types";
 
 import { getDayFromISODate } from "../utils/dateConversions";
@@ -87,37 +82,11 @@ export const updateSleepDataDateRange = (startDate, endDate) => {
 };
 
 
-export const initialHealthDataSync = (onAccountCreation) => {
-  return {
-    type: INITIAL_HEALTH_DATA_SYNC,
-    payload: { onAccountCreation },
-  };
-};
+// export const initialHealthDataSync = (onAccountCreation) => {
+//   return {
+//     type: INITIAL_HEALTH_DATA_SYNC,
+//     payload: { onAccountCreation },
+//   };
+// };
 
-export const setPermissions = (permissions) => {
-  return {
-    type: SET_PERMISSIONS,
-    payload: permissions,
-  };
-};
 
-export const setSdkStatus = (status) => {
-  return {
-    type: SET_SDK_STATUS,
-    payload: status,
-  }
-}
-
-export const setHealthConnectInitialized = (initialized) => {
-  return {
-    type: SET_HEALTH_CONNECT_INITIALIZED,
-    payload: initialized,
-  }
-}
-
-export const setModalVisible = (visible) => {
-  return {
-    type: SET_MODAL_VISIBLE,
-    payload: visible,
-  }
-} 

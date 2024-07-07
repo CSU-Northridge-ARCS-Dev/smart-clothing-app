@@ -1,56 +1,56 @@
 import { React, useEffect, useState } from 'react';
 import { View, Modal, Button, Text, StyleSheet } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { AppColor } from "../../constants/themes";
-import {
-  aggregateRecord,
-  getGrantedPermissions,
-  initialize,
-  insertRecords,
-  getSdkStatus,
-  readRecords,
-  requestPermission,
-  revokeAllPermissions,
-  SdkAvailabilityStatus,
-  openHealthConnectSettings,
-  openHealthConnectDataManagement,
-  readRecord,
-} from "react-native-health-connect";
-import { requestJSPermissions } from "../../services/HealthConnectServices/HealthConnectServices";
+import { requestPermissions } from "../../actions/healthConnectActions";
+import { getSdkAvailabilityStatus } from "../../services/HealthConnectServices/HealthConnectServices";
+
 
 const HealthConnectModal = ({ modalVisible, sdkStatus, permissions, setPermissions, setModalVisible, openGooglePlayStore }) => {
   
   console.log("Rendering HealthConnectModal");
+  const dispatch = useDispatch();
+
+  const handlePermissions = async () => {
+    if (modalVisible) {
+      console.log("Modal is visible. Checking permissions...");
+      console.log("Permissions:", permissions);
+
+      if (!permissions) {
+        console.log("Permissions not granted. Requesting permissions...");
+        dispatch(requestPermissions());
+      } else {
+        console.log("Permissions granted.");
+        setModalVisible(false); // Close the modal if permissions are granted
+      }
+    }
+  };
 
   useEffect(() => {
-    const handlePermissions = async () => {
-      if (modalVisible) {
-        console.log("Modal is visible. Checking permissions...");
-        //const permissions = await grantedPermissions();
-        console.log("Permissions:", permissions);
-
-        if (permissions) {
-          console.log("Permissions granted.");
-          //setPermissions(true);
-          setModalVisible(false); // Close the modal if permissions are granted
-        } else {
-          console.log("Permissions not granted. Requesting permissions...");
-          await requestJSPermissions(setPermissions);
-        }
-      }
-    };
-
     handlePermissions();
+  }, [modalVisible, permissions]);
 
-  }, [modalVisible]);
 
   // useEffect(() => {
-  //   async function grantPermission() {
-  //     if (permissions) {
-  //       await requestJSPermissions();
+  //   const handlePermissions = async () => {
+  //     if (modalVisible) {
+  //       console.log("Modal is visible. Checking permissions...");
+  //       console.log("Permissions:", permissions);
+
+  //       if (!permissions) {
+  //         console.log("Permissions not granted. Requesting permissions...");
+  //         dispatch(requestPermissions());
+
+  //       } else {
+  //         console.log("Permissions granted.");
+  //         setModalVisible(false); // Close the modal if permissions are granted
+  //       }
   //     }
   //   };
-  //   grantPermission();
-  // }, [permissions]);
+
+  //   handlePermissions();
+  // }, [modalVisible, permissions, setModalVisible]);
+
 
 
  // Modal to display if SDK is not available or requires an update
@@ -68,13 +68,13 @@ const HealthConnectModal = ({ modalVisible, sdkStatus, permissions, setPermissio
       >
         <View style={styles.modalView}>
           <Text style={styles.modalText}>
-            {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE 
+            {sdkStatus === getSdkAvailabilityStatus.SDK_UNAVAILABLE 
               ? "SDK is not available."
               : "SDK requires an update."}
           </Text>
           <View style={styles.buttonContainer}>
             <Button title="Go Back" onPress={() => setModalVisible(false)} />
-            {sdkStatus === SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
+            {sdkStatus === getSdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED && (
               <Button title="Update Health Connect" onPress={openGooglePlayStore} />
             )}
           </View>
