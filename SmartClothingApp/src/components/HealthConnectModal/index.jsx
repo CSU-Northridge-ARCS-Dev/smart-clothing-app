@@ -28,7 +28,7 @@ const HealthConnectModal = ({ modalVisible, sdkStatus, permissions, setPermissio
 
   useEffect(() => {
     handlePermissions();
-  }, [modalVisible, permissions]);
+  }, [modalVisible, permissions, dispatch]);
 
 
   // useEffect(() => {

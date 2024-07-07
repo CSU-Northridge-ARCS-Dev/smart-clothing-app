@@ -26,6 +26,11 @@ import { getHeartRateData, getSleepData } from "../../utils/HealthConnectUtils.j
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 import HealthConnectModal from "../../components/HealthConnectModal/index.jsx";
 
+import { 
+  setPermissions,
+  setHealthConnectModalVisible
+} from "../../actions/healthConnectActions.js";
+
 
 export default function HomeScreen({ navigation }) {
   

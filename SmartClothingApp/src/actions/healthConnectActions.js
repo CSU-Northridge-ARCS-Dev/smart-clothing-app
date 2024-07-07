@@ -104,6 +104,7 @@ export const checkAvailability = () => async (dispatch) => {
     }
   };
   
+  
   export const requestPermissions = () => async (dispatch) => {
     console.log("\n[healthConnectActions] requestPermissions called");
     try {

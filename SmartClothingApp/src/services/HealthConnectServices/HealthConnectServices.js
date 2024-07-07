@@ -48,7 +48,7 @@ export const checkDevicePermissions = async () => {
   }
 };
 
-export const requestJSPermissions = async (setPermissions) => {
+export const requestJSPermissions = async () => {
   await requestPermission([
     {
       // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
