@@ -1,17 +1,17 @@
 import {
-    INITIAL_HEALTH_DATA_SYNC,
-    SET_PERMISSIONS,
-    SET_SDK_STATUS,
-    SET_HEALTH_CONNECT_INITIALIZED,
-    SET_HEALTH_CONNECT_MODAL_VISIBLE,
-    SET_HEALTH_SYNC_LOADING_SCREEN,
+    START_HEALTH_CONNECT_SETUP,
+    ANDROID_SDK_STATUS,
+    HEALTH_CONNECT_PERMISSIONS,
+    HEALTH_CONNECT_INITIALIZED,
+    HEALTH_CONNECT_MODAL_VISIBLE,
+    HEALTH_CONNECT_SYNC,
 } from '../actions/types';
 
 
 const initialState = {
-    onAccountCreation: false,
-    permissions: false,
+    onUserAuthenticated: false,
     sdkStatus: null,
+    permissions: false,
     isHealthConnectInitialized: false,
     healthConnectModalVisible: false,
     healthConnectLoadingScreen: false,
@@ -22,38 +22,38 @@ const healthConnectReducer = (state = initialState, action) => {
     console.log('[healthConnectReducer] Initial state:', state);
     console.log("[healthConnectReducer] Action received:", action)
     switch (action.type) {
-        case INITIAL_HEALTH_DATA_SYNC:
-            console.log("[healthConnectReducer] Handling INITIAL_HEALTH_DATA_SYNC");
+        case START_HEALTH_CONNECT_SETUP:
+            console.log("[healthConnectReducer] Handling START_HEALTH_CONNECT_SETUP");
             return {
                 ...state,
-                onAccountCreation: action.payload.onAccountCreation,
+                onUserAuthenticated: action.payload.onUserAuthenticated,
             };
-        case SET_PERMISSIONS:
-            console.log("[healthConnectReducer] Handling SET_PERMISSIONS");
-            return {
-                ...state,
-                permissions: action.payload.permissions,
-            };
-        case SET_SDK_STATUS:
-            console.log("[healthConnectReducer] Handling SET_SDK_STATUS");
+        case ANDROID_SDK_STATUS:
+            console.log("[healthConnectReducer] Handling ANDROID_SDK_STATUS");
             return {
                 ...state,
                 sdkStatus: action.payload.status,
             };
-        case SET_HEALTH_CONNECT_INITIALIZED:
-            console.log("[healthConnectReducer] Handling SET_HEALTH_CONNECT_INITIALIZED");
+        case HEALTH_CONNECT_PERMISSIONS:
+            console.log("[healthConnectReducer] Handling HEALTH_CONNECT_PERMISSIONS");
+            return {
+                ...state,
+                permissions: action.payload.permissions,
+            };
+        case HEALTH_CONNECT_INITIALIZED:
+            console.log("[healthConnectReducer] Handling HEALTH_CONNECT_INITIALIZED");
             return {
                 ...state,
                 isHealthConnectInitialized: action.payload.initialized,
             };
-        case SET_HEALTH_CONNECT_MODAL_VISIBLE:
-            console.log("[healthConnectReducer] Handling SET_HEALTH_CONNECT_MODAL_VISIBLE");
+        case HEALTH_CONNECT_MODAL_VISIBLE:
+            console.log("[healthConnectReducer] Handling HEALTH_CONNECT_MODAL_VISIBLE");
             return {
                 ...state,
                 healthConnectModalVisible: action.payload.visible,
             };
-        case SET_HEALTH_SYNC_LOADING_SCREEN:
-            console.log("[healthConnectReducer] Handling SET_HEALTH_SYNC_LOADING_SCREEN");
+        case HEALTH_CONNECT_SYNC:
+            console.log("[healthConnectReducer] Handling HEALTH_CONNECT_SYNC");
             return {
                 ...state,
                 healthConnectLoadingScreen: action.payload.visible,

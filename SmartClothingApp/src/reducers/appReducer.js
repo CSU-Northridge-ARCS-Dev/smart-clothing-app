@@ -7,6 +7,7 @@ import {
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
+  INITIAL_HEALTH_DATA_SYNC,
 } from "../actions/types";
 
 const initialState = {
@@ -15,7 +16,7 @@ const initialState = {
   // userMetricsData Modal sub-states
   userMetricsDataModalVisible: false,
   isFromSignUpScreen: false,
-  //onAccountCreation: false,
+  onAccountCreation: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
   activityRingsData: {
     Sunday: {
@@ -136,12 +137,12 @@ const appReducer = (state = initialState, action) => {
         userMetricsDataModalVisible: action.payload.visibility,
         isFromSignUpScreen: action.payload.isFromSignUpScreen,
       };
-    // case INITIAL_HEALTH_DATA_SYNC:
-    //   console.log(`Initial health data sync... ${action.payload}`);
-    //   return {
-    //     ...state,
-    //     onAccountCreation: action.payload.onAccountCreation,
-    //   };
+    case INITIAL_HEALTH_DATA_SYNC:
+      console.log(`Initial health data sync... ${action.payload}`);
+      return {
+        ...state,
+        onAccountCreation: action.payload.onAccountCreation,
+      };
     case UPDATE_ACTIVITY_RINGS_DATA:
       return {
         ...state,

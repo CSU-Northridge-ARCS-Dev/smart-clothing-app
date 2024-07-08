@@ -49,42 +49,81 @@ export const checkDevicePermissions = async () => {
 };
 
 export const requestJSPermissions = async () => {
-  await requestPermission([
-    {
-      // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
-      // need to add heart rate & sleep data
-      accessType: "read",
-      recordType: "Steps",
-    },
-    {
-      accessType: "read",
-      recordType: "HeartRate",
-    },
-    {
-      accessType: "write",
-      recordType: "Steps",
-    },
-    {
-      accessType: "write",
-      recordType: "HeartRate",
-    },
-    {
-      accessType: "read",
-      recordType: "SleepSession",
-    },
-    {
-      accessType: "write",
-      recordType: "SleepSession",
-    },
-    ]).then((permissions) => {
-      setPermissions(true);
-      console.log("Granted permissions on request ", { permissions });
-      console.log("Permissions status set to true");
+  try {
+    const permissions = await requestPermission([
+      {
+        // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
+        // need to add heart rate & sleep data
+        accessType: "read",
+        recordType: "Steps",
+      },
+      {
+        accessType: "read",
+        recordType: "HeartRate",
+      },
+      {
+        accessType: "write",
+        recordType: "Steps",
+      },
+      {
+        accessType: "write",
+        recordType: "HeartRate",
+      },
+      {
+        accessType: "read",
+        recordType: "SleepSession",
+      },
+      {
+        accessType: "write",
+        recordType: "SleepSession",
+      },
+    ]);
 
-      return permissions;
-    });
-
+    console.log("Granted permissions on request ", { permissions });
+    return permissions;
+  } catch (error) {
+    console.error("Error requesting permissions: ", error);
+    return [];
+  }
 };
+
+// export const requestJSPermissions = async () => {
+//   await requestPermission([
+//     {
+//       // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
+//       // need to add heart rate & sleep data
+//       accessType: "read",
+//       recordType: "Steps",
+//     },
+//     {
+//       accessType: "read",
+//       recordType: "HeartRate",
+//     },
+//     {
+//       accessType: "write",
+//       recordType: "Steps",
+//     },
+//     {
+//       accessType: "write",
+//       recordType: "HeartRate",
+//     },
+//     {
+//       accessType: "read",
+//       recordType: "SleepSession",
+//     },
+//     {
+//       accessType: "write",
+//       recordType: "SleepSession",
+//     },
+//     ]).then((permissions) => {
+//       setPermissions(true);
+//       console.log("Granted permissions on request ", { permissions });
+//       console.log("Permissions status set to true");
+
+//       return permissions;
+//     });
+
+// };
 
 
 

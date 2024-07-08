@@ -19,11 +19,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 // import GoogleButton from "../../components/GoogleButton";
 
 import { startSignupWithEmail } from "../../actions/userActions.js";
-import {
-  initialHealthDataSync,
-  setHealthConnectModalVisible ,
-  setPermissions,
-} from "../../actions/healthConnectActions.js";
+import { initialHealthDataSync } from "../../actions/appActions.js";
 
 
 const SignupScreen = ({ navigation }) => {
