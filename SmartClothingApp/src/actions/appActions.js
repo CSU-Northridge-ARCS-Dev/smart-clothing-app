@@ -83,10 +83,10 @@ export const updateSleepDataDateRange = (startDate, endDate) => {
 };
 
 
-export const initialHealthDataSync = (onAccountCreation) => {
+export const initialHealthDataSync = (firstSync) => {
   return {
     type: INITIAL_HEALTH_DATA_SYNC,
-    payload: { onAccountCreation },
+    payload: { firstSync },
   };
 };
 

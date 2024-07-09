@@ -16,7 +16,7 @@ const initialState = {
   // userMetricsData Modal sub-states
   userMetricsDataModalVisible: false,
   isFromSignUpScreen: false,
-  onAccountCreation: false,
+  firstSync: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
   activityRingsData: {
     Sunday: {
@@ -141,7 +141,7 @@ const appReducer = (state = initialState, action) => {
       console.log(`Initial health data sync... ${action.payload}`);
       return {
         ...state,
-        onAccountCreation: action.payload.onAccountCreation,
+        firstSync: action.payload.firstSync,
       };
     case UPDATE_ACTIVITY_RINGS_DATA:
       return {

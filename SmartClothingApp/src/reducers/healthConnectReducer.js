@@ -56,7 +56,7 @@ const healthConnectReducer = (state = initialState, action) => {
             console.log("[healthConnectReducer] Handling HEALTH_CONNECT_SYNC");
             return {
                 ...state,
-                healthConnectLoadingScreen: action.payload.visible,
+                syncStatus: action.payload.syncStatus,
             };
         default:
             return state;

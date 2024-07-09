@@ -31,6 +31,7 @@ import {
   setHealthConnectModalVisible
 } from "../../actions/healthConnectActions.js";
 import { initialHealthDataSync } from "../../actions/appActions.js";
+import { useHealthDataSync } from "../../services/useHealthDataSync";
 
 
 export default function HomeScreen({ navigation }) {
@@ -39,26 +40,29 @@ export default function HomeScreen({ navigation }) {
 
   // User / App data
   const firstName = useSelector((state) => state.user.firstName);
-  const onAccountCreation = useSelector((state) => state.app.onAccountCreation);
+  const isFirstSync = useSelector((state) => state.app.firstSync);
+
+  const { isLoading } = useHealthDataSync(isFirstSync);
+
 
     // Android's Health Connect
-  const setupHC = useSelector((state) => state.healthConnect.onUserAuthenticated);
-  const permissions = useSelector((state) => state.healthConnect.permissions);
-  const sdkStatus = useSelector((state) => state.healthConnect.sdkStatus);
-  const isHealthConnectInitialized = useSelector((state) => state.healthConnect.isHealthConnectInitialized);
-  const healthConnectModalVisible  = useSelector((state) => state.healthConnect.healthConnectModalVisible);
-  const isLoading = useSelector((state) => state.healthConnect.healthConnectLoadingScreen)
+  // const setupHC = useSelector((state) => state.healthConnect.onUserAuthenticated);
+  // const permissions = useSelector((state) => state.healthConnect.permissions);
+  // const sdkStatus = useSelector((state) => state.healthConnect.sdkStatus);
+  // const isHealthConnectInitialized = useSelector((state) => state.healthConnect.isHealthConnectInitialized);
+  // const healthConnectModalVisible  = useSelector((state) => state.healthConnect.healthConnectModalVisible);
+  // const isHCSyncing = useSelector((state) => state.healthConnect.syncStatus)
 
 
-  //const healthKitSetup = useSelector((state) => state.healthConnect.healthKitSetup);
-  const healthKitSetup = false; // Temp
-  // Other HealthKit setup logic here
+  // //const healthKitSetup = useSelector((state) => state.healthConnect.healthKitSetup);
+  // const healthKitSetup = false; // Temp
+  // // Other HealthKit setup logic here
 
 
-  const route = useRoute();
-  const [isProcessing, setIsProcessing] = useState(true);
-  const timeoutRef = useRef(null); // Reference to the timeout
-  const isTimerSet = useRef(false); // Flag to ensure the timer only runs once
+  // const route = useRoute();
+  // const [isProcessing, setIsProcessing] = useState(true);
+  // const timeoutRef = useRef(null); // Reference to the timeout
+  // const isTimerSet = useRef(false); // Flag to ensure the timer only runs once
 
 
 
@@ -92,141 +96,141 @@ export default function HomeScreen({ navigation }) {
 
   // ABSTRACT USEEFFECT LOGIC TO A SEPARATE MODULE TO REUSE IN SETTINGS 
 
-  useEffect(() => {
-    console.log("Checking Availability and Asking Permission...");
+  // useEffect(() => {
+  //   console.log("Checking Availability and Asking Permission...");
 
-    if (Platform.OS === 'android') {
-      dispatch(startHealthConnectSetup(true));
-      dispatch(initHCWithPermissionsCheck());
-      console.log("Hit initHCWithPermissionsCheck");
-    } else {z
-      // iOS-specific code for HealthKit
-      // Here you would use HealthKit to check availability and ask for permissions
-      // Example:
-      // dispatch(initHealthKitWithPermissionsCheck());
-
-
-    }
-  }, [dispatch]);
+  //   if (Platform.OS === 'android') {
+  //     dispatch(startHealthConnectSetup(true));
+  //     dispatch(initHCWithPermissionsCheck());
+  //     console.log("Hit initHCWithPermissionsCheck");
+  //   } else {z
+  //     // iOS-specific code for HealthKit
+  //     // Here you would use HealthKit to check availability and ask for permissions
+  //     // Example:
+  //     // dispatch(initHealthKitWithPermissionsCheck());
 
 
-
-  useEffect(() => {
-    console.log("Checking Permissions...");
-    console.log("[HomeScreen] onAccountCreation: ", onAccountCreation);
-    console.log("[HomeScreen] setupHC: ", setupHC);
-    console.log("[HomeScreen] isHealthConnectInitialized: ", isHealthConnectInitialized);
-    console.log("[HomeScreen] permissions: ", permissions);
-    console.log("[HomeScreen] sdkStatus (not required): ", sdkStatus);
-    console.log("[HomeScreen] healthConnectModalVisible: ", healthConnectModalVisible);
-    console.log("[HomeScreen] isLoading: ", isLoading);
+  //   }
+  // }, [dispatch]);
 
 
-    const healthConnectReady = setupHC && permissions && isHealthConnectInitialized;
-    console.log("\n[HomeScreen] healthConnectReady: ", healthConnectReady);
 
-    //const healthKitReady = healthKitSetup && permissionsHK && isHealthKitInitialized;
-    const healthKitReady = false; // Temp
-    console.log("[HomeScreen] healthKitReady: ", healthKitReady);
-
-    if (healthConnectReady || healthKitReady) {
-      async function fetchData() {
-        try {
-          console.log("Fetching data...");
-          //setIsFetchingData(true);
-
-          // move to app actions
-          dispatch(setHCSyncLoadingStatus(true)); 
-
-          if (!onAccountCreation) {
-            // If coming from sign-in, adjust retrieve data starting at the last update date
-            console.log("[HomeScreen] Not on account creation, fetching data from last update date.");
-
-            if (Platform.OS === 'android') {
-              await updateWithLatestData();
-              console.log("[HomeScreen] Android data updated successfully.");
-
-            } else if (Platform.OS === 'ios') {
-              // iOS-specific code for HealthKit
+  // useEffect(() => {
+  //   console.log("Checking Permissions...");
+  //   console.log("[HomeScreen] onAccountCreation: ", onAccountCreation);
+  //   console.log("[HomeScreen] setupHC: ", setupHC);
+  //   console.log("[HomeScreen] isHealthConnectInitialized: ", isHealthConnectInitialized);
+  //   console.log("[HomeScreen] permissions: ", permissions);
+  //   console.log("[HomeScreen] sdkStatus (not required): ", sdkStatus);
+  //   console.log("[HomeScreen] healthConnectModalVisible: ", healthConnectModalVisible);
+  //   console.log("[HomeScreen] isLoading: ", isLoading);
 
 
-            } else {
-              console.error("Platform not supported");
-            }
-          } else {
-            // If on account creation, set the start date to 30 days ago
-            console.log("[HomeScreen] On account creation, fetching data from 30 days ago.");
+  //   const healthConnectReady = setupHC && permissions && isHealthConnectInitialized;
+  //   console.log("\n[HomeScreen] healthConnectReady: ", healthConnectReady);
 
-            if (Platform.OS === 'android') {
+  //   //const healthKitReady = healthKitSetup && permissionsHK && isHealthKitInitialized;
+  //   const healthKitReady = false; // Temp
+  //   console.log("[HomeScreen] healthKitReady: ", healthKitReady);
+
+  //   if (healthConnectReady || healthKitReady) {
+  //     async function fetchData() {
+  //       try {
+  //         console.log("Fetching data...");
+  //         //setIsFetchingData(true);
+
+  //         // move to app actions
+  //         dispatch(setHCSyncLoadingStatus(true)); 
+
+  //         if (!onAccountCreation) {
+  //           // If coming from sign-in, adjust retrieve data starting at the last update date
+  //           console.log("[HomeScreen] Not on account creation, fetching data from last update date.");
+
+  //           if (Platform.OS === 'android') {
+  //             await updateWithLatestData();
+  //             console.log("[HomeScreen] Android data updated successfully.");
+
+  //           } else if (Platform.OS === 'ios') {
+  //             // iOS-specific code for HealthKit
+
+
+  //           } else {
+  //             console.error("Platform not supported");
+  //           }
+  //         } else {
+  //           // If on account creation, set the start date to 30 days ago
+  //           console.log("[HomeScreen] On account creation, fetching data from 30 days ago.");
+
+  //           if (Platform.OS === 'android') {
               
 
-              // COMMENTED OUT TO LOWER DATABASE WRITES 
-              // (CHATGPT PROMPT) CONTINUE TO INCLUDE IN TESTS:
-              // const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
-              // const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
+  //             // COMMENTED OUT TO LOWER DATABASE WRITES 
+  //             // (CHATGPT PROMPT) CONTINUE TO INCLUDE IN TESTS:
+  //             // const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
+  //             // const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
 
 
-              // DEBUGGER - heart and sleep data from two days ago
-              console.log("[HomeScreen]\n\n\n DEBUGGER - heart and sleep data from two days ago\n\n")
-              const heartRateData = await getHeartRateData(getLastDayDate(), getTodayDate());
-              const sleepData = await getSleepData(getLastTwoDaysDate(), getTodayDate());
+  //             // DEBUGGER - heart and sleep data from two days ago
+  //             console.log("[HomeScreen]\n\n\n DEBUGGER - heart and sleep data from two days ago\n\n")
+  //             const heartRateData = await getHeartRateData(getLastDayDate(), getTodayDate());
+  //             const sleepData = await getSleepData(getLastTwoDaysDate(), getTodayDate());
 
 
 
 
-              console.log("\nHeart Rate Data Retrieved from HC")
-              console.log("[HomeScreen] Heart Rate Data: ", heartRateData);
-              console.log("\nSleep Data Retrieved from HC")
-              console.log("[HomeScreen] Sleep Data: ", sleepData);
+  //             console.log("\nHeart Rate Data Retrieved from HC")
+  //             console.log("[HomeScreen] Heart Rate Data: ", heartRateData);
+  //             console.log("\nSleep Data Retrieved from HC")
+  //             console.log("[HomeScreen] Sleep Data: ", sleepData);
 
-              await sendHeartRateData(heartRateData);
-              await sendSleepData(sleepData);
-
-
-            } else if (Platform.OS === 'ios') {
-              // iOS-specific code for HealthKit
-              // Here you would use HealthKit to fetch and handle health data
-              // Example:
-              // const heartRateData = await getHeartRateDataFromHealthKit(startDate, getTodayDate());
-              // const sleepData = await getSleepDataFromHealthKit(startDate, getTodayDate());
-            }
-          }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        } finally {
+  //             await sendHeartRateData(heartRateData);
+  //             await sendSleepData(sleepData);
 
 
-          if (Platform.OS === 'android') {
-            dispatch(startHealthConnectSetup(false));
-            console.log("[HomeScreen] Dispatched initialHealthDataSync");
+  //           } else if (Platform.OS === 'ios') {
+  //             // iOS-specific code for HealthKit
+  //             // Here you would use HealthKit to fetch and handle health data
+  //             // Example:
+  //             // const heartRateData = await getHeartRateDataFromHealthKit(startDate, getTodayDate());
+  //             // const sleepData = await getSleepDataFromHealthKit(startDate, getTodayDate());
+  //           }
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching data:", error);
+  //       } finally {
 
-          } else if (Platform.OS === 'ios') {
-            // iOS-specific code for HealthKit
+
+  //         if (Platform.OS === 'android') {
+  //           dispatch(startHealthConnectSetup(false));
+  //           console.log("[HomeScreen] Dispatched initialHealthDataSync");
+
+  //         } else if (Platform.OS === 'ios') {
+  //           // iOS-specific code for HealthKit
 
 
-          } else {
-            console.error("Platform not supported");
-          }
+  //         } else {
+  //           console.error("Platform not supported");
+  //         }
 
-          dispatch(setHCSyncLoadingStatus(false));
-          dispatch(initialHealthDataSync(false));
+  //         dispatch(setHCSyncLoadingStatus(false));
+  //         dispatch(initialHealthDataSync(false));
 
-          console.log("\n[HomeScreen]\n-------------\n-------------\n-------------\nLoading complete!\n-------------\n-------------\n-------------");
-        }
-      };
-      fetchData();
-    } else if (!permissions && !isTimerSet.current) {
-      timeoutRef.current = setTimeout(() => setIsProcessing(false), 10000);  // Fallback timeout
-      isTimerSet.current = true; // Set the flag to true
-    }
-  },  [
-    onAccountCreation,
-    startHealthConnectSetup,
-    isHealthConnectInitialized,
-    permissions,
-    healthKitSetup,
-    dispatch
-  ]);
+  //         console.log("\n[HomeScreen]\n-------------\n-------------\n-------------\nLoading complete!\n-------------\n-------------\n-------------");
+  //       }
+  //     };
+  //     fetchData();
+  //   } else if (!permissions && !isTimerSet.current) {
+  //     timeoutRef.current = setTimeout(() => setIsProcessing(false), 10000);  // Fallback timeout
+  //     isTimerSet.current = true; // Set the flag to true
+  //   }
+  // },  [
+  //   onAccountCreation,
+  //   setupHC,
+  //   isHealthConnectInitialized,
+  //   permissions,
+  //   healthKitSetup,
+  //   dispatch
+  // ]);
   
 
 
@@ -240,11 +244,11 @@ export default function HomeScreen({ navigation }) {
   // }
 
   // ISSUE : NAV BAR IS SHOWING - need to hide it somehow
-  if (isProcessing) {
-    return (
-      <LoadingOverlay visible={true} />
-    );
-  }
+  // if (isProcessing) {
+  //   return (
+  //     <LoadingOverlay visible={true} />
+  //   );
+  // }
 
   return (
     <RefreshView style={styles.container}>

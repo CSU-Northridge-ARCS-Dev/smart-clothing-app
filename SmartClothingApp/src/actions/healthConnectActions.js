@@ -13,6 +13,7 @@ import {
     requestJSPermissions,
     getSdkAvailabilityStatus,
   } from "../services/HealthConnectServices/HealthConnectServices";
+import { initialHealthDataSync } from "./appActions";
 
 
 export const startHealthConnectSetup = (onUserAuthenticated) => {
@@ -48,10 +49,10 @@ export const setHealthConnectModalVisible = (visible) => ({
     payload: { visible },
 });
 
-export const setHCSyncLoadingStatus = (visible) => {
+export const setHCSyncLoadingStatus = (syncStatus) => {
     return {
         type: HEALTH_CONNECT_SYNC,
-        payload: { visible },
+        payload: { syncStatus },
     }
 };
 
@@ -128,8 +129,12 @@ export const initHCWithPermissionsCheck = () => async (dispatch) => {
             dispatch(setHealthConnectModalVisible(false));
             console.log("[healthConnectActions] Health Connect Initialized and modal hidden");
         } else {
+            // Cancel the request and set permissions to false
             dispatch(setHealthConnectModalVisible(false));
-            console.log("[healthConnectActions] Health Connect not initialized");
+            // dispatch(setHealthConnectPermissions(false));
+            // dispatch(setHCSyncLoadingStatus(false));
+            dispatch(initialHealthDataSync(false));
+            console.log("[healthConnectActions] Health Connect Permissions not set");
         }
     } catch (error) {
         console.error("[healthConnectActions] Error requesting permissions:", error);
