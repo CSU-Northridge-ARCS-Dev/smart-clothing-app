@@ -14,6 +14,10 @@ import {
 } from "react-native-health-connect";
 
 
+/**
+ * Initializes the Health Connect service.
+ * @returns {Promise<any>} A promise that resolves with the initialization result.
+ */
 export const initializeHealthConnect = async () => {
   console.log("\n\n[HealthConnectServices] Initializing Health Connect");
   const result = await initialize();
@@ -22,6 +26,10 @@ export const initializeHealthConnect = async () => {
   return result;
 };
 
+/**
+ * Checks the SDK status.
+ * @returns {Promise<string>} The SDK status.
+ */
 export const checkSdkStatus = async () => {
   console.log("\n[HealthConnectServices] Checking SDK status");
   const status = await getSdkStatus();
@@ -29,6 +37,10 @@ export const checkSdkStatus = async () => {
   return status;
 };
 
+/**
+ * Retrieves the availability status of the SDK.
+ * @returns {Promise<string>} The availability status of the SDK.
+ */
 export const getSdkAvailabilityStatus = async () => {
   console.log("\n\n[HealthConnectServices] Checking SDK availability status");
   const status = await SdkAvailabilityStatus.SDK_AVAILABLE;
@@ -36,6 +48,10 @@ export const getSdkAvailabilityStatus = async () => {
   return status;
 };
 
+/**
+ * Checks the device permissions.
+ * @returns {Promise<Array<string>>} The granted permissions.
+ */
 export const checkDevicePermissions = async () => {
   console.log("\n\n[HealthConnectServices] Checking device permissions");
   try {
@@ -48,6 +64,10 @@ export const checkDevicePermissions = async () => {
   }
 };
 
+/**
+ * Requests JavaScript permissions for accessing health data.
+ * @returns {Promise<Array>} A promise that resolves to an array of granted permissions.
+ */
 export const requestJSPermissions = async () => {
   try {
     const permissions = await requestPermission([
@@ -87,43 +107,7 @@ export const requestJSPermissions = async () => {
   }
 };
 
-// export const requestJSPermissions = async () => {
-//   await requestPermission([
-//     {
-//       // if changing this, also change in app.json (located in the project root folder) and/or AndroidManifest.xml (located in android/app/src/main/AndroidManifest.xml)
-//       // need to add heart rate & sleep data
-//       accessType: "read",
-//       recordType: "Steps",
-//     },
-//     {
-//       accessType: "read",
-//       recordType: "HeartRate",
-//     },
-//     {
-//       accessType: "write",
-//       recordType: "Steps",
-//     },
-//     {
-//       accessType: "write",
-//       recordType: "HeartRate",
-//     },
-//     {
-//       accessType: "read",
-//       recordType: "SleepSession",
-//     },
-//     {
-//       accessType: "write",
-//       recordType: "SleepSession",
-//     },
-//     ]).then((permissions) => {
-//       setPermissions(true);
-//       console.log("Granted permissions on request ", { permissions });
-//       console.log("Permissions status set to true");
 
-//       return permissions;
-//     });
-
-// };
 
 
 

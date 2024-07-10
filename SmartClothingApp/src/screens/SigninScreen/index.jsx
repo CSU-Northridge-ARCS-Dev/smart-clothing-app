@@ -11,6 +11,8 @@ import RefreshView from "../../components/RefreshView/index.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
 
+import { initialHealthDataSync } from "../../actions/appActions.js";
+
 
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -40,6 +42,8 @@ const SigninScreen = ({ navigation }) => {
 
     setIsSubmitting(true);
     dispatch(startLoginWithEmail(user.email, user.password));
+
+    dispatch(initialHealthDataSync(true)); // 
   };
 
   // Toggle lock status when the lock icon is pressed

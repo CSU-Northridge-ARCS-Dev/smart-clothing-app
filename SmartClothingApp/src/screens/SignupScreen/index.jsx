@@ -90,8 +90,10 @@ const SignupScreen = ({ navigation }) => {
       startSignupWithEmail(user.email, user.password, user.fname, user.lname)
     );
 
+    // Ensure the user is Signed Up successfully!!!!!!!
     dispatch(initialHealthDataSync(true));
-    // dispatch(setHealthConnectModalVisible(false));
+
+
   };
 
   const toggleLockStatusPassword = () => {

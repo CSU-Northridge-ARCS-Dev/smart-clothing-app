@@ -9,7 +9,13 @@ import {
 import { sendHeartRateData, sendSleepData } from "../actions/userActions.js";
 import { getHeartRateData, getSleepData } from "../utils/HealthConnectUtils.js";
 import { initialHealthDataSync } from "../actions/appActions.js";
+import { updateWithLatestData } from "../services/HealthConnectServices/FirebaseHealthConnectServices";
 
+/**
+ * Custom hook for syncing health data.
+ * @param {boolean} isFirstSync - Flag indicating if it's the first sync.
+ * @returns {Object} - Object containing the loading status.
+ */
 export const useHealthDataSync = (isFirstSync) => {
   const dispatch = useDispatch();
 
@@ -55,14 +61,20 @@ export const useHealthDataSync = (isFirstSync) => {
     console.log("Checking Availability and Asking Permission...");
 
     if (Platform.OS === 'android') {
+
+      // Start the Health Connect setup
       dispatch(startHealthConnectSetup(true));
+
+      // Dispatch an action to initialize Health Connect with a permissions check
+      // Opens the Health Connect modal if device has no history of granted permissions
       dispatch(initHCWithPermissionsCheck());
+
       console.log("Hit initHCWithPermissionsCheck");
     } else {z
-      // iOS-specific code for HealthKit
-      // Here you would use HealthKit to check availability and ask for permissions
-      // Example:
-      // dispatch(initHealthKitWithPermissionsCheck());
+        // iOS-specific code for HealthKit
+        // Here you would use HealthKit to check availability and ask for permissions
+        // Example:
+        // dispatch(initHealthKitWithPermissionsCheck());
 
 
     }
@@ -81,29 +93,43 @@ export const useHealthDataSync = (isFirstSync) => {
     console.log("[useHealthDataSync] healthConnectModalVisible: ", healthConnectModalVisible);
     console.log("[useHealthDataSync] isLoading: ", isLoading);
 
-
+    // Check if Health Connect is ready and permissions are granted
     const healthConnectReady = setupHC && permissions && isHealthConnectInitialized;
+
     console.log("\n[useHealthDataSync] healthConnectReady: ", healthConnectReady);
 
-    //const healthKitReady = healthKitSetup && permissionsHK && isHealthKitInitialized;
+    // Check if HealthKit is ready and permissions are granted
     const healthKitReady = false; // Temp
+
     console.log("[useHealthDataSync] healthKitReady: ", healthKitReady);
 
+    // If Health Connect or HealthKit is ready, start fetching data
     if (healthConnectReady || healthKitReady) {
       async function fetchData() {
         try {
           console.log("Fetching data...");
           //setIsFetchingData(true);
 
-          // move to app actions
+          // Set loading status
           dispatch(setHCSyncLoadingStatus(true)); 
 
+
+          //  APP NEEDS A WAY TO KNOW IF USER HAS SYNCED BEFORE
+          // -Might need something in the db to determine this status
+          // -Was thinking each health data could have lastFetchedDate
+          //      - could make a separate interface dedicated to this
+          //      - potential replacement to firebasehealthconnectservices if refresh doesn't work (will test next)
+          // -could attempt to run up updatewithlatestdata
+          //      
           if (!isFirstSync) {
             // If coming from sign-in, adjust retrieve data starting at the last update date
             console.log("[useHealthDataSync] Not on account creation, fetching data from last update date.");
 
+
+            // Update the data with the latest available
             if (Platform.OS === 'android') {
               await updateWithLatestData();
+              
               console.log("[useHealthDataSync] Android data updated successfully.");
 
             } else if (Platform.OS === 'ios') {
@@ -120,8 +146,7 @@ export const useHealthDataSync = (isFirstSync) => {
             if (Platform.OS === 'android') {
               
 
-              // COMMENTED OUT TO LOWER DATABASE WRITES 
-              // (CHATGPT PROMPT) CONTINUE TO INCLUDE IN TESTS:
+              // COMMENTED OUT --- TO LOWER DATABASE WRITES 
               // const heartRateData = await getHeartRateData(getLastYearDate(), getTodayDate());
               // const sleepData = await getSleepData(getLastYearDate(), getTodayDate());
 
@@ -139,6 +164,8 @@ export const useHealthDataSync = (isFirstSync) => {
               console.log("\nSleep Data Retrieved from HC")
               console.log("[useHealthDataSync] Sleep Data: ", sleepData);
 
+
+              // Send the data to the firebase database
               await sendHeartRateData(heartRateData);
               await sendSleepData(sleepData);
 
@@ -149,32 +176,37 @@ export const useHealthDataSync = (isFirstSync) => {
               // Example:
               // const heartRateData = await getHeartRateDataFromHealthKit(startDate, getTodayDate());
               // const sleepData = await getSleepDataFromHealthKit(startDate, getTodayDate());
+
             }
           }
         } catch (error) {
           console.error("Error fetching data:", error);
+
         } finally {
+          // After fetching the data, reset the loading screen and set the initial sync status to false (completed)
 
-
+          // Reset the loading status - OS specific
           if (Platform.OS === 'android') {
             dispatch(startHealthConnectSetup(false));
             console.log("[useHealthDataSync] Dispatched initialHealthDataSync");
 
           } else if (Platform.OS === 'ios') {
             // iOS-specific code for HealthKit
-
-
           } else {
             console.error("Platform not supported");
           }
 
+          // Set loading status
           dispatch(setHCSyncLoadingStatus(false));
+          // Health Data Sync Process Complete (Set 'true' in SignInScreen.js/SignUpScreen.js)
           dispatch(initialHealthDataSync(false));
+          // Turn off Sync loading screen
           setLoading(false);
 
           console.log("\n[useHealthDataSync]\n-------------\n-------------\n-------------\nLoading complete!\n-------------\n-------------\n-------------");
         }
       };
+      // Fetch the data
       fetchData();
     } 
   },  [
@@ -186,6 +218,9 @@ export const useHealthDataSync = (isFirstSync) => {
     dispatch
   ]);
 
+
+  // Set loading screen to false when permissions are not granted 
+  // Cancel button on Health Connect modal. 
   useEffect(() => {
     if(!permissions && !isFirstSync) {
       console.log("[useHealthDataSync] Syncing loading status: off");
