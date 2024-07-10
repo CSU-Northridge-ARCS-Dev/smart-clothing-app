@@ -43,7 +43,7 @@ const SigninScreen = ({ navigation }) => {
     setIsSubmitting(true);
     dispatch(startLoginWithEmail(user.email, user.password));
 
-    dispatch(initialHealthDataSync(true)); // 
+    dispatch(initialHealthDataSync(false)); // 
   };
 
   // Toggle lock status when the lock icon is pressed
