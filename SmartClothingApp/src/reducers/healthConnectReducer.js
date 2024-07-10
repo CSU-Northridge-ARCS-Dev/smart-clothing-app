@@ -15,7 +15,7 @@ const initialState = {
     permissions: false,
     isHealthConnectInitialized: false,
     healthConnectModalVisible: false,
-    healthConnectLoadingScreen: false,
+    syncStatus: false,
   };
   
 
