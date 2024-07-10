@@ -56,6 +56,10 @@ export const useHealthDataSync = (isFirstSync) => {
   const getLastDayDate = () => {
     return new Date() - 24 * 60 * 60 * 1000;
   }
+
+  const getLastThirtyDaysDate = () => {
+    return new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000);
+  }
   
   useEffect(() => {
     console.log("Checking Availability and Asking Permission...");
@@ -112,6 +116,7 @@ export const useHealthDataSync = (isFirstSync) => {
 
           // Set loading status
           dispatch(setHCSyncLoadingStatus(true)); 
+          setLoading(true); // For Sign-In
 
 
           //  APP NEEDS A WAY TO KNOW IF USER HAS SYNCED BEFORE

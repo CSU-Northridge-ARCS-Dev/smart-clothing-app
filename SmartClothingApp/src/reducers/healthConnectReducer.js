@@ -5,6 +5,7 @@ import {
     HEALTH_CONNECT_INITIALIZED,
     HEALTH_CONNECT_MODAL_VISIBLE,
     HEALTH_CONNECT_SYNC,
+    LOGOUT,
 } from '../actions/types';
 
 
@@ -58,6 +59,9 @@ const healthConnectReducer = (state = initialState, action) => {
                 ...state,
                 syncStatus: action.payload.syncStatus,
             };
+        case LOGOUT: 
+            console.log("[healthConnectReducer] Handling LOGOUT");
+            return initialState;
         default:
             return state;
     }

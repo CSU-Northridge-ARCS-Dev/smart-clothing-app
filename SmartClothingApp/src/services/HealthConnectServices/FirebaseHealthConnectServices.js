@@ -58,7 +58,10 @@ async function getLatestDateFromCollection(collectionName) {
     });
     console.log(`Fetched data from update:`, fetchedData);
     if (fetchedData.length == 0) {
-      return new Date().toISOString();
+      //return new Date().toISOString();
+
+      // Change to 30 days
+      return new Date(new Date().getTime() - 2 * 24 * 60 * 60 * 1000);
     }
     const latestDate =
       collectionName !== "SleepDataHC"

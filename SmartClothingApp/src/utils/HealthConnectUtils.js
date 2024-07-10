@@ -26,7 +26,7 @@ export const getHeartRateData = async (startDate, endDate) => {
       // console.log("Timestamp:", timestamp, "Heart rate:", heartRate);
     });
     // Perform further processing as needed
-    console.log("test hr", dataArray);
+    //console.log("test hr", dataArray);
     return dataArray;
   } catch (error) {
     console.error("An unexpected error occurred while reading data:", error);
