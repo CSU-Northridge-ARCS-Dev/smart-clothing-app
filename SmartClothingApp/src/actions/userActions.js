@@ -41,6 +41,8 @@ import {
 
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
+import { sendNotification, registerForPushNotificationsAsync } from './utility/notifications';
+
 
 const loginWithEmail = (user) => {
   return {
@@ -132,11 +134,20 @@ export const updateEmailData = (newEmail) => {
   };
 };
 
+const saveTokenToDatabase = async (userId, token) => {
+  const userDoc = doc(database, 'Users', userId);
+  await setDoc(userDoc, { expoPushToken: token }, { merge: true });
+};
+
+
 export const startUpdateUserData = (userData) => {
   console.log("startUpdateUserData called with", userData);
   return async (dispatch) => {
     try {
-      await setDoc(doc(database, "Users", auth.currentUser.uid), userData);
+      await setDoc(doc(database, "Users", auth.currentUser.uid), 
+        userData, 
+      { merge: true });
+
       console.log("User data added to database successfully!");
       dispatch(updateUserMetricsData(userData));
       // Store the user metrics data in the local storage
@@ -195,31 +206,45 @@ export const startLoadUserData = () => {
 // };
 
 export const startSignupWithEmail = (email, password, firstName, lastName) => {
-  return (dispatch) => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        // console.log("User created successfully!");
-        // console.log(user);
+  return async (dispatch) => {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user;
+      // console.log("User created successfully!");
+      // console.log(user);
 
-        // After creating User, Adding First and Last Name to User Profile
-        dispatch(startUpdateProfile(firstName, lastName));
-
-        // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
-        dispatch(userMetricsDataModalVisible(true, true));
-
-        dispatch(
-          signupWithEmail({
-            uuid: user.uid,
-            firstName: firstName,
-            lastName: lastName,
-            email: user.email,
-          })
-        );
-      })
-      .catch((error) => {
-        dispatch(toastError(firebaseErrorsMessages[error.code]));
+      // Save additional user information in Firestore
+      await setDoc(doc(db, 'Users', user.uid), {
+        email,
+        role, // Add the role field
       });
+
+      // Send a notification
+      await sendNotification("Sign Up Successful", "Welcome to the app!");
+
+      // Register for push notifications and save the token
+      const token = await registerForPushNotificationsAsync();
+      if (token) {
+        await saveTokenToDatabase(user.uid, token);
+      }
+
+      // After creating User, Adding First and Last Name to User Profile
+      dispatch(startUpdateProfile(firstName, lastName));
+
+      // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
+      dispatch(userMetricsDataModalVisible(true, true));
+
+      dispatch(
+        signupWithEmail({
+          uuid: user.uid,
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email,
+        })
+      );
+      } catch (error) {
+        dispatch(toastError(firebaseErrorsMessages[error.code]));
+      };
   };
 };
 
