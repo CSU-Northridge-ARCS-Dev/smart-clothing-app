@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native";
+import { View, Button, SafeAreaView } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as StoreProvider } from "react-redux";
@@ -20,7 +20,7 @@ import {
 import SplashScreen from "react-native-splash-screen";
 
 import * as Notifications from 'expo-notifications';
-import { registerForPushNotificationsAsync, sendNotification } from './src/utility/notifications';
+import { registerForPushNotificationsAsync, sendNotification } from './src/utils/notifications';
 
 
 const store = configureStore();
@@ -99,6 +99,17 @@ export default function App() {
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
 
     // Notification listeners for Testing Expo Push Notifications
+
+    // Register for push notifications
+    const registerForPushNotifications = async () => {
+      const token = await registerForPushNotificationsAsync();
+      if (token) {
+        console.log("Expo push token:", token);
+        // You can store the token in your backend or local storage if needed
+      }
+    };
+    registerForPushNotifications(); // Call the push notification registration function
+
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       console.log('Notification received:', notification);
     });
