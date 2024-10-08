@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { EXPO_CLIENT_ID } from '@env'; // Ensure this line is correct and .env file has EXPO_CLIENT_ID
+import { EXPO_PROJECT_ID } from '@env'; // Ensure this line is correct and .env file has EXPO_CLIENT_ID
 import { Alert, Platform } from 'react-native';
 
 
@@ -28,7 +28,7 @@ export const registerForPushNotificationsAsync = async () => {
       console.log('Failed to get push token for push notification!');
       return;
     }
-    token = (await Notifications.getExpoPushTokenAsync({ projectId: EXPO_CLIENT_ID })).data;
+    token = (await Notifications.getExpoPushTokenAsync({ projectId: EXPO_PROJECT_ID })).data;
     console.log(token);
     console.log('Expo Push Token:', token);
   } else {
