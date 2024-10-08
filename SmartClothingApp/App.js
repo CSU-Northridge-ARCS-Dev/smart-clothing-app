@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Button, SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as StoreProvider } from "react-redux";
@@ -19,20 +19,7 @@ import {
 } from "./src/actions/userActions.js";
 import SplashScreen from "react-native-splash-screen";
 
-import * as Notifications from 'expo-notifications';
-import { registerForPushNotificationsAsync, sendNotification } from './src/utils/notifications';
-
-
 const store = configureStore();
-
-// Configure notifications
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
 
 export default function App() {
   const [isLoading, setLoading] = useState(true);
@@ -42,10 +29,6 @@ export default function App() {
   //     SplashScreen.hide();
   //   }
   // }, []);
-
-  const sendTestNotification = async () => {
-    await sendNotification("Test Notification", "This is a test notification");
-  };
 
   useEffect(() => {
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
@@ -98,32 +81,6 @@ export default function App() {
 
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
 
-    // Notification listeners for Testing Expo Push Notifications
-
-    // Register for push notifications
-    const registerForPushNotifications = async () => {
-      const token = await registerForPushNotificationsAsync();
-      if (token) {
-        console.log("Expo push token:", token);
-        // You can store the token in your backend or local storage if needed
-      }
-    };
-    registerForPushNotifications(); // Call the push notification registration function
-
-    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      console.log('Notification received:', notification);
-    });
-
-    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log('Notification response received:', response);
-    });
-
-    // Clean up the listeners when the component unmounts
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
-    };
-
     // // Check if there's a stored token on app launch
     // const checkToken = async () => {
     //   try {
@@ -161,13 +118,6 @@ export default function App() {
             <PaperProvider theme={AppTheme}>
               <NavigationContainer>
                 <AppRouter />
-                {/* Test Notification Button */}
-                <View style={{ padding: 20 }}>
-                  <Button
-                    title="Send Test Notification"
-                    onPress={sendTestNotification}
-                  />
-                </View>
               </NavigationContainer>
               <AppToast />
             </PaperProvider>

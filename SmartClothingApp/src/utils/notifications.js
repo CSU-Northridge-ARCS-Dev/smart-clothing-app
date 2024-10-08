@@ -42,6 +42,17 @@ export const registerForPushNotificationsAsync = async () => {
       vibrationPattern: [0, 250, 250, 250],
       lightColor: '#FF231F7C',
     });
+  } else if (Platform.OS === 'ios') {
+    // iOS-specific code
+    const iosSettings = {
+      allowAlert: true,
+      allowBadge: true,
+      allowSound: true,
+      allowAnnouncements: true, // Enable critical alerts
+    };
+    
+    await Notifications.setNotificationSettingsAsync(iosSettings);
+    console.log('iOS-specific notification settings applied');
   }
 
   return token;

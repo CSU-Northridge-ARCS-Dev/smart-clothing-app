@@ -19,6 +19,10 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 
 import { startSignupWithEmail } from "../../actions/userActions.js";
 
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications';
+import { savePushTokenToBackend } from '../../actions/deviceActions.js';
+
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const authError = useSelector((state) => state.user.authError);
@@ -72,7 +76,16 @@ const SignupScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
-  const handleSignUpWithEmail = () => {
+  const registerForPushNotifications = async () => {
+    const token = await registerForPushNotificationsAsync();
+    if (token) {
+      // Save the token in  backend 
+      console.log("Expo push token:", token);
+      await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+    }
+  };
+
+  const handleSignUpWithEmail = async () => {
     if (!isValid()) {
       return;
     }
@@ -80,9 +93,15 @@ const SignupScreen = ({ navigation }) => {
     setIsSubmitting(true);
 
     console.log("User is ...", user);
-    dispatch(
-      startSignupWithEmail(user.email, user.password, user.fname, user.lname)
-    );
+    await dispatch(startSignupWithEmail(user.email, user.password, user.fname, user.lname))
+      .then(() => {
+        // After successful Signup
+        registerForPushNotifications();
+      })
+      .catch((error) => {
+        console.log(error);
+        //setIsSubmitting(false);
+      });
   };
 
   const toggleLockStatusPassword = () => {

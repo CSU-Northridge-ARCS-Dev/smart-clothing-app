@@ -208,9 +208,16 @@ const DataCollectModal = (props) => {
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
-                onPress={() =>
+                onPress={() => {
+                  setGender("")
+                  setDob(new Date())
+                  setHeight(0)
+                  setWeight(0)
+                  setSports("")
+                  handleSubmit(); // Stores null values to db ... otherwise user uid doc doesn't show 
+
                   dispatch(userMetricsDataModalVisible(false, false))
-                }
+                }}
                 style={styles.button}
               >
                 {isFromSignupScreen ? "Skip" : "Cancel"}
