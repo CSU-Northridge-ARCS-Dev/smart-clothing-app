@@ -10,6 +10,10 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
 
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications';
+import { savePushTokenToBackend } from '../../actions/deviceActions.js';
+
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(true);
@@ -31,13 +35,30 @@ const SigninScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
-  const handleSignInWithEmail = () => {
+  const registerForPushNotifications = async () => {
+    const token = await registerForPushNotificationsAsync();
+    if (token) {
+      // Save the token in  backend 
+      console.log("Expo push token:", token);
+      await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+    }
+  };
+
+  const handleSignInWithEmail = async () => {
     if (!isValid()) {
         return;
     }
 
     setIsSubmitting(true);
-    dispatch(startLoginWithEmail(user.email, user.password));
+    await dispatch(startLoginWithEmail(user.email, user.password))
+      .then(() => {
+        // After successful login
+        registerForPushNotifications();
+      })
+      .catch((error) => {
+        console.log(error);
+        //setIsSubmitting(false);
+      });
   };
 
   // Toggle lock status when the lock icon is pressed

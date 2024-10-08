@@ -16,6 +16,8 @@ import {
 
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
+import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications';
+
 export default function HomeScreen({ navigation }) {
   const route = useRoute();
   const defaultData = [
@@ -30,6 +32,11 @@ export default function HomeScreen({ navigation }) {
     });
   };
   const firstName = useSelector((state) => state.user.firstName);
+
+  useEffect(() => {
+    sendNotification('Welcome to the App');
+  }, []);
+
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />

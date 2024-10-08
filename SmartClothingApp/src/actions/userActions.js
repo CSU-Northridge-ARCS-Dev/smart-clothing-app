@@ -132,23 +132,45 @@ export const updateEmailData = (newEmail) => {
   };
 };
 
+// export const startUpdateUserData = (userData) => {
+//   console.log("startUpdateUserData called with", userData);
+//   return async (dispatch) => {
+//     try {
+//       await setDoc(doc(database, "Users", auth.currentUser.uid), userData);
+//       console.log("User data added to database successfully!");
+//       dispatch(updateUserMetricsData(userData));
+//       // Store the user metrics data in the local storage
+//       storeMetrics(userData);
+//     } catch (e) {
+//       console.log(
+//         "Error adding user data to database! There might be no data to add."
+//       );
+//       console.log(e);
+//     }
+//   };
+// };
+
 export const startUpdateUserData = (userData) => {
   console.log("startUpdateUserData called with", userData);
   return async (dispatch) => {
     try {
-      await setDoc(doc(database, "Users", auth.currentUser.uid), userData);
-      console.log("User data added to database successfully!");
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+
+      // Use updateDoc instead of setDoc to only update specific fields
+      await updateDoc(userDocRef, userData);
+      
+      console.log("User data updated in the database successfully!");
       dispatch(updateUserMetricsData(userData));
-      // Store the user metrics data in the local storage
+
+      // Optionally store the updated user metrics data in local storage
       storeMetrics(userData);
     } catch (e) {
-      console.log(
-        "Error adding user data to database! There might be no data to add."
-      );
+      console.log("Error updating user data in the database!");
       console.log(e);
     }
   };
 };
+
 
 export const startLoadUserData = () => {
   return async (dispatch) => {
@@ -194,38 +216,96 @@ export const startLoadUserData = () => {
 //   };
 // };
 
+// export const startSignupWithEmail = (email, password, firstName, lastName) => {
+//   return (dispatch) => {
+//     createUserWithEmailAndPassword(auth, email, password)
+//       .then((userCredential) => {
+//         const user = userCredential.user;
+//         // console.log("User created successfully!");
+//         // console.log(user);
+
+//         // After creating User, Adding First and Last Name to User Profile
+//         dispatch(startUpdateProfile(firstName, lastName));
+
+//         // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
+//         dispatch(userMetricsDataModalVisible(true, true));
+
+//         dispatch(
+//           signupWithEmail({
+//             uuid: user.uid,
+//             firstName: firstName,
+//             lastName: lastName,
+//             email: user.email,
+//           })
+//         );
+//       })
+//       .catch((error) => {
+//         dispatch(toastError(firebaseErrorsMessages[error.code]));
+//       });
+//   };
+// };
+
+// export const startSignupWithEmail = (email, password, firstName, lastName) => {
+//   return (dispatch) => {
+//     return createUserWithEmailAndPassword(auth, email, password)
+//       .then((userCredential) => {
+//         const user = userCredential.user;
+//         dispatch(startUpdateProfile(firstName, lastName)); // Assuming you already have this action
+//         dispatch(userMetricsDataModalVisible(true, true));
+//         dispatch(signupWithEmail({ uuid: user.uid, firstName, lastName, email: user.email }));
+//         return user; // return user so we can chain a promise in the component
+//       })
+//       .catch((error) => {
+//         dispatch(toastError(firebaseErrorsMessages[error.code]));
+//         throw error;  // important to propagate the error
+//       });
+//   };
+// };
+
+
 export const startSignupWithEmail = (email, password, firstName, lastName) => {
   return (dispatch) => {
-    createUserWithEmailAndPassword(auth, email, password)
+    return createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        // console.log("User created successfully!");
-        // console.log(user);
 
-        // After creating User, Adding First and Last Name to User Profile
-        dispatch(startUpdateProfile(firstName, lastName));
+        // Set the initial user data in Firestore
+        const initialUserData = {
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email,
+          createdAt: new Date(),
+        };
 
-        // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
-        dispatch(userMetricsDataModalVisible(true, true));
-
-        dispatch(
-          signupWithEmail({
-            uuid: user.uid,
-            firstName: firstName,
-            lastName: lastName,
-            email: user.email,
+        // Save the user data upon sign-up using setDoc
+        setDoc(doc(database, "Users", user.uid), initialUserData)
+          .then(() => {
+            console.log("User data saved to Firestore successfully.");
+            // Store user metrics in local storage
+            //storeMetrics(initialUserData);  // Save the initial data in AsyncStorage
           })
-        );
+          .catch((error) => {
+            console.error("Error saving user data to Firestore:", error);
+          });
+
+        // Dispatch actions to update profile and show metrics modal
+        dispatch(startUpdateProfile(firstName, lastName));  // Assuming you already have this action
+        dispatch(userMetricsDataModalVisible(true, true));
+        dispatch(signupWithEmail({ uuid: user.uid, firstName, lastName, email: user.email }));
+
+        return user;  // return user so we can chain a promise in the component
       })
       .catch((error) => {
         dispatch(toastError(firebaseErrorsMessages[error.code]));
+        throw error;  // important to propagate the error
       });
   };
 };
 
+
 export const startLoginWithEmail = (email, password) => {
   return (dispatch) => {
-    signInWithEmailAndPassword(auth, email, password)
+    return signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
 
@@ -245,9 +325,11 @@ export const startLoginWithEmail = (email, password) => {
             email: user.email,
           })
         );
+        return user;
       })
       .catch((error) => {
         dispatch(toastError(firebaseErrorsMessages[error.code]));
+        throw error;
       });
   };
 };
