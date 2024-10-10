@@ -1,5 +1,5 @@
-import toastReducer from '../src/reducers/toastReducer'; 
-import { ToastTypes } from '../src/actions/types.js';
+import toastReducer from '../../../src/reducers/toastReducer.js'; 
+import { ToastTypes } from '../../../src/actions/types.js';
 
 
 describe('toastReducer', () => {

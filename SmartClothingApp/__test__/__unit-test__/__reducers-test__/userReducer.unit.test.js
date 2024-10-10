@@ -1,5 +1,5 @@
-import userReducer from '../src/reducers/userReducer';
-import * as types from '../src/actions/types';
+import userReducer from '../../../src/reducers/userReducer';
+import * as types from '../../../src/actions/types';
 
 // Mock the global Date object
 //const MOCKED_DATE = new Date(2023, 0, 1); // Mocked date as January 1st, 2023
