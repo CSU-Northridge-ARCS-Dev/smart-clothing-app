@@ -3,6 +3,8 @@ import { SafeAreaView } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as StoreProvider } from "react-redux";
+import * as Notifications from 'expo-notifications';
+
 
 import AppRouter from "./src/navigation";
 import { useAppFonts } from "./src/hooks/useAppFonts";
@@ -20,6 +22,16 @@ import {
 import SplashScreen from "react-native-splash-screen";
 
 const store = configureStore();
+
+// Configure notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
 
 export default function App() {
   const [isLoading, setLoading] = useState(true);
@@ -80,6 +92,23 @@ export default function App() {
     loadFont();
 
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
+
+
+    // Setup notification listeners
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received:', notification);
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('Notification response received:', response);
+    });
+
+    // Clean up listeners on unmount
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+
 
     // // Check if there's a stored token on app launch
     // const checkToken = async () => {
