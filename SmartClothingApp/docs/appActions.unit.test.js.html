@@ -1,4 +1,45 @@
-/**
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>appActions.unit.test.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <li class="nav-link nav-home-link"><a href="index.html">Home</a></li>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">appActions.unit.test.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
  * Unit tests for app actions in the Smart Clothing App.
  * 
  * This test file includes test cases for actions related to app-level state management,
@@ -18,8 +59,6 @@
  * mock data and conditions ensuring each action triggers as expected.
  * 
  * @file appActions.unit.test.js
- * 
- * Credit: Carlos Figueroa (github @cfiguer055)
  */
 
 import configureMockStore from 'redux-mock-store';
@@ -87,12 +126,6 @@ jest.mock('firebase/auth', () => ({
 
 /**
  * Unit tests for app actions in Smart Clothing app.
- * 
- * Test suite: User Metrics Actions
- *
- * This suite tests all the actions related to user metrics in the app. It verifies that actions
- * like toggling the metrics modal visibility, updating activity rings, and updating date ranges
- * for heart rate and sleep data behave as expected.
  *
  * This suite of tests validates the Redux actions for the app, including those that:
  * - Modify the visibility of user metrics modals, update activity rings, and update
@@ -106,6 +139,14 @@ jest.mock('firebase/auth', () => ({
  * @test {updateActivityRingsData} Action to update activity rings data.
  * @test {updateHeartRateDateRangeData} Action to update heart rate data range.
  */
+
+/**
+ * Test suite: User Metrics Actions
+ *
+ * This suite tests all the actions related to user metrics in the app. It verifies that actions
+ * like toggling the metrics modal visibility, updating activity rings, and updating date ranges
+ * for heart rate and sleep data behave as expected.
+ */
 describe('User Metrics Actions', () => {
   
   /**
@@ -113,7 +154,6 @@ describe('User Metrics Actions', () => {
    *
    * This test validates that the `userMetricsDataModalVisible` action creator produces
    * the correct action object when passed the visibility state and sign-up screen flag.
-   * @test {userMetricsDataModalVisible}
    */
   it('should create an action to toggle user metrics data modal visibility', () => {
     const expectedAction = {
@@ -131,7 +171,6 @@ describe('User Metrics Actions', () => {
    *
    * This test ensures that `updateActivityRingsData` generates an action with the correct
    * payload, including the day of the week and the activity ring data (ring1, ring2, ring3).
-   * @test {updateActivityRingsData}
    */
   it('should create an action to toggle activity ring data', () => {
     const day = "Monday"
@@ -153,7 +192,6 @@ describe('User Metrics Actions', () => {
    *
    * This test validates that the `updateHeartRateDateRangeData` action creator produces
    * the correct action object with the start and end dates for the heart rate data.
-   * @test {updateHeartRateDateRangeData}
    */
   it('should create an action to update heart rate date range', () => {
     const startDate = '2024-01-01';
@@ -170,7 +208,6 @@ describe('User Metrics Actions', () => {
    *
    * This test ensures that `updateSleepDataDateRangeData` correctly dispatches an action
    * with the provided start and end dates for the sleep data.
-   * @test {updateSleepDataDateRangeData}
    */
   it('should create an action to update sleep data date range', () => {
     const startDate = '2024-01-01';
@@ -188,7 +225,6 @@ describe('User Metrics Actions', () => {
    * This test simulates the `updateActivityRings` thunk, which dispatches activity ring data
    * for each day of the week. It ensures that all actions are dispatched with the correct
    * data after the asynchronous operation completes.
-   * @test {updateActivityRings}
    */
   it('should dispatch actions to update activity rings data', async () => {
     const store = mockStore({});
@@ -227,7 +263,6 @@ describe('User Metrics Actions', () => {
    *
    * This test validates the `updateHeartRateDateRange` thunk, ensuring that the start and
    * end dates for the heart rate data are correctly dispatched.
-   * @test {updateHeartRateDateRange}
    */
 
   it('should dispatch actions to update heart rate data date range', async () => {
@@ -256,7 +291,6 @@ describe('User Metrics Actions', () => {
    *
    * This test ensures that `updateSleepDataDateRange` correctly dispatches the action
    * with the provided start and end dates for the sleep data.
-   * @test {updateSleepDataDateRange}
    */
   it('should dispatch actions to update sleep data date range', async () => {
     const store = mockStore({});
@@ -279,3 +313,22 @@ describe('User Metrics Actions', () => {
 
   }, 10000);
 });
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.3</a> on Thu Oct 10 2024 14:43:30 GMT-0700 (hora de verano del Pacífico) using the Minami theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
