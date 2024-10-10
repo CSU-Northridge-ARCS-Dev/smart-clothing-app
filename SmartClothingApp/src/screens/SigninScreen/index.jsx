@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
 
 import * as Notifications from 'expo-notifications';
-import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications';
+import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
 import { savePushTokenToBackend } from '../../actions/deviceActions.js';
 
 const SigninScreen = ({ navigation }) => {

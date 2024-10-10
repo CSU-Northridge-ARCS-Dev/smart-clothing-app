@@ -37,6 +37,7 @@ const firebaseConfig = {
   messagingSenderId: FIREBASE_MESSANGIND_SENDER_ID,
   appId: FIREBASE_APP_ID,
   measurementId: FIREBASE_MEASUREMENT_ID,
+
 };
 
 const app = initializeApp(firebaseConfig);

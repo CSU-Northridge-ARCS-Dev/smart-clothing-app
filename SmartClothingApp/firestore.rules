@@ -3,8 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Prototype-specific rules
-    // These rules allow authenticated users to read/write documents in 'Users' and 'Invitations' collections
+    // Allow authenticated users to read/write 'Users' and 'Invitations' collections
     match /Users/{userId} {
       allow read, write: if request.auth != null;
     }
@@ -13,14 +12,7 @@ service cloud.firestore {
       allow read, write: if request.auth != null;
     }
 
-    // Existing SmartClothingApp rules
-    // Allow read/write for all documents until a specified date
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2025, 8, 24);
-    }
-
-    // Catch-all rule for authenticated users (from Prototype's general rule)
-    // This ensures that authenticated users can read/write any other documents not covered above.
+    // Catch-all rule for authenticated users, no date restriction
     match /{document=**} {
       allow read, write: if request.auth != null;
     }

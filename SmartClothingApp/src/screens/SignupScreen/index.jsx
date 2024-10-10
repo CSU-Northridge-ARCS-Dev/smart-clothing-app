@@ -20,7 +20,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { startSignupWithEmail } from "../../actions/userActions.js";
 
 import * as Notifications from 'expo-notifications';
-import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications';
+import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
 import { savePushTokenToBackend } from '../../actions/deviceActions.js';
 
 const SignupScreen = ({ navigation }) => {
@@ -84,6 +84,7 @@ const SignupScreen = ({ navigation }) => {
       await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
     }
   };
+
 
   const handleSignUpWithEmail = async () => {
     if (!isValid()) {
