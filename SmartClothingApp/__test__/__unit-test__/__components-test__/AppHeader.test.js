@@ -9,8 +9,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import { Provider } from 'react-redux';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import renderer, { act } from 'react-test-renderer';
-import AppHeader from '../../src/components/AppHeader/index.jsx'; // Adjust the import path as necessary
-import configureStore from '../../src/store.js';
+import AppHeader from '../../../src/components/AppHeader/index.jsx'; // Adjust the import path as necessary
+import configureStore from '../../../src/store.js';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -18,20 +18,20 @@ import { Provider as StoreProvider } from 'react-redux';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 // Import your store, AppTheme, and AppRouter
-import AppTheme from '../../src/constants/themes'; // Update path as necessary
-import AppRouter from '../../src/navigation'; // Update path as necessary
+import AppTheme from '../../../src/constants/themes.js'; // Update path as necessary
+import AppRouter from '../../../src/navigation/index.js'; // Update path as necessary
 
-import Settings from '../../src/screens/Settings/index.jsx'
+import Settings from '../../../src/screens/Settings/index.jsx'
 
 
-jest.mock('../../src/utils/localStorage.js', () => ({
+jest.mock('../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
     storeUID: jest.fn(),
     getUID: jest.fn(),
   }));
 
   // Mock Firebase Authentication
-jest.mock('../../firebaseConfig.js', () => ({
+jest.mock('../../../firebaseConfig.js', () => ({
   auth: {
       currentUser: {
           uid: {
@@ -92,7 +92,7 @@ jest.mock('react-redux', () => ({
 }));
 
 // Mock userActions.js specifically if you want control over `startLogout` behavior
-jest.mock('../../src/actions/userActions.js', () => ({
+jest.mock('../../../src/actions/userActions.js', () => ({
   startLogout: jest.fn().mockImplementation(() => jest.fn()), // Mock implementation if needed
 }));
 
@@ -115,7 +115,7 @@ jest.mock('react-native-paper', () => ({
   },
 }));
 
-jest.mock('@shopify/react-native-skia', () => require('./__mocks__/@shopify__react-native-skia.js'));
+jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
 
 jest.mock('victory-native', () => {
     // Mock the specific components and functionalities you use
@@ -140,17 +140,17 @@ jest.mock('victory-native', () => {
     ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
   }));
 
-  jest.mock('react-native-vector-icons/MaterialIcons', () => require('../__mocks__/react-native-vector-icons.js').MaterialIcons);
-  jest.mock('react-native-vector-icons/FontAwesome5', () => require('../__mocks__/react-native-vector-icons.js').FontAwesome5);
-  jest.mock('@shopify/react-native-skia', () => require('../__mocks__/@shopify__react-native-skia.js'));
-  jest.mock('../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
+  jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../__mocks__/react-native-vector-icons.js').MaterialIcons);
+  jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../__mocks__/react-native-vector-icons.js').FontAwesome5);
+  jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
+  jest.mock('../../../src/components/visualizations/ActivityRings/Ring.jsx', () => {
     return jest.fn(({ ring, center, strokeWidth, scale }) => (
       <div>
         Mock Ring Component - {ring.size}, {center.x}, {center.y}, {strokeWidth}, {scale}
       </div>
     ));
   });
-  jest.mock('../../src/components/visualizations/ActivityChart/ActivityChart.jsx', () => {
+  jest.mock('../../../src/components/visualizations/ActivityChart/ActivityChart.jsx', () => {
     const MockActivityChart = ({ color, name, type, goal, progress }) => (
       <div data-testid="mock-activity-chart">
         <div>{`Mock ActivityChart: ${name}`}</div>

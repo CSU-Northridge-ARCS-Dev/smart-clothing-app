@@ -8,20 +8,20 @@ import {
     updateActivityRings,
     updateHeartRateDateRange,
     updateSleepDataDateRange
-  } from '../src/actions/appActions.js'; 
+  } from '../../../src/actions/appActions.js'; 
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
-} from '../src/actions/types.js';
+} from '../../../src/actions/types.js';
 
 console.log(userMetricsDataModalVisible);
 
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
 
-jest.mock('../src/utils/localStorage.js', () => ({
+jest.mock('../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
   }));
 
@@ -35,7 +35,7 @@ jest.mock('firebase/firestore', () => ({
     //updateEmail: jest.fn(),
 }));
 
-jest.mock('../firebaseConfig.js', () => ({
+jest.mock('../../../firebaseConfig.js', () => ({
     auth: {
       //signOut: jest.fn(() => Promise.resolve()),
       currentUser: {

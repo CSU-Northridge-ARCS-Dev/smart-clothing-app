@@ -159,17 +159,25 @@ describe('ViewInsights', () => {
       }
       console.error(message);
     });
-
-    jest.useFakeTimers();
-
+  
+    // Use modern fake timers
+    jest.useFakeTimers('modern');
+    
+    // Set a fixed system time
+    jest.setSystemTime(new Date('2024-06-25T00:00:00Z'));
+  
     store = configureStore();
-
+  
+    // Mock the DateTimePicker
     jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
-
   });
+  
   afterEach(() => {
-      jest.clearAllMocks();
+    // Restore real timers and clear mocks after each test
+    jest.useRealTimers();
+    jest.clearAllMocks();
   });
+  
   
 
   it('renders correctly', () => {
