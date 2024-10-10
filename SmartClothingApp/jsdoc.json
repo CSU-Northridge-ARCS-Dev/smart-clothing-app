@@ -1,0 +1,19 @@
+{
+    "source": {
+      "include": ["__test__"],
+      "includePattern": ".+\\.(test|unit\\.test|integration\\.test)\\.js$",
+      "excludePattern": "(^|\\/|\\\\)_snapshots"
+    },
+    "opts": {
+      "destination": "./docs",
+      "template": "node_modules/minami",
+      "recurse": true,
+      "verbose": true
+    },
+    "plugins": ["plugins/markdown"],
+    "templates": {
+      "cleverLinks": true,
+      "monospaceLinks": true
+    }
+  }
+  

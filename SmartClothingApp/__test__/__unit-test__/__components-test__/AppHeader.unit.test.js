@@ -1,7 +1,22 @@
-// Rendering: Ensure the component renders correctly under various props.
-// Navigation and Actions: Test the behavior when navigating, opening the menu, and executing actions like logout.
-// State Management: Check the state changes upon interactions, particularly the visibility of the menu and the prompt modal.
-// Integration with Redux and Navigation Hooks: Mock useDispatch, useNavigation, and useRoute to verify their correct usage and interaction with the component.
+/**
+ * Unit tests for the AppHeader component in the Smart Clothing App.
+ * 
+ * This test file covers various test cases to ensure the correct rendering and functionality
+ * of the `AppHeader` component. The component contains navigation actions, state management 
+ * (menu visibility, prompt modal), and interacts with Redux and navigation hooks.
+ * 
+ * Mocks:
+ * - React Navigation Hooks (useNavigation, useRoute)
+ * - Redux (useDispatch)
+ * - Firebase methods (auth, firestore)
+ * - Third-party dependencies like react-native-vector-icons and react-native-paper
+ * 
+ * The tests verify that the component renders correctly with minimal props, that it handles 
+ * navigation actions, and that the menu and prompt modal behave as expected. Thunks for 
+ * logout actions are also tested to ensure proper dispatch behavior.
+ * 
+ * @file AppHeader.unit.test.js
+ */
 
 import React from 'react';
 import { ScrollView, View } from 'react-native';
@@ -17,13 +32,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Provider as StoreProvider } from 'react-redux';
 import { Provider as PaperProvider } from 'react-native-paper';
 
-// Import your store, AppTheme, and AppRouter
 import AppTheme from '../../../src/constants/themes.js'; // Update path as necessary
 import AppRouter from '../../../src/navigation/index.js'; // Update path as necessary
 
 import Settings from '../../../src/screens/Settings/index.jsx'
 
-
+// Mocks for various dependencies
 jest.mock('../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
     storeUID: jest.fn(),
@@ -204,6 +218,20 @@ jest.mock('victory-native', () => {
 
 const Stack = createStackNavigator();
 
+/**
+ * Unit tests for the AppHeader component.
+ * 
+ * Test suite: AppHeader
+ *
+ * This suite tests the rendering, navigation actions, menu interactions, and state
+ * management of the `AppHeader` component. The tests cover the functionality of
+ * back actions, menu items, and dispatching actions like logout.
+ *
+ * Mocks are set up for Redux dispatch, Firebase, and React Navigation to simulate
+ * app interactions, while ensuring that each behavior is handled correctly.
+ *
+ * @test {AppHeader}
+ */
 describe('AppHeader', () => {
     let store;
     let component;
@@ -229,45 +257,26 @@ describe('AppHeader', () => {
       });
 
 
+      /**
+     * Test case: Renders correctly with minimal props
+     * 
+     * This test ensures that the `AppHeader` component renders correctly when provided 
+     * with minimal required props (i.e., the `title` prop).
+     * @test {AppHeader}
+     */
     it('renders correctly with minimal props', () => {
         expect(component.toJSON()).toMatchSnapshot(); 
     });
 
-    // it('calls navigate when back-action is pressed', async() => {
-    //   const screen = render(
-    //       <StoreProvider store={store}>
-    //         <PaperProvider theme={AppTheme}>
-    //           <NavigationContainer>
-    //             <View>
-    //               <AppHeader title={"Test Title"} back={true} navigation={mockNavigation}/>
-    //             </View>  
-    //           </NavigationContainer>
-    //         </PaperProvider>
-    //       </StoreProvider>
-    //   );
-    //   //screen.debug();
-
-    //   // Access the navigation mock to check if goBack was called
-    //   //const { useNavigation } = require('@react-navigation/native');
-    //   const navigationMock = useNavigation();
-
-    //   const backAction = screen.getByTestId('back-action');
-
-    //   await act(() => {
-    //     fireEvent.press(backAction);
-    //   });
-      
-    //   await waitFor(() => {
-    //     expect(mockNavigation.goBack).toHaveBeenCalled();
-    //   });
-
-    //   // fireEvent.press(screen.getByTestId('back-action'));
-
-    //   //screen.debug();
-      
-    //   //expect(screen.toJSON()).toMatchSnapshot(); 
-    // });
-
+    
+    /**
+     * Test case: Calls navigation when back-action is pressed
+     *
+     * This test ensures that when the back-action button is pressed, the correct 
+     * navigation method `goBack` is called from React Navigation.
+     * 
+     * @test {AppHeader}
+     */
     it('calls navigate when back-action is pressed', async () => {
       const { getByTestId } = render(
         <StoreProvider store={store}>
@@ -294,7 +303,14 @@ describe('AppHeader', () => {
     });
     
 
-
+    /**
+     * Test case: Menu items render when menu-action is pressed
+     *
+     * This test verifies that the menu items are rendered and visible when the menu 
+     * action button is pressed. It ensures the correct interaction of the menu component.
+     * 
+     * @test {AppHeader}
+     */
     it('menu items render when menu-action is pressed', async() => {
       const screen = render(
           <StoreProvider store={store}>
