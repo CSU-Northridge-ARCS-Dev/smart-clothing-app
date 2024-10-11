@@ -1,3 +1,28 @@
+/**
+ * Integration tests for user actions flow in the Smart Clothing App.
+ * 
+ * This test file includes integration tests that simulate user interactions between components and actions
+ * triggered within the Redux store, ensuring that user actions such as logging out, updating profiles, and loading
+ * user data are properly handled. Unlike traditional UI navigation tests, this test suite focuses on verifying 
+ * interactions with Redux actions, testing business logic and data flows between components, not just the UI behavior.
+ * 
+ * Goal:
+ * - To test how user actions (like logout, profile updates) are dispatched and processed between components
+ *   within the Redux store, and ensure these actions properly trigger the desired state changes across the app.
+ * 
+ * Mocks:
+ * - Firebase Authentication methods (signOut, currentUser)
+ * - Firebase Firestore methods (collection, doc, setDoc, etc.)
+ * - AsyncStorage for local storage interactions
+ * 
+ * The test suite mocks external dependencies and uses a Redux mock store to simulate action dispatching and state changes.
+ *
+ * @file userActions.integration.test.js
+ * 
+ * Credit: Carlos Figueroa (github @cfiguer055)
+ */
+
+
 // userActions.integration.test.js
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
@@ -138,10 +163,17 @@ jest.mock('@react-navigation/native', () => {
 
 
 
-
-
-
-
+/**
+ * Integration test suite for user actions like Logout and Profile Updates.
+ * 
+ * This test suite simulates how Redux actions are dispatched from within components like the ProfileScreen
+ * and how user-triggered actions (such as logging out or updating the profile) affect the state and flow within the app.
+ * 
+ * The main goal is to test the dispatching of Redux actions and confirm that these actions are properly
+ * handled, updating the Redux state and performing side effects such as Firebase sign-outs or profile updates.
+ *
+ * @test {User Actions Integration}
+ */
 describe('User Actions Integration Test', () => {
   let store;
 
@@ -157,6 +189,15 @@ describe('User Actions Integration Test', () => {
 
   });
 
+
+  /**
+   * Test case: Should log out the user
+   *
+   * This test checks if the logout action is dispatched correctly when the user presses the logout button,
+   * ensuring that the appropriate actions (LOGOUT, showErrorToast) are dispatched to Redux and handled properly.
+   * 
+   * @test {Logout User Action}
+   */
   it('should log out the user', async () => {
     const initialState = {
         auth: {
@@ -221,6 +262,14 @@ describe('User Actions Integration Test', () => {
   });
 
 
+  /**
+   * Test case: Should update the user profile
+   *
+   * This test checks if the update profile action is dispatched correctly when the user edits their profile information.
+   * It verifies that the correct payload (firstName, lastName) is passed and the action triggers the correct state update.
+   * 
+   * @test {Update User Profile Action}
+   */
   it('should update the user profile', async () => {
     store.dispatch = jest.fn(store.dispatch);
 
@@ -298,6 +347,16 @@ describe('User Actions Integration Test', () => {
   });
 
 
+
+  /**
+   * Integration test for updating the user profile via a button click.
+   * 
+   * This test checks if the update profile action is dispatched correctly when the user presses the 'Update Profile' button. 
+   * It ensures that the Redux action for updating the profile is triggered, the correct payload (firstName, lastName) is passed, 
+   * and the Redux store receives the expected action for updating the user's profile information.
+   * 
+   * @test {Update User Profile}
+   */
 //   it('should update the user profile', async () => {
 //     store.dispatch = jest.fn(store.dispatch);
     
@@ -320,6 +379,17 @@ describe('User Actions Integration Test', () => {
 //     });
 //   });
 
+
+
+  /**
+   * Integration test for updating user metrics data via a button click.
+   * 
+   * This test checks if the update user metrics action is dispatched when the user clicks the 'Update User Data' button.
+   * It ensures the correct payload for user metrics (e.g., height, weight, sports) is passed to the action and 
+   * verifies that the Redux store processes the action as expected.
+   * 
+   * @test {Update User Metrics Data}
+   */
 //   it('should update user data', async () => {
 //     store.dispatch = jest.fn(store.dispatch);
     
@@ -342,6 +412,15 @@ describe('User Actions Integration Test', () => {
 //     });
 //   });
 
+
+  /**
+   * Integration test for loading user data via a button click.
+   * 
+   * This test checks if the load user data action is dispatched correctly when the user clicks the 'Load User Data' button.
+   * It ensures that the action is triggered and that the Redux store processes the action, loading the user's data as expected.
+   * 
+   * @test {Load User Data}
+   */
 //   it('should load user data', async () => {
 //     store.dispatch = jest.fn(store.dispatch);
     

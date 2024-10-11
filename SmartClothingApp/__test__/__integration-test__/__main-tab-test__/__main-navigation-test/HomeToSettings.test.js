@@ -1,3 +1,26 @@
+/**
+ * Integration tests for Dashboard to Settings navigation flow in the Smart Clothing App.
+ * 
+ * This test file includes integration tests that simulate user interactions with the app's
+ * navigation system. These tests cover the process of navigating from the Dashboard screen
+ * to the Settings screen, and further navigating into various settings options, such as 
+ * updating email, changing passwords, and deleting accounts. They validate that the navigation 
+ * stack works as expected, the correct screens are rendered, and the appropriate user actions 
+ * trigger navigation.
+ * 
+ * Mocks:
+ * - Firebase Authentication methods (auth.currentUser)
+ * - Firebase Firestore methods (getDoc, collection, doc, etc.)
+ * - AsyncStorage for local storage interactions
+ * 
+ * The test suite mocks external dependencies and uses the React Navigation Stack Navigator
+ * to simulate navigation behavior in a React Native environment.
+ *
+ * @file HomeToSettings.test.js
+ * 
+ * Credit: Carlos Figueroa (github @cfiguer055)
+ */
+
 jest.useFakeTimers()
 
 import React from 'react';
@@ -74,6 +97,7 @@ jest.mock('firebase/firestore', () => ({
     }),
   }))
 
+  // Mocking vector icons and other UI components
   jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons.js').MaterialIcons);
   jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons.js').FontAwesome5);
   jest.mock('@shopify/react-native-skia', () => require('../../../__mocks__/@shopify__react-native-skia.js'));
@@ -124,6 +148,17 @@ const TestComponent2 = () => (
   );
 
 
+
+/**
+ * Integration test suite for navigating from Dashboard to Settings screens.
+ * 
+ * This test suite simulates the complete flow of user navigation from the Dashboard screen
+ * to the Settings screen, and further navigating into various settings like Update Email, 
+ * Change Password, and Delete Account screens. It validates that the navigation system behaves 
+ * correctly when interacting with menus and buttons.
+ *
+ * @test {Dashboard to Settings Navigation}
+ */
 describe('Dashboard to Settings Integration Test', () => {
     
   let store;
@@ -140,6 +175,15 @@ describe('Dashboard to Settings Integration Test', () => {
     jest.useFakeTimers();
   });
 
+
+    /**
+     * Test case: Should navigate from Dashboard to Settings screen
+     *
+     * This test validates that the user can navigate from the Dashboard to the Settings screen
+     * by interacting with the appropriate menu options.
+     *
+     * @test {Dashboard to Settings Navigation}
+     */
   it('Should navigate from Dashboard to Settings Screen', async() => {
       store = configureStore();
 
@@ -173,6 +217,15 @@ describe('Dashboard to Settings Integration Test', () => {
   });
 
 
+  /**
+     * Test case: Should navigate from Settings screen to Update Email screen
+     *
+     * This test validates the navigation from the Settings screen to the Update Email screen,
+     * and verifies that the correct input fields for updating the email, confirming the email,
+     * and entering the password are displayed.
+     *
+     * @test {Settings to Update Email Navigation}
+     */
   it('Should navigate from main Settings Screen to Update Email Screen', async() => {
       store = configureStore();
 
@@ -209,6 +262,15 @@ describe('Dashboard to Settings Integration Test', () => {
   });
 
 
+  /**
+     * Test case: Should navigate from Settings screen to Change Password screen
+     *
+     * This test validates the navigation from the Settings screen to the Change Password screen,
+     * and verifies that the correct input fields for entering the current password, new password,
+     * and confirming the new password are displayed.
+     *
+     * @test {Settings to Change Password Navigation}
+     */
   it('Should navigate from main Settings Screen to Change Password Screen', async() => {
       store = configureStore();
 
@@ -243,6 +305,7 @@ describe('Dashboard to Settings Integration Test', () => {
   });
 
 
+  
   // it('Should navigate from main Settings Screen to Delete Data Screen', async() => {
   //     store = configureStore();
 
@@ -269,6 +332,14 @@ describe('Dashboard to Settings Integration Test', () => {
   // });
 
 
+/**
+     * Test case: Should navigate from Settings screen to Delete Account screen
+     *
+     * This test validates the navigation from the Settings screen to the Delete Account screen,
+     * and verifies that the delete account confirmation prompt is displayed correctly.
+     *
+     * @test {Settings to Delete Account Navigation}
+     */
   it('Should navigate from main Settings Screen to Delete Account Screen', async() => {
       store = configureStore();
 
