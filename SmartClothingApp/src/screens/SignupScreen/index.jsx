@@ -183,6 +183,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={error.fname.length > 0}
+            testID="first-name-input"
           />
           <HelperText type="error" visible={error.fname.length > 0}>
             {error.fname}
@@ -198,6 +199,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={error.lname.length > 0}
+            testID="last-name-input"
           />
           <HelperText type="error" visible={error.lname.length > 0}>
             {error.lname}
@@ -213,6 +215,7 @@ const SignupScreen = ({ navigation }) => {
               handleClearErrors();
             }}
             error={error.email.length > 0}
+            testID="email-input"
           />
           <HelperText type="error" visible={error.email.length > 0}>
             {error.email}
@@ -232,6 +235,7 @@ const SignupScreen = ({ navigation }) => {
               error.password.length > 0 || user.password != user.repassword
             }
             style={styles.textInput}
+            testID="password-input"
           />
           <Icon
             name={lockStatusPassword === "locked" ? "lock" : "unlock-alt"}
@@ -256,6 +260,7 @@ const SignupScreen = ({ navigation }) => {
             }}
             error={user.password != user.repassword}
             style={styles.textInput}
+            testID="confirm-password-input"
           />
           <Icon
             name={lockStatusRepassword === "locked" ? "lock" : "unlock-alt"}
@@ -301,13 +306,15 @@ const SignupScreen = ({ navigation }) => {
             mode="elevated"
             style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
             onPress={handleSignUpWithEmail}
+            testID="sign-up-button"
           >
             Create Account
           </Button>
         </View>
         {/* <GoogleButton /> */}
         <View style={{ marginVertical: verticalScale(10) }}>
-          <Button mode="text" onPress={() => navigation.navigate("SignIn")}>
+          <Button 
+          mode="text" onPress={() => navigation.navigate("SignIn")}>
             Already have an account? Sign in.
           </Button>
         </View>

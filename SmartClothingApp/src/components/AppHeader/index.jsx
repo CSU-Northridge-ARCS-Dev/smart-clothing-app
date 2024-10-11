@@ -34,11 +34,15 @@ const AppHeader = (props) => {
     <>
       <Appbar.Header elevated>
         {props.back && (
-          <Appbar.BackAction onPress={() => navigation.goBack()} />
+          <Appbar.BackAction 
+            onPress= {() => navigation.goBack()} 
+            testID="back-action"
+            />
         )}
         <Appbar.Content
           title={props.title}
           titleStyle={{ fontFamily: AppFonts.chakraBoldItalic }}
+          testID={props.title}
         />
         {props.menu !== false && (
           <Menu
@@ -48,6 +52,7 @@ const AppHeader = (props) => {
               <Appbar.Action
                 icon={MORE_ICON}
                 onPress={() => setVisible(true)}
+                testID="menu-action"
               />
             }
           >
@@ -55,11 +60,13 @@ const AppHeader = (props) => {
               onPress={() => navigate("Profile")}
               leadingIcon={() => <Icon name="user" size={18} color="black" />}
               title="Edit Profile"
+              testID="edit-profile-item"
             />
             <Menu.Item
               onPress={() => navigate("Settings")}
               leadingIcon={() => <Icon name="cog" size={18} color="black" />}
               title="Settings & Privacy"
+              testID="settings-privacy-item"
             />
             <Menu.Item
               onPress={() => navigate("Accessibility")}
@@ -67,6 +74,7 @@ const AppHeader = (props) => {
                 <Icon name="universal-access" size={18} color="black" />
               )}
               title="Accessibility"
+              testID="accessibility-item"
             />
             <Menu.Item
               onPress={() => {
@@ -82,6 +90,7 @@ const AppHeader = (props) => {
                 />
               )}
               title="Logout"
+              testID="sign-out-button"
             />
           </Menu>
         )}

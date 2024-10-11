@@ -10,16 +10,28 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
 
+// SigninScreen functional component that receives a 'navigation' prop as an argument
 const SigninScreen = ({ navigation }) => {
+    // useDispatch and useSelector are react-redux hooks used to connect component to Redux store
+  //    authError is a state from Redux store to dispatch actions (trigger event that changes app state)
+  // useState hook manages local state including: 'isSubmitting', 'user', and 'error' states.
+  //    isSubmitting is boolean used to track whether or not a form submission is in progress 
+  //    setIsSubmitting a function used to update isSubmitting state.
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(true);
   const [lockStatus, setLockStatus] = useState("locked");
 
+  //    user holds the user's email and password 
+  //    setUser is a function that allows you to update the 'user' state -> called in View-TextInput when user submits email and password
   const [user, setUser] = useState({
     email: "",
     password: "",
   });
 
+  // handleClearErrors is a function that resets or clears states and error messages
+  //    setError function updates error state by setting properties to empty strings ""
+  //    setIsSubmitting is set to false which indicates the form is not in the process of being submitted
+  //    authError - checks for truthy and then dispatches setAuthError.
   const handleClearErrors = () => {
     setError({
       fname: "",
@@ -31,7 +43,11 @@ const SigninScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
+  // handleSignInWithEmail is a function that handles signing in process
   const handleSignInWithEmail = () => {
+    // - !isValid performs sign in validation - email and password
+    // setIsSubmitting(true) - after validating, isSubmitting state is set to true to indicate form submission is in progress
+    // then asynchronous sign-in process is dispatched. 
     if (!isValid()) {
         return;
     }
@@ -40,6 +56,7 @@ const SigninScreen = ({ navigation }) => {
     dispatch(startLoginWithEmail(user.email, user.password));
   };
 
+
   // Toggle lock status when the lock icon is pressed
   const toggleLockStatus = () => {
     setLockStatus((prevStatus) =>
@@ -47,11 +64,15 @@ const SigninScreen = ({ navigation }) => {
     );
   };
 
+  //    error is state with two properties: email and password. initially empty strings ""
+  //    setError sets email and password error message from isValid function
   const [error, setError] = useState({
     email: "",
     password: "",
   });
 
+  // isValid function validates user inputs: email and password. if error, then error message is returned.
+  //    if error, false boolean is returned, if valid then true boolean is returned.
   const isValid = () => {
     let flag = true;
     let errors = error;
@@ -101,6 +122,7 @@ const SigninScreen = ({ navigation }) => {
                 handleClearErrors();
               }}
               error={error.email.length > 0}
+              testID="email-input"
             />
           </View>
           <HelperText type="error" visible={error.email.length > 0}>
@@ -120,6 +142,7 @@ const SigninScreen = ({ navigation }) => {
             }}
             error={error.password.length > 0}
             style={styles.textInput}
+            testID="password-input"
           />
           <Icon
             name={lockStatus === "locked" ? "lock" : "unlock-alt"}
@@ -127,6 +150,7 @@ const SigninScreen = ({ navigation }) => {
             color="black"
             style={styles.icon}
             onPress={toggleLockStatus}
+            testID="lock-icon"
           />
         </View>
           <HelperText type="error" visible={error.password.length > 0}>
@@ -134,23 +158,33 @@ const SigninScreen = ({ navigation }) => {
           </HelperText>
 
         <View style={styles.checkbox}>
-          <Button mode="text" onPress={() => navigation.navigate("Forgot")}>
+          <Button 
+            mode="text" 
+            onPress={() => navigation.navigate("Forgot")}
+            testID="forgot-button"
+            >
             Forgot your Username/Password ?
           </Button>
         </View>
       </View>
       <View style={styles.btnContainer}>
         <Button
+          ID="signInButton"
           disabled={isSubmitting}
           mode="elevated"
           onPress={handleSignInWithEmail}
           style={{ flex: 2, marginHorizontal: horizontalScale(10) }}
+          testID="sign-in-button"
         >
           Sign In
         </Button>
       </View>
       {/* <GoogleButton /> */}
-      <Button mode="text" onPress={() => navigation.navigate("SignUp")}>
+      <Button 
+        mode="text" 
+        onPress={() => navigation.navigate("SignUp")}
+        testID="sign-up-button"
+      >
         Don't have an account? Sign Up
       </Button>
     </ScrollView>

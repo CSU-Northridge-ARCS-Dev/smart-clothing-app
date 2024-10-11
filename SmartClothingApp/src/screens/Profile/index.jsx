@@ -114,6 +114,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 textColor="white"
                 style={{ borderRadius: 10 }}
                 onPress={openPersonalModal}
+                testID="edit-personal-button"
               >
                 EDIT
               </Button>
