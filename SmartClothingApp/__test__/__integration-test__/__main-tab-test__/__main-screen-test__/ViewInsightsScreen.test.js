@@ -1,3 +1,24 @@
+/**
+ * Integration tests for the View Insights Screen in the Smart Clothing App.
+ * 
+ * This test file includes integration tests that simulate user interactions with the View Insights screen.
+ * These tests cover the process of rendering the View Insights screen, handling DatePicker interactions,
+ * and ensuring that the correct components and data visualizations are displayed properly.
+ * 
+ * Mocks:
+ * - Firebase Authentication methods (auth.currentUser)
+ * - Firebase Firestore methods (getDoc, collection, doc, etc.)
+ * - AsyncStorage for local storage interactions
+ * - Third-party libraries such as DateTimePicker and visualization components (e.g., Victory charts, d3)
+ * 
+ * The test suite mocks external dependencies and uses the React Navigation Stack Navigator
+ * to simulate navigation behavior in a React Native environment.
+ *
+ * @file ViewInsightsScreen.test.js
+ * 
+ * Credit: Carlos Figueroa (github @cfiguer055)
+ */
+
 import React, {useState} from 'react';
 import ViewInsights from '../../../../src/screens/ViewInsights/index.jsx'; 
 import DateToolbar from '../../../../src/components/DateToolbar/DateToolbar.jsx';
@@ -147,6 +168,18 @@ jest.mock('@react-native-community/datetimepicker', () => 'DateTimePicker');
 
 const Stack = createStackNavigator();
 
+
+
+/**
+ * Integration test suite for the View Insights Screen.
+ * 
+ * This test suite simulates interactions with the View Insights screen, including:
+ * - Rendering the screen and checking that it matches the expected UI
+ * - Displaying the DateTimePicker component and other visualizations
+ * - Ensuring proper state updates and handling interactions
+ *
+ * @test {View Insights Screen Integration}
+ */
 describe('ViewInsights', () => {
   let component;
   let store;
@@ -180,6 +213,14 @@ describe('ViewInsights', () => {
   
   
 
+  /**
+     * Test case: Should render the View Insights screen correctly
+     *
+     * This test checks that the View Insights screen is rendered correctly
+     * and matches the snapshot.
+     *
+     * @test {Render View Insights Screen}
+     */
   it('renders correctly', () => {
     let component;
     component = renderer.create(
@@ -201,6 +242,14 @@ describe('ViewInsights', () => {
     expect(component.toJSON()).toMatchSnapshot(); 
   });
 
+  /**
+     * Test case: Should display the DateTimePicker when forced by prop
+     *
+     * This test simulates forcing the DateTimePicker to be displayed
+     * using a prop and ensures that the DateTimePicker component appears on the screen.
+     *
+     * @test {Display DateTimePicker}
+     */
   it('renders DateTimePicker when forced by prop', () => {
       const { getByTestId } = render(<MyComponent forceShowDatePicker={true} />);
       expect(getByTestId('date-time-picker')).toBeTruthy();

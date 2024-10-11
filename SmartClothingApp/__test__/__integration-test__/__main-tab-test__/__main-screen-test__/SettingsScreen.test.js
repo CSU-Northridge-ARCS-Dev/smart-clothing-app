@@ -1,3 +1,23 @@
+/**
+ * Integration tests for the Settings Screen in the Smart Clothing App.
+ * 
+ * This test file includes integration tests that simulate user interactions with the Settings screen.
+ * These tests cover the process of rendering the Settings screen, triggering modals (e.g., update email,
+ * change password, delete account), and verifying that the correct user actions take place.
+ * 
+ * Mocks:
+ * - Firebase Authentication methods (auth.currentUser, signInWithEmailAndPassword)
+ * - Firebase Firestore methods (getDoc, collection, doc, etc.)
+ * - AsyncStorage for local storage interactions
+ * 
+ * The test suite mocks external dependencies and uses the React Navigation Stack Navigator
+ * to simulate navigation behavior in a React Native environment.
+ *
+ * @file SettingsScreen.test.js
+ * 
+ * Credit: Carlos Figueroa (github @cfiguer055)
+ */
+
 import React from 'react';
 import renderer from 'react-test-renderer';
 import { render, fireEvent } from '@testing-library/react-native';
@@ -69,9 +89,19 @@ jest.mock('firebase/firestore', () => ({
 
 
 
-
+// Creating a StackNavigator for the test component
 const Stack = createStackNavigator();
 
+/**
+ * Integration test suite for the Settings Screen.
+ * 
+ * This test suite simulates interactions with the Settings screen, including:
+ * - Rendering the Settings screen correctly
+ * - Triggering modals for updating email, changing password, and deleting account
+ * - Ensuring the correct user actions trigger the expected modals or state changes
+ *
+ * @test {Settings Screen Integration}
+ */
 describe('SettingsScreen', () => {
   let store;
   let component;
@@ -108,22 +138,54 @@ describe('SettingsScreen', () => {
     instance = component.root;
   });
 
+  /**
+     * Test case: Should render Settings screen correctly
+     *
+     * This test ensures that the Settings screen is rendered correctly, 
+     * matching the snapshot.
+     *
+     * @test {Settings Screen Render}
+     */
   it('renders correctly', () => {
       expect(component.toJSON()).toMatchSnapshot(); 
   });
   
+  /**
+     * Test case: Should open update email modal on button press
+     *
+     * This test simulates the user pressing the "Update Email" button on the Settings screen
+     * and expects the update email modal to be triggered.
+     *
+     * @test {Open Update Email Modal}
+     */
   it('opens update email modal on button press', () => {
       const updateEmailButton = instance.findByProps({ title: "UPDATE EMAIL" });
       fireEvent.press(updateEmailButton);
       // Expect the state for the update email modal to be true
   });
   
+  /**
+     * Test case: Should open change password modal on button press
+     *
+     * This test simulates the user pressing the "Change Password" button on the Settings screen
+     * and expects the change password modal to be triggered.
+     *
+     * @test {Open Change Password Modal}
+     */
   it('opens change password modal on button press', () => {
       const changePasswordButton = instance.findByProps({ title: "CHANGE PASSWORD" });
       fireEvent.press(changePasswordButton);
       // Expect the state for the change password modal to be true
   });
   
+  /**
+     * Test case: Should open delete account modal on button press
+     *
+     * This test simulates the user pressing the "Delete Account" button on the Settings screen
+     * and expects the delete account modal to be triggered.
+     *
+     * @test {Open Delete Account Modal}
+     */
   it('opens delete account modal on button press', () => {
       const deleteAccountButton = instance.findByProps({ title: "DELETE ACCOUNT" });
       fireEvent.press(deleteAccountButton);

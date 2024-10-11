@@ -1,3 +1,23 @@
+/**
+ * Integration tests for the View Sleep Data Screen in the Smart Clothing App.
+ * 
+ * This test file includes integration tests that simulate user interactions with the View Sleep Data screen.
+ * These tests ensure that the screen renders correctly based on route parameters, mocks various dependencies
+ * such as Firebase and AsyncStorage, and verifies that UI components and data visualizations are correctly displayed.
+ * 
+ * Mocks:
+ * - Firebase Authentication methods (auth.currentUser)
+ * - Firebase Firestore methods (getDoc, collection, doc, etc.)
+ * - AsyncStorage for local storage interactions
+ * - Third-party libraries such as Victory charts, d3, and Activity Rings
+ * 
+ * The test suite mocks external dependencies and uses Redux to simulate state management in a React Native environment.
+ *
+ * @file ViewSleepData.test.js
+ * 
+ * Credit: Carlos Figueroa (github @cfiguer055)
+ */
+
 import React from 'react';
 import ViewSleepData from '../../../../src/screens/ViewSleepData/index.jsx'; 
 import configureStore from '../../../../src/store.js';
@@ -103,7 +123,17 @@ const mockRoute = {
   };
 
 
-describe('ViewSleepData', () => {
+/**
+ * Integration test suite for the View Sleep Data Screen.
+ * 
+ * This test suite simulates interactions with the View Sleep Data screen, including:
+ * - Rendering the screen and checking that it matches the expected UI
+ * - Handling route parameters and ensuring the screen behaves correctly based on those parameters
+ * - Ensuring proper component rendering and data visualization
+ *
+ * @test {View Sleep Data Screen Integration}
+ */
+describe('ViewSleepData Integration Test', () => {
     let component;
     let instance;
     let store;
@@ -126,6 +156,15 @@ describe('ViewSleepData', () => {
     
     //add test cases to know if the return data is correct
 
+
+    /**
+     * Test case: Should render correctly based on route params
+     *
+     * This test checks that the View Sleep Data screen renders correctly based on the provided
+     * route parameters, ensuring that the screen matches the snapshot and handles route data properly.
+     *
+     * @test {Render View Sleep Data Screen}
+     */
     it('renders correctly based on route params', async () => {
         const { toJSON, debug } = render(
             <Provider store={store}>
@@ -160,6 +199,15 @@ describe('ViewSleepData', () => {
     //     expect(component).toMatchSnapshot();
     // });
 
+
+    /**
+     * Test case: Should render correctly when the previousScreenTitle is missing from the route params
+     *
+     * This test checks that the View Sleep Data screen renders correctly even when the `previousScreenTitle`
+     * is missing from the route parameters.
+     *
+     * @test {Render without previousScreenTitle}
+     */
     it('renders correctly when previousScreenTitle is missing', () => {
         const mockRouteWithoutTitle = { params: {} };
         component = renderer.create(

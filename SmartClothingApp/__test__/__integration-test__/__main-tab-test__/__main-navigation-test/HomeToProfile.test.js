@@ -1,3 +1,25 @@
+/**
+ * Integration tests for Home to Profile navigation flow in the Smart Clothing App.
+ * 
+ * This test file includes integration tests that simulate user interactions with the app's
+ * navigation system. These tests cover the process of navigating from the Home screen to the
+ * Profile screen and further navigating to edit personal and metrics data screens. They validate
+ * that the navigation stack works as expected, the correct screens are rendered, and the appropriate
+ * user actions trigger navigation.
+ * 
+ * Mocks:
+ * - Firebase Authentication methods (auth.currentUser)
+ * - Firebase Firestore methods (getDoc, collection, doc, etc.)
+ * - AsyncStorage for local storage interactions
+ * 
+ * The test suite mocks external dependencies and uses the React Navigation Stack Navigator
+ * to simulate navigation behavior in a React Native environment.
+ *
+ * @file HomeToProfile.test.js
+ * 
+ * Credit: Carlos Figueroa (github @cfiguer055)
+ */
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -115,6 +137,15 @@ jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__m
   );
 
 
+  /**
+ * Integration test suite for navigating from Home to Profile screens.
+ * 
+ * This test suite simulates the complete flow of user navigation from the Home screen
+ * to the Profile screen, and navigating further into editing personal and metrics data screens.
+ * It validates that the navigation system behaves correctly when interacting with menus and buttons.
+ *
+ * @test {Home to Profile Navigation}
+ */
 describe('Home to Profile Navigation', () => {
 
   let store;
@@ -131,6 +162,16 @@ describe('Home to Profile Navigation', () => {
     jest.useFakeTimers();
   });
 
+
+  /**
+     * Test case: Should navigate from Home to Profile screen
+     *
+     * This test validates the navigation from the Home screen to the Profile screen by interacting 
+     * with a menu and triggering the appropriate actions. It checks that the Profile screen is 
+     * rendered after pressing the corresponding menu item.
+     *
+     * @test {Home to Profile Navigation}
+     */
   it('Navigates from Home to Profile screen', async () => {
     store = configureStore();
 
@@ -159,6 +200,15 @@ describe('Home to Profile Navigation', () => {
     });
   });
 
+  /**
+     * Test case: Should navigate from main Profile screen to Edit Personal Info screen
+     *
+     * This test validates the navigation from the Profile screen to the Edit Personal Info screen.
+     * It checks that the user can navigate to the edit screen and that the correct input fields 
+     * for first name and last name are displayed.
+     *
+     * @test {Profile to Edit Personal Info Navigation}
+     */
   it('Navigates from main Profile Screen to Edit Personal Info Screen', async () => {
     store = configureStore();
 
@@ -188,6 +238,15 @@ describe('Home to Profile Navigation', () => {
       });
   });
 
+  /**
+     * Test case: Should navigate from main Profile screen to Metrics Data screen
+     *
+     * This test validates the navigation from the Profile screen to the Metrics Data screen.
+     * It checks that the user can navigate to the metrics screen and that the correct input fields 
+     * for age, height, weight, gender, and sports are displayed.
+     *
+     * @test {Profile to Metrics Data Navigation}
+     */
   it('Navigates from main Profile Screen to Metrics Data Screen', async () => {
     store = configureStore();
 

@@ -1,3 +1,24 @@
+/**
+ * Integration tests for Sign-Up to Dashboard navigation flow in the Smart Clothing App.
+ * 
+ * This test file includes integration tests that simulate user interactions with the app's
+ * sign-up and navigation system. These tests cover the process of signing up from the Sign-Up 
+ * screen and navigating to the Dashboard screen. They validate that the navigation stack works 
+ * as expected, the correct screens are rendered, and the appropriate user actions trigger navigation.
+ * 
+ * Mocks:
+ * - Firebase Authentication methods (createUserWithEmailAndPassword, auth.currentUser)
+ * - Firebase Firestore methods (getDoc, collection, doc, etc.)
+ * - AsyncStorage for local storage interactions
+ * 
+ * The test suite mocks external dependencies and uses the React Navigation Stack Navigator
+ * to simulate navigation behavior in a React Native environment.
+ *
+ * @file SignupToHome.test.js
+ * 
+ * Credit: Carlos Figueroa (github @cfiguer055)
+ *         Harshit _ (github @_)
+ */
 jest.useFakeTimers()
 
 import React, {useState} from 'react';
@@ -15,7 +36,7 @@ import {PaperProvider}  from "react-native-paper";
 
 
 
-// Mock Firebase Authentication
+// Mock Firebase and AsyncStorage
 jest.mock('../../../../firebaseConfig.js', () => ({
     auth: {
       signupWithEmail: jest.fn(() => Promise.resolve()),
@@ -167,6 +188,17 @@ function TestComponent() {
 }
 
 
+
+
+/**
+ * Integration test suite for navigating from Sign-Up to the Dashboard.
+ * 
+ * This test suite simulates the complete flow of user navigation from the Sign-Up screen
+ * to the Dashboard screen, testing the overall app flow and ensuring the navigation
+ * system behaves correctly upon successful sign-up.
+ *
+ * @test {Sign-Up to Dashboard Integration}
+ */
 describe('SignUpToHome Integration Test', () => {
   beforeEach(() => {
     // Prevents 'wrap act()' console log warning 
@@ -180,6 +212,17 @@ describe('SignUpToHome Integration Test', () => {
     jest.useFakeTimers();
   });
 
+
+  /**
+   * Test case: Should navigate from Sign-In to Sign-Up and then to the Dashboard screen after successful sign-up
+   *
+   * This test validates the app flow from the Sign-In screen to the Sign-Up screen, and then to 
+   * the Dashboard screen upon successful sign-up. It checks that user interactions with the 
+   * Sign-Up form are handled correctly, the Terms of Service checkbox is toggled, and the 
+   * appropriate navigation occurs once sign-up is complete.
+   *
+   * @test {SignUp to Dashboard Navigation}
+   */
   it('should navigate from Sign-In to Sign-Up to Dashboard', async () => {
   
     const store = configureStore();
