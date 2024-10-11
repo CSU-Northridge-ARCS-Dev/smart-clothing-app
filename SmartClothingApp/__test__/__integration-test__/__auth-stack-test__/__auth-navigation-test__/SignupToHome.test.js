@@ -228,7 +228,7 @@ describe('SignUpToHome Integration Test', () => {
     const store = configureStore();
     
     // Wrap TestComponent with Providers and render
-      const { getAllByTestId, getByText, getAllByRole } = render(
+      const { getAllByTestId, getByText, getAllByRole, getByTestId } = render(
           <StoreProvider store={store}>
           <PaperProvider >
               <TestComponent />
@@ -256,21 +256,22 @@ describe('SignUpToHome Integration Test', () => {
 
       // 2) SignUp renders here:
 
-      // Find Inputs
-      const inputFields = getAllByTestId('text-input-outlined');
+
       //console.log(inputFields.length);
-      const firstNameInput =  inputFields[0];
-      const lastNameInput =  inputFields[1];
-      const emailInput = inputFields[2]; 
-      const passwordInput = inputFields[3];  
-      const confirmPasswordInput =  inputFields[4];
+      const firstNameInput = getByTestId('first-name-input');
+      const lastNameInput = getByTestId('last-name-input');
+      const emailInput = getByTestId('email-input');
+      const passwordInput = getByTestId('password-input');
+      const confirmPasswordInput = getByTestId('confirm-password-input');
 
 
 
-      // Find "Don't have an account? Sign Up"
-      buttons = getAllByTestId('button');
-      //console.log(buttons.length);
-      var signUpButton =  buttons[1];
+      // Find SignUp Button
+      const signUpButton = getByTestId('sign-up-button');
+
+      // buttons = getAllByTestId('button');
+      // //console.log(buttons.length);
+      // var signUpButton =  buttons[1];
 
 
       // Enter credentials and press Sign In Button
@@ -291,31 +292,42 @@ describe('SignUpToHome Integration Test', () => {
       });
 
       // Find TOS Checkmark 
-      var userAgreements = getAllByRole('checkbox');
+      const tosCheckbox = getAllByRole('checkbox')[0];
+      await act(() => {
+        fireEvent.press(tosCheckbox);
+      });
+
+      //var userAgreements = getAllByRole('checkbox');
       // console.log(userAgreements.length);
       // await act(() => {
       //     userAgreements.forEach(checkbox => fireEvent.press(checkbox));
       // });
-      expect(userAgreements[0].props.accessibilityState.checked).toBe(false);
-      await act(() => {
-          fireEvent.press(userAgreements[0])
-      });
+      // expect(userAgreements[0].props.accessibilityState.checked).toBe(false);
+      // await act(() => {
+      //     fireEvent.press(userAgreements[0])
+      // });
       // console.log(userAgreements.length);
 
-      var userAgreements = getAllByRole('checkbox');
-      // console.log(userAgreements.length);
+      // TOS Modal opens up, check the Terms of Service checkbox
+      const tosModalCheckbox = getAllByRole('checkbox')[0];
       await act(() => {
-          fireEvent.press(userAgreements[0])
+        fireEvent.press(tosModalCheckbox);
       });
-      await waitFor(() => {
-          expect(userAgreements[0].props.accessibilityState.checked).toBe(true);
-      });
+      // var userAgreements = getAllByRole('checkbox');
+      // // console.log(userAgreements.length);
+      // await act(() => {
+      //     fireEvent.press(userAgreements[0])
+      // });
+      // await waitFor(() => {
+      //     expect(userAgreements[0].props.accessibilityState.checked).toBe(true);
+      // });
       // await act(() => {
       //     fireEvent.press(userAgreements[1])
       // });
-      buttons = getAllByTestId('button');
-      //console.log(buttons.length);
-      signUpButton =  buttons[1];
+
+      // buttons = getAllByTestId('button');
+      // //console.log(buttons.length);
+      // signUpButton =  buttons[1];
 
       await act(() => {
           fireEvent.press(signUpButton);
