@@ -8,6 +8,7 @@ import {
 // import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
 
+
 import {
   FIREBASE_CONFIG_API_KEY,
   FIREBASE_AUTH_DOMAIN,
@@ -18,6 +19,7 @@ import {
   FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID,
 } from "@env";
+
 
 // Optionally import the services that you want to use
 // import {...} from "firebase/auth";
@@ -37,6 +39,7 @@ const firebaseConfig = {
   appId: FIREBASE_APP_ID,
   measurementId: FIREBASE_MEASUREMENT_ID,
 };
+
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
