@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ViewSleepData renders correctly based on route params 1`] = `
+exports[`ViewSleepData Integration Test renders correctly based on route params 1`] = `
 <RNCSafeAreaProvider
   onInsetsChange={[Function]}
   style={
@@ -14,7 +14,7 @@ exports[`ViewSleepData renders correctly based on route params 1`] = `
 />
 `;
 
-exports[`ViewSleepData renders correctly when previousScreenTitle is missing 1`] = `
+exports[`ViewSleepData Integration Test renders correctly when previousScreenTitle is missing 1`] = `
 <RNCSafeAreaProvider
   onInsetsChange={[Function]}
   style={
