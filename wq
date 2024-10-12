@@ -1,0 +1,738 @@
+[33mcommit 0620965b9f0b3edc57d9bdb18d1b99624af65680[m[33m ([m[1;36mHEAD -> [m[1;32mtesting[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 2bcac54 9a53e55
+Author: Harshit Penta <52135144+harshitp9989@users.noreply.github.com>
+Date:   Thu Oct 10 22:03:32 2024 -0700
+
+    Merge pull request #108 from CSU-Northridge-ARCS-Dev/testing
+    
+    Push __Test__ folder to main
+
+[33mcommit 9a53e55bc8c64c92234405bf577a6c44574a437a[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Oct 10 18:43:27 2024 -0700
+
+    all tests PASS - 100 passed
+
+[33mcommit 2aa6396cbfecd94c27d9c27cafc460d137d530e5[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Oct 10 17:42:30 2024 -0700
+
+    __integration-test__ with jsdoc comments // SignupScreen.test.js is wrong
+
+[33mcommit cc45c1bbb3168c8fffdd5d752432d4a40d9d1fff[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Oct 10 16:47:58 2024 -0700
+
+    __unit-test__ all commented for jsdocs
+
+[33mcommit 6a33662e9c44732e0f1ddfc50ba3cdb036972d9b[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Oct 10 13:26:51 2024 -0700
+
+    reorganized __test__ folder structure // all tests pass
+
+[33mcommit ebd90d22e496b0f09cf1a5e698c0686bceea3aff[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Jun 24 21:30:52 2024 -0700
+
+    useractions.unit.test all pass, issues #106 #105 #104
+
+[33mcommit 4fc857700a267a5cae75af35cf8e3fd0977e47f7[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sun Jun 23 22:33:23 2024 -0700
+
+    lc1
+
+[33mcommit 7b3ab559d47f858b445dcc8d5be341dd5dc5f389[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 21:03:46 2024 -0700
+
+    useractions unit test - only 3 more test cases issue #106
+
+[33mcommit 1c8f584b8618087721ca1c018a100d767703f3c8[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 11:55:42 2024 -0700
+
+    useractions unit test : email and pass actions - issue #106
+
+[33mcommit 0020719f36867f8a682136fff9c7540360d80065[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 10:19:40 2024 -0700
+
+    useractions unit test - user data actions - issue #106
+
+[33mcommit 7fa43a8395904745e3bb85cc97df82c3b4ec629a[m
+Merge: 928d13f 3bd5c66
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 07:12:28 2024 -0700
+
+    Merge branch 'testing' of https://github.com/CSU-Northridge-ARCS-Dev/smart-clothing-app into testing
+
+[33mcommit 928d13f69665fb0fc7f31a926039b52057e21a35[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 07:08:35 2024 -0700
+
+    useractions.unit.test : profile update actions issue #106
+
+[33mcommit 3bd5c66d469158c408c0d78425430999187e585d[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 07:08:35 2024 -0700
+
+    useractions.unit.test : profile update actions
+
+[33mcommit bddabad272e30ae30ffe7d1469931a1c6a406860[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 05:37:54 2024 -0700
+
+    5/33 pass issue #106
+
+[33mcommit b4007d9e00150e69af03a5ea68a1d865845dda22[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 01:20:03 2024 -0700
+
+    viewsleepdata fix
+
+[33mcommit 5b01595ae4310a871866a870ee6aad72be06196e[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Jun 20 01:15:22 2024 -0700
+
+    userActions unit test rework
+
+[33mcommit bb313571139d5af3fa05c6536976ae5258dee60c[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Jun 17 22:54:56 2024 -0700
+
+    userActions integration update profile PASS
+
+[33mcommit be5991b4bfd4e74bc54c745964ff3962bea85278[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Jun 17 19:43:19 2024 -0700
+
+    userActions integration test - 1st test case pass
+
+[33mcommit e0b669d468709f199fbeb5f0b24605ae8b8b3073[m
+Merge: 1eeb40e 2bcac54
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Jun 17 14:44:19 2024 -0700
+
+    Merge branch 'main' of https://github.com/CSU-Northridge-ARCS-Dev/smart-clothing-app into testing
+
+[33mcommit 1eeb40e653404d35293075f8b1ebcf57905fdcaf[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Jun 17 14:44:04 2024 -0700
+
+    change test input
+
+[33mcommit b7883c49e3fa5cab360e9ffabe60e83552bc5bbb[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sun Jun 16 23:28:20 2024 -0700
+
+    separated integration tests into auth-stack(pre-auth & auth) and main-tab(post-auth)
+
+[33mcommit 59d3f943e53f01c1471cbebbe34328057ccd0133[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sun Jun 16 22:05:29 2024 -0700
+
+    signinscreen auth test all pass - next test components
+
+[33mcommit 9120299c8443c8d72e9e327b9e0752dd71d70147[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sun Jun 16 19:06:54 2024 -0700
+
+    updated signinscreen - create more testcases for auth
+
+[33mcommit 384a32032bbd971bb8473993f1fa200c1e7f701b[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sun Jun 16 15:09:26 2024 -0700
+
+    added 3 testcases to appActions - 7/7 Pass
+
+[33mcommit 117d6004fd284b1cd604a8962dfb51477e2104da[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sun Jun 16 14:03:49 2024 -0700
+
+    appActions 4/4 pass
+
+[33mcommit 741d57c535b7027489658acddd9f2563af32d04a[m
+Author: Carlos Figueroa <cfiguer055@gmail.com>
+Date:   Sun Jun 16 12:34:49 2024 -0700
+
+    viewinsightsscreen test
+
+[33mcommit e793a8f55a347d54f98e31c03ee7666051b7991d[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sat Jun 15 14:30:37 2024 -0700
+
+    appActions and nav-test directory - 4 fails
+
+[33mcommit 2bcac54c7ddc7d84e80dc6892db20ae45bd23bf4[m[33m ([m[1;31morigin/health-connect-carlos[m[33m, [m[1;31morigin/coach-athlete-invite[m[33m, [m[1;32mmain[m[33m, [m[1;32mhealth-connect-carlos[m[33m, [m[1;32mgalaxy-watch-health-connect[m[33m)[m
+Merge: 8217539 50d0393
+Author: Carlos Figueroa <87353706+cfiguer055@users.noreply.github.com>
+Date:   Mon Apr 22 18:31:16 2024 -0700
+
+    Merge pull request #102 from CSU-Northridge-ARCS-Dev/finish-app
+    
+    Finish app
+
+[33mcommit 813711e5911f1d025b2684fa52ab9252b4916d16[m
+Merge: 2b9f3f7 8217539
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Apr 4 22:59:12 2024 -0700
+
+    Merge branch 'main' of https://github.com/CSU-Northridge-ARCS-Dev/smart-clothing-app into testing
+
+[33mcommit 821753933977ef9eab9524a89afd21446d6919df[m
+Merge: 49dbdb5 6cfd405
+Author: Carlos Figueroa <87353706+cfiguer055@users.noreply.github.com>
+Date:   Thu Apr 4 20:00:57 2024 -0700
+
+    Merge pull request #101 from CSU-Northridge-ARCS-Dev/qtdinh-patch-1
+    
+    Update README.md
+
+[33mcommit 6cfd4054c61d7f1deed2bbf968689970e9777ffd[m[33m ([m[1;31morigin/qtdinh-patch-1[m[33m)[m
+Author: Thomas Dinh <59325099+qtdinh@users.noreply.github.com>
+Date:   Thu Apr 4 19:50:04 2024 -0700
+
+    Update README.md
+
+[33mcommit 50d0393fb240059460642c1666880ece76d9a8a0[m[33m ([m[1;31morigin/finish-app[m[33m, [m[1;32mfinish-app[m[33m)[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Thu Apr 4 15:42:43 2024 -0700
+
+    Workaround for timezone bug with dates
+
+[33mcommit cf50a3f76f7960febc2875dc866131ec65d30835[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Wed Apr 3 01:25:12 2024 -0700
+
+    Quick fix with date
+
+[33mcommit 2b9f3f71d5f5693168e96fd77da3d4bedf4918ea[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Fri Mar 29 23:20:52 2024 -0700
+
+    package-lock
+
+[33mcommit 749224ea46e9808ebb29c7d6b5bfa7723dd2fb24[m
+Merge: 8bf128a 49dbdb5
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Fri Mar 29 15:34:00 2024 -0700
+
+    merged with main update
+
+[33mcommit 49dbdb51afe6fdc1d73eb9efa4ddfbefd22713a1[m
+Merge: 365615b 084158d
+Author: Carlos Figueroa <87353706+cfiguer055@users.noreply.github.com>
+Date:   Wed Mar 27 19:16:29 2024 -0700
+
+    Merge pull request #99 from CSU-Northridge-ARCS-Dev/dependabot/npm_and_yarn/SmartClothingApp/webpack-dev-middleware-5.3.4
+    
+    Bump webpack-dev-middleware from 5.3.3 to 5.3.4 in /SmartClothingApp
+
+[33mcommit 365615b47d684f476b21d562f2b3d150fffddb8d[m
+Merge: 81c1126 a13bdbc
+Author: Carlos Figueroa <87353706+cfiguer055@users.noreply.github.com>
+Date:   Wed Mar 27 19:15:48 2024 -0700
+
+    Merge pull request #95 from CSU-Northridge-ARCS-Dev/dependabot/npm_and_yarn/SmartClothingApp/follow-redirects-1.15.6
+    
+    Bump follow-redirects from 1.15.5 to 1.15.6 in /SmartClothingApp
+
+[33mcommit 81c1126a1c4cb136e9d9d4cfae6353d99846bcdd[m
+Merge: d6fe31d 4f86e27
+Author: Carlos Figueroa <87353706+cfiguer055@users.noreply.github.com>
+Date:   Wed Mar 27 19:15:03 2024 -0700
+
+    Merge pull request #83 from CSU-Northridge-ARCS-Dev/dependabot/npm_and_yarn/SmartClothingApp/ip-1.1.9
+    
+    Bump ip from 1.1.8 to 1.1.9 in /SmartClothingApp
+
+[33mcommit 288dcc50d729edfd8c40f7b1140b5c11a7893c58[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Wed Mar 27 17:12:01 2024 -0700
+
+    Date display
+
+[33mcommit b7df33d4d4dfe5bc82fc779041eee82e078db651[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Wed Mar 27 16:43:02 2024 -0700
+
+    Display Asleep and In Bed
+
+[33mcommit e9dba53172f5777bf2c48cb166c534ab2ddd4fe1[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Wed Mar 27 16:22:59 2024 -0700
+
+    Fix phases
+
+[33mcommit 8bf128a22d9a57277c3123d086c3d393f5cde8a9[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Tue Mar 26 10:43:54 2024 -0700
+
+    merge main and all test suites pass
+
+[33mcommit 6e5e7e6866c234cf6942a8d80efd81a36e67a7c6[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Tue Mar 26 10:38:45 2024 -0700
+
+    3 test suites fail
+
+[33mcommit 618364932eab00a8db747326422dee837fe2e9c3[m
+Merge: 21ba058 a59c908
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Tue Mar 26 10:13:54 2024 -0700
+
+    Merge remote-tracking branch 'origin/testing' into testing
+
+[33mcommit 21ba058dfbd86eda7b91b512b96af52bc9120c68[m[33m ([m[1;31morigin/carlos_testing[m[33m, [m[1;32mcarlos_testing[m[33m)[m
+Merge: 6ab4ded d6fe31d
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Tue Mar 26 09:59:00 2024 -0700
+
+    Merge branch 'main' of https://github.com/CSU-Northridge-ARCS-Dev/smart-clothing-app into testing
+
+[33mcommit 084158d63c4406c6fb54676c278eb2cbbc83a35d[m[33m ([m[1;31morigin/dependabot/npm_and_yarn/SmartClothingApp/webpack-dev-middleware-5.3.4[m[33m)[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Sun Mar 24 03:22:27 2024 +0000
+
+    Bump webpack-dev-middleware from 5.3.3 to 5.3.4 in /SmartClothingApp
+    
+    Bumps [webpack-dev-middleware](https://github.com/webpack/webpack-dev-middleware) from 5.3.3 to 5.3.4.
+    - [Release notes](https://github.com/webpack/webpack-dev-middleware/releases)
+    - [Changelog](https://github.com/webpack/webpack-dev-middleware/blob/v5.3.4/CHANGELOG.md)
+    - [Commits](https://github.com/webpack/webpack-dev-middleware/compare/v5.3.3...v5.3.4)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: webpack-dev-middleware
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit a13bdbc25e6c6211fc33f3375f28f6b166fe4601[m[33m ([m[1;31morigin/dependabot/npm_and_yarn/SmartClothingApp/follow-redirects-1.15.6[m[33m)[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Mon Mar 18 05:26:15 2024 +0000
+
+    Bump follow-redirects from 1.15.5 to 1.15.6 in /SmartClothingApp
+    
+    Bumps [follow-redirects](https://github.com/follow-redirects/follow-redirects) from 1.15.5 to 1.15.6.
+    - [Release notes](https://github.com/follow-redirects/follow-redirects/releases)
+    - [Commits](https://github.com/follow-redirects/follow-redirects/compare/v1.15.5...v1.15.6)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: follow-redirects
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit a59c90823ab5f8d2258e08cfc11079484ae4be19[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Sat Mar 16 19:33:30 2024 -0700
+
+    Update GitHub Actions workflow to include npm test -- -u
+
+[33mcommit 904393db12f2e97a368fa1c716aad6dad205fa5a[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Sat Mar 16 19:13:42 2024 -0700
+
+    SnapshotUpdate
+
+[33mcommit 99309b7568e2f067cd23f2c33cd5502ce5ecc362[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Sat Mar 16 19:11:22 2024 -0700
+
+    SnapshotUpdate
+
+[33mcommit 45836a42d0527b7564805e555dda81f19015b06b[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Sat Mar 16 18:40:23 2024 -0700
+
+    ci/cd pipeline SnapshotExemption2
+
+[33mcommit 80a8a0dc193e7057ee38018494b6fcca1f059ea5[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Sat Mar 16 18:33:45 2024 -0700
+
+    ci/cd pipeline SnapshotExemption
+
+[33mcommit cc44eebc25c65d9f916aec786c89876ccc2693a2[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Sat Mar 16 18:21:37 2024 -0700
+
+    ci/cd pipeline edit1
+
+[33mcommit bd9fdaee6d192f2544d48f6d3709c65183afd383[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Sat Mar 16 18:18:47 2024 -0700
+
+    ci/cd pipeline edit
+
+[33mcommit 80fd072e1889106ed8057e27795f9a8566afbf67[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Fri Mar 15 21:48:07 2024 -0700
+
+    ci/cd pipeline edit3
+
+[33mcommit ed0bed1253097b0c0641ef5653e7038a0ad2e972[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Fri Mar 15 21:43:44 2024 -0700
+
+    ci/cd pipeline edit1
+
+[33mcommit 86ff44704e6d2462a48b61d15498098efa83ba62[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Fri Mar 15 21:30:02 2024 -0700
+
+    ci/cd pipeline edit
+
+[33mcommit 0abf4929bcb8ec3d742430ad7a72a4883c4599d5[m
+Merge: 1955a26 6ab4ded
+Author: harshit <harshitp9989@gmail.com>
+Date:   Fri Mar 15 21:21:42 2024 -0700
+
+    Merge branch 'testing' of https://github.com/CSU-Northridge-ARCS-Dev/smart-clothing-app into testing
+
+[33mcommit 1955a26168a1c3e7db138997a4b549abf8b327df[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Fri Mar 15 20:38:47 2024 -0700
+
+    ci/cd pipeline edit
+
+[33mcommit d6fe31d4c3f9346645d30d5aecee92d954d326c8[m
+Merge: 563c0d9 2aab681
+Author: Thomas Dinh <59325099+qtdinh@users.noreply.github.com>
+Date:   Tue Mar 12 12:32:00 2024 -0700
+
+    Merge pull request #94 from CSU-Northridge-ARCS-Dev/update
+    
+    Test security update
+
+[33mcommit 2aab681be806a58278ddab8a1c36872c392e4115[m[33m ([m[1;31morigin/update[m[33m)[m
+Author: captain.peanutbutter495 <47827017+nirvanafan205@users.noreply.github.com>
+Date:   Tue Mar 12 12:25:30 2024 -0700
+
+    updated xml2js
+
+[33mcommit 563c0d99674083723d1aa5dd26fe938d5e3b85b4[m
+Merge: addd939 464894c
+Author: Carlos Figueroa <87353706+cfiguer055@users.noreply.github.com>
+Date:   Mon Mar 11 21:04:42 2024 -0700
+
+    Merge pull request #92 from CSU-Northridge-ARCS-Dev/leftover-dev
+    
+    Health Data Screens
+
+[33mcommit 6ab4dede4794108e2e18a31d9f18c3c43dd9979d[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Mar 11 20:12:13 2024 -0700
+
+    mock dob in signintohome test for upcoming PR 92
+
+[33mcommit 2067fd027475416c06534d69f814c22dbf15f7d9[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Mar 11 01:19:54 2024 -0700
+
+    change workflow to clear snapshot
+
+[33mcommit 34d0f97b04ecda1ba4a84df48529638a5999cef6[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Mar 11 01:08:32 2024 -0700
+
+    snapshot fail resolved
+
+[33mcommit 464894c257080a82660f9e92c417410b54d55460[m[33m ([m[1;31morigin/leftover-dev[m[33m, [m[1;32mleftover-dev[m[33m)[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Sat Mar 9 22:03:09 2024 -0800
+
+    Update dependencies and return animation to rings
+
+[33mcommit 825dc3cb2e2addb0b59a5d35edba08318f63cdf6[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Sat Mar 9 21:32:25 2024 -0800
+
+    Fetch DOB data (fr this time)
+
+[33mcommit c470c48a6a79a88b91b637d634a1e784e6522161[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Sat Mar 9 21:07:08 2024 -0800
+
+    Fix change password modal bugs
+
+[33mcommit 6c9245a0e1f7377e0a7c1da5c4b583379b916b3c[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Sat Mar 9 20:37:50 2024 -0800
+
+    Format x-labels
+
+[33mcommit 6c03863e373df23b34bd67a762c3f0c02762f37a[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Sat Mar 9 20:29:58 2024 -0800
+
+    Add date selection for Sleep Data
+
+[33mcommit 2a13b0e7d316a307b4e02885fc20bb9a94da1b28[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Thu Mar 7 10:55:50 2024 -0800
+
+    snapshot -u
+
+[33mcommit 09b60c0dd6503feaa8ca72bbc808a932cd23c1e4[m
+Merge: cd87400 85a23c9
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Tue Mar 5 15:12:30 2024 -0800
+
+    Merge branch 'testing' of https://github.com/CSU-Northridge-ARCS-Dev/smart-clothing-app into testing
+
+[33mcommit cd874009e042f8447d7b0da9aaf98196e5034837[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Tue Mar 5 15:11:39 2024 -0800
+
+    viewInsightsScreen and AppHeader Unit tests
+
+[33mcommit 85a23c90c9f0d7bb5f71dd7a4a22fc8dfb132cd2[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Mon Mar 4 12:54:22 2024 -0800
+
+    workflow edit5
+
+[33mcommit 2b14f71dc65761283604417f12f8ca9aa086a253[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Mon Mar 4 12:50:59 2024 -0800
+
+    workflow edit4
+
+[33mcommit d7807a8f142eaf203ea2efd395adf025bb7a5838[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Mon Mar 4 12:49:04 2024 -0800
+
+    workflow edit3
+
+[33mcommit 44c71ae9fc11a492ecdf0f25bbd3802985f828e8[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Mon Mar 4 12:33:49 2024 -0800
+
+    workflow edit2
+
+[33mcommit 711fd06434e81955cdcd35dfe63c5b3e4a14f5c1[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Mon Mar 4 12:30:14 2024 -0800
+
+    workflow edit
+
+[33mcommit 1d80c4265e8d4067a43c9fb9ca164d33e5999d5f[m
+Merge: 5602af0 c06848a
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Sun Mar 3 18:48:17 2024 -0800
+
+    Merge branch 'leftover-dev' of https://github.com/CSU-Northridge-ARCS-Dev/smart-clothing-app into leftover-dev
+
+[33mcommit 5602af0bcb7bb25f5b189d6eb583f615fc5e3eab[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Sun Mar 3 18:48:03 2024 -0800
+
+    Sleep data graph
+
+[33mcommit 4f86e2738fafb5d80ef3983260f9776947235fa7[m[33m ([m[1;31morigin/dependabot/npm_and_yarn/SmartClothingApp/ip-1.1.9[m[33m, [m[1;32mdependabot/npm_and_yarn/SmartClothingApp/ip-1.1.9[m[33m)[m
+Author: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>
+Date:   Thu Feb 29 02:57:58 2024 +0000
+
+    Bump ip from 1.1.8 to 1.1.9 in /SmartClothingApp
+    
+    Bumps [ip](https://github.com/indutny/node-ip) from 1.1.8 to 1.1.9.
+    - [Commits](https://github.com/indutny/node-ip/compare/v1.1.8...v1.1.9)
+    
+    ---
+    updated-dependencies:
+    - dependency-name: ip
+      dependency-type: indirect
+    ...
+    
+    Signed-off-by: dependabot[bot] <support@github.com>
+
+[33mcommit c06848a3c83612ef663fdac8364bad4b35eb1dbd[m
+Merge: dbb2d18 2415fa1
+Author: imaqtdinh <thomas98dinh@gmail.com>
+Date:   Wed Feb 28 18:57:08 2024 -0800
+
+    merge
+
+[33mcommit dbb2d1836bbb89ba48cc326fdedd73ad58e3d1e8[m
+Author: imaqtdinh <thomas98dinh@gmail.com>
+Date:   Wed Feb 28 18:52:47 2024 -0800
+
+    Fetch DOB data
+
+[33mcommit f07c3164be4cd02a79ba2d58431510b207cd9cc7[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Tue Feb 27 14:07:46 2024 -0800
+
+    Path correction
+
+[33mcommit 2415fa143a0797a59bfce8128ac7520a9b495e12[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Mon Feb 26 23:48:43 2024 -0800
+
+    Workaround... for now
+
+[33mcommit 31985bafc87145fe4e28cffe2fa4363a7b29be7e[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Mon Feb 26 22:45:54 2024 -0800
+
+    Sleep data prototype
+
+[33mcommit fd7f565f7bdd0a46538a1becba797a2920ea42ae[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Mon Feb 26 22:20:55 2024 -0800
+
+    Attempt on sleep date
+
+[33mcommit 4084dc521728f6d732a15cc983c192c327afffdc[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Mon Feb 26 19:37:22 2024 -0800
+
+    DatePicker and DateRangePicker
+
+[33mcommit 586ba9f4f65b9c250384d9e959563da0852eb3a7[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Mon Feb 26 13:30:19 2024 -0800
+
+    node version set to 18.x
+
+[33mcommit 292f4c070b67ed3a478a0bee948e561aa449aa30[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Sat Feb 24 16:51:17 2024 -0800
+
+    commented out 2 failing test suites
+
+[33mcommit 25ae93d397a1ad30c8a9b5d0e12d9081956ba005[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Fri Feb 23 09:47:23 2024 -0800
+
+    testingPipeline2
+
+[33mcommit b1e52a9af233e78f5d4f96cf369209650194b58a[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Fri Feb 23 07:00:28 2024 -0800
+
+    testingPipeline
+
+[33mcommit 15c4ddcd630a4f3b14a09c680f892d0ee778b2a2[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Wed Feb 21 21:35:24 2024 -0800
+
+    Commit before adding pipeline
+
+[33mcommit 75f57ca1853c0ec4a0bf8fbfa1b0fc31061193ee[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Wed Feb 21 16:59:31 2024 -0800
+
+    Date range redux
+
+[33mcommit d07d5970ac52d2dfa0819511cb26832f32c44284[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Wed Feb 21 14:48:55 2024 -0800
+
+    Resolve default value with SVG component
+
+[33mcommit bcc7dbb5953af5f6ccc7d32a230be9d39999f200[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Tue Feb 20 11:07:26 2024 -0800
+
+    toastReducer Unit Test
+
+[33mcommit d8ef295d153d8cf884ef6e8685863a58e9eb6cfa[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Wed Feb 14 16:17:49 2024 -0800
+
+    ToS in Settings
+
+[33mcommit 09a35f66a73f87e3705e3bf58ef28372e962198f[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Tue Feb 13 21:06:09 2024 -0800
+
+    Remove pop-up messages, refine helper texts
+
+[33mcommit 444d924038b30f4eeb9fe0ad579aaa47abf0d810[m
+Author: Thomas Dinh <thomas98dinh@gmail.com>
+Date:   Tue Feb 13 20:21:36 2024 -0800
+
+    Add query data function and parse heart rate
+
+[33mcommit 135793347c7db608e5da9dd89898f9cc3d2a6e66[m
+Merge: ed3152f addd939
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Feb 12 20:56:41 2024 -0800
+
+    merge main changes to testing
+
+[33mcommit ed3152fa3566e33d978db07d26cb44bbb8bf3897[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Feb 12 18:05:51 2024 -0800
+
+    Home to Profile Integration Test Complete - Pass
+
+[33mcommit 5aa1749978ca83578f765f14c57c73efe779b776[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Feb 12 17:41:03 2024 -0800
+
+    home to profile integration test - test case 1 pass
+
+[33mcommit b738520bafefc81570bc04eb62105bd11740ed10[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Feb 12 17:11:38 2024 -0800
+
+    fixed merge errors. starting profile test
+
+[33mcommit bd249ada087f855c053d6145fa03491477b5d2aa[m
+Merge: b6e2115 f1b607e
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Feb 12 16:31:06 2024 -0800
+
+    merge head
+
+[33mcommit b6e2115858146c682582a8bcce8f6b04afd115c0[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Mon Feb 12 16:27:25 2024 -0800
+
+    snapshot -u
+
+[33mcommit f1b607e14d3f4f124f1b8faaf92ed82f1b1104c7[m
+Merge: 8b0dc45 bbc93b7
+Author: harshit <harshitp9989@gmail.com>
+Date:   Thu Feb 8 17:11:48 2024 +0530
+
+    Userstories and SigninToHome testcases updates
+
+[33mcommit 8b0dc45864138eeace9df9509dea512d379e6183[m
+Author: harshit <harshitp9989@gmail.com>
+Date:   Thu Feb 8 17:02:20 2024 +0530
+
+    Userstories and SigninToHome testcases updates
+
+[33mcommit addd9398afd2b0688d2b6c30fc8495358ce621e3[m
+Merge: c0030fb 47ed249
+Author: Akul <46544707+akul43@users.noreply.github.com>
+Date:   Mon Dec 11 11:49:51 2023 -0800
+
+    Merge pull request #77 from CSU-Northridge-ARCS-Dev/heart_sleep_data
+    
+    Sleep Data Screen & Heart Rate Screen
+
+[33mcommit c0030fba8bad7e23f2bd1c62f65195f855eb26e5[m
+Merge: 0f31b77 937037b
+Author: Akul <46544707+akul43@users.noreply.github.com>
+Date:   Mon Dec 11 11:48:15 2023 -0800
+
+    Merge pull request #75 from CSU-Northridge-ARCS-Dev/jeel-firebase-auth
+    
+    Store User Metrics data in LocalStorage
+
+[33mcommit bbc93b73f8eff64434957ed6822e876ebc935dff[m
+Author: cfiguer055 <cfiguer055@gmail.com>
+Date:   Fri Dec 1 18:11:02 2023 -0800
+
+    increased timeout for signuptohome
