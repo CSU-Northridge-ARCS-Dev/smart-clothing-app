@@ -20,14 +20,15 @@
       "bundleIdentifier": "com.arcs.smartclothingapp"
     },
     "android": {
-      "package": "com.arcs.smartclothingapp",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/icon-running.png",
-        "backgroundColor": "#2382e8"
-      }
+      "package": "com.arcs.smartclothingapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "90fe7b8b-b25e-4389-8373-0f4ba76b7b02"
+      }
     }
   }
 }
