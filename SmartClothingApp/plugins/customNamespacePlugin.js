@@ -38,7 +38,7 @@ function withCustomBuildGradle(config) {
       config.modResults.contents = contents;
   
       // Log the updated contents
-      console.log('Updated build.gradle contents:', contents);
+      //console.log('Updated build.gradle contents:', contents);
   
       return config;
     });
