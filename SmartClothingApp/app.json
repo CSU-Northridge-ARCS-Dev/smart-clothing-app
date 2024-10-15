@@ -29,6 +29,9 @@
       "eas": {
         "projectId": "90fe7b8b-b25e-4389-8373-0f4ba76b7b02"
       }
-    }
+    },
+    "plugins": [
+      "./plugins/customNamespacePlugin"
+    ]
   }
 }
