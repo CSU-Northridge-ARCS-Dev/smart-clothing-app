@@ -364,6 +364,31 @@ export const startLoginWithEmail = (email, password) => {
   };
 };
 
+// Function to restore UUID from AsyncStorage
+export const restoreUUID = (storedUID) => {
+  return async (dispatch) => {
+    try {
+      //const storedUID = await getUID();
+      if (storedUID) {
+        // Dispatch the login action to update the UUID in Redux store
+        dispatch(
+          loginWithEmail({
+            uuid: storedUID,
+            firstName: null,  // If needed, fetch other user info from Firestore or AsyncStorage
+            lastName: null,
+            email: null,
+          })
+        );
+        console.log("UUID restored successfully:", storedUID);
+      } else {
+        console.log("No UUID found in AsyncStorage.");
+      }
+    } catch (error) {
+      console.error("Error restoring UUID:", error);
+    }
+  };
+};
+
 export const fetchUserData = async (database, uid) => {
   try {
     const userDocRef = doc(database, "Users", uid);
