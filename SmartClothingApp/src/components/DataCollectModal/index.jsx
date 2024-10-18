@@ -34,9 +34,16 @@ const DataCollectModal = (props) => {
 
   let dobDate = currentUserMetricsData.dob;
 
-  if(currentUserMetricsData.dob.seconds !== undefined && currentUserMetricsData.dob.nanoseconds !== undefined) {
-    dobDate = dobDate.seconds * 1000;
+  // if(currentUserMetricsData.dob.seconds !== undefined && currentUserMetricsData.dob.nanoseconds !== undefined) {
+  //   dobDate = dobDate.seconds * 1000;
+  // }
+  // Check if dob exists and has 'seconds' and 'nanoseconds' properties
+  if (dobDate && dobDate.seconds !== undefined && dobDate.nanoseconds !== undefined) {
+    dobDate = dobDate.seconds * 1000; // Convert Firestore Timestamp to milliseconds
+  } else {
+    dobDate = new Date(); // Fallback to the current date or handle it as 'No Data'
   }
+
 
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState(new Date());
@@ -208,9 +215,16 @@ const DataCollectModal = (props) => {
             <View style={styles.btnContainer}>
               <Button
                 mode="outlined"
-                onPress={() =>
+                onPress={() => {
+                  setGender("")
+                  setDob(new Date())
+                  setHeight(0)
+                  setWeight(0)
+                  setSports("")
+                  handleSubmit(); // Stores null values to db ... otherwise user uid doc doesn't show 
+
                   dispatch(userMetricsDataModalVisible(false, false))
-                }
+                }}
                 style={styles.button}
               >
                 {isFromSignupScreen ? "Skip" : "Cancel"}
