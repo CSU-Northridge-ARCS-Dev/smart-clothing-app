@@ -14,11 +14,23 @@ export const storeUID = async (uid) => {
 export const getUID = async () => {
   try {
     const uid = await AsyncStorage.getItem("uid");
+    console.log("getUID: ", uid);
     return uid;
   } catch (error) {
     console.error("Error getting user UID:", error);
   }
 };
+
+// Clear the uid 
+export const clearUID = async () => {
+  try {
+    await AsyncStorage.removeItem("uid");
+    console.log("User UID cleared successfully");
+  } catch (error) {
+    console.error("Error clearing user UID", error);
+  }
+};
+
 
 // store user metrics data
 export const storeMetrics = async (metrics) => {
@@ -38,5 +50,15 @@ export const getMetrics = async () => {
   } catch (error) {
     console.error("Error getting user metrics:", error);
     return false;
+  }
+};
+
+// Clear user metrics
+export const clearMetrics = async () => {
+  try {
+    await AsyncStorage.removeItem("metricsData");
+    console.log("User metrics cleared successfully")
+  } catch (error) {
+    console.error("Error clearing user metrics", error);
   }
 };

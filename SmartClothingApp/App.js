@@ -12,6 +12,7 @@ import { AppToast } from "./src/components";
 import { auth } from "./firebaseConfig.js";
 
 import { getUID, getMetrics } from "./src/utils/localStorage.js";
+import { onAuthStateChanged } from 'firebase/auth';
 
 import {
   startLoadUserData,
@@ -23,6 +24,7 @@ const store = configureStore();
 
 export default function App() {
   const [isLoading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // for persistent login if user closes app
 
   // useEffect(() => {
   //   if (Platform.OS === "android") {
@@ -32,6 +34,19 @@ export default function App() {
 
   useEffect(() => {
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
+
+    // Listen for changes in authentication state
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("User is logged in:", user.uid);
+        setIsLoggedIn(true);
+        // Dispatch Redux actions or fetch data if necessary
+        store.dispatch(startLoadUserData());  // Load user data if logged in
+      } else {
+        console.log("No user is logged in.");
+        setIsLoggedIn(false);
+      }
+    });
 
     // Check if there's a stored token on app launch
     const checkUID = async () => {
@@ -107,7 +122,7 @@ export default function App() {
     //   }
     // });
 
-    // return () => unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   return (
