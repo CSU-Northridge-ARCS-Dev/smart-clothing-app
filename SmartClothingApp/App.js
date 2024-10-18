@@ -17,6 +17,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import {
   startLoadUserData,
   updateUserMetricsData,
+  restoreUUID,
 } from "./src/actions/userActions.js";
 import SplashScreen from "react-native-splash-screen";
 
@@ -37,15 +38,35 @@ export default function App() {
 
     // Listen for changes in authentication state
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("User is logged in:", user.uid);
-        setIsLoggedIn(true);
-        // Dispatch Redux actions or fetch data if necessary
-        store.dispatch(startLoadUserData());  // Load user data if logged in
-      } else {
-        console.log("No user is logged in.");
-        setIsLoggedIn(false);
-      }
+      setLoading(true); // Start loading while checking auth state
+      const handleAuthChange = async () => {
+        if (user) {
+          console.log("User is logged in:", user.uid);
+          setIsLoggedIn(true);
+
+          const storedUID = await checkUID()
+
+          // Dispatch Redux actions or fetch data if necessary
+          if (storedUID) {
+            // Restore UUID on app launch
+            store.dispatch(restoreUUID(storedUID));
+            console.log("User UUID restored - MainTab render")
+          } else {
+            console.log("User UUID not restored - MainTab won't render")
+          }
+
+          // Load user data if logged in
+          // store.dispatch(startLoadUserData());  // Done in checkMetrics
+          checkMetrics();
+        } else {
+          console.log("No user is logged in.");
+          setIsLoggedIn(false);
+          checkUID();
+          checkMetrics();
+        }
+        setLoading(false); // End loading when auth check completes
+      };
+      handleAuthChange();
     });
 
     // Check if there's a stored token on app launch
@@ -56,28 +77,32 @@ export default function App() {
         if (storedUID) {
           // If there's a token, try to refresh the user's session
           console.log("Stored storedUID found");
+          return storedUID;
+
         } else {
           console.log("No stored UID");
+          return null;
         }
       } catch (error) {
         console.error("Error checking stored UID:", error);
       }
     };
-    checkUID();
+    // checkUID();
 
     // Check if there's a stored user Matrics Data in local storage
     const checkMetrics = async () => {
       try {
         const storedMetrics = await getMetrics();
-        // console.log("Checking stored metrics");
+        console.log("Checking stored metrics");
+
         if (storedMetrics) {
           // If there's a token, try to refresh the user's session
-          // console.log("Stored metrics found");
-          // console.log("Stored metrics is -->", storedMetrics);
+          console.log("Stored metrics found");
+          console.log("Stored metrics is -->", storedMetrics);
           //Set the user metrics data in the Redux store
           store.dispatch(updateUserMetricsData(storedMetrics));
         } else {
-          // console.log("No stored metrics");
+          console.log("No stored metrics, loading from Firestore");
           //get the user metrics data from the database
           store.dispatch(startLoadUserData());
         }
@@ -85,12 +110,17 @@ export default function App() {
         console.error("Error checking stored metrics:", error);
       }
     };
-    checkMetrics();
+    //checkMetrics();
 
     // Loading fonts
     const loadFont = async () => {
       const res = await useAppFonts();
-      setLoading(false);
+      
+      //setLoading(false);
+      // Set a 0.5 second delay before setting loading to false
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
     };
     loadFont();
 
