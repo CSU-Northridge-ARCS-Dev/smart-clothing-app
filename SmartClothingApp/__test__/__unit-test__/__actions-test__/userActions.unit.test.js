@@ -365,6 +365,7 @@ describe('Async User Actions', () => {
       await store.dispatch(startLogout());
 
       const actions = store.getActions();
+      
       expect(actions[0]).toEqual({ type: LOGOUT });
       expect(actions[1]).toEqual(toastError('User logged out!'));
     });
