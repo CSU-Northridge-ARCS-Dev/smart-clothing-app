@@ -365,12 +365,20 @@ export const startLoginWithEmail = (email, password) => {
 };
 
 // Function to restore UUID from AsyncStorage
-export const restoreUUID = (storedUID) => {
+export const restoreUUID = () => {
   return async (dispatch) => {
     try {
-      //const storedUID = await getUID();
+      const storedUID = await getUID();
       if (storedUID) {
         // Dispatch the login action to update the UUID in Redux store
+        // dispatch(
+        //   loginWithEmail({
+        //     uuid: storedUID,
+        //     firstName: storedUID.firstName,  // If needed, fetch other user info from Firestore or AsyncStorage
+        //     lastName: storedUID.lastName,
+        //     email: storedUID.email,
+        //   })
+        // );
         dispatch(
           loginWithEmail({
             uuid: storedUID,
@@ -489,16 +497,16 @@ export const deleteAccount = () => {
       const uid = user.uid;
       const docRef = doc(database, "Users", uid);
 
-      const uidBefore = await getUID();
-      console.log("UID before account deletion: ", uidBefore);
+      // const uidBefore = await getUID();
+      // console.log("UID before account deletion: ", uidBefore);
 
       await user.delete();
 
       await clearUID();
       await clearMetrics();
 
-      const uidAfter = await getUID();
-      console.log("UID after account deletion: ", uidAfter);
+      // const uidAfter = await getUID();
+      // console.log("UID after account deletion: ", uidAfter);
 
       console.log("User deleted successfully.");
 

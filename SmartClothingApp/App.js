@@ -132,7 +132,7 @@ export default function App() {
               const storedUID = await checkUID();
 
               if (storedUID) {
-                store.dispatch(restoreUUID(storedUID));
+                store.dispatch(restoreUUID());
                 console.log("User UUID restored - MainTab render");
               } else {
                 console.log("User UUID not restored - MainTab won't render");
