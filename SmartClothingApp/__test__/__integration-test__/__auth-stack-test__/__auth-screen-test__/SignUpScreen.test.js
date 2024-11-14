@@ -27,10 +27,26 @@ import thunk from 'redux-thunk';
 import SignupScreen from '../../../../src/screens/SignupScreen';
 import { startSignupWithEmail } from '../../../../src/actions/userActions';
 
-// Mocking AsyncStorage, Firebase, and other dependencies
+/**
+ * Mocks the localStorage utility functions and Firebase Firestore methods.
+ * These mocks simulate database and storage interactions for the test cases.
+ */
 jest.mock('../../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
   storeUID: jest.fn(),
+  storeMetrics: jest.fn(),
+  getUID: jest.fn(),
+  clearUID: jest.fn(),
+  getMetrics: jest.fn(),
+  clearMetrics: jest.fn()
+}));
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(() => Promise.resolve('mocked_value')),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+  clear: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('firebase/firestore', () => ({
