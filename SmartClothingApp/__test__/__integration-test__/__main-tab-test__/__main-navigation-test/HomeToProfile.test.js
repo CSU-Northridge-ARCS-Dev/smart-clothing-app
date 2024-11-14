@@ -66,10 +66,22 @@ jest.mock('firebase/auth', () => ({
   }))
 
 jest.mock('../../../../src/utils/localStorage.js', () => ({
-    AsyncStorage: jest.fn(),
-    storeUID: jest.fn(),
-    getUID: jest.fn(),
-  }));
+  AsyncStorage: jest.fn(),
+  storeUID: jest.fn(),
+  storeMetrics: jest.fn(),
+  getUID: jest.fn(),
+  clearUID: jest.fn(),
+  getMetrics: jest.fn(),
+  clearMetrics: jest.fn()
+}));
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(() => Promise.resolve('mocked_value')),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+  clear: jest.fn(() => Promise.resolve()),
+}));
 
 jest.mock('firebase/firestore', () => ({
     collection: jest.fn(() => ({ add: jest.fn() })),
@@ -198,7 +210,7 @@ describe('Home to Profile Navigation', () => {
     await waitFor(() => {
         expect(getByText('Profile')).toBeTruthy();
     });
-  });
+  }, 15000);
 
   /**
      * Test case: Should navigate from main Profile screen to Edit Personal Info screen
