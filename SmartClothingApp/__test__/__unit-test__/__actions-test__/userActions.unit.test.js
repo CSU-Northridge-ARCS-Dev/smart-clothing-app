@@ -25,7 +25,7 @@ import thunk from 'redux-thunk';
 import { firebaseErrorsMessages } from '../../../src/utils/firebaseErrorsMessages.js';
 import { render, waitFor } from "@testing-library/react"
 import flushPromises from 'flush-promises';
-import { storeUID, storeMetrics } from "../../../src/utils/localStorage.js";
+import { storeUID, storeMetrics, getUID, clearUID, clearMetrics, getMetrics } from "../../../src/utils/localStorage.js";
 import { 
   setDoc, 
   getDoc, 
@@ -89,7 +89,19 @@ import { type } from '@testing-library/react-native/build/user-event/type/type.j
 jest.mock('../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
   storeUID: jest.fn(),
-  storeMetrics: jest.fn()
+  storeMetrics: jest.fn(),
+  getUID: jest.fn(),
+  clearUID: jest.fn(),
+  getMetrics: jest.fn(),
+  clearMetrics: jest.fn()
+}));
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(() => Promise.resolve('mocked_value')),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+  clear: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('firebase/firestore', () => ({
@@ -164,6 +176,7 @@ jest.mock('../../../src/actions/toastActions', () => ({
 
 
 
+
 // Middleware and store setup
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
@@ -225,7 +238,14 @@ describe('Async User Actions', () => {
       const user = { uid: 'testUID', email: 'test@example.com' };
       const store = mockStore({});
       
+      // Mock createUserWithEmailAndPassword to resolve with user data
       createUserWithEmailAndPassword.mockResolvedValue({ user });
+
+      // Mock setDoc to resolve successfully
+      setDoc.mockResolvedValue();
+
+      // Mock doc to return a function (it's typically called with parameters in Firestore setup)
+      doc.mockReturnValue(jest.fn());
 
       await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
 
@@ -246,6 +266,8 @@ describe('Async User Actions', () => {
     it('should call startUpdateProfile with firstName and lastName on successful sign-up', async () => {
       const user = { uid: 'testUID', email: 'test@example.com' };
       const store = mockStore({});
+
+      // Mock createUserWithEmailAndPassword to resolve with user data
       createUserWithEmailAndPassword.mockResolvedValue({ user });
 
       await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
@@ -262,25 +284,36 @@ describe('Async User Actions', () => {
     it('should dispatch toastError with appropriate message on sign-up failure', async () => {
       const error = { code: "auth/email-already-in-use" };
       const store = mockStore({});
-
+   
+      // Mock createUserWithEmailAndPassword to reject with an error
       createUserWithEmailAndPassword.mockRejectedValue(error);
-
-      await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
-
-      // Wait for all promises to resolve
-      await flushPromises();
-
+   
+      // Mock setDoc to resolve successfully (not used here due to early failure)
+      setDoc.mockResolvedValue();
+   
+      // Mock doc to return a function 
+      doc.mockReturnValue(jest.fn());
+   
+      try {
+         // Dispatch the signup action and wait for it to complete
+         await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
+         await flushPromises();
+      } catch (err) {
+         // Handle the expected error without failing the test
+         expect(err).toEqual(error);  // Ensure the error is the expected one
+      }
+      
+      // Now verify the dispatched actions
       const actions = store.getActions();
       console.log(actions);
-
+   
       const expectedErrorsMessage = firebaseErrorsMessages[error.code] || "Email address already in use";
-      // expect(actions[0]).toEqual(toastError(expectedErrorsMessage));
-
+   
       expect(actions[0]).toEqual({
-        type: 'showErrorToast',
-        payload: expectedErrorsMessage,
+         type: 'showErrorToast',
+         payload: expectedErrorsMessage,
       });
-    });
+   });   
 
     /**
      * Test for successful login with email.
@@ -360,7 +393,12 @@ describe('Async User Actions', () => {
      */
     it('should dispatch LOGOUT and toastError on successful logout', async () => {
       const store = mockStore({});
+
+      // Set up the mocks to resolve as expected
       signOut.mockResolvedValue();
+      getUID.mockResolvedValueOnce('someUID').mockResolvedValueOnce(null); 
+      clearUID.mockResolvedValue();
+      clearMetrics.mockResolvedValue();
 
       await store.dispatch(startLogout());
 
@@ -440,7 +478,9 @@ describe('Async User Actions', () => {
       // Mock the doc and setDoc functions
       const mockDoc = jest.fn();
       doc.mockReturnValue(mockDoc);
-      setDoc.mockResolvedValue();
+      //setDoc.mockResolvedValue();
+      updateDoc.mockResolvedValue();
+      storeMetrics.mockResolvedValue();
 
       await store.dispatch(startUpdateUserData(userData));
 
@@ -449,7 +489,7 @@ describe('Async User Actions', () => {
 
       const actions = store.getActions();
 
-      expect(setDoc).toHaveBeenCalledWith(
+      expect(updateDoc).toHaveBeenCalledWith(
         expect.anything(),
         userData
       );
@@ -497,7 +537,8 @@ describe('Async User Actions', () => {
       // Mock the doc and setDoc functions
       const mockDoc = jest.fn();
       doc.mockReturnValue(mockDoc);
-      setDoc.mockRejectedValue(error);
+      //setDoc.mockRejectedValue(error);
+      updateDoc.mockRejectedValue(error);
 
       await store.dispatch(startUpdateUserData(userData));
 
@@ -506,7 +547,7 @@ describe('Async User Actions', () => {
 
       const actions = store.getActions();
 
-      expect(setDoc).toHaveBeenCalledWith(
+      expect(updateDoc).toHaveBeenCalledWith(
         expect.anything(),
         userData
       );
