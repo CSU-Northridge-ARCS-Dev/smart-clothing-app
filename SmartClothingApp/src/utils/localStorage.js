@@ -62,3 +62,93 @@ export const clearMetrics = async () => {
     console.error("Error clearing user metrics", error);
   }
 };
+
+// Store first name
+export const storeFirstName = async (firstName) => {
+  try {
+    await AsyncStorage.setItem("firstName", firstName);
+    console.log("First name stored successfully!", firstName);
+  } catch (error) {
+    console.error("Error storing first name:", error);
+  }
+};
+
+// Get first name
+export const getFirstName = async () => {
+  try {
+    const firstName = await AsyncStorage.getItem("firstName");
+    return firstName;
+  } catch (error) {
+    console.error("Error getting first name:", error);
+  }
+};
+
+// Clear first name
+export const clearFirstName = async () => {
+  try {
+    await AsyncStorage.removeItem("firstName");
+    console.log("First name cleared successfully");
+  } catch (error) {
+    console.error("Error clearing first name", error);
+  }
+};
+
+// Store last name
+export const storeLastName = async (lastName) => {
+  try {
+    await AsyncStorage.setItem("lastName", lastName);
+    console.log("Last name stored successfully!", lastName);
+  } catch (error) {
+    console.error("Error storing last name:", error);
+  }
+};
+
+// Get last name
+export const getLastName = async () => {
+  try {
+    const lastName = await AsyncStorage.getItem("lastName");
+    return lastName;
+  } catch (error) {
+    console.error("Error getting last name:", error);
+  }
+};
+
+// Clear last name
+export const clearLastName = async () => {
+  try {
+    await AsyncStorage.removeItem("lastName");
+    console.log("Last name cleared successfully");
+  } catch (error) {
+    console.error("Error clearing last name", error);
+  }
+};
+
+// Store email
+export const storeEmail = async (email) => {
+  try {
+    await AsyncStorage.setItem("email", email);
+    console.log("Email stored successfully!", email);
+  } catch (error) {
+    console.error("Error storing email:", error);
+  }
+};
+
+// Get email
+export const getEmail = async () => {
+  try {
+    const email = await AsyncStorage.getItem("email");
+    return email;
+  } catch (error) {
+    console.error("Error getting email:", error);
+  }
+};
+
+// Clear email
+export const clearEmail = async () => {
+  try {
+    await AsyncStorage.removeItem("email");
+    console.log("Email cleared successfully");
+  } catch (error) {
+    console.error("Error clearing email", error);
+  }
+};

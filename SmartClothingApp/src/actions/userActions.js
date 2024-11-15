@@ -13,7 +13,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-import { storeUID, storeMetrics } from "../utils/localStorage.js";
+import { storeUID, storeMetrics, storeFirstName, storeLastName, storeEmail, getUID, getMetrics, getFirstName, getLastName, getEmail, clearUID, clearMetrics, clearFirstName, clearLastName, clearEmail } from "../utils/localStorage.js";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -42,7 +42,6 @@ import {
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getUID, clearUID, clearMetrics } from "../utils/localStorage.js";
 
 const loginWithEmail = (user) => {
   return {
@@ -89,6 +88,9 @@ export const startLogout = () => {
 
       await clearUID();
       await clearMetrics();
+      await clearFirstName();
+      await clearLastName();
+      await clearEmail();
 
       const uidAfter = await getUID();
       console.log("UID after logout: ", uidAfter);
@@ -308,6 +310,9 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
             console.log("User data saved to Firestore successfully.");
 
             storeUID(user.uid); // store the user UID securely in local storages
+            storeFirstName(firstName);
+            storeLastName(lastName);
+            storeEmail(email);
             
             // Store user metrics in local storage
             //storeMetrics(initialUserData);  // Save the initial data in AsyncStorage
@@ -342,6 +347,9 @@ export const startLoginWithEmail = (email, password) => {
         console.log(user);
 
         storeUID(user.uid); // store the user UID securely in local storages
+        storeFirstName(user.displayName?.split(" ")[0]);
+        storeLastName(user.displayName?.split(" ")[1]);
+        storeEmail(user.email);
 
         console.log("Logged in successfully!");
         console.log(user);
@@ -369,24 +377,34 @@ export const restoreUUID = () => {
   return async (dispatch) => {
     try {
       const storedUID = await getUID();
+      const firstName = await getFirstName();
+      const lastName = await getLastName();
+      const email = await getEmail();
+
       if (storedUID) {
         // Dispatch the login action to update the UUID in Redux store
-        // dispatch(
-        //   loginWithEmail({
-        //     uuid: storedUID,
-        //     firstName: storedUID.firstName,  // If needed, fetch other user info from Firestore or AsyncStorage
-        //     lastName: storedUID.lastName,
-        //     email: storedUID.email,
-        //   })
-        // );
         dispatch(
           loginWithEmail({
             uuid: storedUID,
-            firstName: null,  // If needed, fetch other user info from Firestore or AsyncStorage
-            lastName: null,
-            email: null,
+            firstName: firstName || null,
+            lastName: lastName || null,
+            email: email || null,
           })
         );
+        console.log("UUID and user info restored successfully:", {
+          uuid: storedUID,
+          firstName,
+          lastName,
+          email,
+        });
+        // dispatch(
+        //   loginWithEmail({
+        //     uuid: storedUID,
+        //     firstName: null,  // If needed, fetch other user info from Firestore or AsyncStorage
+        //     lastName: null,
+        //     email: null,
+        //   })
+        // );
         console.log("UUID restored successfully:", storedUID);
       } else {
         console.log("No UUID found in AsyncStorage.");
@@ -504,6 +522,9 @@ export const deleteAccount = () => {
 
       await clearUID();
       await clearMetrics();
+      await clearFirstName();
+      await clearLastName();
+      await clearEmail();
 
       // const uidAfter = await getUID();
       // console.log("UID after account deletion: ", uidAfter);
