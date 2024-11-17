@@ -25,7 +25,23 @@ import thunk from 'redux-thunk';
 import { firebaseErrorsMessages } from '../../../src/utils/firebaseErrorsMessages.js';
 import { render, waitFor } from "@testing-library/react"
 import flushPromises from 'flush-promises';
-import { storeUID, storeMetrics, getUID, clearUID, clearMetrics, getMetrics } from "../../../src/utils/localStorage.js";
+import { 
+  storeUID, 
+  storeMetrics, 
+  getUID, 
+  clearUID, 
+  clearMetrics, 
+  getMetrics, 
+  storeFirstName,
+  getFirstName,
+  clearFirstName,
+  storeLastName,
+  getLastName,
+  clearLastName,
+  storeEmail,
+  getEmail,
+  clearEmail,
+} from "../../../src/utils/localStorage.js";
 import { 
   setDoc, 
   getDoc, 
@@ -94,7 +110,16 @@ jest.mock('../../../src/utils/localStorage.js', () => ({
   getUID: jest.fn(),
   clearUID: jest.fn(),
   getMetrics: jest.fn(),
-  clearMetrics: jest.fn()
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -346,6 +371,9 @@ describe('Async User Actions', () => {
       const actions = store.getActions();
 
       expect(storeUID).toHaveBeenCalledWith(expect.anything());
+      expect(storeFirstName).toHaveBeenCalledWith(expect.anything());
+      expect(storeLastName).toHaveBeenCalledWith(expect.anything());
+      expect(storeEmail).toHaveBeenCalledWith(expect.anything());
 
       expect(actions[0]).toEqual({
         type: 'LOGIN_WITH_EMAIL',

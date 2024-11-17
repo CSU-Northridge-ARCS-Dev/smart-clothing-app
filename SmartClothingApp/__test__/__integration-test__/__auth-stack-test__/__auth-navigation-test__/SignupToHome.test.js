@@ -65,7 +65,16 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   getUID: jest.fn(),
   clearUID: jest.fn(),
   getMetrics: jest.fn(),
-  clearMetrics: jest.fn()
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -98,6 +107,7 @@ jest.mock('firebase/auth', () => ({
             password: 'password123'
           } 
     })),
+    auth: jest.fn(),
 }))
 
 // jest.mock('../../src/actions/appActions', () => ({

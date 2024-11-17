@@ -38,10 +38,7 @@ import { getAllByRole, getByTestId } from '@testing-library/react';
 
 
 
-/**
- * Mocks the localStorage utility functions and Firebase Firestore methods.
- * These mocks simulate database and storage interactions for the test cases.
- */
+// Mocking AsyncStorage, Firebase, and other dependencies
 jest.mock('../../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
   storeUID: jest.fn(),
@@ -49,7 +46,16 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   getUID: jest.fn(),
   clearUID: jest.fn(),
   getMetrics: jest.fn(),
-  clearMetrics: jest.fn()
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -92,14 +98,13 @@ jest.mock('firebase/auth', () => ({
           //uid: null,
           uid: 'nvQpwMHj7eUKfsyEhVloGM7hvji2',
           email: 'test1@gmail.com',
-          password: 'password123'
+          password: 'password123',
+          displayName: 'Ron Kent'
         } 
       })),
+  auth: jest.fn(),
 }))
 
-jest.mock('../../../../src/utils/localStorage.js', () => ({
-  storeUID: jest.fn(),
-}))
 
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(() => ({ add: jest.fn() })),
@@ -122,9 +127,6 @@ jest.mock('firebase/firestore', () => ({
     }), // Mock 'data' as a function
   }),
 }))
-
-
-
 
 jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons.js').MaterialIcons);
 jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons.js').FontAwesome5);
@@ -198,12 +200,12 @@ function TestComponent() {
 describe('SignUpToHome Integration Test', () => {
   beforeEach(() => {
     // Prevents 'wrap act()' console log warning 
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-      if (message.includes('Warning: An update to')) {
-        return;
-      }
-      console.error(message);
-    });
+    // jest.spyOn(console, 'error').mockImplementation((message) => {
+    //   if (message.includes('Warning: An update to')) {
+    //     return;
+    //   }
+    //   console.error(message);
+    // });
 
     jest.useFakeTimers();
   });
