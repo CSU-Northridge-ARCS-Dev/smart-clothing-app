@@ -139,6 +139,8 @@ export const startUpdateProfile = (firstName, lastName) => {
     })
       .then(() => {
         console.log(auth.currentUser);
+        storeFirstName(firstName);
+        storeLastName(lastName);
         dispatch(updateProfileInfo(firstName, lastName));
         console.log("updateProfileInfo()")
       })
@@ -495,6 +497,7 @@ export const updateUserEmail = (newEmail) => {
     if (user) {
       updateEmail(user, newEmail)
         .then(() => {
+          storeEmail(newEmail);
           dispatch(updateEmailData(newEmail));
           console.log("Email update success.");
         })
