@@ -39,6 +39,10 @@ export default function HomeScreen({ navigation }) {
     sendNotification("Test Notification", "This is a test notification!");
   };
 
+  useEffect(() => {
+    sendTestNotification();
+  });
+
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />

@@ -40,3 +40,35 @@ export const getMetrics = async () => {
     return false;
   }
 };
+
+
+
+// Store the token securely
+export const storeToken = async (token) => {
+  try {
+    await AsyncStorage.setItem("authToken", token);
+    console.log("Token stored successfully!", token);
+  } catch (error) {
+    console.error("Error storing token:", error);
+  }
+};
+
+// Get the token securely
+export const getToken = async () => {
+  try {
+    const token = await AsyncStorage.getItem("authToken");
+    return token;
+  } catch (error) {
+    console.error("Error getting token:", error);
+  }
+};
+
+// Clear the token securely
+export const clearToken = async () => {
+  try {
+    await AsyncStorage.removeItem("authToken");
+    console.log("Token cleared successfully!");
+  } catch (error) {
+    console.error("Error clearing token:", error);
+  }
+};

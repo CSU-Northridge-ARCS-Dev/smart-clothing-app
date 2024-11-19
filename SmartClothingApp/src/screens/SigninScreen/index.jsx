@@ -13,6 +13,7 @@ import { startLoginWithEmail } from "../../actions/userActions.js";
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
 import { savePushTokenToBackend } from '../../actions/deviceActions.js';
+import { getToken } from '../../utils/localStorage.js'
 
 const SigninScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -36,7 +37,8 @@ const SigninScreen = ({ navigation }) => {
   };
 
   const registerForPushNotifications = async () => {
-    const token = await registerForPushNotificationsAsync();
+    // const token = await registerForPushNotificationsAsync();
+    const token = await getToken();
     if (token) {
       // Save the token in  backend 
       console.log("Expo push token:", token);

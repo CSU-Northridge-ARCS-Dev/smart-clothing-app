@@ -13,15 +13,14 @@ import configureStore from "./src/store";
 import { AppToast } from "./src/components";
 import { auth } from "./firebaseConfig.js";
 
-import { getUID, getMetrics } from "./src/utils/localStorage.js";
+import { getUID, getMetrics, storeToken } from "./src/utils/localStorage.js";
 
 import {
   startLoadUserData,
   updateUserMetricsData,
 } from "./src/actions/userActions.js";
 import SplashScreen from "react-native-splash-screen";
-
-const store = configureStore();
+import { registerForPushNotificationsAsync, sendNotification } from './src/utils/notifications.js';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -31,6 +30,8 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
+
+const store = configureStore();
 
 
 export default function App() {
@@ -94,9 +95,37 @@ export default function App() {
     console.log("from App.js: Auth.currentUser is -->", auth.currentUser);
 
 
+
+
+    const registerForPushNotifications = async () => {
+      const token = await registerForPushNotificationsAsync();
+      storeToken(token);
+
+      if (token) {
+        // Save the token in  backend 
+        console.log("Expo push token:", token);
+        // await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+        sendNotification('Test Notification 1', token);
+      }
+    };
+    registerForPushNotifications();
+
     // Setup notification listeners
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       console.log('Notification received:', notification);
+
+      // Show the notification as a local notification
+      // Notifications.scheduleNotificationAsync({
+      //   content: notification.request.content,
+      //   trigger: null,
+      // });
+      // Notifications.scheduleNotificationAsync({
+      //   content: {
+      //     title: title,
+      //     body: body,
+      //   },
+      //   trigger: null,
+      // });
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener(response => {

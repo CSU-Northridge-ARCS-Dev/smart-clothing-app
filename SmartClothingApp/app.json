@@ -3,7 +3,6 @@
     "name": "SmartClothingApp",
     "slug": "SmartClothingApp",
     "version": "1.0.0",
-    // "owner": "arcs", // it was causing "ApiV2Error: Entity Not Authorized." expo app error, so temporarily removed it
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -29,6 +28,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "11aab992-f145-4c3b-b371-0e68b65a928b"
+      }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
