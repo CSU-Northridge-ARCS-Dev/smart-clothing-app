@@ -9,6 +9,8 @@ import DeleteAccountModal from "../../components/DeleteAccountModal/DeleteAccoun
 import ChangePasswordModal from "../../components/ChangePasswordModal/ChangePasswordModal"
 import ToSModal from "../../components/ToSModal/ToSModal";
 import SettingsButton from "../../components/UI/SettingsButton";
+import PermissionsModal from "../../components/PermissionsModal/PermissionsModal";
+
 
 const SettingsScreen = ({ navigation, route }) => {
   const { previousScreenTitle } = route.params;
@@ -18,6 +20,7 @@ const SettingsScreen = ({ navigation, route }) => {
     modal3: false,
     modal4: false,
     changePasswordModal: false,
+    modalPermissions: false,
   });
   const dispatch = useDispatch();
 
@@ -42,6 +45,10 @@ const SettingsScreen = ({ navigation, route }) => {
         visible={isModalVisible.modal4}
         closeModal={() => closeModal("modal4")}
       ></DeleteAccountModal>
+      <PermissionsModal
+        visible={isModalVisible.modalPermissions}
+        closeModal={() => closeModal("modalPermissions")}
+      ></PermissionsModal>
 
       <ChangePasswordModal
         visible={isModalVisible.changePasswordModal}
@@ -74,6 +81,11 @@ const SettingsScreen = ({ navigation, route }) => {
           title="CHANGE PASSWORD"
           onPress={() => openModal("changePasswordModal")}
           description="Change your account password"
+        />
+        <SettingsButton
+          title="MANAGE PERMISSIONS"
+          onPress={() => openModal("modalPermissions")}
+          description="Manage data sharing and permissions"
         />
         <SettingsButton
           title="DELETE DATA"
