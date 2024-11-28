@@ -49,10 +49,23 @@ jest.mock('../../../../firebaseConfig.js', () => ({
     },
   }));
 
+
   jest.mock('../../../../src/utils/localStorage.js', () => ({
     AsyncStorage: jest.fn(),
     storeUID: jest.fn(),
+    storeMetrics: jest.fn(),
     getUID: jest.fn(),
+    clearUID: jest.fn(),
+    getMetrics: jest.fn(),
+    clearMetrics: jest.fn()
+  }));
+
+  // Mock AsyncStorage
+  jest.mock('@react-native-async-storage/async-storage', () => ({
+    getItem: jest.fn(() => Promise.resolve('mocked_value')),
+    setItem: jest.fn(() => Promise.resolve()),
+    removeItem: jest.fn(() => Promise.resolve()),
+    clear: jest.fn(() => Promise.resolve()),
   }));
 
   jest.mock('firebase/auth', () => ({
@@ -162,6 +175,27 @@ describe('SettingsScreen', () => {
       const updateEmailButton = instance.findByProps({ title: "UPDATE EMAIL" });
       fireEvent.press(updateEmailButton);
       // Expect the state for the update email modal to be true
+
+
+      // test tohavebeencalled updateUserEmail
+                    // export const updateUserEmail = (newEmail) => {
+                    //   return (dispatch) => {
+                    //     const user = auth.currentUser;
+                    //     if (user) {
+                    //       updateEmail(user, newEmail)
+                    //         .then(() => {
+                    //           dispatch(updateEmailData(newEmail));
+                    //           console.log("Email update success.");
+                    //         })
+                    //         .catch((error) => {
+                    //           dispatch(toastError(firebaseErrorsMessages[error.code]));
+                    //           return false;
+                    //         });
+                    //     }
+                    //   };
+                    // };
+      
+
   });
   
   /**
@@ -176,6 +210,9 @@ describe('SettingsScreen', () => {
       const changePasswordButton = instance.findByProps({ title: "CHANGE PASSWORD" });
       fireEvent.press(changePasswordButton);
       // Expect the state for the change password modal to be true
+
+
+
   });
   
   /**
@@ -190,6 +227,9 @@ describe('SettingsScreen', () => {
       const deleteAccountButton = instance.findByProps({ title: "DELETE ACCOUNT" });
       fireEvent.press(deleteAccountButton);
       // Expect the state for the delete account modal to be true
+
+
+
   });
 // Add more tests for navigation, modal interactions, and Redux actions
 });
