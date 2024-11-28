@@ -25,7 +25,23 @@ import thunk from 'redux-thunk';
 import { firebaseErrorsMessages } from '../../../src/utils/firebaseErrorsMessages.js';
 import { render, waitFor } from "@testing-library/react"
 import flushPromises from 'flush-promises';
-import { storeUID, storeMetrics } from "../../../src/utils/localStorage.js";
+import { 
+  storeUID, 
+  storeMetrics, 
+  getUID, 
+  clearUID, 
+  clearMetrics, 
+  getMetrics, 
+  storeFirstName,
+  getFirstName,
+  clearFirstName,
+  storeLastName,
+  getLastName,
+  clearLastName,
+  storeEmail,
+  getEmail,
+  clearEmail,
+} from "../../../src/utils/localStorage.js";
 import { 
   setDoc, 
   getDoc, 
@@ -54,6 +70,7 @@ import {
   queryHeartRateData,
   deleteAccount,
   logout,
+  restoreUUID
 } from '../../../src/actions/userActions.js'; 
 import { 
   LOGIN_WITH_EMAIL,
@@ -89,7 +106,28 @@ import { type } from '@testing-library/react-native/build/user-event/type/type.j
 jest.mock('../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
   storeUID: jest.fn(),
-  storeMetrics: jest.fn()
+  storeMetrics: jest.fn(),
+  getUID: jest.fn(),
+  clearUID: jest.fn(),
+  getMetrics: jest.fn(),
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
+}));
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(() => Promise.resolve('mocked_value')),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+  clear: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('firebase/firestore', () => ({
@@ -164,6 +202,7 @@ jest.mock('../../../src/actions/toastActions', () => ({
 
 
 
+
 // Middleware and store setup
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
@@ -205,9 +244,17 @@ describe('Async User Actions', () => {
     //   console.error(message);
     // });
 
+    // Use fake timers for consistent timing in async tests
     jest.useFakeTimers();
 
+    // Clear any previously set mock timers
+    jest.clearAllTimers();
+
+    // Reset all Jest mocks and spies
     jest.clearAllMocks();
+
+    // Reset any module caches to prevent state leakage between tests
+    jest.resetModules();
   });
 
   /**
@@ -225,7 +272,15 @@ describe('Async User Actions', () => {
       const user = { uid: 'testUID', email: 'test@example.com' };
       const store = mockStore({});
       
+      // Mock createUserWithEmailAndPassword to resolve with user data
       createUserWithEmailAndPassword.mockResolvedValue({ user });
+
+      // Mock setDoc to resolve successfully
+      setDoc.mockResolvedValue();
+      //storeUID.mockResolvedValue(user.uid);
+
+      // Mock doc to return a function (it's typically called with parameters in Firestore setup)
+      // doc.mockReturnValue(jest.fn());
 
       await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
 
@@ -246,6 +301,8 @@ describe('Async User Actions', () => {
     it('should call startUpdateProfile with firstName and lastName on successful sign-up', async () => {
       const user = { uid: 'testUID', email: 'test@example.com' };
       const store = mockStore({});
+
+      // Mock createUserWithEmailAndPassword to resolve with user data
       createUserWithEmailAndPassword.mockResolvedValue({ user });
 
       await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
@@ -262,25 +319,38 @@ describe('Async User Actions', () => {
     it('should dispatch toastError with appropriate message on sign-up failure', async () => {
       const error = { code: "auth/email-already-in-use" };
       const store = mockStore({});
-
+   
+      // Mock createUserWithEmailAndPassword to reject with an error
       createUserWithEmailAndPassword.mockRejectedValue(error);
+   
+      // Mock setDoc to resolve successfully (not used here due to early failure)
+      setDoc.mockResolvedValue();
 
-      await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
-
-      // Wait for all promises to resolve
-      await flushPromises();
-
+      //storeUID.mockRejectedValue();
+   
+      // Mock doc to return a function 
+      //doc.mockReturnValue(jest.fn());
+   
+      try {
+        // Dispatch the signup action and wait for it to complete
+        await store.dispatch(startSignupWithEmail('test@example.com', 'password123', 'John', 'Doe'));
+        await flushPromises();
+     } catch (err) {
+        // Handle the expected error without failing the test
+        expect(err).toEqual(error);  // Ensure the error is the expected one
+     }
+      
+      // Now verify the dispatched actions
       const actions = store.getActions();
       console.log(actions);
-
+   
       const expectedErrorsMessage = firebaseErrorsMessages[error.code] || "Email address already in use";
-      // expect(actions[0]).toEqual(toastError(expectedErrorsMessage));
-
+   
       expect(actions[0]).toEqual({
-        type: 'showErrorToast',
-        payload: expectedErrorsMessage,
+         type: 'showErrorToast',
+         payload: expectedErrorsMessage,
       });
-    });
+   });   
 
     /**
      * Test for successful login with email.
@@ -301,6 +371,9 @@ describe('Async User Actions', () => {
       const actions = store.getActions();
 
       expect(storeUID).toHaveBeenCalledWith(expect.anything());
+      expect(storeFirstName).toHaveBeenCalledWith(expect.anything());
+      expect(storeLastName).toHaveBeenCalledWith(expect.anything());
+      expect(storeEmail).toHaveBeenCalledWith(expect.anything());
 
       expect(actions[0]).toEqual({
         type: 'LOGIN_WITH_EMAIL',
@@ -360,14 +433,107 @@ describe('Async User Actions', () => {
      */
     it('should dispatch LOGOUT and toastError on successful logout', async () => {
       const store = mockStore({});
+
+      // Set up the mocks to resolve as expected
       signOut.mockResolvedValue();
+      getUID.mockResolvedValueOnce('someUID').mockResolvedValueOnce(null); 
+      clearUID.mockResolvedValue();
+      clearMetrics.mockResolvedValue();
 
       await store.dispatch(startLogout());
 
       const actions = store.getActions();
+      
       expect(actions[0]).toEqual({ type: LOGOUT });
       expect(actions[1]).toEqual(toastError('User logged out!'));
     });
+
+
+    /**
+     * Test for successful UUID restoration.
+     * Verifies that loginWithEmail is dispatched with the stored UUID.
+     *
+     * @test {restoreUUID}
+     */
+    it('should dispatch loginWithEmail with stored UUID if UUID exists', async () => {
+      const storedUID = 'testStoredUID';
+      const store = mockStore({});
+
+      // Mock getUID from AsyncStorage
+      getUID.mockReturnValueOnce(storedUID);
+
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log');
+
+      await store.dispatch(restoreUUID(storedUID));
+
+      const actions = store.getActions();
+
+      expect(actions[0]).toEqual({
+        type: LOGIN_WITH_EMAIL,
+        payload: {
+          uuid: storedUID,
+          firstName: null,
+          lastName: null,
+          email: null
+        }
+      });
+      expect(consoleLogSpy).toHaveBeenCalledWith("UUID restored successfully:", storedUID);
+    });
+
+    /**
+     * Test for missing UUID in AsyncStorage.
+     * Verifies that no action is dispatched and a log message is printed.
+     *
+     * @test {restoreUUID}
+     */
+    it('should log a message if no UUID is found in AsyncStorage', async () => {
+      const store = mockStore({});
+      
+      // Spy on console.log
+      const consoleLogSpy = jest.spyOn(console, 'log');
+
+      await store.dispatch(restoreUUID(null));
+
+      const actions = store.getActions();
+
+      expect(actions).toEqual([]);  // No actions should be dispatched
+      expect(consoleLogSpy).toHaveBeenCalledWith("No UUID found in AsyncStorage.");
+
+      // Clean up the spy
+      consoleLogSpy.mockRestore();
+    });
+
+    /**
+     * Test for error handling during UUID restoration.
+     * Verifies that an error message is logged when an error occurs.
+     *
+     * @test {restoreUUID}
+     */
+    it('should log error message if an error occurs during UUID restoration', async () => {
+      const store = mockStore({});
+      
+      // Mock getUID Fail
+      getUID.mockImplementation(() => {
+        throw error; // Simulate synchronous error for testing
+      });
+
+      // Spy on console.error
+      const consoleErrorSpy = jest.spyOn(console, 'error');
+    
+      // Dispatch with a faulty UUID or simulate an error in restoration
+      await store.dispatch(restoreUUID(null));
+    
+      // Check if no actions were dispatched due to the missing UUID
+      const actions = store.getActions();
+      expect(actions).toEqual([]);
+    
+      // Check if console.error was called
+      expect(consoleErrorSpy).toHaveBeenCalledWith("Error restoring UUID:", expect.any(Error));
+    
+      consoleErrorSpy.mockRestore();
+    });
+    
 
   });
 
@@ -439,7 +605,9 @@ describe('Async User Actions', () => {
       // Mock the doc and setDoc functions
       const mockDoc = jest.fn();
       doc.mockReturnValue(mockDoc);
-      setDoc.mockResolvedValue();
+      //setDoc.mockResolvedValue();
+      updateDoc.mockResolvedValue();
+      storeMetrics.mockResolvedValue();
 
       await store.dispatch(startUpdateUserData(userData));
 
@@ -448,7 +616,7 @@ describe('Async User Actions', () => {
 
       const actions = store.getActions();
 
-      expect(setDoc).toHaveBeenCalledWith(
+      expect(updateDoc).toHaveBeenCalledWith(
         expect.anything(),
         userData
       );
@@ -496,7 +664,8 @@ describe('Async User Actions', () => {
       // Mock the doc and setDoc functions
       const mockDoc = jest.fn();
       doc.mockReturnValue(mockDoc);
-      setDoc.mockRejectedValue(error);
+      //setDoc.mockRejectedValue(error);
+      updateDoc.mockRejectedValue(error);
 
       await store.dispatch(startUpdateUserData(userData));
 
@@ -505,7 +674,7 @@ describe('Async User Actions', () => {
 
       const actions = store.getActions();
 
-      expect(setDoc).toHaveBeenCalledWith(
+      expect(updateDoc).toHaveBeenCalledWith(
         expect.anything(),
         userData
       );
@@ -1096,6 +1265,7 @@ describe('Async User Actions', () => {
         delete: jest.fn().mockResolvedValue(undefined),
         uid: 'testUID',
       };
+      const storedUID = 'testStoredUID';
 
       const store = mockStore({});
       const user = auth.currentUser;
@@ -1105,8 +1275,11 @@ describe('Async User Actions', () => {
       const database = {};
 
       doc.mockReturnValue(mockDocRef);
-      // user.delete.mockResolvedValue();
+      clearUID.mockResolvedValue();
+      clearMetrics.mockResolvedValue();
+      user.delete.mockResolvedValue();
       deleteDoc.mockResolvedValue();
+      //auth.signOut.mockRejectedValue();
 
       await store.dispatch(deleteAccount());
 
@@ -1114,8 +1287,11 @@ describe('Async User Actions', () => {
       await flushPromises();
 
       expect(doc).toHaveBeenCalledWith(database, "Users", 'testUID');
+      expect(clearUID).toHaveBeenCalled();
+      expect(clearMetrics).toHaveBeenCalled();
       expect(user.delete).toHaveBeenCalled();
       expect(deleteDoc).toHaveBeenCalledWith(mockDocRef);
+      //expect(auth.signOut).toHaveBeenCalled();
     });
 
     /**

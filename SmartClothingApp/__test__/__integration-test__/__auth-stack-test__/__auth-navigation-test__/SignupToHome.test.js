@@ -60,7 +60,31 @@ jest.mock('../../../../firebaseConfig.js', () => ({
 
 jest.mock('../../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
+  storeUID: jest.fn(),
+  storeMetrics: jest.fn(),
+  getUID: jest.fn(),
+  clearUID: jest.fn(),
+  getMetrics: jest.fn(),
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
 }));
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(() => Promise.resolve('mocked_value')),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+  clear: jest.fn(() => Promise.resolve()),
+}));
+
 
 // jest.mock('../../src/actions/toastActions.js', () => ({
 //     toastError: jest.fn(() => Promise.resolve()),
@@ -83,6 +107,7 @@ jest.mock('firebase/auth', () => ({
             password: 'password123'
           } 
     })),
+    auth: jest.fn(),
 }))
 
 // jest.mock('../../src/actions/appActions', () => ({
@@ -111,7 +136,7 @@ jest.mock('../../../../src/actions/appActions.js', () => {
 jest.mock('firebase/firestore', () => ({
     collection: jest.fn(() => ({ add: jest.fn() })),
     addDoc: jest.fn(),
-    setDoc: jest.fn(),
+    setDoc: jest.fn(() => Promise.resolve()),
     doc: jest.fn(() => ({ setDoc: jest.fn() })),
     updateDoc: jest.fn(),
     getDoc: jest.fn().mockReturnValue({

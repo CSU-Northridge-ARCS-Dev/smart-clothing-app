@@ -41,6 +41,29 @@ import { getAllByRole, getByTestId } from '@testing-library/react';
 // Mocking AsyncStorage, Firebase, and other dependencies
 jest.mock('../../../../src/utils/localStorage.js', () => ({
   AsyncStorage: jest.fn(),
+  storeUID: jest.fn(),
+  storeMetrics: jest.fn(),
+  getUID: jest.fn(),
+  clearUID: jest.fn(),
+  getMetrics: jest.fn(),
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
+}));
+
+// Mock AsyncStorage
+jest.mock('@react-native-async-storage/async-storage', () => ({
+  getItem: jest.fn(() => Promise.resolve('mocked_value')),
+  setItem: jest.fn(() => Promise.resolve()),
+  removeItem: jest.fn(() => Promise.resolve()),
+  clear: jest.fn(() => Promise.resolve()),
 }));
 
 // Mock Firebase Authentication
@@ -75,14 +98,13 @@ jest.mock('firebase/auth', () => ({
           //uid: null,
           uid: 'nvQpwMHj7eUKfsyEhVloGM7hvji2',
           email: 'test1@gmail.com',
-          password: 'password123'
+          password: 'password123',
+          displayName: 'Ron Kent'
         } 
       })),
+  auth: jest.fn(),
 }))
 
-jest.mock('../../../../src/utils/localStorage.js', () => ({
-  storeUID: jest.fn(),
-}))
 
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(() => ({ add: jest.fn() })),
@@ -178,12 +200,12 @@ function TestComponent() {
 describe('SignUpToHome Integration Test', () => {
   beforeEach(() => {
     // Prevents 'wrap act()' console log warning 
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-      if (message.includes('Warning: An update to')) {
-        return;
-      }
-      console.error(message);
-    });
+    // jest.spyOn(console, 'error').mockImplementation((message) => {
+    //   if (message.includes('Warning: An update to')) {
+    //     return;
+    //   }
+    //   console.error(message);
+    // });
 
     jest.useFakeTimers();
   });
