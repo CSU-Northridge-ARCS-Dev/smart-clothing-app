@@ -67,7 +67,10 @@ const PersonalModal = (props) => {
     <View style={styles.container}>
       <Modal animationType="slide" transparent={true} visible={props.visible}>
         <View style={styles.modalBackground}>
-          <View style={styles.modalContent}>
+          <View 
+          style={styles.modalContent}
+          testID="personal-modal-content"
+          >
             <Text
               style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}
               numberOfLines={1}
@@ -85,6 +88,7 @@ const PersonalModal = (props) => {
                   handleClearErrors();
                 }}
                 error={error.fname.length > 1}
+                testID="first-name-input"
               />
               <HelperText type="error" visible={error.fname.length > 1}>
                 Please enter first name.
@@ -101,6 +105,7 @@ const PersonalModal = (props) => {
                   handleClearErrors();
                 }}
                 error={error.lname.length > 1}
+                testID="last-name-input"
               />
               <HelperText type="error" visible={error.lname.length > 1}>
                 Please enter last name.
@@ -126,6 +131,7 @@ const PersonalModal = (props) => {
                   { backgroundColor: isSubmitting ? "#ccc" : "#007bff" },
                 ]}
                 textColor="white"
+                testID="save-personal-button"
               >
                 Save
               </Button>

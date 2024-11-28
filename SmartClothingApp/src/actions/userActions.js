@@ -13,7 +13,7 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-import { storeUID, storeMetrics } from "../utils/localStorage.js";
+import { storeUID, storeMetrics, storeFirstName, storeLastName, storeEmail, getUID, getMetrics, getFirstName, getLastName, getEmail, clearUID, clearMetrics, clearFirstName, clearLastName, clearEmail } from "../utils/localStorage.js";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -41,6 +41,7 @@ import {
 
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const loginWithEmail = (user) => {
   return {
@@ -76,21 +77,49 @@ export const updatePasswordSuccess = () => {
   };
 };
 
-export const startLogout = () => {
-  return (dispatch) => {
-    auth
-      .signOut()
-      .then(() => {
-        dispatch(logout());
-        dispatch(toastError("User logged out!"));
-      })
-      .catch((error) => {
-        console.log("Error logging out!");
 
-        console.log(error);
-      });
+export const startLogout = () => {
+  return async (dispatch) => {
+    try {
+      const uidBefore = await getUID();
+      console.log("UID before logout: ", uidBefore);
+
+      await auth.signOut();
+
+      await clearUID();
+      await clearMetrics();
+      await clearFirstName();
+      await clearLastName();
+      await clearEmail();
+
+      const uidAfter = await getUID();
+      console.log("UID after logout: ", uidAfter);
+
+      dispatch(logout());
+      dispatch(toastError("User logged out!"));
+    } catch (error) {
+      console.log("Error logging out!");
+      console.log(error);
+    };
   };
 };
+
+
+// export const startLogout = () => {
+//   return (dispatch) => {
+//     auth
+//       .signOut()
+//       .then(() => {
+//         dispatch(logout());
+//         dispatch(toastError("User logged out!"));
+//       })
+//       .catch((error) => {
+//         console.log("Error logging out!");
+
+//         console.log(error);
+//       });
+//   };
+// };
 
 //   const unsubscribe = auth.onAuthStateChanged((user) => {
 //     if (user) {
@@ -103,13 +132,17 @@ export const startUpdateProfile = (firstName, lastName) => {
   firstName = firstName.replace(/\s/g, "");
   lastName = lastName.replace(/\s/g, "");
 
+  console.log("startUpdateProfile()")
   return (dispatch) => {
     updateProfile(auth.currentUser, {
       displayName: `${firstName} ${lastName}`,
     })
       .then(() => {
         console.log(auth.currentUser);
+        storeFirstName(firstName);
+        storeLastName(lastName);
         dispatch(updateProfileInfo(firstName, lastName));
+        console.log("updateProfileInfo()")
       })
       .catch((error) => {
         console.log(error);
@@ -175,11 +208,20 @@ export const startUpdateUserData = (userData) => {
 export const startLoadUserData = () => {
   return async (dispatch) => {
     try {
+      console.log("startLoadUserData - START")
+      // console.log(database)
+      // console.log(auth.currentUser.uid)
       const userDocRef = doc(database, "Users", auth.currentUser.uid);
+      console.log("doc works")
+      console.log("uid: " + auth.currentUser.uid)
       const userDoc = await getDoc(userDocRef);
+      console.log("getDoc works")
+      console.log(userDoc)
 
       if (userDoc.exists()) {
+        console.log("userDoc exists")
         const userDataFromFirebase = userDoc.data();
+        console.log("useDoc.data() works")
         dispatch(updateUserMetricsData(userDataFromFirebase));
         console.log("User data loaded from database successfully!");
       } else {
@@ -216,53 +258,6 @@ export const startLoadUserData = () => {
 //   };
 // };
 
-// export const startSignupWithEmail = (email, password, firstName, lastName) => {
-//   return (dispatch) => {
-//     createUserWithEmailAndPassword(auth, email, password)
-//       .then((userCredential) => {
-//         const user = userCredential.user;
-//         // console.log("User created successfully!");
-//         // console.log(user);
-
-//         // After creating User, Adding First and Last Name to User Profile
-//         dispatch(startUpdateProfile(firstName, lastName));
-
-//         // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
-//         dispatch(userMetricsDataModalVisible(true, true));
-
-//         dispatch(
-//           signupWithEmail({
-//             uuid: user.uid,
-//             firstName: firstName,
-//             lastName: lastName,
-//             email: user.email,
-//           })
-//         );
-//       })
-//       .catch((error) => {
-//         dispatch(toastError(firebaseErrorsMessages[error.code]));
-//       });
-//   };
-// };
-
-// export const startSignupWithEmail = (email, password, firstName, lastName) => {
-//   return (dispatch) => {
-//     return createUserWithEmailAndPassword(auth, email, password)
-//       .then((userCredential) => {
-//         const user = userCredential.user;
-//         dispatch(startUpdateProfile(firstName, lastName)); // Assuming you already have this action
-//         dispatch(userMetricsDataModalVisible(true, true));
-//         dispatch(signupWithEmail({ uuid: user.uid, firstName, lastName, email: user.email }));
-//         return user; // return user so we can chain a promise in the component
-//       })
-//       .catch((error) => {
-//         dispatch(toastError(firebaseErrorsMessages[error.code]));
-//         throw error;  // important to propagate the error
-//       });
-//   };
-// };
-
-
 export const startSignupWithEmail = (email, password, firstName, lastName) => {
   return (dispatch) => {
     return createUserWithEmailAndPassword(auth, email, password)
@@ -281,8 +276,14 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
         setDoc(doc(database, "Users", user.uid), initialUserData)
           .then(() => {
             console.log("User data saved to Firestore successfully.");
+            storeUID(user.uid); // store the user UID securely in local storages
+            storeFirstName(firstName);
+            storeLastName(lastName);
+            storeEmail(email);
+            
             // Store user metrics in local storage
             //storeMetrics(initialUserData);  // Save the initial data in AsyncStorage
+            
           })
           .catch((error) => {
             console.error("Error saving user data to Firestore:", error);
@@ -304,15 +305,22 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
 
 
 export const startLoginWithEmail = (email, password) => {
+  console.log(email)
+  console.log(password)
   return (dispatch) => {
     return signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
 
-        storeUID(user.uid); // store the user UID securely in local storages
+        console.log(user);
 
-        // console.log("Logged in successfully!");
-        // console.log(user);
+        storeUID(user.uid); // store the user UID securely in local storages
+        storeFirstName(user.displayName?.split(" ")[0]);
+        storeLastName(user.displayName?.split(" ")[1]);
+        storeEmail(user.email);
+
+        console.log("Logged in successfully!");
+        console.log(user);
 
         // load the user data from the database
         dispatch(startLoadUserData());
@@ -331,6 +339,49 @@ export const startLoginWithEmail = (email, password) => {
         dispatch(toastError(firebaseErrorsMessages[error.code]));
         throw error;
       });
+  };
+};
+
+// Function to restore UUID from AsyncStorage
+export const restoreUUID = () => {
+  return async (dispatch) => {
+    try {
+      const storedUID = await getUID();
+      const firstName = await getFirstName();
+      const lastName = await getLastName();
+      const email = await getEmail();
+
+      if (storedUID) {
+        // Dispatch the login action to update the UUID in Redux store
+        dispatch(
+          loginWithEmail({
+            uuid: storedUID,
+            firstName: firstName || null,
+            lastName: lastName || null,
+            email: email || null,
+          })
+        );
+        console.log("UUID and user info restored successfully:", {
+          uuid: storedUID,
+          firstName,
+          lastName,
+          email,
+        });
+        // dispatch(
+        //   loginWithEmail({
+        //     uuid: storedUID,
+        //     firstName: null,  // If needed, fetch other user info from Firestore or AsyncStorage
+        //     lastName: null,
+        //     email: null,
+        //   })
+        // );
+        console.log("UUID restored successfully:", storedUID);
+      } else {
+        console.log("No UUID found in AsyncStorage.");
+      }
+    } catch (error) {
+      console.error("Error restoring UUID:", error);
+    }
   };
 };
 
@@ -414,6 +465,7 @@ export const updateUserEmail = (newEmail) => {
     if (user) {
       updateEmail(user, newEmail)
         .then(() => {
+          storeEmail(newEmail);
           dispatch(updateEmailData(newEmail));
           console.log("Email update success.");
         })
@@ -428,17 +480,35 @@ export const updateUserEmail = (newEmail) => {
 export const deleteAccount = () => {
   return async (dispatch) => {
     try {
+      console.log("deleteAccount()")
+
       const user = auth.currentUser;
       const uid = user.uid;
       const docRef = doc(database, "Users", uid);
 
+      // const uidBefore = await getUID();
+      // console.log("UID before account deletion: ", uidBefore);
+
       await user.delete();
+
+      await clearUID();
+      await clearMetrics();
+      await clearFirstName();
+      await clearLastName();
+      await clearEmail();
+
+      // const uidAfter = await getUID();
+      // console.log("UID after account deletion: ", uidAfter);
+
       console.log("User deleted successfully.");
 
       await deleteDoc(docRef);
       console.log("Document deleted successfully.");
 
       await auth.signOut();
+
+
+
       dispatch(logout());
       dispatch(toastError("User account has been deleted"));
       console.log("User signed out successfully.");

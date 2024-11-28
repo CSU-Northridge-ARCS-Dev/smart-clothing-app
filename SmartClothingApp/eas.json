@@ -1,19 +1,22 @@
 {
-    "cli": {
-      "version": ">= 0.38.1"
+  "cli": {
+    "version": ">= 12.5.2",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
     },
-    "build": {
-      "development": {
-        "developmentClient": true,
-        "distribution": "internal"
-      },
-      "preview": {
-        "distribution": "internal"
-      },
-      "production": {}
+    "preview": {
+      "distribution": "internal"
     },
-    "submit": {
-      "production": {}
+    "production": {
+      "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {}
   }
-  
+}
+

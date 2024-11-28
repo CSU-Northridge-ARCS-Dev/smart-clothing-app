@@ -110,6 +110,7 @@ const ViewInsights = ({ route }) => {
       ></ActivityChart>
       {showDatePicker && (
         <DateTimePicker
+          testID="date-time-picker"
           value={currentDate}
           mode="date"
           display="default"

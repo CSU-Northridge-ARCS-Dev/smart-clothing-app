@@ -79,7 +79,6 @@ export default function HomeScreen({ navigation }) {
           title="Calories"
           value="2000 Kcal"
         />
-
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Breath Rate
         </Text>
@@ -91,7 +90,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Heartbeat Rate
         </Text>
-        {/* <HeartRateChart data={defaultData}/> */}
+        <HeartRateChart data={defaultData}/>
       </View>
     </ScrollView>
   );

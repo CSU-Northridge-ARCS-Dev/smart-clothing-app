@@ -37,13 +37,18 @@ const DataCollectModal = (props) => {
   // if(currentUserMetricsData.dob.seconds !== undefined && currentUserMetricsData.dob.nanoseconds !== undefined) {
   //   dobDate = dobDate.seconds * 1000;
   // }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 25f51cf1989a554a6304d04f0dead22199e000ad
   // Check if dob exists and has 'seconds' and 'nanoseconds' properties
   if (dobDate && dobDate.seconds !== undefined && dobDate.nanoseconds !== undefined) {
     dobDate = dobDate.seconds * 1000; // Convert Firestore Timestamp to milliseconds
   } else {
     dobDate = new Date(); // Fallback to the current date or handle it as 'No Data'
   }
+
 
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState(new Date());

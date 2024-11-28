@@ -13,3 +13,4 @@ import * as Notifications from 'expo-notifications';
 // });
 
 AppRegistry.registerComponent(appName, () => App);
+//registerRootComponent(App);

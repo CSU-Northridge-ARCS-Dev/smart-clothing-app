@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "SmartClothingApp",
+    "name": "SmartClothing",
     "slug": "SmartClothingApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icon-running.png",
     "userInterfaceStyle": "light",
     "scheme": "com.arcs.smartclothingapp",
     "splash": {
@@ -20,11 +20,7 @@
       "bundleIdentifier": "com.arcs.smartclothingapp"
     },
     "android": {
-      "package": "com.arcs.smartclothingapp",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+      "package": "com.arcs.smartclothingapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,7 +31,8 @@
       }
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      "./plugins/customNamespacePlugin"
     ],
     "runtimeVersion": {
       "policy": "appVersion"
