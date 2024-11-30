@@ -54,4 +54,4 @@ const auth = initializeAuth(app, {
 // });
 
 const database = getFirestore(app);
-export { auth, database };
+export { app, auth, database };

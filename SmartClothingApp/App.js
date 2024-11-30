@@ -122,10 +122,11 @@ export default function App() {
         });
       };
 
+      registerForPushNotifications();
       await Promise.all([loadFont(), checkAuthState()]);
       setLoading(false);
-      registerForPushNotifications();
-      setTimeout(() => setLoading(false), 500);
+      //registerForPushNotifications();
+      //setTimeout(() => setLoading(false), 500);
     };
 
     loadAppResources();
