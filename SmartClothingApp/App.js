@@ -126,7 +126,7 @@ export default function App() {
       await Promise.all([loadFont(), checkAuthState()]);
       setLoading(false);
       //registerForPushNotifications();
-      //setTimeout(() => setLoading(false), 500);
+      setTimeout(() => setLoading(false), 500);
     };
 
     loadAppResources();
@@ -137,7 +137,32 @@ export default function App() {
 
     const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
       console.log("Notification response received:", response);
+      
+      const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+      
+      // Navigate when the app is running in background/foreground
+      if(screen = "SettingsScreen" && showPermissionsModal) {
+        navigation.navigate(screen, {
+          showModal: "PermissionsModal",
+          coachName: coachName, 
+        });
+      }
     });
+
+    // Handle notifications when the app is killed
+    (async () => {
+      const lastNotification = await Notifications.getLastNotificationResponseAsync();
+      if(lastNotification) {
+        const { screen, showPermissionsModal, coachName } = lastNotification.notification.request.content.data;
+
+        if(screen === "SettingsScreen" && showPermissionsModal) {
+          navigation.navigate(screen, {
+            showModal: "PermissionsModal",
+            coachName: coachName,
+          });
+        }
+      }
+    })();
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);

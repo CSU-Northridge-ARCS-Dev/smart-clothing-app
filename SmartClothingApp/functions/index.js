@@ -12,13 +12,14 @@ const expo = new Expo();
  * @param {string} pushToken - Expo push token
  * @param {string} message - Notification message
  */
-function sendPushNotification(pushToken, message) {
+function sendPushNotification(pushToken, title, message, data) {
   const messages = [
     {
       to: pushToken,
       sound: "default",
+      title: title,
       body: message,
-      data: {someData: "Some data"}, // No space after '{' and before '}'
+      data: data, // No space after '{' and before '}'
     },
   ];
 
@@ -36,6 +37,7 @@ exports.sendInvitationNotification = functions.firestore
   .onCreate((snap, context) => {
     const newInvitation = snap.data();
     const athleteEmail = newInvitation.athleteEmail;
+    const coachName = newInvitation.coachmanName;
 
     const usersRef = db.collection("Users");
     usersRef.where("email", "==", athleteEmail).get()
@@ -48,7 +50,16 @@ exports.sendInvitationNotification = functions.firestore
           const userData = doc.data();
           if (userData.expoPushToken) {
             sendPushNotification(
-              userData.expoPushToken, "You've received a new invitation!");
+              userData.expoPushToken, 
+              `Allow Coach ${coachName} to Track Your Data?`,
+              "Coach wants access to your fitness data for " + 
+              "tracking and insights. Allow sharing?",
+              {
+                screen: "SettingsScreen",
+                showPermissionsModal: true,
+                coachName: coachName,
+              },
+            );
           }
         });
       })

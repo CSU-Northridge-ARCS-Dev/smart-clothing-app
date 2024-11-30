@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, StyleSheet, StatusBar } from "react-native";
 import { AppHeader } from "../../components";
 import { AppFonts, AppColor, AppStyle } from "../../constants/themes";
@@ -33,6 +33,12 @@ const SettingsScreen = ({ navigation, route }) => {
     setModalVisible({ ...isModalVisible, [modal]: false });
     StatusBar.setBarStyle("light-content");
   };
+
+  useEffect(() => {
+    if(route.params?.showModal === "PermissionsModal") {
+      openModal("modalPermissions")
+    }
+  }, [route.params]);
 
   return (
     <ScrollView>
