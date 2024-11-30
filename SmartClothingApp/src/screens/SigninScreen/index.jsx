@@ -10,10 +10,6 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { useSelector, useDispatch } from "react-redux";
 import { startLoginWithEmail } from "../../actions/userActions.js";
 
-import * as Notifications from 'expo-notifications';
-import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
-import { savePushTokenToBackend } from '../../actions/deviceActions.js';
-import { getToken } from '../../utils/localStorage.js'
 
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';

@@ -1,5 +1,6 @@
 import { AppRegistry } from 'react-native';
 import App from './App';
+import { registerRootComponent } from 'expo';
 import { name as appName } from './app.json';
 import * as Notifications from 'expo-notifications';
 
@@ -12,5 +13,5 @@ import * as Notifications from 'expo-notifications';
 //   }),
 // });
 
-AppRegistry.registerComponent(appName, () => App);
-//registerRootComponent(App);
+//AppRegistry.registerComponent(appName, () => App);
+registerRootComponent(App);
