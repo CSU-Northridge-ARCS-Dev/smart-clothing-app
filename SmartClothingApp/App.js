@@ -123,7 +123,8 @@ export default function App() {
       };
 
       await Promise.all([loadFont(), checkAuthState()]);
-      await registerForPushNotifications();
+      setLoading(false);
+      registerForPushNotifications();
       setTimeout(() => setLoading(false), 500);
     };
 
