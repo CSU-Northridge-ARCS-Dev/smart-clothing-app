@@ -34,11 +34,11 @@ const SettingsScreen = ({ navigation, route }) => {
     StatusBar.setBarStyle("light-content");
   };
 
-  useEffect(() => {
-    if(route.params?.showModal === "PermissionsModal") {
-      openModal("modalPermissions")
-    }
-  }, [route.params]);
+  // useEffect(() => {
+  //   if(route.params?.showModal === "PermissionsModal") {
+  //     openModal("modalPermissions")
+  //   }
+  // }, [route.params]);
 
   return (
     <ScrollView>

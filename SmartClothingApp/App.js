@@ -25,6 +25,7 @@ import {
   registerForPushNotificationsAsync,
   sendNotification,
 } from "./src/utils/notifications.js";
+import PermissionsModal from "./src/components/PermissionsModal/PermissionsModal.jsx";
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -40,6 +41,10 @@ const store = configureStore();
 export default function App() {
   const [isLoading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [isPermissionsModalVisible, setPermissionsModalVisible] = useState(false);
+  const [coachName, setCoachName] = useState("");
+
 
   const checkUID = async () => {
     try {
@@ -84,6 +89,35 @@ export default function App() {
     }
   };
 
+  const checkAuthState = async () => {
+    return new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          console.log("User is logged in:", user.uid);
+          setIsLoggedIn(true);
+
+          const storedUID = await checkUID();
+          if (storedUID) {
+            store.dispatch(restoreUUID(storedUID));
+            console.log("User UUID restored");
+          } else {
+            console.log("User UUID not restored");
+          }
+
+          checkMetrics();
+        } else {
+          console.log("No user is logged in");
+          setIsLoggedIn(false);
+          await checkUID();
+          checkMetrics();
+        }
+        resolve();
+      });
+
+      return unsubscribe;
+    });
+  };
+
   useEffect(() => {
     const loadAppResources = async () => {
       setLoading(true);
@@ -93,60 +127,100 @@ export default function App() {
         console.log("Fonts loaded:", fontsLoaded);
       };
 
-      const checkAuthState = async () => {
-        return new Promise((resolve) => {
-          const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-              console.log("User is logged in:", user.uid);
-              setIsLoggedIn(true);
+      
 
-              const storedUID = await checkUID();
-              if (storedUID) {
-                store.dispatch(restoreUUID(storedUID));
-                console.log("User UUID restored");
-              } else {
-                console.log("User UUID not restored");
-              }
-
-              checkMetrics();
-            } else {
-              console.log("No user is logged in");
-              setIsLoggedIn(false);
-              await checkUID();
-              checkMetrics();
-            }
-            resolve();
-          });
-
-          return unsubscribe;
-        });
-      };
-
-      registerForPushNotifications();
+      
       await Promise.all([loadFont(), checkAuthState()]);
       setLoading(false);
       //registerForPushNotifications();
-      setTimeout(() => setLoading(false), 500);
+      //setTimeout(() => setLoading(false), 500);
+      //registerForPushNotifications();
     };
 
+
+    const handleNotificationResponse = async (response) => {
+    console.log("Notification response received:", response);
+
+    // Ensure checkAuthState finishes before handling notification
+    await checkAuthState();
+
+    if (response.notification?.request?.content?.data) {
+      const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+
+      console.log("Screen:", screen);
+      console.log("Show Permissions Modal:", showPermissionsModal);
+      console.log("Coach Name:", coachName);
+
+      // Open PermissionsModal if UID exists
+      const uid = await checkUID();
+      if (uid && screen === "Home" && showPermissionsModal) {
+        console.log("...Opening PermissionsModal");
+        setCoachName(coachName || "");
+        setPermissionsModalVisible(true);
+      }
+    } else {
+      console.error("Notification data is missing:", response);
+    }
+  };
+
+
+
+
     loadAppResources();
+    registerForPushNotifications();
+
+
+
+
 
     const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
       console.log("Notification received:", notification);
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log("Notification response received:", response);
+
+      handleNotificationResponse(response);
+
+      // console.log("Notification response received:", response);
+
+      // if (response.notification?.request?.content?.data) {
+      //   const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+
+      //   console.log("Screen:", screen);
+      //   console.log("Show Permissions Modal:", showPermissionsModal);
+      //   console.log("Coach Name:", coachName);
+
+      //   if (screen === "Home" && showPermissionsModal) {
+      //     console.log("...Opening PermissionsModal");
+
+      //     // navigation.navigate(screen, {
+      //     //   showModal: "PermissionsModal",
+      //     //   coachName: coachName,
+      //     // });
+
+      //     setCoachName(coachName || "");
+      //     setPermissionsModalVisible(true);
+      //   }
+      // } else {
+      //   console.error("Notification data is missing:", response);
+      // }
+
       
-      const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+      // const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+
+      // console.log("Screen:", screen);
+      // console.log("Show Permissions Modal:", showPermissionsModal);
+      // console.log("Coach Name:", coachName);
       
-      // Navigate when the app is running in background/foreground
-      if(screen = "SettingsScreen" && showPermissionsModal) {
-        navigation.navigate(screen, {
-          showModal: "PermissionsModal",
-          coachName: coachName, 
-        });
-      }
+      // // Navigate when the app is running in background/foreground
+      // if(screen === "SettingsScreen" && showPermissionsModal) {
+      //   console.log("...Opening PermissionsModal");
+
+      //   navigation.navigate(screen, {
+      //     showModal: "PermissionsModal",
+      //     coachName: coachName, 
+      //   });
+      // }
     });
 
     // Handle notifications when the app is killed
@@ -155,12 +229,12 @@ export default function App() {
       if(lastNotification) {
         const { screen, showPermissionsModal, coachName } = lastNotification.notification.request.content.data;
 
-        if(screen === "SettingsScreen" && showPermissionsModal) {
-          navigation.navigate(screen, {
-            showModal: "PermissionsModal",
-            coachName: coachName,
-          });
-        }
+        // if(screen === "SettingsScreen" && showPermissionsModal) {
+        //   navigation.navigate(screen, {
+        //     showModal: "PermissionsModal",
+        //     coachName: coachName,
+        //   });
+        // }
       }
     })();
 

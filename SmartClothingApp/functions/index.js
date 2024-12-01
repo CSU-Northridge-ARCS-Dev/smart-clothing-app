@@ -55,7 +55,7 @@ exports.sendInvitationNotification = functions.firestore
               "Coach wants access to your fitness data for " + 
               "tracking and insights. Allow sharing?",
               {
-                screen: "SettingsScreen",
+                screen: "Home",
                 showPermissionsModal: true,
                 coachName: coachName,
               },
