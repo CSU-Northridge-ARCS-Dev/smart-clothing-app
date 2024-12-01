@@ -25,7 +25,7 @@ import {
   registerForPushNotificationsAsync,
   sendNotification,
 } from "./src/utils/notifications.js";
-import PermissionsModal from "./src/components/PermissionsModal/PermissionsModal.jsx";
+import NotificationPermissionsModal from "./src/components/NotificationPermissionsModal/index.jsx";
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -42,8 +42,9 @@ export default function App() {
   const [isLoading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const [isPermissionsModalVisible, setPermissionsModalVisible] = useState(false);
+  const [isNotificationModalVisible, setNotificationModalVisible] = useState(false);
   const [coachName, setCoachName] = useState("");
+  const [pendingCoaches, setPendingCoaches] = useState([]);
 
 
   const checkUID = async () => {
@@ -156,7 +157,9 @@ export default function App() {
       if (uid && screen === "Home" && showPermissionsModal) {
         console.log("...Opening PermissionsModal");
         setCoachName(coachName || "");
-        setPermissionsModalVisible(true);
+        //setPendingCoaches(coaches || []);
+        setPendingCoaches([]);
+        setNotificationModalVisible(true);
       }
     } else {
       console.error("Notification data is missing:", response);
@@ -253,6 +256,12 @@ export default function App() {
               <NavigationContainer>
                 <AppRouter />
               </NavigationContainer>
+              <NotificationPermissionsModal
+                visible={isNotificationModalVisible}
+                closeModal={() => setNotificationModalVisible(false)}
+                coachName={coachName}
+                pendingCoaches={pendingCoaches}
+              />
               <AppToast />
             </PaperProvider>
           </StoreProvider>
