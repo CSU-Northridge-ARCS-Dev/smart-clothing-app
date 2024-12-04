@@ -136,43 +136,42 @@ export default function App() {
       //registerForPushNotifications();
       //setTimeout(() => setLoading(false), 500);
       //registerForPushNotifications();
+
+       // Check for last notification when app is opened from killed state
+      const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
+      if (lastNotificationResponse) {
+        handleNotificationResponse(lastNotificationResponse);
+      }
     };
 
+   
 
     const handleNotificationResponse = async (response) => {
-    console.log("Notification response received:", response);
+      console.log("Notification response received:", response);
 
-    // Ensure checkAuthState finishes before handling notification
-    await checkAuthState();
+      // Ensure checkAuthState finishes before handling notification
+      await checkAuthState();
 
-    if (response.notification?.request?.content?.data) {
-      const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+      if (response.notification?.request?.content?.data) {
+        const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
 
-      console.log("Screen:", screen);
-      console.log("Show Permissions Modal:", showPermissionsModal);
-      console.log("Coach Name:", coachName);
+        console.log("Screen:", screen);
+        console.log("Show Permissions Modal:", showPermissionsModal);
+        console.log("Coach Name:", coachName);
 
-      // Open PermissionsModal if UID exists
-      const uid = await checkUID();
-      if (uid && screen === "Home" && showPermissionsModal) {
-        console.log("...Opening PermissionsModal");
-        setCoachName(coachName || "");
-        //setPendingCoaches(coaches || []);
-        setPendingCoaches([]);
-        setNotificationModalVisible(true);
+        // Open PermissionsModal if UID exists
+        const uid = await checkUID();
+        if (uid && screen === "Home" && showPermissionsModal) {
+          console.log("...Opening PermissionsModal");
+          setCoachName(coachName || "");
+          //setPendingCoaches(coaches || []);
+          setPendingCoaches([]);
+          setNotificationModalVisible(true);
+        }
+      } else {
+        console.error("Notification data is missing:", response);
       }
-    } else {
-      console.error("Notification data is missing:", response);
-    }
-  };
-
-
-
-
-    loadAppResources();
-    registerForPushNotifications();
-
-
+    };
 
 
 
@@ -181,65 +180,13 @@ export default function App() {
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-
       handleNotificationResponse(response);
-
-      // console.log("Notification response received:", response);
-
-      // if (response.notification?.request?.content?.data) {
-      //   const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
-
-      //   console.log("Screen:", screen);
-      //   console.log("Show Permissions Modal:", showPermissionsModal);
-      //   console.log("Coach Name:", coachName);
-
-      //   if (screen === "Home" && showPermissionsModal) {
-      //     console.log("...Opening PermissionsModal");
-
-      //     // navigation.navigate(screen, {
-      //     //   showModal: "PermissionsModal",
-      //     //   coachName: coachName,
-      //     // });
-
-      //     setCoachName(coachName || "");
-      //     setPermissionsModalVisible(true);
-      //   }
-      // } else {
-      //   console.error("Notification data is missing:", response);
-      // }
-
-      
-      // const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
-
-      // console.log("Screen:", screen);
-      // console.log("Show Permissions Modal:", showPermissionsModal);
-      // console.log("Coach Name:", coachName);
-      
-      // // Navigate when the app is running in background/foreground
-      // if(screen === "SettingsScreen" && showPermissionsModal) {
-      //   console.log("...Opening PermissionsModal");
-
-      //   navigation.navigate(screen, {
-      //     showModal: "PermissionsModal",
-      //     coachName: coachName, 
-      //   });
-      // }
     });
 
-    // Handle notifications when the app is killed
-    (async () => {
-      const lastNotification = await Notifications.getLastNotificationResponseAsync();
-      if(lastNotification) {
-        const { screen, showPermissionsModal, coachName } = lastNotification.notification.request.content.data;
+    
 
-        // if(screen === "SettingsScreen" && showPermissionsModal) {
-        //   navigation.navigate(screen, {
-        //     showModal: "PermissionsModal",
-        //     coachName: coachName,
-        //   });
-        // }
-      }
-    })();
+    loadAppResources();
+    registerForPushNotifications();
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);
@@ -270,3 +217,19 @@ export default function App() {
     </>
   );
 }
+
+
+// // Handle notifications when the app is killed
+//     (async () => {
+//       const lastNotification = await Notifications.getLastNotificationResponseAsync();
+//       if(lastNotification) {
+//         const { screen, showPermissionsModal, coachName } = lastNotification.notification.request.content.data;
+
+//         // if(screen === "SettingsScreen" && showPermissionsModal) {
+//         //   navigation.navigate(screen, {
+//         //     showModal: "PermissionsModal",
+//         //     coachName: coachName,
+//         //   });
+//         // }
+//       }
+//     })();
