@@ -20,7 +20,9 @@
       "bundleIdentifier": "com.arcs.smartclothingapp"
     },
     "android": {
-      "package": "com.arcs.smartclothingapp"
+      "package": "com.arcs.smartclothingapp",
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/favicon.png"

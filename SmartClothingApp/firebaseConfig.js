@@ -44,12 +44,11 @@ const firebaseConfig = {
 
 
 const app = initializeApp(firebaseConfig);
-
-// let app;
+// Initialize Firebase only once
 // if (!getApps().length) {
-//   app = initializeApp(firebaseConfig);
+//   initializeApp(firebaseConfig);
 // } else {
-//   app = getApps()[0]; // Use the already initialized app
+//   getApps()[0];  // Use the already initialized app
 // }
 
 const auth = initializeAuth(app, {
