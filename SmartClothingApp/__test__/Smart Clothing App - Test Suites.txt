@@ -1,0 +1,52 @@
+Smart Clothing App - Test Suite
+
+This repository contains the test suite for the Smart Clothing App. Below is an overview of the folder structure, contents of each folder, and instructions for running the tests.
+
+Folder Structure
+
+__test__/
+├── __integration-test__/
+├── __mocks__/
+├── __unit-test__/
+├── archives/
+├── App_test.js
+├── Profile_test.js
+
+Folder and File Descriptions
+
+__integration-test__/
+	Contains integration tests for verifying how different modules of the application work together.
+	Example: userActions integration tests are included here.
+
+__mocks__/
+	Contains mock files and data used during testing to simulate API calls, database connections, or other external dependencies.
+
+__unit-test__/
+	Contains unit tests for individual components or functions of the application.
+	Example: Tests ensure functions return the correct outputs for given inputs.
+
+archives/
+	Stores older or deprecated test suites that are no longer actively used.
+	Useful for reference or debugging.
+
+App_test.js
+	Unit test file for the App component.
+
+Profile_test.js
+	Unit test file for the Profile component.
+
+How to Run the Tests
+	Prerequisites
+		Ensure you have Node.js installed.
+		Install the project dependencies by running: npm install
+	Running Tests
+		Run all tests using Jest: npm test
+		Run specific tests: jest __test__/App_test.js
+		View test coverage: jest --coverage
+
+* Notes:
+The test suite uses Jest, a JavaScript testing framework.
+Test suites are organized to ensure scalability and maintainability.
+Ensure all tests pass before committing changes to the repository.
+Feel free to contribute to the test suite by adding new test cases or improving existing ones!
+
