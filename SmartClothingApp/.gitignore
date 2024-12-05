@@ -12,7 +12,7 @@ web-build/
 .idea
 
 # Expo Workflow 
-android/
+# android/
 ios/
 
 # Cloud Functions for Expo Push Notifications (Not Ready)
