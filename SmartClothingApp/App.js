@@ -133,7 +133,7 @@ export default function App() {
       
       await Promise.all([loadFont(), checkAuthState()]);
       setLoading(false);
-      //registerForPushNotifications();
+      registerForPushNotifications();
       //setTimeout(() => setLoading(false), 500);
       //registerForPushNotifications();
 
@@ -186,7 +186,7 @@ export default function App() {
     
 
     loadAppResources();
-    registerForPushNotifications();
+    //registerForPushNotifications();
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);

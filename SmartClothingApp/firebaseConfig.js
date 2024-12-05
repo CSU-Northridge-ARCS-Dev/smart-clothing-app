@@ -43,14 +43,14 @@ const firebaseConfig = {
 };
 
 
-//const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 
-let app;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApps()[0]; // Use the already initialized app
-}
+// let app;
+// if (!getApps().length) {
+//   app = initializeApp(firebaseConfig);
+// } else {
+//   app = getApps()[0]; // Use the already initialized app
+// }
 
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
