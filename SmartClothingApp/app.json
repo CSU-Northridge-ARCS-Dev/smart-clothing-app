@@ -34,9 +34,7 @@
       "expo-font",
       "./plugins/customNamespacePlugin"
     ],
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/90fe7b8b-b25e-4389-8373-0f4ba76b7b02"
     }

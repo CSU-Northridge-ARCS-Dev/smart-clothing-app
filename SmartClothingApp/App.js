@@ -180,6 +180,7 @@ export default function App() {
     });
 
     const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log("Response received:", response);
       handleNotificationResponse(response);
     });
 
