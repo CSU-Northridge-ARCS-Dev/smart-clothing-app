@@ -184,9 +184,9 @@ export default function App() {
     });
 
     
-
-    loadAppResources();
     //registerForPushNotifications();
+    loadAppResources();
+ 
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);
