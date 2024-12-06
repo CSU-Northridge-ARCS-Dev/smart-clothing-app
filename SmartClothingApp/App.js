@@ -90,34 +90,7 @@ export default function App() {
     }
   };
 
-  const checkAuthState = async () => {
-    return new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          console.log("User is logged in:", user.uid);
-          setIsLoggedIn(true);
-
-          const storedUID = await checkUID();
-          if (storedUID) {
-            store.dispatch(restoreUUID(storedUID));
-            console.log("User UUID restored");
-          } else {
-            console.log("User UUID not restored");
-          }
-
-          checkMetrics();
-        } else {
-          console.log("No user is logged in");
-          setIsLoggedIn(false);
-          await checkUID();
-          checkMetrics();
-        }
-        resolve();
-      });
-
-      return unsubscribe;
-    });
-  };
+  
 
   useEffect(() => {
     const loadAppResources = async () => {
@@ -129,6 +102,34 @@ export default function App() {
       };
 
       
+      const checkAuthState = async () => {
+        return new Promise((resolve) => {
+          const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+              console.log("User is logged in:", user.uid);
+              setIsLoggedIn(true);
+
+              const storedUID = await checkUID();
+              if (storedUID) {
+                store.dispatch(restoreUUID(storedUID));
+                console.log("User UUID restored");
+              } else {
+                console.log("User UUID not restored");
+              }
+
+              checkMetrics();
+            } else {
+              console.log("No user is logged in");
+              setIsLoggedIn(false);
+              await checkUID();
+              checkMetrics();
+            }
+            resolve();
+          });
+
+          return unsubscribe;
+        });
+      };
 
       
       await Promise.all([loadFont(), checkAuthState()]);

@@ -29,7 +29,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "11aab992-f145-4c3b-b371-0e68b65a928b"
+        "projectId": "90fe7b8b-b25e-4389-8373-0f4ba76b7b02"
       }
     },
     "plugins": [
@@ -38,7 +38,7 @@
     ],
     "runtimeVersion": "1.0.0",
     "updates": {
-      "url": "https://u.expo.dev/11aab992-f145-4c3b-b371-0e68b65a928b"
+      "url": "https://u.expo.dev/90fe7b8b-b25e-4389-8373-0f4ba76b7b02"
     }
   }
 }
