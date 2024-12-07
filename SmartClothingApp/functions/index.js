@@ -37,7 +37,7 @@ exports.sendInvitationNotification = functions.firestore
   .onCreate((snap, context) => {
     const newInvitation = snap.data();
     const athleteEmail = newInvitation.athleteEmail;
-    const coachName = newInvitation.coachmanName;
+    const coachName = newInvitation.coachName;
 
     const usersRef = db.collection("Users");
     usersRef.where("email", "==", athleteEmail).get()

@@ -46,6 +46,8 @@ export default function App() {
   const [coachName, setCoachName] = useState("");
   const [pendingCoaches, setPendingCoaches] = useState([]);
 
+  // const lastNotificationResponse = Notifications.useLastNotificationResponse();
+
 
   const checkUID = async () => {
     try {
@@ -90,15 +92,15 @@ export default function App() {
     }
   };
 
-  
-
-    
-
-  useEffect(() => {
-    const handleNotificationResponse = async (response) => {
+  const handleNotificationResponse = async (response) => {
       console.log("Notification response received:", response);
+      console.log("Notification response actionIdentifier: ", response.actionIdentifier);
       // Ensure checkAuthState finishes before handling notification
       // await checkAuthState();
+      // Check if the response is from a button press
+      if (response.actionIdentifier !== "expo.modules.notifications.actions.DEFAULT") {
+        return;  // If no button was pressed (or if it was dismissed), do nothing
+      }
       if (response.notification?.request?.content?.data) {
         const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
         console.log("Screen:", screen);
@@ -117,6 +119,12 @@ export default function App() {
         console.error("Notification data is missing:", response);
       }
     };
+  
+
+    
+
+  useEffect(() => {
+  
     const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
       console.log("Notification received:", notification);
     });
@@ -128,12 +136,35 @@ export default function App() {
       Notifications.removeNotificationSubscription(notificationListener);
       Notifications.removeNotificationSubscription(responseListener);
     };
+  }, [isNotificationModalVisible]);
+
+  
+
+//
+
+
+  useEffect(() => {
+    const checkLastNotificationResponse = async () => {
+      const lastNotificationResponse = Notifications.getLastNotificationResponseAsync();
+      console.log("Last Notification Response: " + lastNotificationResponse);
+      if (lastNotificationResponse) {
+        const { notification } = lastNotificationResponse;
+        const { content } = notification.request;
+        console.log("Notification Title:", content.title);
+        console.log("Notification Body:", content.body);
+        console.log("Notification Data:", content.data);
+        handleNotificationResponse(lastNotificationResponse);
+      } else {
+        console.log("Not from Notification")
+      }
+    };
+    checkLastNotificationResponse();
+    // Cleanup function (if needed)
+    return () => {
+      // Remove any listeners or subscriptions here
+    };
   }, []);
- // Check for last notification when app is opened from killed state
-      // const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
-      // if (lastNotificationResponse) {
-      //   handleNotificationResponse(lastNotificationResponse);
-      // }
+
 
 
 

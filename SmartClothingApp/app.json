@@ -17,12 +17,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arcs.smartclothingapp"
+      "bundleIdentifier": "com.arcs.smartclothingapp",
+      "buildNumber": "1.0.0"
     },
     "android": {
       "package": "com.arcs.smartclothingapp",
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi": true
+      "useNextNotificationsApi": true,
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,7 +36,16 @@
     },
     "plugins": [
       "expo-font",
-      "./plugins/customNamespacePlugin"
+      "./plugins/customNamespacePlugin",
+      [
+        "expo-notifications",
+        {
+          "icon": "./local/assets/notification_icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
+        }
+      ]
     ],
     "runtimeVersion": "1.0.0",
     "updates": {
