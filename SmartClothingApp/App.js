@@ -92,23 +92,66 @@ export default function App() {
 
   
 
+    
+
+  useEffect(() => {
+    const handleNotificationResponse = async (response) => {
+      console.log("Notification response received:", response);
+      // Ensure checkAuthState finishes before handling notification
+      // await checkAuthState();
+      if (response.notification?.request?.content?.data) {
+        const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+        console.log("Screen:", screen);
+        console.log("Show Permissions Modal:", showPermissionsModal);
+        console.log("Coach Name:", coachName);
+        // Open PermissionsModal if UID exists
+        const uid = await checkUID();
+        if (uid && screen === "Home" && showPermissionsModal) {
+          console.log("...Opening PermissionsModal");
+          setCoachName(coachName || "");
+          //setPendingCoaches(coaches || []);
+          setPendingCoaches([]);
+          setNotificationModalVisible(showPermissionsModal);
+        }
+      } else {
+        console.error("Notification data is missing:", response);
+      }
+    };
+    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+      console.log("Notification received:", notification);
+    });
+    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log("Response received:", response);
+      handleNotificationResponse(response);
+    });
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+ // Check for last notification when app is opened from killed state
+      // const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
+      // if (lastNotificationResponse) {
+      //   handleNotificationResponse(lastNotificationResponse);
+      // }
+
+
+
+
+
   useEffect(() => {
     const loadAppResources = async () => {
       setLoading(true);
-
       const loadFont = async () => {
         const fontsLoaded = await useAppFonts();
         console.log("Fonts loaded:", fontsLoaded);
       };
-
-      
       const checkAuthState = async () => {
         return new Promise((resolve) => {
           const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
               console.log("User is logged in:", user.uid);
               setIsLoggedIn(true);
-
               const storedUID = await checkUID();
               if (storedUID) {
                 store.dispatch(restoreUUID(storedUID));
@@ -116,7 +159,6 @@ export default function App() {
               } else {
                 console.log("User UUID not restored");
               }
-
               checkMetrics();
             } else {
               console.log("No user is logged in");
@@ -126,75 +168,21 @@ export default function App() {
             }
             resolve();
           });
-
           return unsubscribe;
         });
       };
-
-      
       await Promise.all([loadFont(), checkAuthState()]);
       setLoading(false);
       registerForPushNotifications();
       //setTimeout(() => setLoading(false), 500);
       //registerForPushNotifications();
-
-       // Check for last notification when app is opened from killed state
-      const lastNotificationResponse = await Notifications.getLastNotificationResponseAsync();
-      if (lastNotificationResponse) {
-        handleNotificationResponse(lastNotificationResponse);
-      }
+      
     };
-
-   
-
-    const handleNotificationResponse = async (response) => {
-      console.log("Notification response received:", response);
-
-      // Ensure checkAuthState finishes before handling notification
-      await checkAuthState();
-
-      if (response.notification?.request?.content?.data) {
-        const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
-
-        console.log("Screen:", screen);
-        console.log("Show Permissions Modal:", showPermissionsModal);
-        console.log("Coach Name:", coachName);
-
-        // Open PermissionsModal if UID exists
-        const uid = await checkUID();
-        if (uid && screen === "Home" && showPermissionsModal) {
-          console.log("...Opening PermissionsModal");
-          setCoachName(coachName || "");
-          //setPendingCoaches(coaches || []);
-          setPendingCoaches([]);
-          setNotificationModalVisible(true);
-        }
-      } else {
-        console.error("Notification data is missing:", response);
-      }
-    };
-
-
-
-    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
-      console.log("Notification received:", notification);
-    });
-
-    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log("Response received:", response);
-      handleNotificationResponse(response);
-    });
-
-    
-    //registerForPushNotifications();
     loadAppResources();
- 
-
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
-    };
   }, []);
+  
+//
+
 
   return (
     <>
