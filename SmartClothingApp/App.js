@@ -44,6 +44,7 @@ export default function App() {
 
   const [isNotificationModalVisible, setNotificationModalVisible] = useState(false);
   const [coachName, setCoachName] = useState("");
+  const [coachId, setCoachId] = useState("");
   const [pendingCoaches, setPendingCoaches] = useState([]);
 
   // const lastNotificationResponse = Notifications.useLastNotificationResponse();
@@ -108,15 +109,16 @@ export default function App() {
         console.log("Coach Id:", coachId);
         console.log("Coach Name:", coachName);
         // TEMP
-        let coaches = coachId;
-        // let coaches = getPendingCoaches();
-        // coaches.push(coachId);
+        let pendingCoaches = coachId;
+        // let pendingCoaches = getPendingCoaches();
+        // pendingCoaches.push(coachId);
         // Open PermissionsModal if UID exists
         const uid = await checkUID();
         if (uid && screen === "Home" && showPermissionsModal) {
           console.log("...Opening PermissionsModal");
           setCoachName(coachName || "");
-          setPendingCoaches([coaches] || []);
+          setCoachId(coachId);
+          setPendingCoaches([pendingCoaches] || []);
           //setPendingCoaches([]);
           setNotificationModalVisible(showPermissionsModal);
         }
@@ -233,6 +235,7 @@ export default function App() {
                 visible={isNotificationModalVisible}
                 closeModal={() => setNotificationModalVisible(false)}
                 coachName={coachName}
+                coachId={coachId}
                 pendingCoaches={pendingCoaches}
               />
               <AppToast />
