@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
+import { removeFromPendingPermissions, addToCoachList } from "../../actions/userActions.js";
 
 const NotificationPermissionsModal = ({ 
   visible, 
@@ -35,6 +36,23 @@ const NotificationPermissionsModal = ({
 
   const handleSave = () => {
     console.log("Saving permissions:", permissions);
+    
+    // Extract the coach IDs where permissions are set to true
+    const approvedCoaches = Objects.Keys(permissions).filter((coach) => permissions[coach])
+    console.log("Applying permissions:", approvedCoaches);
+
+    // Dispatch actions to update the athlete's data
+    approvedCoaches.forEach((coachId) => {
+      // Remove coachId from pendingPermissions and add to coachList
+      dispatch(removeFromPendingPermissions(coachId));
+      dispatch(addToCoachList(coachId));
+    });
+
+    console.log("Updated pending permissions and coach list for the student");
+
+    // Change local state here
+
+
     closeModal();
   };
 

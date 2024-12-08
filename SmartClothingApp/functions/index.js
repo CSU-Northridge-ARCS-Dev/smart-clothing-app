@@ -37,6 +37,7 @@ exports.sendInvitationNotification = functions.firestore
   .onCreate((snap, context) => {
     const newInvitation = snap.data();
     const athleteEmail = newInvitation.athleteEmail;
+    const coachId = newInvitation.coachId;
     const coachName = newInvitation.coachName;
 
     const usersRef = db.collection("Users");
@@ -58,6 +59,7 @@ exports.sendInvitationNotification = functions.firestore
                 screen: "Home",
                 showPermissionsModal: true,
                 coachName: coachName,
+                coachId: coachId,
               },
             );
           }

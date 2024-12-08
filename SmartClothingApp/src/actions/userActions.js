@@ -519,6 +519,46 @@ export const deleteAccount = () => {
   };
 };
 
+export const removeFromePendingPermissions = (coachId, approve) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      const userDoc = await getDoc(userDocRef);
+      // Fetch the current pendingPermissions
+      if(userDoc.exists()) {
+        const userData = userDoc.data();
+        const updatedPendingPermissions = userData.pendingPermissions.filter((id) => id !== coachId);
+        // Update the pendingPermissions in Firestore
+        await updateDoc(userDocRef, {pendingPermissions: updatedPendingPermissions});
+        console.log(`Removed ${coachId} from pendingPermissions.`);
+      }
+    } catch (err) {
+      console.error("Error removing from pendingPermissions:", err);
+    }
+  }
+};
+
+export const addToCoachList = (coachId) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      const userDoc = await getDoc(userDocRef);
+      // Fetch the current coachList
+      if(userDoc.exists()) {
+        const userData = userDoc.data();
+        const updatedCoachList = [...(userData.coachList || []), coachId];
+        // Update the coachList in Firestore
+        await updateDoc(userDocRef, {coachList: updatedCoachList});
+        console.log(`Added ${coachId} to coachList.`);
+      }
+    } catch (err) {
+      console.error("Error adding to coach list:", err);
+    }
+  }
+};
+
 export const querySleepData = async (startDate, endDate) => {
   try {
     //get the user ID

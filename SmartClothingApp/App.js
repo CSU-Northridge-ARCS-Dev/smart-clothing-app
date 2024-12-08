@@ -102,17 +102,22 @@ export default function App() {
         return;  // If no button was pressed (or if it was dismissed), do nothing
       }
       if (response.notification?.request?.content?.data) {
-        const { screen, showPermissionsModal, coachName } = response.notification.request.content.data;
+        const { screen, showPermissionsModal, coachId, coachName } = response.notification.request.content.data;
         console.log("Screen:", screen);
         console.log("Show Permissions Modal:", showPermissionsModal);
+        console.log("Coach Id:", coachId);
         console.log("Coach Name:", coachName);
+        // TEMP
+        let coaches = coachId;
+        // let coaches = getPendingCoaches();
+        // coaches.push(coachId);
         // Open PermissionsModal if UID exists
         const uid = await checkUID();
         if (uid && screen === "Home" && showPermissionsModal) {
           console.log("...Opening PermissionsModal");
           setCoachName(coachName || "");
-          //setPendingCoaches(coaches || []);
-          setPendingCoaches([]);
+          setPendingCoaches([coaches] || []);
+          //setPendingCoaches([]);
           setNotificationModalVisible(showPermissionsModal);
         }
       } else {
