@@ -10,10 +10,11 @@ import { useAppFonts } from "./src/hooks/useAppFonts";
 import { AppTheme } from "./src/constants/themes";
 import configureStore from "./src/store";
 import { AppToast } from "./src/components";
-import { auth } from "./firebaseConfig.js";
-
+import { auth, database } from "./firebaseConfig.js";
 import { getUID, getMetrics, storeToken } from "./src/utils/localStorage.js";
 import { onAuthStateChanged } from "firebase/auth";
+
+import { getDoc, doc } from "firebase/firestore";
 
 import {
   startLoadUserData,
@@ -184,6 +185,27 @@ export default function App() {
         const fontsLoaded = await useAppFonts();
         console.log("Fonts loaded:", fontsLoaded);
       };
+      const checkPendingPermissions = async (uid) => {
+        try {
+          // Fetch user document from Firestore
+          const userDoc = await getDoc(doc(database, "Users", uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const pendingPermissions = userData.pendingPermissions || [];
+            console.log("Pending Permissions from DB:", pendingPermissions);
+            // Check if there are any pending coaches
+            if (pendingPermissions.length > 0) {
+              console.log("Pending coaches found. Opening Permissions Modal.");
+              setPendingCoaches(pendingPermissions);
+              setNotificationModalVisible(true);
+            }
+          } else {
+            console.error("User document not found.");
+          }
+        } catch (error) {
+          console.error("Error checking pending permissions:", error);
+        }
+      };
       const checkAuthState = async () => {
         return new Promise((resolve) => {
           const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -198,6 +220,8 @@ export default function App() {
                 console.log("User UUID not restored");
               }
               checkMetrics();
+              // Check pending permissions after signing in
+              await checkPendingPermissions(user.uid);
             } else {
               console.log("No user is logged in");
               setIsLoggedIn(false);
