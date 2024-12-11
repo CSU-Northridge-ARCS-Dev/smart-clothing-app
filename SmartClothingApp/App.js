@@ -136,7 +136,7 @@ export default function App() {
       return pendingPermissions;
     } else {
       console.error("User document not found.");
-      return null;
+      return [];
     }
   }; 
     
@@ -190,7 +190,22 @@ export default function App() {
 
 
 
-
+  const checkPendingPermissions = async (uid) => {
+    try {
+      // Fetch user document from Firestore
+      const pendingPermissions = await fetchPendingPermissionsList(uid);
+      if (pendingPermissions.length > 0) {
+        console.log("Pending coaches found. Opening Permissions Modal.");
+        setPendingCoaches(pendingPermissions);
+        setNotificationModalVisible(true);
+      } else {
+        setPendingCoaches([]);
+        console.log("pendingPermissions null");
+      }
+    } catch (error) {
+      console.error("Error checking pending permissions:", error);
+    }
+  };
   useEffect(() => {
     const loadAppResources = async () => {
       setLoading(true);
@@ -198,19 +213,7 @@ export default function App() {
         const fontsLoaded = await useAppFonts();
         console.log("Fonts loaded:", fontsLoaded);
       };
-      const checkPendingPermissions = async (uid) => {
-        try {
-          // Fetch user document from Firestore
-          const pendingPermissions = await fetchPendingPermissionsList(uid);
-          if (pendingPermissions.length > 0) {
-            console.log("Pending coaches found. Opening Permissions Modal.");
-            setPendingCoaches(pendingPermissions);
-            setNotificationModalVisible(true);
-          }
-        } catch (error) {
-          console.error("Error checking pending permissions:", error);
-        }
-      };
+      
       const checkAuthState = async () => {
         return new Promise((resolve) => {
           const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -229,7 +232,7 @@ export default function App() {
               await checkPendingPermissions(user.uid);
             } else {
               console.log("No user is logged in");
-              setIsLoggedIn(false);
+              //setIsLoggedIn(false);
               await checkUID();
               checkMetrics();
             }
@@ -248,7 +251,14 @@ export default function App() {
     loadAppResources();
   }, []);
   
-//
+  useEffect(() => {
+    console.log("isLoggedIn state useEffect:", isLoggedIn);
+    const updatePendingPermissions = async () => {
+      const uid = await checkUID();
+      await checkPendingPermissions(uid);
+    };
+    updatePendingPermissions();
+  }, [isLoggedIn]);
 
 
   return (
