@@ -34,7 +34,7 @@ const NotificationPermissionsModal = ({
     }, {});
     setPermissions(updatedPermissions);
     console.log("All permissions accepted:", updatedPermissions);
-    closeModal();
+    //closeModal();
   };
 
   const handleSave = () => {

@@ -11,6 +11,8 @@ import {
   getFirestore,
   deleteDoc,
   orderBy,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 
 import { storeUID, storeMetrics, storeFirstName, storeLastName, storeEmail, getUID, getMetrics, getFirstName, getLastName, getEmail, clearUID, clearMetrics, clearFirstName, clearLastName, clearEmail } from "../utils/localStorage.js";
@@ -526,37 +528,41 @@ export const removeFromPendingPermissions = (coachId) => {
     try {
       const { uid } = auth.currentUser;
       const userDocRef = doc(database, "Users", uid);
-      const userDoc = await getDoc(userDocRef);
 
-      // Fetch the current pendingPermissions
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        // If pendingPermissions doesn't exist, initialize it as an empty array
-        console.log(userData);
-        console.log(userData.pendingPermissions);
-        if (!userData.pendingPermissions) {
-          console.log('pendingPermissions does not exist, initializing it for accounts created after the push notification update.');
-          await updateDoc(userDocRef, { pendingPermissions: [] });
-          // Refetch the document to ensure the data is up to date after the update
-          const updatedUserDoc = await getDoc(userDocRef);
-          const updatedUserData = updatedUserDoc.data();
-          // Now you have the latest data
-          const updatedPendingPermissions = updatedUserData.pendingPermissions.filter((id) => id !== coachId);
-          // Update the pendingPermissions in Firestore
-          await updateDoc(userDocRef, { pendingPermissions: updatedPendingPermissions });
-          console.log(`Removed ${coachId} from pendingPermissions.`);
-        } else {
-          console.log('pendingPermissions exists, updating...');
-          // If pendingPermissions exists, just update it
-          const updatedPendingPermissions = userData.pendingPermissions.filter((id) => id !== coachId);
-          await updateDoc(userDocRef, { pendingPermissions: updatedPendingPermissions });
-          console.log(`Removed ${coachId} from pendingPermissions.`);
-        }
-      }
+      // Atomically remove the coachId from pendingPermissions
+      await updateDoc(userDocRef, {
+        pendingPermissions: arrayRemove(coachId),
+      });
+
+      // Dispatch Redux action to update the state
+      dispatch({ type: "REMOVE_FROM_PENDING_PERMISSIONS", payload: coachId });
+
+      console.log(`Removed ${coachId} from pendingPermissions.`);
     } catch (err) {
       console.error("Error removing from pendingPermissions:", err);
     }
-  }
+  };
+};
+
+export const addToCoachList = (coachId) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+
+      // Atomically add the coachId to coachList
+      await updateDoc(userDocRef, {
+        coachList: arrayUnion(coachId),
+      });
+
+      // Dispatch Redux action to update the state
+      dispatch({ type: "ADD_TO_COACH_LIST", payload: coachId });
+
+      console.log(`Added ${coachId} to coachList.`);
+    } catch (err) {
+      console.error("Error adding to coach list:", err);
+    }
+  };
 };
 
 // export const removeFromPendingPermissions = (coachId) => {
@@ -565,13 +571,31 @@ export const removeFromPendingPermissions = (coachId) => {
 //       const { uid } = auth.currentUser;
 //       const userDocRef = doc(database, "Users", uid);
 //       const userDoc = await getDoc(userDocRef);
+
 //       // Fetch the current pendingPermissions
-//       if(userDoc.exists()) {
+//       if (userDoc.exists()) {
 //         const userData = userDoc.data();
-//         const updatedPendingPermissions = userData.pendingPermissions.filter((id) => id !== coachId);
-//         // Update the pendingPermissions in Firestore
-//         await updateDoc(userDocRef, {pendingPermissions: updatedPendingPermissions});
-//         console.log(`Removed ${coachId} from pendingPermissions.`);
+//         // If pendingPermissions doesn't exist, initialize it as an empty array
+//         console.log(userData);
+//         console.log(userData.pendingPermissions);
+//         if (!userData.pendingPermissions) {
+//           console.log('pendingPermissions does not exist, initializing it for accounts created after the push notification update.');
+//           await updateDoc(userDocRef, { pendingPermissions: [] });
+//           // Refetch the document to ensure the data is up to date after the update
+//           const updatedUserDoc = await getDoc(userDocRef);
+//           const updatedUserData = updatedUserDoc.data();
+//           // Now you have the latest data
+//           const updatedPendingPermissions = updatedUserData.pendingPermissions.filter((id) => id !== coachId);
+//           // Update the pendingPermissions in Firestore
+//           await updateDoc(userDocRef, { pendingPermissions: updatedPendingPermissions });
+//           console.log(`Removed ${coachId} from pendingPermissions.`);
+//         } else {
+//           console.log('pendingPermissions exists, updating...');
+//           // If pendingPermissions exists, just update it
+//           const updatedPendingPermissions = userData.pendingPermissions.filter((id) => id !== coachId);
+//           await updateDoc(userDocRef, { pendingPermissions: updatedPendingPermissions });
+//           console.log(`Removed ${coachId} from pendingPermissions.`);
+//         }
 //       }
 //     } catch (err) {
 //       console.error("Error removing from pendingPermissions:", err);
@@ -579,25 +603,25 @@ export const removeFromPendingPermissions = (coachId) => {
 //   }
 // };
 
-export const addToCoachList = (coachId) => {
-  return async (dispatch) => {
-    try {
-      const { uid } = auth.currentUser;
-      const userDocRef = doc(database, "Users", uid);
-      const userDoc = await getDoc(userDocRef);
-      // Fetch the current coachList
-      if(userDoc.exists()) {
-        const userData = userDoc.data();
-        const updatedCoachList = [...(userData.coachList || []), coachId];
-        // Update the coachList in Firestore
-        await updateDoc(userDocRef, {coachList: updatedCoachList});
-        console.log(`Added ${coachId} to coachList.`);
-      }
-    } catch (err) {
-      console.error("Error adding to coach list:", err);
-    }
-  }
-};
+// export const addToCoachList = (coachId) => {
+//   return async (dispatch) => {
+//     try {
+//       const { uid } = auth.currentUser;
+//       const userDocRef = doc(database, "Users", uid);
+//       const userDoc = await getDoc(userDocRef);
+//       // Fetch the current coachList
+//       if(userDoc.exists()) {
+//         const userData = userDoc.data();
+//         const updatedCoachList = [...(userData.coachList || []), coachId];
+//         // Update the coachList in Firestore
+//         await updateDoc(userDocRef, {coachList: updatedCoachList});
+//         console.log(`Added ${coachId} to coachList.`);
+//       }
+//     } catch (err) {
+//       console.error("Error adding to coach list:", err);
+//     }
+//   }
+// };
 
 export const querySleepData = async (startDate, endDate) => {
   try {

@@ -109,17 +109,16 @@ export default function App() {
         console.log("Show Permissions Modal:", showPermissionsModal);
         console.log("Coach Id:", coachId);
         console.log("Coach Name:", coachName);
-        // TEMP
-        let pendingCoaches = coachId;
         // let pendingCoaches = getPendingCoaches();
         // pendingCoaches.push(coachId);
         // Open PermissionsModal if UID exists
         const uid = await checkUID();
+        let pendingCoaches = await fetchPendingPermissionsList(uid);
         if (uid && screen === "Home" && showPermissionsModal) {
           console.log("...Opening PermissionsModal");
           setCoachName(coachName || "");
           setCoachId(coachId);
-          setPendingCoaches([pendingCoaches] || []);
+          setPendingCoaches(pendingCoaches || []);
           //setPendingCoaches([]);
           setNotificationModalVisible(showPermissionsModal);
         }
@@ -127,6 +126,20 @@ export default function App() {
         console.error("Notification data is missing:", response);
       }
     };
+
+  const fetchPendingPermissionsList = async(uid) => {
+    const userDoc = await getDoc(doc(database, "Users", uid));
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      const pendingPermissions = userData.pendingPermissions || [];
+      console.log("Pending Permissions from DB:", pendingPermissions);
+      return pendingPermissions;
+    } else {
+      console.error("User document not found.");
+      return null;
+    }
+  }; 
+    
   
 
     
@@ -188,19 +201,11 @@ export default function App() {
       const checkPendingPermissions = async (uid) => {
         try {
           // Fetch user document from Firestore
-          const userDoc = await getDoc(doc(database, "Users", uid));
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const pendingPermissions = userData.pendingPermissions || [];
-            console.log("Pending Permissions from DB:", pendingPermissions);
-            // Check if there are any pending coaches
-            if (pendingPermissions.length > 0) {
-              console.log("Pending coaches found. Opening Permissions Modal.");
-              setPendingCoaches(pendingPermissions);
-              setNotificationModalVisible(true);
-            }
-          } else {
-            console.error("User document not found.");
+          const pendingPermissions = await fetchPendingPermissionsList(uid);
+          if (pendingPermissions.length > 0) {
+            console.log("Pending coaches found. Opening Permissions Modal.");
+            setPendingCoaches(pendingPermissions);
+            setNotificationModalVisible(true);
           }
         } catch (error) {
           console.error("Error checking pending permissions:", error);
