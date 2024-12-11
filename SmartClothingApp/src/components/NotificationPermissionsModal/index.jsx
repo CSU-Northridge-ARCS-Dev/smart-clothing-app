@@ -13,8 +13,8 @@ const NotificationPermissionsModal = ({
   pendingCoaches 
 }) => {
   const [permissions, setPermissions] = useState(
-    pendingCoaches.reduce((acc, coachId) => {
-      acc[coachId] = false;
+    pendingCoaches.reduce((acc, coach) => {
+      acc[coach.coachId] = false;
       return acc;
     }, {})
   );
@@ -65,10 +65,10 @@ const NotificationPermissionsModal = ({
 
   const renderPendingCoach = ({ item: coach }) => (
     <View style={styles.permissionContainer}>
-      <Text style={styles.permissionTitle}>{coach}</Text>
+      <Text style={styles.permissionTitle}>{coach.coachFullName}</Text>
       <Switch
-        value={permissions[coach]}
-        onValueChange={() => togglePermission(coach)}
+        value={permissions[coach.coachId]}
+        onValueChange={() => togglePermission(coach.coachId)}
       />
     </View>
   );

@@ -133,7 +133,22 @@ export default function App() {
       const userData = userDoc.data();
       const pendingPermissions = userData.pendingPermissions || [];
       console.log("Pending Permissions from DB:", pendingPermissions);
-      return pendingPermissions;
+      const pendingCoachList = await Promise.all(
+        pendingPermissions.map(async (coachId) => {
+          const coachDoc = await getDoc(doc(database, "Users", coachId));
+          if(coachDoc.exists()) {
+            const coachData = coachDoc.data();
+            const coachFullName = `${coachData.firstName || ""} ${coachData.lastName || ""}`.trim();
+            return {
+              coachId,
+              coachFullName,
+            }
+          }
+        })
+      );
+      // Filter out any null results
+      const validPendingCoachList = pendingCoachList.filter((item) => item!==null);
+      return validPendingCoachList;
     } else {
       console.error("User document not found.");
       return [];
@@ -251,14 +266,14 @@ export default function App() {
     loadAppResources();
   }, []);
   
-  useEffect(() => {
-    console.log("isLoggedIn state useEffect:", isLoggedIn);
-    const updatePendingPermissions = async () => {
-      const uid = await checkUID();
-      await checkPendingPermissions(uid);
-    };
-    updatePendingPermissions();
-  }, [isLoggedIn]);
+  // useEffect(() => {
+  //   console.log("isLoggedIn state useEffect:", isLoggedIn);
+  //   const updatePendingPermissions = async () => {
+  //     const uid = await checkUID();
+  //     await checkPendingPermissions(uid);
+  //   };
+  //   updatePendingPermissions();
+  // }, [isLoggedIn]);
 
 
   return (
