@@ -2,7 +2,7 @@
 
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
-  PERMISSIONS_MODAL_VISIBLE,
+  COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
   DARK_THEME,
   MEASUREMENT_SYSTEM,
   UPDATE_ACTIVITY_RINGS_DATA,
@@ -15,7 +15,7 @@ const initialState = {
 
   // userMetricsData Modal sub-states
   userMetricsDataModalVisible: false,
-  permissionsModalVisible: false,
+  coachNotificationPermissionsModalVisible: false,
   isFromSignUpScreen: false,
   measurementSystem: "imperial", // "imperial" (US) or "metric"
   activityRingsData: {
@@ -74,11 +74,11 @@ const appReducer = (state = initialState, action) => {
         userMetricsDataModalVisible: action.payload.visibility,
         isFromSignUpScreen: action.payload.isFromSignUpScreen,
       };
-    case PERMISSIONS_MODAL_VISIBLE:
+    case COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE:
       console.log(`Making coach notifPermissionsModalVisible ${action.payload}`);
       return {
         ...state,
-        permissionsModalVisible: action.payload.visibility,
+        coachNotificationPermissionsModalVisible: action.payload.visibility,
       };
     case UPDATE_ACTIVITY_RINGS_DATA:
       return {

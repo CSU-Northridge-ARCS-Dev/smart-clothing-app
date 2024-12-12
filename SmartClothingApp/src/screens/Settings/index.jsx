@@ -9,7 +9,7 @@ import DeleteAccountModal from "../../components/DeleteAccountModal/DeleteAccoun
 import ChangePasswordModal from "../../components/ChangePasswordModal/ChangePasswordModal"
 import ToSModal from "../../components/ToSModal/ToSModal";
 import SettingsButton from "../../components/UI/SettingsButton";
-import PermissionsModal from "../../components/PermissionsModal/PermissionsModal";
+import PermissionsModal from "../../components/PermissionsModal";
 
 
 const SettingsScreen = ({ navigation, route }) => {

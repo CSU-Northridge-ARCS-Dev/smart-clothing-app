@@ -39,6 +39,7 @@ import {
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
+  ADD_TO_COACH_ACCESS,
 } from "./types";
 
 import { toastError } from "./toastActions.js";
@@ -79,6 +80,26 @@ export const updatePasswordSuccess = () => {
   };
 };
 
+export const updateUserMetricsData = (userMetricsData) => {
+  return {
+    type: UPDATE_USER_METRICS_DATA,
+    payload: userMetricsData,
+  };
+};
+
+export const addToCoachAccess = (coach) => {
+  return {
+    type: ADD_TO_COACH_ACCESS,
+    payload: coach,
+  };
+};
+
+export const updateEmailData = (newEmail) => {
+  return {
+    type: UPDATE_EMAIL_SUCCESS,
+    payload: newEmail,
+  };
+};
 
 export const startLogout = () => {
   return async (dispatch) => {
@@ -153,19 +174,7 @@ export const startUpdateProfile = (firstName, lastName) => {
   };
 };
 
-export const updateUserMetricsData = (userMetricsData) => {
-  return {
-    type: UPDATE_USER_METRICS_DATA,
-    payload: userMetricsData,
-  };
-};
 
-export const updateEmailData = (newEmail) => {
-  return {
-    type: UPDATE_EMAIL_SUCCESS,
-    payload: newEmail,
-  };
-};
 
 // export const startUpdateUserData = (userData) => {
 //   console.log("startUpdateUserData called with", userData);
@@ -549,15 +558,13 @@ export const addToCoachList = (coachId) => {
     try {
       const { uid } = auth.currentUser;
       const userDocRef = doc(database, "Users", uid);
-
       // Atomically add the coachId to coachList
       await updateDoc(userDocRef, {
         coachList: arrayUnion(coachId),
       });
-
       // Dispatch Redux action to update the state
-      dispatch({ type: "ADD_TO_COACH_LIST", payload: coachId });
-
+      dispatch(addToCoachAccess(coachId));
+      //dispatch({ type: "ADD_TO_COACH_ACCESS", payload: coachId });
       console.log(`Added ${coachId} to coachList.`);
     } catch (err) {
       console.error("Error adding to coach list:", err);
@@ -565,63 +572,6 @@ export const addToCoachList = (coachId) => {
   };
 };
 
-// export const removeFromPendingPermissions = (coachId) => {
-//   return async (dispatch) => {
-//     try {
-//       const { uid } = auth.currentUser;
-//       const userDocRef = doc(database, "Users", uid);
-//       const userDoc = await getDoc(userDocRef);
-
-//       // Fetch the current pendingPermissions
-//       if (userDoc.exists()) {
-//         const userData = userDoc.data();
-//         // If pendingPermissions doesn't exist, initialize it as an empty array
-//         console.log(userData);
-//         console.log(userData.pendingPermissions);
-//         if (!userData.pendingPermissions) {
-//           console.log('pendingPermissions does not exist, initializing it for accounts created after the push notification update.');
-//           await updateDoc(userDocRef, { pendingPermissions: [] });
-//           // Refetch the document to ensure the data is up to date after the update
-//           const updatedUserDoc = await getDoc(userDocRef);
-//           const updatedUserData = updatedUserDoc.data();
-//           // Now you have the latest data
-//           const updatedPendingPermissions = updatedUserData.pendingPermissions.filter((id) => id !== coachId);
-//           // Update the pendingPermissions in Firestore
-//           await updateDoc(userDocRef, { pendingPermissions: updatedPendingPermissions });
-//           console.log(`Removed ${coachId} from pendingPermissions.`);
-//         } else {
-//           console.log('pendingPermissions exists, updating...');
-//           // If pendingPermissions exists, just update it
-//           const updatedPendingPermissions = userData.pendingPermissions.filter((id) => id !== coachId);
-//           await updateDoc(userDocRef, { pendingPermissions: updatedPendingPermissions });
-//           console.log(`Removed ${coachId} from pendingPermissions.`);
-//         }
-//       }
-//     } catch (err) {
-//       console.error("Error removing from pendingPermissions:", err);
-//     }
-//   }
-// };
-
-// export const addToCoachList = (coachId) => {
-//   return async (dispatch) => {
-//     try {
-//       const { uid } = auth.currentUser;
-//       const userDocRef = doc(database, "Users", uid);
-//       const userDoc = await getDoc(userDocRef);
-//       // Fetch the current coachList
-//       if(userDoc.exists()) {
-//         const userData = userDoc.data();
-//         const updatedCoachList = [...(userData.coachList || []), coachId];
-//         // Update the coachList in Firestore
-//         await updateDoc(userDocRef, {coachList: updatedCoachList});
-//         console.log(`Added ${coachId} to coachList.`);
-//       }
-//     } catch (err) {
-//       console.error("Error adding to coach list:", err);
-//     }
-//   }
-// };
 
 export const querySleepData = async (startDate, endDate) => {
   try {

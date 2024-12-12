@@ -20,7 +20,7 @@ const NotificationPermissionsModal = ({
 
   const dispatch = useDispatch();
   const visible = useSelector((state)=>state.app.coachNotificationPermissionsModalVisible);
-  const currentCoachPermissions = useSelector((state) => state.user.coachPermissions);
+  const currentCoachAccess = useSelector((state) => state.user.coachAccess);
   const pendingCoachPermissions = useSelector((state) => state.user.pendingPermissions);
 
   const togglePermission = (coachId) => {

@@ -20,6 +20,8 @@ const initialState = {
     weight: "No Data",
     sports: "No Data",
   },
+  coachAccess: [],
+  pendingPermissions: [],
 };
 
 const userReducer = (state = initialState, action) => {
@@ -62,6 +64,16 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         userMetricsData: action.payload,
+      };
+    case ADD_TO_COACH_ACCESS:
+      return {
+        ...state,
+        coachAccess: [...state.coachAccess, action.payload],
+      };
+    case UPDATE_PENDING_PERMISSIONS:
+      return {
+        ...state,
+        pendPermissions: action.payload,
       };
     case UPDATE_EMAIL_SUCCESS:
       return {
