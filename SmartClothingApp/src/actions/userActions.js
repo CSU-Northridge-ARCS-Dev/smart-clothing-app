@@ -553,19 +553,19 @@ export const removeFromPendingPermissions = (coachId) => {
   };
 };
 
-export const addToCoachList = (coachId) => {
+export const addToCoachList = (coach) => {
   return async (dispatch) => {
     try {
       const { uid } = auth.currentUser;
       const userDocRef = doc(database, "Users", uid);
       // Atomically add the coachId to coachList
       await updateDoc(userDocRef, {
-        coachList: arrayUnion(coachId),
+        coachList: arrayUnion(coach.coachId),
       });
       // Dispatch Redux action to update the state
-      dispatch(addToCoachAccess(coachId));
+      dispatch(addToCoachAccess(coach));
       //dispatch({ type: "ADD_TO_COACH_ACCESS", payload: coachId });
-      console.log(`Added ${coachId} to coachList.`);
+      console.log(`Added ${coach} to coachList.`);
     } catch (err) {
       console.error("Error adding to coach list:", err);
     }

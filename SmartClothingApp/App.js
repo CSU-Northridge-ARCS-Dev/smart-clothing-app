@@ -27,6 +27,7 @@ import {
   sendNotification,
 } from "./src/utils/notifications.js";
 import NotificationPermissionsModal from "./src/components/NotificationPermissionsModal/index.jsx";
+import { coachNotificationPermissionsModalVisible } from "./src/actions/appActions.js";
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -51,6 +52,7 @@ export default function App() {
     coachName:""
   });
   const [prevPendingCoaches, setPrevPendingCoaches] = useState([]);
+
 
   // const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
@@ -123,9 +125,11 @@ export default function App() {
           // setCoachName(coachName || "");
           // setCoachId(coachId);
           setRecentNotificationCoach({coachId, coachName});
-          setPrevPendingCoaches(pendingCoaches || []);
+          //setPrevPendingCoaches(pendingCoaches || []);
           //setPendingCoaches([]);
-          setNotificationModalVisible(showPermissionsModal);
+          store.dispatch(coachNotificationPermissionsModalVisible(true));
+          console.log("Dispatch Coach notifications Modal visibility set to true");
+          //setNotificationModalVisible(showPermissionsModal);
         }
       } else {
         console.error("Notification data is missing:", response);
@@ -215,10 +219,10 @@ export default function App() {
       const pendingPermissions = await fetchPendingPermissionsList(uid);
       if (pendingPermissions.length > 0) {
         console.log("Pending coaches found. Opening Permissions Modal.");
-        setPrevPendingCoaches(pendingPermissions);
+        //setPrevPendingCoaches(pendingPermissions);
         setNotificationModalVisible(true);
       } else {
-        setPrevPendingCoaches([]);
+        //setPrevPendingCoaches([]);
         console.log("pendingPermissions null");
       }
     } catch (error) {
@@ -290,10 +294,9 @@ export default function App() {
                 <AppRouter />
               </NavigationContainer>
               <NotificationPermissionsModal 
-                closeModal={() => setNotificationModalVisible(false)}
+                //closeModal={() => setNotificationModalVisible(false)}
                 coachName={recentNotificationCoach.coachName}
                 coachId={recentNotificationCoach.coachId}
-                pendingCoaches={prevPendingCoaches}
               />
               <AppToast />
             </PaperProvider>

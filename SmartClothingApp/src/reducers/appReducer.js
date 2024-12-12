@@ -76,9 +76,10 @@ const appReducer = (state = initialState, action) => {
       };
     case COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE:
       console.log(`Making coach notifPermissionsModalVisible ${action.payload}`);
+      console.log(`Notification Permission Modal Visible: ${action.payload.visibility}`);
       return {
         ...state,
-        coachNotificationPermissionsModalVisible: action.payload.visibility,
+        visibility: action.payload.visibility,
       };
     case UPDATE_ACTIVITY_RINGS_DATA:
       return {

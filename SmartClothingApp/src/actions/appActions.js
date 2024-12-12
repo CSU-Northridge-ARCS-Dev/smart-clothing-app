@@ -21,7 +21,8 @@ export const userMetricsDataModalVisible = (
 
 export const coachNotificationPermissionsModalVisible = (
   visibility
-) => {
+) => 
+  {
   return {
     type: COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
     payload: {

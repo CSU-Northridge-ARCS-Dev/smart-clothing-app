@@ -1,27 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
 import { removeFromPendingPermissions, addToCoachList } from "../../actions/userActions";
+import { coachNotificationPermissionsModalVisible } from "../../actions/appActions";
 
-const NotificationPermissionsModal = ({ 
-  closeModal, 
-  coachName, 
-  coachId,
-  pendingCoaches 
-}) => {
-  const [permissions, setPermissions] = useState(
-    pendingCoaches.reduce((acc, coach) => {
-      acc[coach.coachId] = false;
-      return acc;
-    }, {})
-  );
+const NotificationPermissionsModal = (props) => {
 
   const dispatch = useDispatch();
-  const visible = useSelector((state)=>state.app.coachNotificationPermissionsModalVisible);
-  const currentCoachAccess = useSelector((state) => state.user.coachAccess);
+  const visible = useSelector((state)=>state.app.visibility);
+  //const currentCoachAccess = useSelector((state) => state.user.coachAccess);
   const pendingCoachPermissions = useSelector((state) => state.user.pendingPermissions);
+
+  const [permissions, setPermissions] = useState({});
+
+  // Update permissions state when pending permissions change
+  useEffect(() => {
+    const initialPermissions = pendingCoachPermissions.reduce((acc, coach) => {
+      acc[coach.coachId] = false; // Initialize each coach's permission to false
+      return acc;
+    }, {});
+    console.log("Initial Permissions:", pendingCoachPermissions);
+    console.log("Modal Visibility:", visible);
+    setPermissions(initialPermissions);
+  }, [pendingCoachPermissions]);
+
 
   const togglePermission = (coachId) => {
     setPermissions((prev) => ({
@@ -42,7 +46,6 @@ const NotificationPermissionsModal = ({
 
   const handleSave = () => {
     console.log("Saving permissions:", permissions);
-    
     try {
       //console.log("Permissions:", permissions);
       // Extract the coach IDs where permissions are set to true
@@ -63,12 +66,13 @@ const NotificationPermissionsModal = ({
     // Change local state here
 
 
-    closeModal();
+    //closeModal();
+    dispatch(coachNotificationPermissionsModalVisible(false));
   };
 
   const renderPendingCoach = ({ item: coach }) => (
     <View style={styles.permissionContainer}>
-      <Text style={styles.permissionTitle}>{coach.coachFullName}</Text>
+      <Text style={styles.permissionTitle}>{coach.firstName} {coach.lastName}</Text>
       <Switch
         value={permissions[coach.coachId]}
         onValueChange={() => togglePermission(coach.coachId)}
@@ -81,29 +85,35 @@ const NotificationPermissionsModal = ({
       animationType="slide"
       transparent={false}
       visible={visible}
-      onRequestClose={closeModal}
+      onRequestClose={() => {
+        dispatch(coachNotificationPermissionsModalVisible(false));
+      }}
     >
       <View style={styles.modalContent}>
         <Text style={styles.title}>Permissions Request</Text>
-        {coachName && (
+        {props.coachName && (
           <View style={styles.permissionContainer}>
             <Text style={styles.permissionTitle}>
-              Allow {coachName} to track your data?
+              Allow {props.coachName} to track your data?
             </Text>
             <Switch
-              value={permissions[coachId] || false}
-              onValueChange={() => togglePermission(coachId)}
+              value={permissions[props.coachId] || false}
+              onValueChange={() => togglePermission(props.coachId)}
             />
           </View>
         )}
         <Text style={styles.subtitle}>Pending Coaches</Text>
         <FlatList
-          data={pendingCoaches}
+          data={pendingCoachPermissions}
           keyExtractor={(item) => item.coachId}
           renderItem={renderPendingCoach}
         />
         <View style={styles.btnContainer}>
-          <Button mode="outlined" onPress={closeModal} style={styles.button}>
+          <Button 
+          mode="outlined" 
+          onPress={dispatch(coachNotificationPermissionsModalVisible(false))} 
+          style={styles.button}
+          >
             Cancel
           </Button>
           <Button

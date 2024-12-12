@@ -5,6 +5,8 @@ import {
   UPDATE_PROFILE,
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
+  ADD_TO_COACH_ACCESS,
+  UPDATE_PENDING_PERMISSIONS,
 } from "../actions/types";
 
 const initialState = {
@@ -73,7 +75,7 @@ const userReducer = (state = initialState, action) => {
     case UPDATE_PENDING_PERMISSIONS:
       return {
         ...state,
-        pendPermissions: action.payload,
+        pendPermissions: [...state.pendingPermissions, action.payload],
       };
     case UPDATE_EMAIL_SUCCESS:
       return {
