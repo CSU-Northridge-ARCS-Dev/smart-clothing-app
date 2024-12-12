@@ -1,5 +1,6 @@
 // For app settings and other state
 
+import { coachNotificationPermissionsModalVisible } from "../actions/appActions";
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
@@ -79,7 +80,7 @@ const appReducer = (state = initialState, action) => {
       console.log(`Notification Permission Modal Visible: ${action.payload.visibility}`);
       return {
         ...state,
-        visibility: action.payload.visibility,
+        coachNotificationPermissionsModalVisible: action.payload.visibility,
       };
     case UPDATE_ACTIVITY_RINGS_DATA:
       return {

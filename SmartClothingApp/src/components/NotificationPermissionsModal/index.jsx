@@ -9,7 +9,7 @@ import { coachNotificationPermissionsModalVisible } from "../../actions/appActio
 const NotificationPermissionsModal = (props) => {
 
   const dispatch = useDispatch();
-  const visible = useSelector((state)=>state.app.visibility);
+  const visible = useSelector((state)=>state.app.coachNotificationPermissionsModalVisible);
   //const currentCoachAccess = useSelector((state) => state.user.coachAccess);
   const pendingCoachPermissions = useSelector((state) => state.user.pendingPermissions);
 
