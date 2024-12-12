@@ -96,7 +96,7 @@ const NotificationPermissionsModal = ({
         <Text style={styles.subtitle}>Pending Coaches</Text>
         <FlatList
           data={pendingCoaches}
-          keyExtractor={(item) => item}
+          keyExtractor={(item) => item.coachId}
           renderItem={renderPendingCoach}
         />
         <View style={styles.btnContainer}>
