@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { removeFromPendingPermissions, addToCoachList } from "../../actions/userActions";
 
 const NotificationPermissionsModal = ({ 
-  visible, 
   closeModal, 
   coachName, 
   coachId,
@@ -18,7 +17,11 @@ const NotificationPermissionsModal = ({
       return acc;
     }, {})
   );
+
   const dispatch = useDispatch();
+  const visible = useSelector((state)=>state.app.coachNotificationPermissionsModalVisible);
+  const currentCoachPermissions = useSelector((state) => state.user.coachPermissions);
+  const pendingCoachPermissions = useSelector((state) => state.user.pendingPermissions);
 
   const togglePermission = (coachId) => {
     setPermissions((prev) => ({

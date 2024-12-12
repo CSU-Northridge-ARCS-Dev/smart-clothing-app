@@ -289,8 +289,7 @@ export default function App() {
               <NavigationContainer>
                 <AppRouter />
               </NavigationContainer>
-              <NotificationPermissionsModal
-                visible={isNotificationModalVisible}
+              <NotificationPermissionsModal 
                 closeModal={() => setNotificationModalVisible(false)}
                 coachName={recentNotificationCoach.coachName}
                 coachId={recentNotificationCoach.coachId}
