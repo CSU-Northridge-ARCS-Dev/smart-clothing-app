@@ -160,7 +160,6 @@ export default function App() {
     
 
   useEffect(() => {
-  
     const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
       console.log("Notification received:", notification);
     });
