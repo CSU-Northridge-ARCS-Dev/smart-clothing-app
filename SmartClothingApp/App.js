@@ -221,6 +221,7 @@ export default function App() {
         console.log("Pending coaches found. Opening Permissions Modal.");
         //setPrevPendingCoaches(pendingPermissions);
         setNotificationModalVisible(true);
+        store.dispatch(coachNotificationPermissionsModalVisible(true));
       } else {
         //setPrevPendingCoaches([]);
         console.log("pendingPermissions null");
@@ -275,14 +276,14 @@ export default function App() {
     loadAppResources();
   }, []);
   
-  // useEffect(() => {
-  //   console.log("isLoggedIn state useEffect:", isLoggedIn);
-  //   const updatePendingPermissions = async () => {
-  //     const uid = await checkUID();
-  //     await checkPendingPermissions(uid);
-  //   };
-  //   updatePendingPermissions();
-  // }, [isLoggedIn]);
+  useEffect(() => {
+    console.log("isLoggedIn state useEffect:", isLoggedIn);
+    const updatePendingPermissions = async () => {
+      const uid = await checkUID();
+      await checkPendingPermissions(uid);
+    };
+    updatePendingPermissions();
+  }, [isLoggedIn]);
 
 
   return (
