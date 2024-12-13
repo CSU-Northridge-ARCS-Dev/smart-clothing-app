@@ -67,7 +67,7 @@ const NotificationPermissionsModal = (props) => {
 
 
     //closeModal();
-    dispatch(coachNotificationPermissionsModalVisible(false));
+    //dispatch(coachNotificationPermissionsModalVisible(false));
   };
 
   const renderPendingCoach = ({ item: coach }) => (
@@ -111,7 +111,7 @@ const NotificationPermissionsModal = (props) => {
         <View style={styles.btnContainer}>
           <Button 
           mode="outlined" 
-          onPress={dispatch(coachNotificationPermissionsModalVisible(false))} 
+          onPress={()=>{dispatch(coachNotificationPermissionsModalVisible(false))}} 
           style={styles.button}
           >
             Cancel
@@ -125,7 +125,10 @@ const NotificationPermissionsModal = (props) => {
           </Button>
           <Button
             mode="outlined"
-            onPress={handleSave}
+            onPress={()=>{
+              handleSave()
+              dispatch(coachNotificationPermissionsModalVisible(false))
+            }}
             style={[styles.button, { backgroundColor: AppColor.primary }]}
           >
             Save Changes

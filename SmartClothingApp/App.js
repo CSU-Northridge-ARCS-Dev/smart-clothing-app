@@ -242,13 +242,14 @@ export default function App() {
           const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
               console.log("User is logged in:", user.uid);
-              setIsLoggedIn(true);
               const storedUID = await checkUID();
               if (storedUID) {
                 store.dispatch(restoreUUID(storedUID));
                 console.log("User UUID restored");
+                setIsLoggedIn(true);
               } else {
                 console.log("User UUID not restored");
+                setIsLoggedIn(false);
               }
               checkMetrics();
               // Check pending permissions after signing in
