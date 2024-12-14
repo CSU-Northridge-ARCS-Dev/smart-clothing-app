@@ -553,8 +553,6 @@ export const removeFromPendingPermissions = (coach, updatedPendingPermissions) =
       // Dispatch to update state with the new pending permissions list
       dispatch(updatePendingPermissions(updatedPendingPermissions));
       console.log(`Removed ${coach.ref.path} from pendingPermissions.`);
-      // Dispatch Redux action to update the state
-      dispatch(updatePendingPermissions(pending));
       console.log(`Removed ${coach.firstName} ${coach.lastName} from pendingPermissions.`);
     } catch (err) {
       console.error("Error removing from pendingPermissions:", err);
