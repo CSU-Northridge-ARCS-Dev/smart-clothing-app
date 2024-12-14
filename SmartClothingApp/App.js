@@ -20,6 +20,7 @@ import {
   startLoadUserData,
   updateUserMetricsData,
   restoreUUID,
+  fetchPendingPermissions,
 } from "./src/actions/userActions.js";
 import SplashScreen from "react-native-splash-screen";
 import {
@@ -51,7 +52,7 @@ export default function App() {
     coachId:"",
     coachName:""
   });
-  const [prevPendingCoaches, setPrevPendingCoaches] = useState([]);
+  const [user, setUser] = useState([]);
 
 
   // const lastNotificationResponse = Notifications.useLastNotificationResponse();
@@ -119,7 +120,7 @@ export default function App() {
         // pendingCoaches.push(coachId);
         // Open PermissionsModal if UID exists
         const uid = await checkUID();
-        let pendingCoaches = await fetchPendingPermissionsList(uid);
+        //let pendingCoaches = await fetchPendingPermissionsList(uid);
         if (uid && screen === "Home" && showPermissionsModal) {
           console.log("...Opening PermissionsModal");
           // setCoachName(coachName || "");
@@ -127,6 +128,7 @@ export default function App() {
           setRecentNotificationCoach({coachId, coachName});
           //setPrevPendingCoaches(pendingCoaches || []);
           //setPendingCoaches([]);
+          //await store.dispatch(fetchPendingPermissions());
           store.dispatch(coachNotificationPermissionsModalVisible(true));
           console.log("Dispatch Coach notifications Modal visibility set to true");
           //setNotificationModalVisible(showPermissionsModal);
@@ -213,19 +215,29 @@ export default function App() {
 
 
 
-  const checkPendingPermissions = async (uid) => {
+  const checkPendingPermissions = async (user) => {
     try {
       // Fetch user document from Firestore
-      const pendingPermissions = await fetchPendingPermissionsList(uid);
-      if (pendingPermissions.length > 0) {
+      //const pendingPermissions = await fetchPendingPermissionsList(uid);
+      //await store.dispatch(fetchPendingPermissions());
+
+      if(user.pendingPermissions.length > 0) {
         console.log("Pending coaches found. Opening Permissions Modal.");
         //setPrevPendingCoaches(pendingPermissions);
         setNotificationModalVisible(true);
         store.dispatch(coachNotificationPermissionsModalVisible(true));
       } else {
-        //setPrevPendingCoaches([]);
         console.log("pendingPermissions null");
       }
+      // if (pendingPermissions.length > 0) {
+      //   console.log("Pending coaches found. Opening Permissions Modal.");
+      //   //setPrevPendingCoaches(pendingPermissions);
+      //   setNotificationModalVisible(true);
+      //   store.dispatch(coachNotificationPermissionsModalVisible(true));
+      // } else {
+      //   //setPrevPendingCoaches([]);
+      //   console.log("pendingPermissions null");
+      // }
     } catch (error) {
       console.error("Error checking pending permissions:", error);
     }
@@ -242,6 +254,7 @@ export default function App() {
         return new Promise((resolve) => {
           const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
+              setUser(user);
               console.log("User is logged in:", user.uid);
               const storedUID = await checkUID();
               if (storedUID) {
@@ -254,7 +267,7 @@ export default function App() {
               }
               checkMetrics();
               // Check pending permissions after signing in
-              await checkPendingPermissions(user.uid);
+              await checkPendingPermissions(user);
             } else {
               console.log("No user is logged in");
               //setIsLoggedIn(false);
@@ -279,8 +292,8 @@ export default function App() {
   useEffect(() => {
     console.log("isLoggedIn state useEffect:", isLoggedIn);
     const updatePendingPermissions = async () => {
-      const uid = await checkUID();
-      await checkPendingPermissions(uid);
+      //const uid = await checkUID();
+      await checkPendingPermissions(user);
     };
     updatePendingPermissions();
   }, [isLoggedIn]);

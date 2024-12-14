@@ -75,7 +75,7 @@ const userReducer = (state = initialState, action) => {
     case UPDATE_PENDING_PERMISSIONS:
       return {
         ...state,
-        pendPermissions: [...state.pendingPermissions, action.payload],
+        pendingPermissions: action.payload,
       };
     case UPDATE_EMAIL_SUCCESS:
       return {

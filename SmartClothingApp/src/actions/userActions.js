@@ -40,6 +40,7 @@ import {
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
   ADD_TO_COACH_ACCESS,
+  UPDATE_PENDING_PERMISSIONS,
 } from "./types";
 
 import { toastError } from "./toastActions.js";
@@ -91,6 +92,13 @@ export const addToCoachAccess = (coach) => {
   return {
     type: ADD_TO_COACH_ACCESS,
     payload: coach,
+  };
+};
+
+export const updatePendingPermissions = (pendingPermissions) => {
+  return {
+    type: UPDATE_PENDING_PERMISSIONS,
+    payload: pendingPermissions,
   };
 };
 
@@ -553,7 +561,7 @@ export const removeFromPendingPermissions = (coachId) => {
   };
 };
 
-export const addToCoachList = (coach) => {
+export const startAddToCoachAccess = (coach) => {
   return async (dispatch) => {
     try {
       const { uid } = auth.currentUser;
@@ -572,6 +580,52 @@ export const addToCoachList = (coach) => {
   };
 };
 
+export const fetchPendingPermissions = () => {
+  console.log("startFetchPermissions called.");
+  return async (dispatch) => {
+    try {
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const pendingPermissions = userData.pendingPermissions || [];
+        console.log("Fetched pendingPermissions:", pendingPermissions);
+        // Resolve each reference in pendingPermissions
+        const resolvedCoaches = await Promise.all(
+          pendingPermissions.map(async (coachRef) => {
+            try {
+              const coachDocSnap = await getDoc(coachRef);
+              if (coachDocSnap.exists()) {
+                const coachData = coachDocSnap.data();
+                const coachId = coachRef.path.split("/").pop(); // Extract coachId from the path
+                return {
+                  coachId,
+                  firstName: coachData.firstName || "Unknown",
+                  lastName: coachData.lastName || "Unknown",
+                };
+              } else {
+                console.log("Coach document not found for reference:", coachRef.path);
+                return null;
+              }
+            } catch (error) {
+              console.error("Error resolving coach reference:", error);
+              return null;
+            }
+          })
+        );
+        // Filter out any null results from failed resolutions
+        const validCoaches = resolvedCoaches.filter((coach) => coach !== null);
+        console.log("Resolved coach objects:", validCoaches);
+        dispatch(updatePendingPermissions(validCoaches));
+      } else {
+        console.log("No user document found!");
+      }//await updateDoc(userDocRef, pendingPermissions);
+    } catch (e) {
+      console.log("Error updating pending permissions in the database!");
+      console.log(e);
+    }
+  };
+};
 
 export const querySleepData = async (startDate, endDate) => {
   try {

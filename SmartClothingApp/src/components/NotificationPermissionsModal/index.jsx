@@ -3,7 +3,7 @@ import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromPendingPermissions, addToCoachList } from "../../actions/userActions";
+import { removeFromPendingPermissions, addToCoachList, fetchPendingPermissions } from "../../actions/userActions";
 import { coachNotificationPermissionsModalVisible } from "../../actions/appActions";
 
 const NotificationPermissionsModal = (props) => {
@@ -25,6 +25,10 @@ const NotificationPermissionsModal = (props) => {
     console.log("Modal Visibility:", visible);
     setPermissions(initialPermissions);
   }, [pendingCoachPermissions]);
+
+  useEffect(() => {
+    dispatch(fetchPendingPermissions());
+  }, [visible]);
 
 
   const togglePermission = (coachId) => {
@@ -70,15 +74,34 @@ const NotificationPermissionsModal = (props) => {
     //dispatch(coachNotificationPermissionsModalVisible(false));
   };
 
-  const renderPendingCoach = ({ item: coach }) => (
+  const renderPendingCoach = ({ item: coach }) => {
+  if (!coach || !coach.coachId) {
+    console.warn("Invalid coach object:", coach); // Debugging invalid entries
+    return null; // Skip rendering if the coach object is invalid
+  }
+
+  return (
     <View style={styles.permissionContainer}>
-      <Text style={styles.permissionTitle}>{coach.firstName} {coach.lastName}</Text>
+      <Text style={styles.permissionTitle}>
+        {coach.firstName} {coach.lastName}
+      </Text>
       <Switch
-        value={permissions[coach.coachId]}
+        value={permissions[coach.coachId] || false}
         onValueChange={() => togglePermission(coach.coachId)}
       />
     </View>
   );
+};
+
+  // const renderPendingCoach = ({ item: coach }) => (
+  //   <View style={styles.permissionContainer}>
+  //     <Text style={styles.permissionTitle}>{coach.firstName} {coach.lastName}</Text>
+  //     <Switch
+  //       value={permissions[coach.coachId]}
+  //       onValueChange={() => togglePermission(coach.coachId)}
+  //     />
+  //   </View>
+  // );
 
   return (
     <Modal
