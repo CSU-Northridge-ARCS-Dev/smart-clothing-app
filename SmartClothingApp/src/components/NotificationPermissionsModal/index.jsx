@@ -3,7 +3,7 @@ import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
-import { removeFromPendingPermissions, addToCoachList, fetchPendingPermissions } from "../../actions/userActions";
+import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions } from "../../actions/userActions";
 import { coachNotificationPermissionsModalVisible } from "../../actions/appActions";
 
 const NotificationPermissionsModal = (props) => {
@@ -48,31 +48,73 @@ const NotificationPermissionsModal = (props) => {
     //closeModal();
   };
 
-  const handleSave = () => {
-    console.log("Saving permissions:", permissions);
+  const handleSave = async () => {
+    console.log("Saving permissions", permissions);
     try {
-      //console.log("Permissions:", permissions);
-      // Extract the coach IDs where permissions are set to true
-      const approvedCoaches = Object.keys(permissions).filter((coachId) => permissions[coachId]);
-      console.log("Applying permissions:", approvedCoaches);  
-      // Dispatch actions to update the athlete's data
-      approvedCoaches.forEach((coachId) => {
-        console.log("Removing coach:", coachId);
-        // Remove coachId from pendingPermissions and add to coachList
-        dispatch(removeFromPendingPermissions(coachId));
-        dispatch(addToCoachList(coachId));
-      });
-
-      console.log("Updated pending permissions and coach list for the student");
+      // Extract the coach references where permissions are set to true
+      const approvedCoaches = Object.keys(permissions).filter((coachId) => {permissions[coachId]});
+      console.log("Applying permissions", permissions);
+      // Resolve references for approved coaches
+      const resolvedCoaches = await Promise.all(
+        approvedCoaches.map(async (coachId) => {
+          const coachRef = pendingCoachPermissions.find((coach) => coach.coachId === coachId);
+          if (coachRef) {
+            const coachDocSnap = await getDoc(coachRef);
+            if(coachDocSnap.exists()) {
+              const coachData = coachDocSnap.data();
+              return {
+                coachId,
+                firstName: coachData.firstName,
+                lastName: coachData.lastName,
+                ref: coachRef,
+              };
+            } 
+          }
+          return null;
+        })
+      );
+      const validCoaches = resolvedCoaches.filter((coach) => coach !== null);
+      console.log("Valid coaches resolved:", validCoaches);
+      // Process each approved coach
+      for (const coach of validCoaches) {
+        console.log("Processing coach:", coach.coachId);
+        // Create an updated list of pending permissions by removing the processed coach
+        const updatePendingPermissions = pendingCoachPermissions.filter(
+          (pendingCoach) => pendingCoach.coachId !== coach.coachId
+        );
+        // Remove the reference from pendingPermissions
+        dispatch(removeFromPendingPermissions(coach));
+        // Add the coach to the coachList
+        dispatch(startAddToCoachAccess(coach));
+        console.log("Permissions updated successfully for approved coaches.");
+      }
     } catch (e) {
-      console.log("Error extracting coach IDs:", e);
+      console.error("Error handling permissions:", e);
     }
-    // Change local state here
-
-
-    //closeModal();
-    //dispatch(coachNotificationPermissionsModalVisible(false));
   };
+
+  // const handleSave = () => {
+  //   console.log("Saving permissions:", permissions);
+  //   try {
+  //     //console.log("Permissions:", permissions);
+  //     // Extract the coach IDs where permissions are set to true
+  //     const approvedCoaches = Object.keys(permissions).filter((coachId) => permissions[coachId]);
+  //     console.log("Applying permissions:", approvedCoaches);  
+  //     // Dispatch actions to update the athlete's data
+  //     approvedCoaches.forEach((coachId) => {
+  //       console.log("Removing coach:", coachId);
+  //       // Remove coachId from pendingPermissions and add to coachList
+  //       dispatch(removeFromPendingPermissions(coachId));
+  //       dispatch(startAddToCoachAccess(coachId));
+  //     });
+  //     console.log("Updated pending permissions and coach list for the student");
+  //   } catch (e) {
+  //     console.log("Error extracting coach IDs:", e);
+  //   }
+  //   // Change local state here
+  //   //closeModal();
+  //   //dispatch(coachNotificationPermissionsModalVisible(false));
+  // };
 
   const renderPendingCoach = ({ item: coach }) => {
   if (!coach || !coach.coachId) {

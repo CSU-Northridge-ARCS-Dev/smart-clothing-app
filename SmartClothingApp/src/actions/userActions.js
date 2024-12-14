@@ -540,21 +540,21 @@ export const deleteAccount = () => {
   };
 };
 
-export const removeFromPendingPermissions = (coachId) => {
+export const removeFromPendingPermissions = (coach, updatedPendingPermissions) => {
   return async (dispatch) => {
     try {
       const { uid } = auth.currentUser;
       const userDocRef = doc(database, "Users", uid);
-
       // Atomically remove the coachId from pendingPermissions
       await updateDoc(userDocRef, {
-        pendingPermissions: arrayRemove(coachId),
+        pendingPermissions: arrayRemove(coach.ref),
       });
-
+      // Dispatch to update state with the new pending permissions list
+      dispatch(updatePendingPermissions(updatedPendingPermissions));
+      console.log(`Removed ${coach.ref.path} from pendingPermissions.`);
       // Dispatch Redux action to update the state
-      dispatch({ type: "REMOVE_FROM_PENDING_PERMISSIONS", payload: coachId });
-
-      console.log(`Removed ${coachId} from pendingPermissions.`);
+      dispatch(updatePendingPermissions(pending));
+      console.log(`Removed ${coach.firstName} ${coach.lastName} from pendingPermissions.`);
     } catch (err) {
       console.error("Error removing from pendingPermissions:", err);
     }
@@ -568,7 +568,7 @@ export const startAddToCoachAccess = (coach) => {
       const userDocRef = doc(database, "Users", uid);
       // Atomically add the coachId to coachList
       await updateDoc(userDocRef, {
-        coachList: arrayUnion(coach.coachId),
+        coachList: arrayUnion(coach.ref),
       });
       // Dispatch Redux action to update the state
       dispatch(addToCoachAccess(coach));
