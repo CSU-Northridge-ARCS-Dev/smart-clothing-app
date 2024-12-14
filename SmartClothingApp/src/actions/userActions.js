@@ -546,6 +546,7 @@ export const removeFromPendingPermissions = (coach, updatedPendingPermissions) =
       const { uid } = auth.currentUser;
       const userDocRef = doc(database, "Users", uid);
       // Atomically remove the coachId from pendingPermissions
+      console.log("Removing Coach Ref", coach.ref);
       await updateDoc(userDocRef, {
         pendingPermissions: arrayRemove(coach.ref),
       });
@@ -602,6 +603,7 @@ export const fetchPendingPermissions = () => {
                   coachId,
                   firstName: coachData.firstName || "Unknown",
                   lastName: coachData.lastName || "Unknown",
+                  ref: coachRef,
                 };
               } else {
                 console.log("Coach document not found for reference:", coachRef.path);

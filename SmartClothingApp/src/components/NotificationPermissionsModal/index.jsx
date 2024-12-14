@@ -3,6 +3,7 @@ import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
+import { getDoc } from "firebase/firestore";
 import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions } from "../../actions/userActions";
 import { coachNotificationPermissionsModalVisible } from "../../actions/appActions";
 
@@ -52,24 +53,25 @@ const NotificationPermissionsModal = (props) => {
     console.log("Saving permissions", permissions);
     try {
       // Extract the coach references where permissions are set to true
-      const approvedCoaches = Object.keys(permissions).filter((coachId) => {permissions[coachId]});
-      console.log("Applying permissions", permissions);
+      const approvedCoaches = Object.keys(permissions).filter((coachId) => permissions[coachId]);
+      console.log("Approved permissions for coaches:", approvedCoaches);
       // Resolve references for approved coaches
       const resolvedCoaches = await Promise.all(
-        approvedCoaches.map(async (coachId) => {
-          const coachRef = pendingCoachPermissions.find((coach) => coach.coachId === coachId);
-          if (coachRef) {
-            const coachDocSnap = await getDoc(coachRef);
-            if(coachDocSnap.exists()) {
-              const coachData = coachDocSnap.data();
-              return {
-                coachId,
-                firstName: coachData.firstName,
-                lastName: coachData.lastName,
-                ref: coachRef,
-              };
-            } 
+      approvedCoaches.map(async (coachId) => {
+        const coach = pendingCoachPermissions.find((coach) => coach.coachId === coachId);
+        console.log("Resolving reference for coach ", coach);
+        if (coach && coach.ref) {
+          const coachDocSnap = await getDoc(coach.ref); // Ensure this is the DocumentReference
+          if (coachDocSnap.exists()) {
+            const coachData = coachDocSnap.data();
+            return {
+              coachId,
+              firstName: coachData.firstName,
+              lastName: coachData.lastName,
+              ref: coach.ref,
+            };
           }
+        }
           return null;
         })
       );
@@ -83,7 +85,7 @@ const NotificationPermissionsModal = (props) => {
           (pendingCoach) => pendingCoach.coachId !== coach.coachId
         );
         // Remove the reference from pendingPermissions
-        dispatch(removeFromPendingPermissions(coach));
+        dispatch(removeFromPendingPermissions(coach, updatePendingPermissions));
         // Add the coach to the coachList
         dispatch(startAddToCoachAccess(coach));
         console.log("Permissions updated successfully for approved coaches.");
