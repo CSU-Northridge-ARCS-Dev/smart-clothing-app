@@ -1,6 +1,7 @@
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
+  //PERMISSIONS_MODAL_VISIBLE,
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
@@ -30,6 +31,18 @@ export const coachNotificationPermissionsModalVisible = (
     }
   };
 };
+
+// export const permissionsModalVisible = (
+//   visibility
+// ) => 
+//   {
+//   return {
+//     type: PERMISSIONS_MODAL_VISIBLE,
+//     payload: {
+//       visibility,
+//     }
+//   };
+// };
 
 export const updateActivityRingsData = (day, ringData) => {
   return {

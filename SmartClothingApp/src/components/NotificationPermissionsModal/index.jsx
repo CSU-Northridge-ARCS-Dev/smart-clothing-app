@@ -95,29 +95,6 @@ const NotificationPermissionsModal = (props) => {
     }
   };
 
-  // const handleSave = () => {
-  //   console.log("Saving permissions:", permissions);
-  //   try {
-  //     //console.log("Permissions:", permissions);
-  //     // Extract the coach IDs where permissions are set to true
-  //     const approvedCoaches = Object.keys(permissions).filter((coachId) => permissions[coachId]);
-  //     console.log("Applying permissions:", approvedCoaches);  
-  //     // Dispatch actions to update the athlete's data
-  //     approvedCoaches.forEach((coachId) => {
-  //       console.log("Removing coach:", coachId);
-  //       // Remove coachId from pendingPermissions and add to coachList
-  //       dispatch(removeFromPendingPermissions(coachId));
-  //       dispatch(startAddToCoachAccess(coachId));
-  //     });
-  //     console.log("Updated pending permissions and coach list for the student");
-  //   } catch (e) {
-  //     console.log("Error extracting coach IDs:", e);
-  //   }
-  //   // Change local state here
-  //   //closeModal();
-  //   //dispatch(coachNotificationPermissionsModalVisible(false));
-  // };
-
   const renderPendingCoach = ({ item: coach }) => {
   if (!coach || !coach.coachId) {
     console.warn("Invalid coach object:", coach); // Debugging invalid entries
