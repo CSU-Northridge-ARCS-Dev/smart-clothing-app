@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
+import { Modal, View, StyleSheet, Text, FlatList, TouchableOpacity } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,6 +19,7 @@ const PermissionsModal = ({ visible, closeModal }) => {
 
   useEffect(() => {
     dispatch(fetchPendingPermissions());
+    //dispatch(fetchCoachAccess());
   }, [visible]);
 
   useEffect(() => {
@@ -106,6 +107,8 @@ const PermissionsModal = ({ visible, closeModal }) => {
   //   }
   // };
 
+
+  
   const renderPendingCoach = ({ item: coach }) => {
     if (!coach || !coach.coachId) {
       console.warn("Invalid coach object:", coach); // Debugging invalid entries
@@ -124,6 +127,47 @@ const PermissionsModal = ({ visible, closeModal }) => {
       </View>
     );
   };
+
+  // Handle the long press event to activate additional actions (in this case, delete)
+  const renderRightActions = (coachId, progress, dragX) => {
+    const scale = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [1, 0],
+      extrapolate: "clamp",
+    });
+
+    return (
+      <Animated.View
+        style={[styles.deleteContainer, { transform: [{ scale }] }]}
+      >
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => deleteCoach(coachId)} // Trigger delete on swipe action
+        >
+          <Text style={styles.deleteText}>Delete</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
+
+  const renderCoachItem = ({ item: coach }) => (
+    <Swipeable
+      renderRightActions={(progress, dragX) => renderRightActions(coach.coachId, progress, dragX)}
+    >
+      <View
+        style={[
+          styles.coachContainer,
+          activeCoach === coach.coachId && styles.activeCoach, // Apply red background if coach is being deleted
+        ]}
+      >
+        <Text style={styles.coachName}>{coach.firstName} {coach.lastName}</Text>
+        <Switch
+          value={coach.isActive}
+          onValueChange={() => toggleCoachSwitch(coach.coachId)}
+        />
+      </View>
+    </Swipeable>
+  );
 
   return (
     <Modal
@@ -163,6 +207,22 @@ const PermissionsModal = ({ visible, closeModal }) => {
           keyExtractor={(item) => item.coachId}
           renderItem={renderPendingCoach}
         />
+
+        <Text style={styles.subtitle}>Approved Coaches</Text>
+        <FlatList
+          data={currentCoachAccess}
+          keyExtractor={(item) => item.coachId.toString()}
+          renderItem={renderCoachItem}
+        />
+
+        <View style={styles.btnContainer}>
+          <TouchableOpacity onPress={closeModal} style={styles.button}>
+            <Text style={styles.buttonText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => console.log("Save Changes")} style={styles.button}>
+            <Text style={styles.buttonText}>Save Changes</Text>
+          </TouchableOpacity>
+        </View>
 
         {error && <HelperText type="error">{error}</HelperText>}
 
@@ -228,6 +288,40 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 18,
     color: AppColor.primary,
+  },
+  coachContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  activeCoach: {
+    backgroundColor: "#ffcccc", // Red background indicating deletion
+  },
+  coachName: {
+    fontSize: 18,
+    color: AppColor.primary,
+    flex: 1,
+  },
+  deleteContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffcccc", // Light red background for delete action
+    height: "100%",
+    padding: 20,
+  },
+  deleteButton: {
+    backgroundColor: "#f44336", // Red for delete button
+    padding: 10,
+    borderRadius: 5,
+  },
+  deleteText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
   btnContainer: {
     flexDirection: "row",
