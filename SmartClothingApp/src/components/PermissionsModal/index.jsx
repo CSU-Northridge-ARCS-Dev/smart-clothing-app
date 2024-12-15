@@ -133,15 +133,6 @@ const PermissionsModal = ({ visible, closeModal }) => {
     >
       <View style={styles.modalContent}>
         <Text style={styles.title}>Manage Permissions</Text>
-        
-        {/* <View style={styles.permissionContainer}>
-          <Text style={styles.permissionTitle}>Health Data Sharing</Text>
-          <HelperText type="info">Allow the app to access your health data for personalized insights.</HelperText>
-          <Switch
-            value={healthDataPermission}
-            onValueChange={(val) => setHealthDataPermission(val)}
-          />
-        </View> */}
         <View style={styles.permissionContainer}>
           <View style={styles.textContainer}>
             <Text style={styles.permissionTitle}>Health Data Sharing</Text>
@@ -218,6 +209,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   textContainer: {
+    flex: 0.9,
     flexDirection: 'column',
     justifyContent: 'center',
   },
