@@ -158,7 +158,7 @@ const NotificationPermissionsModal = (props) => {
     >
       <View style={styles.modalContent}>
         <Text style={styles.title}>Permissions Request</Text>
-        {props.coachName && (
+        {props.coachName ? (
           <View style={styles.permissionContainer}>
             <Text style={styles.permissionTitle}>
               Allow {props.coachName} to track your data?
@@ -168,7 +168,7 @@ const NotificationPermissionsModal = (props) => {
               onValueChange={() => togglePermission(props.coachId)}
             />
           </View>
-        )}
+        ) : null}
         <Text style={styles.subtitle}>Pending Coaches</Text>
         <FlatList
           data={pendingCoachPermissions}

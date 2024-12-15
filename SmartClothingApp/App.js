@@ -111,11 +111,13 @@ export default function App() {
         return;  // If no button was pressed (or if it was dismissed), do nothing
       }
       if (response.notification?.request?.content?.data) {
-        const { screen, showPermissionsModal, coachId, coachName } = response.notification.request.content.data;
+        const { screen, showPermissionsModal, coachId, coachFirstName, coachLastName } = response.notification.request.content.data;
+        const coachName = `${coachFirstName} ${coachLastName}`;
         console.log("Screen:", screen);
         console.log("Show Permissions Modal:", showPermissionsModal);
         console.log("Coach Id:", coachId);
-        console.log("Coach Name:", coachName);
+        console.log("Coach First Name:", coachFirstName);
+        console.log("Coach Last Name", coachLastName);
         // let pendingCoaches = getPendingCoaches();
         // pendingCoaches.push(coachId);
         // Open PermissionsModal if UID exists

@@ -38,7 +38,9 @@ exports.sendInvitationNotification = functions.firestore
     const newInvitation = snap.data();
     const athleteEmail = newInvitation.athleteEmail;
     const coachId = newInvitation.coachId;
-    const coachName = newInvitation.coachName;
+    const coachFirstName = newInvitation.coachFirstName;
+    const coachLastName = newInvitation.coachLastName;
+    const coachName = `${coachFirstName} ${coachLastName}`;
 
     const usersRef = db.collection("Users");
     usersRef.where("email", "==", athleteEmail).get()
@@ -58,8 +60,9 @@ exports.sendInvitationNotification = functions.firestore
               {
                 screen: "Home",
                 showPermissionsModal: true,
-                coachName: coachName,
                 coachId: coachId,
+                coachFirstName: coachFirstName,
+                coachLastName: coachLastName,
               },
             );
           }
