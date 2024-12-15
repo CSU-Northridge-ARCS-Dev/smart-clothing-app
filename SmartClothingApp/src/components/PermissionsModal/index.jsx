@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     color: AppColor.secondary,
   },
   permissionTitle: {
+    marginLeft: 10,
     fontSize: 18,
     color: AppColor.primary,
   },
