@@ -13,6 +13,7 @@ const PermissionsModal = ({ visible, closeModal }) => {
   const [error, setError] = useState("");
 
   const pendingCoachPermissions = useSelector((state) => state.user.pendingPermissions);
+  const currentCoachAccess = useSelector((state) => state.user.coachAccess);
 
   const [permissions, setPermissions] = useState({});
 
@@ -216,13 +217,6 @@ const styles = StyleSheet.create({
   switch: {
     marginLeft: 10,
   },
-  // permissionContainer: {
-  //   marginBottom: 20,
-  //   width: "100%",
-  //   //flexDirection: "row",
-  //   //justifyContent: "space-between",
-  //   // alignItems: "center",
-  // },
   subtitle: {
     fontSize: 18,
     fontFamily: AppFonts.chakraBold,
