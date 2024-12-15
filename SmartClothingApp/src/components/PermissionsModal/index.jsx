@@ -134,18 +134,31 @@ const PermissionsModal = ({ visible, closeModal }) => {
       <View style={styles.modalContent}>
         <Text style={styles.title}>Manage Permissions</Text>
         
-        <View style={styles.permissionContainer}>
+        {/* <View style={styles.permissionContainer}>
           <Text style={styles.permissionTitle}>Health Data Sharing</Text>
           <HelperText type="info">Allow the app to access your health data for personalized insights.</HelperText>
           <Switch
             value={healthDataPermission}
             onValueChange={(val) => setHealthDataPermission(val)}
           />
+        </View> */}
+        <View style={styles.permissionContainer}>
+          <View style={styles.textContainer}>
+            <Text style={styles.permissionTitle}>Health Data Sharing</Text>
+            <HelperText type="info">Allow the app to access your health data for personalized insights.</HelperText>
+          </View>
+          <Switch
+            value={healthDataPermission}
+            onValueChange={(val) => setHealthDataPermission(val)}
+            style={styles.switch}
+          />
         </View>
 
         <View style={styles.permissionContainer}>
-          <Text style={styles.permissionTitle}>Coach Data Sharing</Text>
-          <HelperText type="info">Allow your coach to track your health and fitness data.</HelperText>
+          <View style={styles.textContainer}>
+            <Text style={styles.permissionTitle}>Coach Data Sharing</Text>
+            <HelperText type="info">Allow your coach to track your health and fitness data.</HelperText>
+          </View>
           <Switch
             value={coachDataPermission}
             onValueChange={(val) => setCoachDataPermission(val)}
@@ -198,12 +211,27 @@ const styles = StyleSheet.create({
     color: AppColor.primary,
   },
   permissionContainer: {
-    marginBottom: 20,
-    // flexDirection: "row",
-    // justifyContent: "space-between",
-    // alignItems: "center",
+    width:'100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 10,
   },
-    subtitle: {
+  textContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+  switch: {
+    marginLeft: 10,
+  },
+  // permissionContainer: {
+  //   marginBottom: 20,
+  //   width: "100%",
+  //   //flexDirection: "row",
+  //   //justifyContent: "space-between",
+  //   // alignItems: "center",
+  // },
+  subtitle: {
     fontSize: 18,
     fontFamily: AppFonts.chakraBold,
     marginBottom: 10,
