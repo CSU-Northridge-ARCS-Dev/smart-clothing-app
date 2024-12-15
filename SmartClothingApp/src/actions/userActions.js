@@ -580,7 +580,7 @@ export const startAddToCoachAccess = (coach) => {
 };
 
 export const fetchPendingPermissions = () => {
-  console.log("startFetchPermissions called.");
+  console.log("fetchPermissions called.");
   return async (dispatch) => {
     try {
       const userDocRef = doc(database, "Users", auth.currentUser.uid);
@@ -620,6 +620,56 @@ export const fetchPendingPermissions = () => {
       } else {
         console.log("No user document found!");
       }//await updateDoc(userDocRef, pendingPermissions);
+    } catch (e) {
+      console.log("Error updating pending permissions in the database!");
+      console.log(e);
+    }
+  };
+};
+
+export const fetchCoachAccess = () => {
+  console.log("fetchCoachAccess called.");
+  return async (dispatch) => {
+    try {
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const coachAccess = userData.coachList || [];
+        console.log("Fetched coachList:", coachAccess);
+        const resolvedCoaches = await Promise.all(
+          coachAccess.map(async (coachRef) => {
+            try {
+              const coachDocSnap = await getDoc(coachRef);
+              if(coachDocSnap.exists()) {
+                const coachData = coachDocSnap.data();
+                const coachId = coachRef.path.split("/").pop(); // Extract coachId from the path
+                return {
+                  coachId,
+                  firstName: coachData.firstName || "Unknown",
+                  lastName: coachData.lastName || "Unknown",
+                  ref: coachRef,
+                };
+              } else {
+                console.log("Coach document not found for reference:", coachRef.path);
+                return null;
+              }
+            } catch (e) {
+              console.error("Error resolving coach reference:", error);
+              return null;
+            }
+          })
+        );
+        // Filter out any null results from failed resolutions
+        const validCoaches = resolvedCoaches.filter((coach) => coach !== null);
+        console.log("Resolved coach objects:", validCoaches);
+        // Dispatch addToCoachAccess for each coach one by one
+        validCoaches.forEach((coach) => {
+          dispatch(addToCoachAccess(coach));
+        });
+      } else {
+        console.log("No user document found!");
+      }
     } catch (e) {
       console.log("Error updating pending permissions in the database!");
       console.log(e);

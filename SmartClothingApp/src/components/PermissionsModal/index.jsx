@@ -4,7 +4,11 @@ import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
 import { getDoc } from "firebase/firestore";
-import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions } from "../../actions/userActions";
+import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions, fetchCoachAccess } from "../../actions/userActions";
+import { Swipeable } from 'react-native-gesture-handler';
+import Animated  from 'react-native-reanimated'; 
+
+
 
 const PermissionsModal = ({ visible, closeModal }) => {
   const dispatch = useDispatch();
@@ -17,9 +21,12 @@ const PermissionsModal = ({ visible, closeModal }) => {
 
   const [permissions, setPermissions] = useState({});
 
+  const [activeCoach, setActiveCoach] = useState(null);  
+
+
   useEffect(() => {
     dispatch(fetchPendingPermissions());
-    //dispatch(fetchCoachAccess());
+    dispatch(fetchCoachAccess());
   }, [visible]);
 
   useEffect(() => {
@@ -135,15 +142,19 @@ const PermissionsModal = ({ visible, closeModal }) => {
       outputRange: [1, 0],
       extrapolate: "clamp",
     });
+    const safeScale = isNaN(scale) ? 1 : scale;
 
     return (
       <Animated.View
-        style={[styles.deleteContainer, { transform: [{ scale }] }]}
+        //style={[styles.deleteContainer, { transform: [{ scale }] }]}
+        style={[styles.deleteContainer, { transform: [{ scale: safeScale }] }]}
       >
         <TouchableOpacity
           style={styles.deleteButton}
-          onPress={() => deleteCoach(coachId)} // Trigger delete on swipe action
-        >
+          onPress={() => {
+            setActiveCoach(coachId);
+            deleteCoach(coachId)
+          }}>
           <Text style={styles.deleteText}>Delete</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -211,7 +222,7 @@ const PermissionsModal = ({ visible, closeModal }) => {
         <Text style={styles.subtitle}>Approved Coaches</Text>
         <FlatList
           data={currentCoachAccess}
-          keyExtractor={(item) => item.coachId.toString()}
+          keyExtractor={(item) => item.coachId}
           renderItem={renderCoachItem}
         />
 

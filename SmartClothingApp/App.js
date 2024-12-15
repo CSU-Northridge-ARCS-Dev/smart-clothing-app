@@ -29,6 +29,7 @@ import {
 } from "./src/utils/notifications.js";
 import NotificationPermissionsModal from "./src/components/NotificationPermissionsModal/index.jsx";
 import { coachNotificationPermissionsModalVisible } from "./src/actions/appActions.js";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -307,15 +308,17 @@ export default function App() {
         <SafeAreaView style={{ flex: 1 }}>
           <StoreProvider store={store}>
             <PaperProvider theme={AppTheme}>
-              <NavigationContainer>
-                <AppRouter />
-              </NavigationContainer>
-              <NotificationPermissionsModal 
-                //closeModal={() => setNotificationModalVisible(false)}
-                coachName={recentNotificationCoach.coachName}
-                coachId={recentNotificationCoach.coachId}
-              />
-              <AppToast />
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <NavigationContainer>
+                  <AppRouter />
+                </NavigationContainer>
+                <NotificationPermissionsModal 
+                  //closeModal={() => setNotificationModalVisible(false)}
+                  coachName={recentNotificationCoach.coachName}
+                  coachId={recentNotificationCoach.coachId}
+                />
+                <AppToast />
+              </GestureHandlerRootView>
             </PaperProvider>
           </StoreProvider>
         </SafeAreaView>
