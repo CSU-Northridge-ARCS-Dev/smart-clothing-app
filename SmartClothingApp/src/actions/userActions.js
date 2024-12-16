@@ -40,6 +40,7 @@ import {
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
   ADD_TO_COACH_ACCESS,
+  UPDATE_COACH_ACCESS,
   UPDATE_PENDING_PERMISSIONS,
 } from "./types";
 
@@ -92,6 +93,13 @@ export const addToCoachAccess = (coach) => {
   return {
     type: ADD_TO_COACH_ACCESS,
     payload: coach,
+  };
+};
+
+export const updateCoachAccess = (coachList) => {
+  return {
+    type: UPDATE_COACH_ACCESS,
+    payload: coachList,
   };
 };
 
@@ -663,10 +671,11 @@ export const fetchCoachAccess = () => {
         // Filter out any null results from failed resolutions
         const validCoaches = resolvedCoaches.filter((coach) => coach !== null);
         console.log("Resolved coach objects:", validCoaches);
+        dispatch(updateCoachAccess(validCoaches));
         // Dispatch addToCoachAccess for each coach one by one
-        validCoaches.forEach((coach) => {
-          dispatch(addToCoachAccess(coach));
-        });
+        // validCoaches.forEach((coach) => {
+        //   dispatch(addToCoachAccess(coach));
+        // });
       } else {
         console.log("No user document found!");
       }
