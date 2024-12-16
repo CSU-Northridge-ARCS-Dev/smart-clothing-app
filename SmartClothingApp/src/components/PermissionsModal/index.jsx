@@ -7,6 +7,7 @@ import { getDoc } from "firebase/firestore";
 import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions, fetchCoachAccess } from "../../actions/userActions";
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated  from 'react-native-reanimated'; 
+import CoachAccessSwipeAction from "./CoachAccessSwipeAction";
 
 
 
@@ -161,24 +162,33 @@ const PermissionsModal = ({ visible, closeModal }) => {
     );
   };
 
+
   const renderCoachItem = ({ item: coach }) => (
-    <Swipeable
-      renderRightActions={(progress, dragX) => renderRightActions(coach.coachId, progress, dragX)}
-    >
-      <View
-        style={[
-          styles.coachContainer,
-          activeCoach === coach.coachId && styles.activeCoach, // Apply red background if coach is being deleted
-        ]}
-      >
-        <Text style={styles.coachName}>{coach.firstName} {coach.lastName}</Text>
-        <Switch
-          value={coach.isActive}
-          onValueChange={() => toggleCoachSwitch(coach.coachId)}
-        />
-      </View>
-    </Swipeable>
+    <CoachAccessSwipeAction
+      coach={coach}
+      progress={null} // You can pass your progress prop if needed
+      drag={null} // You can pass your drag prop if needed
+    />
   );
+
+  // const renderCoachItem = ({ item: coach }) => (
+  //   <Swipeable
+  //     renderRightActions={(progress, dragX) => renderRightActions(coach.coachId, progress, dragX)}
+  //   >
+  //     <View
+  //       style={[
+  //         styles.coachContainer,
+  //         activeCoach === coach.coachId && styles.activeCoach, // Apply red background if coach is being deleted
+  //       ]}
+  //     >
+  //       <Text style={styles.coachName}>{coach.firstName} {coach.lastName}</Text>
+  //       <Switch
+  //         value={coach.isActive}
+  //         onValueChange={() => toggleCoachSwitch(coach.coachId)}
+  //       />
+  //     </View>
+  //   </Swipeable>
+  // );
 
   return (
     <Modal
