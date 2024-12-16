@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Horizontal alignment
     justifyContent: 'flex-end',
     paddingVertical: 5,
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
     marginVertical: 5,
     alignItems: 'center',
     backgroundColor: '#f44336',
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   actionButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 70,
+    width: 50,
   },
   actionText: {
     color: 'white',
