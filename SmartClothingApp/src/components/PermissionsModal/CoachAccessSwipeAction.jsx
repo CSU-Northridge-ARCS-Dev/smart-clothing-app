@@ -7,9 +7,10 @@ import { useDispatch } from 'react-redux';
 import { deleteFromCoachAccess } from "../../actions/userActions";
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
-const RightActions = ({ onDelete, onToggle, isSharing }) => {
+const RightActions = ({ onDelete, onToggle, onMore, isSharing }) => {
   return (
     <View style={styles.rightActionsContainer}>
+      {/* Stop/Share Button */}
       <TouchableOpacity style={styles.actionButton} onPress={onToggle}>
         <View style={styles.actionButton}>
           <MaterialIcons 
@@ -21,41 +22,60 @@ const RightActions = ({ onDelete, onToggle, isSharing }) => {
           </Text>
         </View>
       </TouchableOpacity>
+      {/* Delete Button */}
       <TouchableOpacity style={styles.actionButton} onPress={onDelete}>
         <View style={styles.actionButton}>
           <FontAwesome name="trash" size={24} color="white" />
           <Text style={styles.actionText}>Delete</Text>
         </View>
       </TouchableOpacity>
-      <View style={styles.actionButton}>
-        <MaterialIcons name="more-horiz" size={24} color="white" />
-        <Text style={styles.actionText}>More</Text>
-      </View>
+      {/* More Button */}
+      <TouchableOpacity style={styles.actionButton} onPress={onMore}>
+        <View style={styles.actionButton}>
+          <MaterialIcons name="more-horiz" size={24} color="white" />
+          <Text style={styles.actionText}>More</Text>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
 
-const CoachAccessSwipeAction = ({ coach }) => {
+const CoachAccessSwipeAction = ({ coach, isSharing, onToggle }) => {
   const dispatch = useDispatch();
 
   // Handle Coach "Sharing" status
   // State to toggle between "Stop" and "Share"
-  const [isSharing, setIsSharing] = useState(true);
+  //const [isSharing, setIsSharing] = useState(true);
   // Handle "Stop/Share" toggle action
   const handleToggleSharing = () => {
-    const newState = !isSharing;
-    setIsSharing(newState);
+    if (onToggle) {
+      onToggle(); // Use the prop function passed from PermissionsModal
+    }
     console.log(
       `Coach ${coach.firstName} ${coach.lastName} sharing state: ${
-        newState ? "Enabled" : "Disabled"
+        isSharing ? "Disabled" : "Enabled"
       }`
     );
   };
+  // const handleToggleSharing = () => {
+  //   const newState = !isSharing;
+  //   setIsSharing(newState);
+  //   console.log(
+  //     `Coach ${coach.firstName} ${coach.lastName} sharing state: ${
+  //       newState ? "Enabled" : "Disabled"
+  //     }`
+  //   );
+  // };
 
   // Handle Deleting
   const handleDelete = () => {
     dispatch(deleteFromCoachAccess(coach)); // Dispatch your action with coachId
     console.log(`Deleted Coach: ${coach.coachFirstName} ${coach.coachLastName}`);
+  };
+
+  // Handle "More" button (placeholder for modal)
+  const handleMore = () => {
+    console.log(`Opening Coach ${coach.firstName} ${coach.lastName} settings modal`);
   };
 
   return (
@@ -66,6 +86,7 @@ const CoachAccessSwipeAction = ({ coach }) => {
           <RightActions 
             onDelete={handleDelete}
             onToggle={handleToggleSharing}
+            onMore={handleMore}
             isSharing={isSharing}
           />
         )}

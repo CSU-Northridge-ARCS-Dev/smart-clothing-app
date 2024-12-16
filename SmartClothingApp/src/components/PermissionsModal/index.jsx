@@ -54,18 +54,46 @@ const PermissionsModal = ({ visible, closeModal }) => {
 
 
   const togglePermission = (coachId) => {
-    setPermissions((prev) => ({
-      ...prev,
-      [coachId]: !prev[coachId],
-    }));
+    setPermissions((prev) => {
+      const newState = {
+        ...prev,
+        [coachId]: !prev[coachId],
+      };
+      console.log(
+        `Permissions updated for Coach ID: ${coachId}. New state:`,
+        newState
+      );
+      return newState;
+    });
   };
 
-  const toggleCoachAccess = (coachId) => {
-    setCoachAccessPermissions((prev) => ({
+const toggleCoachAccess = (coachId) => {
+  setCoachAccessPermissions((prev) => {
+    const newState = {
       ...prev,
       [coachId]: !prev[coachId],
-    }));
-  };
+    };
+    console.log(
+      `Coach Access updated for Coach ID: ${coachId}. New state:`,
+      newState
+    );
+    return newState;
+  });
+};
+
+  // const togglePermission = (coachId) => {
+  //   setPermissions((prev) => ({
+  //     ...prev,
+  //     [coachId]: !prev[coachId],
+  //   }));
+  // };
+
+  // const toggleCoachAccess = (coachId) => {
+  //   setCoachAccessPermissions((prev) => ({
+  //     ...prev,
+  //     [coachId]: !prev[coachId],
+  //   }));
+  // };
 
 
 
@@ -127,7 +155,7 @@ const PermissionsModal = ({ visible, closeModal }) => {
   };
 
   
-  const renderPendingCoach = ({ item: coach }) => {
+  const renderPendingCoach = ({ item: coach}) => {
     if (!coach || !coach.coachId) {
       console.warn("Invalid coach object:", coach); // Debugging invalid entries
       return null; // Skip rendering if the coach object is invalid
