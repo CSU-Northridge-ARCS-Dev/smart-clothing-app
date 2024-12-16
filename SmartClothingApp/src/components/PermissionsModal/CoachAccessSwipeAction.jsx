@@ -1,9 +1,9 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 import Reanimated, { useAnimatedStyle } from 'react-native-reanimated';
-
+import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
 function RightAction({ prog, drag }) {
   const styleAnimation = useAnimatedStyle(() => {
@@ -11,7 +11,8 @@ function RightAction({ prog, drag }) {
     console.log('appliedTranslation:', drag.value);
 
     return {
-      transform: [{ translateX: drag.value + 50 }], // Animating the swipe action
+      //transform: [{ translateX: drag.value + 50 }], // Animating the swipe action
+      transform: [{ translateX: Math.max(drag.value, -150) }], // Restrict translation
     };
   });
 
@@ -22,8 +23,23 @@ function RightAction({ prog, drag }) {
   // );
   return (
     <Reanimated.View style={[styles.rightActionContainer, styleAnimation]}>
-      <Text style={styles.rightActionText}>Delete</Text>
+      <View style={styles.actionButton}>
+          <MaterialIcons name="more-horiz" size={24} color="white" />
+          <Text style={styles.actionText}>More</Text>
+      </View>
+      <View style={styles.actionButton}>
+        <MaterialIcons name="block" size={24} color="white" />
+        <Text style={styles.actionText}>Stop</Text>
+      </View>
+      <View style={styles.actionButton}>
+        <FontAwesome name="trash" size={24} color="white" />
+        <Text style={styles.actionText}>Delete</Text>
+      </View>
     </Reanimated.View>
+
+    // <Reanimated.View style={[styles.rightActionContainer, styleAnimation]}>
+    //   <Text style={styles.rightActionText}>Delete</Text>
+    // </Reanimated.View>
   );
 }
 
@@ -37,7 +53,12 @@ const CoachAccessSwipeAction = ({ coach, progress, drag }) => {
         rightThreshold={40}
         renderRightActions={(progress, dragX) => <RightAction prog={progress} drag={dragX} />}
       >
-        <Text style={styles.coachText}>{coach.firstName} {coach.lastName}</Text>
+        {/* <Text style={styles.coachText}>{coach.firstName} {coach.lastName}</Text> */}
+        <View style={styles.coachContainer}>
+          <Text style={styles.coachName}>
+            {coach.firstName} {coach.lastName}
+          </Text>
+        </View>
       </ReanimatedSwipeable>
     </GestureHandlerRootView>
   );
@@ -55,6 +76,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
+  coachContainer: {
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  coachName: {
+    fontSize: 18,
+    color: '#333',
+    fontFamily: 'ChakraPetch-Regular',
+  },
   coachText: {
     fontSize: 18,
     color: '#333',
@@ -68,10 +99,21 @@ const styles = StyleSheet.create({
     padding: 10,
     marginRight: 10,
   },
-  rightActionText: {
+  // rightActionText: {
+  //   color: 'white',
+  //   fontWeight: 'bold',
+  //   fontSize: 16,
+  // },
+  actionButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    marginHorizontal: 5,
+  },
+  actionText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 12,
   },
 });
 
