@@ -40,7 +40,7 @@ const RightActions = ({ onDelete, onToggle, onMore, isSharing }) => {
   );
 };
 
-const CoachAccessSwipeAction = ({ coach, isSharing, onToggle }) => {
+const CoachAccessSwipeAction = ({ coach, isSharing, onToggle, backgroundColor }) => {
   const dispatch = useDispatch();
 
   // Handle Coach "Sharing" status
@@ -92,7 +92,7 @@ const CoachAccessSwipeAction = ({ coach, isSharing, onToggle }) => {
         )}
         rightThreshold={40}
       >
-        <View style={styles.coachContainer}>
+        <View style={[styles.coachContainer, { backgroundColor }]}>
           <Text style={styles.coachName}>{coach.firstName} {coach.lastName}</Text>
         </View>
       </Swipeable>

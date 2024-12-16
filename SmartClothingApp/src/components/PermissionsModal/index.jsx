@@ -175,13 +175,19 @@ const toggleCoachAccess = (coachId) => {
   };
 
 
-  const renderCoachItem = ({ item: coach }) => (
-    <CoachAccessSwipeAction
+  const renderCoachItem = ({ item: coach }) => {
+    const backgroundColor = coachAccessPermissions[coach.coachId]
+    ? AppColor.primaryContainer
+    : AppColor.errorContainer;
+
+    return ( <CoachAccessSwipeAction
       coach={coach}
       isSharing={coachAccessPermissions[coach.coachId] || false}
       onToggle={() => toggleCoachAccess(coach.coachId)} 
+      backgroundColor={backgroundColor}
     />
-  );
+    );
+  };
 
 
 
