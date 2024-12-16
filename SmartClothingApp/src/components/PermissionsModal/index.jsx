@@ -21,6 +21,7 @@ const PermissionsModal = ({ visible, closeModal }) => {
   const currentCoachAccess = useSelector((state) => state.user.coachAccess);
 
   const [permissions, setPermissions] = useState({});
+  const [coachAccessPermissions, setCoachAccessPermissions] = useState({});
 
   const [activeCoach, setActiveCoach] = useState(null);  
 
@@ -29,6 +30,7 @@ const PermissionsModal = ({ visible, closeModal }) => {
     dispatch(fetchPendingPermissions());
     dispatch(fetchCoachAccess());
   }, [visible]);
+
 
   useEffect(() => {
     const initialPermissions = pendingCoachPermissions.reduce((acc, coach) => {
@@ -40,12 +42,32 @@ const PermissionsModal = ({ visible, closeModal }) => {
     setPermissions(initialPermissions);
   }, [pendingCoachPermissions]);
 
+  useEffect(() => {
+    const initialCoachAccess = currentCoachAccess.reduce((acc, coach) => {
+      acc[coach.coachId] = true; // Coaches already have access, initialize to true
+      return acc;
+    }, {});
+    setCoachAccessPermissions(initialCoachAccess);
+  }, [currentCoachAccess]);
+
+
+
+
   const togglePermission = (coachId) => {
     setPermissions((prev) => ({
       ...prev,
       [coachId]: !prev[coachId],
     }));
   };
+
+  const toggleCoachAccess = (coachId) => {
+    setCoachAccessPermissions((prev) => ({
+      ...prev,
+      [coachId]: !prev[coachId],
+    }));
+  };
+
+
 
   const acceptAll = () => {
     const updatedPermissions = Object.keys(permissions).reduce((acc, coachId) => {
@@ -124,38 +146,12 @@ const PermissionsModal = ({ visible, closeModal }) => {
     );
   };
 
-  // Handle the long press event to activate additional actions (in this case, delete)
-  const renderRightActions = (coachId, progress, dragX) => {
-    const scale = dragX.interpolate({
-      inputRange: [-100, 0],
-      outputRange: [1, 0],
-      extrapolate: "clamp",
-    });
-    const safeScale = isNaN(scale) ? 1 : scale;
-
-    return (
-      <Animated.View
-        //style={[styles.deleteContainer, { transform: [{ scale }] }]}
-        style={[styles.deleteContainer, { transform: [{ scale: safeScale }] }]}
-      >
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => {
-            setActiveCoach(coachId);
-            deleteCoach(coachId)
-          }}>
-          <Text style={styles.deleteText}>Delete</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
-
 
   const renderCoachItem = ({ item: coach }) => (
     <CoachAccessSwipeAction
       coach={coach}
-      progress={null} // You can pass your progress prop if needed
-      drag={null} // You can pass your drag prop if needed
+      isSharing={coachAccessPermissions[coach.coachId] || false}
+      onToggle={() => toggleCoachAccess(coach.coachId)} 
     />
   );
 
