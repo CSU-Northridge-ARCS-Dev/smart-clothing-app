@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     elevation: 3,
     marginVertical: 5,
+    marginHorizontal: 2,
   },
   coachName: {
     fontSize: 18,
@@ -60,6 +61,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 5,
     marginVertical: 5,
+    marginRight: 2,
     alignItems: 'center',
     backgroundColor: '#f44336',
     borderRadius: 10,
