@@ -32,8 +32,8 @@ const CoachAccessSwipeAction = ({ coach }) => {
   const dispatch = useDispatch();
 
   const handleDelete = () => {
-    dispatch(deleteFromCoachAccess(coach.coachId)); // Dispatch your action with coachId
-    console.log("Deleted Coach:", coach.coachId);
+    dispatch(deleteFromCoachAccess(coach)); // Dispatch your action with coachId
+    console.log(`Deleted Coach: ${coach.coachFirstName} ${coach.coachLastName}`);
   };
 
   return (

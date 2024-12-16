@@ -40,6 +40,7 @@ import {
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
   ADD_TO_COACH_ACCESS,
+  REMOVE_FROM_COACH_ACCESS,
   UPDATE_COACH_ACCESS,
   UPDATE_PENDING_PERMISSIONS,
 } from "./types";
@@ -92,6 +93,13 @@ export const updateUserMetricsData = (userMetricsData) => {
 export const addToCoachAccess = (coach) => {
   return {
     type: ADD_TO_COACH_ACCESS,
+    payload: coach,
+  };
+};
+
+export const removeFromCoachAccess = (coach) => {
+  return {
+    type: REMOVE_FROM_COACH_ACCESS,
     payload: coach,
   };
 };
@@ -548,44 +556,9 @@ export const deleteAccount = () => {
   };
 };
 
-export const removeFromPendingPermissions = (coach, updatedPendingPermissions) => {
-  return async (dispatch) => {
-    try {
-      const { uid } = auth.currentUser;
-      const userDocRef = doc(database, "Users", uid);
-      // Atomically remove the coachId from pendingPermissions
-      console.log("Removing Coach Ref", coach.ref);
-      await updateDoc(userDocRef, {
-        pendingPermissions: arrayRemove(coach.ref),
-      });
-      // Dispatch to update state with the new pending permissions list
-      dispatch(updatePendingPermissions(updatedPendingPermissions));
-      console.log(`Removed ${coach.ref.path} from pendingPermissions.`);
-      console.log(`Removed ${coach.firstName} ${coach.lastName} from pendingPermissions.`);
-    } catch (err) {
-      console.error("Error removing from pendingPermissions:", err);
-    }
-  };
-};
 
-export const startAddToCoachAccess = (coach) => {
-  return async (dispatch) => {
-    try {
-      const { uid } = auth.currentUser;
-      const userDocRef = doc(database, "Users", uid);
-      // Atomically add the coachId to coachList
-      await updateDoc(userDocRef, {
-        coachList: arrayUnion(coach.ref),
-      });
-      // Dispatch Redux action to update the state
-      dispatch(addToCoachAccess(coach));
-      //dispatch({ type: "ADD_TO_COACH_ACCESS", payload: coachId });
-      console.log(`Added ${coach} to coachList.`);
-    } catch (err) {
-      console.error("Error adding to coach list:", err);
-    }
-  };
-};
+
+
 
 export const fetchPendingPermissions = () => {
   console.log("fetchPermissions called.");
@@ -631,6 +604,25 @@ export const fetchPendingPermissions = () => {
     } catch (e) {
       console.log("Error updating pending permissions in the database!");
       console.log(e);
+    }
+  };
+};
+
+export const removeFromPendingPermissions = (coach, updatedPendingPermissions) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      // Atomically remove the coachId from pendingPermissions
+      console.log("Removing Coach Ref", coach.ref);
+      await updateDoc(userDocRef, {
+        pendingPermissions: arrayRemove(coach.ref),
+      });
+      // Dispatch to update state with the new pending permissions list
+      dispatch(updatePendingPermissions(updatedPendingPermissions));
+      
+    } catch (err) {
+      console.error("Error removing from pendingPermissions:", err);
     }
   };
 };
@@ -685,6 +677,45 @@ export const fetchCoachAccess = () => {
     }
   };
 };
+
+export const startAddToCoachAccess = (coach) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      // Atomically add the coachId to coachList
+      await updateDoc(userDocRef, {
+        coachList: arrayUnion(coach.ref),
+      });
+      // Dispatch Redux action to update the state
+      dispatch(addToCoachAccess(coach));
+      //dispatch({ type: "ADD_TO_COACH_ACCESS", payload: coachId });
+      console.log(`Added ${coach} to coachList.`);
+    } catch (err) {
+      console.error("Error adding to coach list:", err);
+    }
+  };
+};
+
+export const deleteFromCoachAccess = (coach) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      // Add logic to remove coach access from Firestore or your backend
+      console.log("Deleting coach access for:", coach.ref);
+      await updateDoc(userDocRef, {
+        coachList: arrayRemove(coach.ref),
+      });
+      dispatch(removeFromCoachAccess(coach));
+      console.log(`Removed ${coach.ref.path} from Coach Access.`);
+      console.log(`Removed ${coach.firstName} ${coach.lastName} from Coach Access.`);
+    } catch (error) {
+      console.error("Error deleting coach access:", error);
+    }
+  };
+};
+
 
 export const querySleepData = async (startDate, endDate) => {
   try {

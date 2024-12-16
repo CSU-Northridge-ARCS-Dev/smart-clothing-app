@@ -6,6 +6,7 @@ import {
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
   ADD_TO_COACH_ACCESS,
+  REMOVE_FROM_COACH_ACCESS,
   UPDATE_COACH_ACCESS,
   UPDATE_PENDING_PERMISSIONS,
 } from "../actions/types";
@@ -72,6 +73,13 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         coachAccess: [...state.coachAccess, action.payload],
+      };
+    case REMOVE_FROM_COACH_ACCESS:
+      return {
+        ...state,
+        coachAccess: state.coachAccess.filter(
+          (coach) => coach.coachId !== action.payload.coachId // Remove based on coachId
+        ),
       };
     case UPDATE_COACH_ACCESS:
       return {
