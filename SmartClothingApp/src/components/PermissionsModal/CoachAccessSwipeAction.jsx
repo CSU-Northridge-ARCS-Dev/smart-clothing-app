@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 // import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -7,13 +7,20 @@ import { useDispatch } from 'react-redux';
 import { deleteFromCoachAccess } from "../../actions/userActions";
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
-const RightActions = ({ onDelete }) => {
+const RightActions = ({ onDelete, onToggle, isSharing }) => {
   return (
     <View style={styles.rightActionsContainer}>
-      <View style={styles.actionButton}>
-        <MaterialIcons name="block" size={24} color="white" />
-        <Text style={styles.actionText}>Stop</Text>
-      </View>
+      <TouchableOpacity style={styles.actionButton} onPress={onToggle}>
+        <View style={styles.actionButton}>
+          <MaterialIcons 
+            name={isSharing ? "block" : "check-circle"}
+            size={24} 
+            color="white" />
+          <Text style={styles.actionText}>
+            {isSharing ? "Stop" : "Share"}
+          </Text>
+        </View>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.actionButton} onPress={onDelete}>
         <View style={styles.actionButton}>
           <FontAwesome name="trash" size={24} color="white" />
@@ -31,6 +38,21 @@ const RightActions = ({ onDelete }) => {
 const CoachAccessSwipeAction = ({ coach }) => {
   const dispatch = useDispatch();
 
+  // Handle Coach "Sharing" status
+  // State to toggle between "Stop" and "Share"
+  const [isSharing, setIsSharing] = useState(true);
+  // Handle "Stop/Share" toggle action
+  const handleToggleSharing = () => {
+    const newState = !isSharing;
+    setIsSharing(newState);
+    console.log(
+      `Coach ${coach.firstName} ${coach.lastName} sharing state: ${
+        newState ? "Enabled" : "Disabled"
+      }`
+    );
+  };
+
+  // Handle Deleting
   const handleDelete = () => {
     dispatch(deleteFromCoachAccess(coach)); // Dispatch your action with coachId
     console.log(`Deleted Coach: ${coach.coachFirstName} ${coach.coachLastName}`);
@@ -40,7 +62,13 @@ const CoachAccessSwipeAction = ({ coach }) => {
     <GestureHandlerRootView>
       <Swipeable
         friction={2}
-        renderRightActions={() => <RightActions onDelete={handleDelete} />}
+        renderRightActions={() => (
+          <RightActions 
+            onDelete={handleDelete}
+            onToggle={handleToggleSharing}
+            isSharing={isSharing}
+          />
+        )}
         rightThreshold={40}
       >
         <View style={styles.coachContainer}>
