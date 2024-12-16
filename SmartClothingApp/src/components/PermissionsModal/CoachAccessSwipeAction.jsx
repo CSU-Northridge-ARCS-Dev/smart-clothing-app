@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
-import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import Reanimated, { useAnimatedStyle } from 'react-native-reanimated';
+// import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+// import Reanimated, { useAnimatedStyle } from 'react-native-reanimated';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
 const RightActions = () => {
@@ -57,10 +57,13 @@ const styles = StyleSheet.create({
   rightActionsContainer: {
     flexDirection: 'row', // Horizontal alignment
     justifyContent: 'flex-end',
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    marginVertical: 5,
     alignItems: 'center',
     backgroundColor: '#f44336',
     borderRadius: 10,
-    height: '100%',
+    height: '85%',
   },
   actionButton: {
     justifyContent: 'center',
