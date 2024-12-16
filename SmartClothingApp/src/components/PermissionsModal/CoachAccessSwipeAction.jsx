@@ -1,21 +1,25 @@
 import React from 'react';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
 // import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
 // import Reanimated, { useAnimatedStyle } from 'react-native-reanimated';
+import { useDispatch } from 'react-redux';
+import { deleteFromCoachAccess } from "../../actions/userActions";
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
-const RightActions = () => {
+const RightActions = ({ onDelete }) => {
   return (
     <View style={styles.rightActionsContainer}>
       <View style={styles.actionButton}>
         <MaterialIcons name="block" size={24} color="white" />
         <Text style={styles.actionText}>Stop</Text>
       </View>
-      <View style={styles.actionButton}>
-        <FontAwesome name="trash" size={24} color="white" />
-        <Text style={styles.actionText}>Delete</Text>
-      </View>
+      <TouchableOpacity style={styles.actionButton} onPress={onDelete}>
+        <View style={styles.actionButton}>
+          <FontAwesome name="trash" size={24} color="white" />
+          <Text style={styles.actionText}>Delete</Text>
+        </View>
+      </TouchableOpacity>
       <View style={styles.actionButton}>
         <MaterialIcons name="more-horiz" size={24} color="white" />
         <Text style={styles.actionText}>More</Text>
@@ -25,11 +29,18 @@ const RightActions = () => {
 };
 
 const CoachAccessSwipeAction = ({ coach }) => {
+  const dispatch = useDispatch();
+
+  const handleDelete = () => {
+    dispatch(deleteFromCoachAccess(coach.coachId)); // Dispatch your action with coachId
+    console.log("Deleted Coach:", coach.coachId);
+  };
+
   return (
     <GestureHandlerRootView>
       <Swipeable
         friction={2}
-        renderRightActions={() => <RightActions />}
+        renderRightActions={() => <RightActions onDelete={handleDelete} />}
         rightThreshold={40}
       >
         <View style={styles.coachContainer}>

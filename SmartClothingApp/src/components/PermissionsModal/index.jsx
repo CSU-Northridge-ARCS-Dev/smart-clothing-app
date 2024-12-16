@@ -104,18 +104,6 @@ const PermissionsModal = ({ visible, closeModal }) => {
     }
   };
 
-  // const handleSave = () => {
-  //   // Example logic to save permissions, typically involves updating backend state or Firestore
-  //   if (healthDataPermission === undefined || coachDataPermission === undefined) {
-  //     setError("Please review all permissions.");
-  //   } else {
-  //     // Save permissions (update backend or Firestore here)
-  //     console.log("Saving permissions...");
-  //     closeModal(); // Close modal after saving
-  //   }
-  // };
-
-
   
   const renderPendingCoach = ({ item: coach }) => {
     if (!coach || !coach.coachId) {
@@ -171,24 +159,7 @@ const PermissionsModal = ({ visible, closeModal }) => {
     />
   );
 
-  // const renderCoachItem = ({ item: coach }) => (
-  //   <Swipeable
-  //     renderRightActions={(progress, dragX) => renderRightActions(coach.coachId, progress, dragX)}
-  //   >
-  //     <View
-  //       style={[
-  //         styles.coachContainer,
-  //         activeCoach === coach.coachId && styles.activeCoach, // Apply red background if coach is being deleted
-  //       ]}
-  //     >
-  //       <Text style={styles.coachName}>{coach.firstName} {coach.lastName}</Text>
-  //       <Switch
-  //         value={coach.isActive}
-  //         onValueChange={() => toggleCoachSwitch(coach.coachId)}
-  //       />
-  //     </View>
-  //   </Swipeable>
-  // );
+
 
   return (
     <Modal
