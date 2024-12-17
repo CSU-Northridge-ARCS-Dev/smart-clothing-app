@@ -149,6 +149,18 @@ jest.mock('victory-native', () => {
     };
   });
 
+  jest.mock('expo-font', () => ({
+    loadAsync: jest.fn().mockResolvedValue(true),
+    isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+  }));
+
+  jest.mock('react-native-gesture-handler', () => {
+    const View = require('react-native').View;
+    return {
+      ...jest.requireActual('react-native-gesture-handler'),
+      GestureHandlerRootView: View,
+    };
+  });
 
 
 

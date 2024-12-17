@@ -211,11 +211,17 @@ exports[`ViewInsights renders correctly 1`] = `
               }
               onGestureCancel={[Function]}
               pointerEvents="box-none"
-              sheetAllowedDetents="large"
+              sheetAllowedDetents={
+                [
+                  1,
+                ]
+              }
               sheetCornerRadius={-1}
+              sheetElevation={24}
               sheetExpandsWhenScrolledToEdge={true}
               sheetGrabberVisible={false}
-              sheetLargestUndimmedDetent="all"
+              sheetInitialDetent={0}
+              sheetLargestUndimmedDetent={-1}
               style={
                 {
                   "bottom": 0,
@@ -223,6 +229,7 @@ exports[`ViewInsights renders correctly 1`] = `
                   "position": "absolute",
                   "right": 0,
                   "top": 0,
+                  "zIndex": undefined,
                 }
               }
             >
@@ -300,6 +307,7 @@ exports[`ViewInsights renders correctly 1`] = `
                 >
                   <View
                     collapsable={false}
+                    enabled={false}
                     handlerTag={1}
                     handlerType="PanGestureHandler"
                     needsOffscreenAlphaCompositing={false}
@@ -584,7 +592,11 @@ exports[`ViewInsights renders correctly 1`] = `
                                               >
                                                 <Image
                                                   accessibilityIgnoresInvertColors={true}
-                                                  source={1}
+                                                  source={
+                                                    {
+                                                      "testUri": "../../react-native-paper/lib/commonjs/assets/back-chevron.png",
+                                                    }
+                                                  }
                                                   style={
                                                     [
                                                       {
@@ -835,7 +847,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                                         },
                                                       ],
                                                       {
-                                                        "fontFamily": "Material Design Icons",
+                                                        "fontFamily": "material-community",
                                                         "fontStyle": "normal",
                                                         "fontWeight": "normal",
                                                       },
