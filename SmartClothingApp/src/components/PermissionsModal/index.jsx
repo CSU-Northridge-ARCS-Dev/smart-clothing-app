@@ -4,7 +4,7 @@ import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
 import { getDoc } from "firebase/firestore";
-import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions, fetchCoachAccess } from "../../actions/userActions";
+import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions, fetchCoachAccess, startDisableCoachAccess } from "../../actions/userActions";
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated  from 'react-native-reanimated'; 
 import CoachAccessSwipeAction from "./CoachAccessSwipeAction";
@@ -24,12 +24,17 @@ const PermissionsModal = ({ visible, closeModal }) => {
   const [coachAccessPermissions, setCoachAccessPermissions] = useState({});
 
   const [activeCoach, setActiveCoach] = useState(null);  
+  const [fetchData, setFetchData] = useState(true);
+
 
 
   useEffect(() => {
-    dispatch(fetchPendingPermissions());
-    dispatch(fetchCoachAccess());
-  }, [visible]);
+    if (visible && fetchData) {
+      console.log("Fetching Pending Permissions and Coach Access...");
+      dispatch(fetchPendingPermissions());
+      dispatch(fetchCoachAccess());
+    }
+  }, [visible, fetchData]);
 
 
   useEffect(() => {
@@ -47,6 +52,8 @@ const PermissionsModal = ({ visible, closeModal }) => {
       acc[coach.coachId] = true; // Coaches already have access, initialize to true
       return acc;
     }, {});
+    console.log("Initial Permissions:", currentCoachAccess);
+    console.log("Modal Visibility:", visible);
     setCoachAccessPermissions(initialCoachAccess);
   }, [currentCoachAccess]);
 
@@ -96,7 +103,13 @@ const toggleCoachAccess = (coachId) => {
   // };
 
 
-
+  const handleCloseModal = () => {
+    console.log("Resetting for next time permissions modal opens");
+    setFetchData(true); // Reset for the next time the modal opens
+    console.log("Set FetchData to true");
+    closeModal(); // Calls the prop function from the parent
+  };
+    
   const acceptAll = () => {
     const updatedPermissions = Object.keys(permissions).reduce((acc, coachId) => {
       acc[coachId] = true;
@@ -108,6 +121,7 @@ const toggleCoachAccess = (coachId) => {
   };
 
   const handleSave = async () => {
+    // 1. Handle pending permissions (existing logic)
     console.log("Saving permissions", permissions);
     try {
       // Extract the coach references where permissions are set to true
@@ -148,10 +162,45 @@ const toggleCoachAccess = (coachId) => {
         dispatch(startAddToCoachAccess(coach));
         console.log("Permissions updated successfully for approved coaches.");
       }
-      closeModal();
+      //closeModal();
     } catch (e) {
       console.error("Error handling permissions:", e);
     }
+
+    // 2. Handle coach access for sharing (new logic)
+    console.log("Updating Coach Access", coachAccessPermissions);
+    try {
+      const updatedCoaches = Object.keys(coachAccessPermissions).map((coachId) => {
+        const coach = currentCoachAccess.find((c) => c.coachId === coachId);
+        return {
+          ...coach,
+          sharingEnabled: coachAccessPermissions[coachId],
+        }
+      });
+      // Separate coaches into disabled and enabled
+      const disabledCoaches = updatedCoaches.filter((coach) => !coach.sharingEnabled);
+      const enabledCoaches = updatedCoaches.filter((coach) => coach.sharingEnabled);
+      console.log("Disabled coaches:", disabledCoaches);
+      console.log("Enabled coaches:", enabledCoaches);
+      // Dispatch actions for disabled coaches
+      for (const coach of disabledCoaches) {
+        console.log(`Disabling data sharing for Coach: ${coach.firstName} ${coach.lastName}`);
+        // Add to Disable list and then removes from CoachAccess db & state
+        dispatch(startDisableCoachAccess(coach)); 
+      }
+      // Dispatch actions for enabled coaches (if needed)
+      for (const coach of enabledCoaches) {
+        console.log(`Ensuring data sharing for Coach: ${coach.firstName} ${coach.lastName}`);
+        dispatch(startAddToCoachAccess(coach)); // Assuming this is to keep sharing enabled
+      }
+      console.log("Coach access updated successfully.");
+    } catch (e) {
+      console.error("Error handling permissions and coach access:", e);
+    }
+    // Closing
+    setFetchData(false);
+    console.log("Setting fetchData to false");
+    closeModal();
   };
 
   
@@ -196,7 +245,7 @@ const toggleCoachAccess = (coachId) => {
       animationType="slide"
       transparent={false}
       visible={visible}
-      onRequestClose={closeModal}
+      onRequestClose={handleCloseModal}
     >
       <View style={styles.modalContent}>
         <Text style={styles.title}>Manage Permissions</Text>
@@ -249,7 +298,7 @@ const toggleCoachAccess = (coachId) => {
         {error && <HelperText type="error">{error}</HelperText>}
 
         <View style={styles.btnContainer}>
-          <Button mode="outlined" onPress={closeModal} style={styles.button}>
+          <Button mode="outlined" onPress={handleCloseModal} style={styles.button}>
             Cancel
           </Button>
           <Button

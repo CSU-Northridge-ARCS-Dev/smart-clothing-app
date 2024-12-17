@@ -6,6 +6,7 @@ import {
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
   ADD_TO_COACH_ACCESS,
+  DISABLE_COACH_ACCESS,
   REMOVE_FROM_COACH_ACCESS,
   UPDATE_COACH_ACCESS,
   UPDATE_PENDING_PERMISSIONS,
@@ -25,6 +26,7 @@ const initialState = {
     sports: "No Data",
   },
   coachAccess: [],
+  coachAccessDisabled: [],
   pendingPermissions: [],
 };
 
@@ -74,6 +76,7 @@ const userReducer = (state = initialState, action) => {
         ...state,
         coachAccess: [...state.coachAccess, action.payload],
       };
+    
     case REMOVE_FROM_COACH_ACCESS:
       return {
         ...state,
@@ -85,6 +88,11 @@ const userReducer = (state = initialState, action) => {
       return {
         ...state,
         coachAccess: action.payload,
+      };
+      case DISABLE_COACH_ACCESS:
+      return {
+        ...state,
+        coachAccessDisabled: [...state.coachAccessDisabled, action.payload],
       };
     case UPDATE_PENDING_PERMISSIONS:
       return {

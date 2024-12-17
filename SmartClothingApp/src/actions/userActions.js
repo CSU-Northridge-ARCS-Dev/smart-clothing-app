@@ -40,6 +40,7 @@ import {
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
   ADD_TO_COACH_ACCESS,
+  DISABLE_COACH_ACCESS,
   REMOVE_FROM_COACH_ACCESS,
   UPDATE_COACH_ACCESS,
   UPDATE_PENDING_PERMISSIONS,
@@ -93,6 +94,13 @@ export const updateUserMetricsData = (userMetricsData) => {
 export const addToCoachAccess = (coach) => {
   return {
     type: ADD_TO_COACH_ACCESS,
+    payload: coach,
+  };
+};
+
+export const disableCoachAccess = (coach) => {
+  return {
+    type: DISABLE_COACH_ACCESS,
     payload: coach,
   };
 };
@@ -307,6 +315,7 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
           createdAt: new Date(),
           pendingPermissions: [],
           coachList: [],
+          disabledCoachList: [],
         };
 
         // Save the user data upon sign-up using setDoc
@@ -636,7 +645,9 @@ export const fetchCoachAccess = () => {
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
         const coachAccess = userData.coachList || [];
+        const disabledCoachList = userData.CoachListDisabled || [];
         console.log("Fetched coachList:", coachAccess);
+        console.log("Fetched disabledCoachList:", disabledCoachList);
         const resolvedCoaches = await Promise.all(
           coachAccess.map(async (coachRef) => {
             try {
@@ -649,6 +660,9 @@ export const fetchCoachAccess = () => {
                   firstName: coachData.firstName || "Unknown",
                   lastName: coachData.lastName || "Unknown",
                   ref: coachRef,
+                  sharingEnabled: !disabledCoachList.some(
+                    (disabledRef) => disabledRef.path === coachRef.path
+                  ),
                 };
               } else {
                 console.log("Coach document not found for reference:", coachRef.path);
@@ -690,9 +704,28 @@ export const startAddToCoachAccess = (coach) => {
       // Dispatch Redux action to update the state
       dispatch(addToCoachAccess(coach));
       //dispatch({ type: "ADD_TO_COACH_ACCESS", payload: coachId });
-      console.log(`Added ${coach} to coachList.`);
+      console.log(`Added ${coach.firstName} ${coach.lastName} to coachList.`);
     } catch (err) {
       console.error("Error adding to coach list:", err);
+    }
+  };
+};
+
+export const startDisableCoachAccess = (coach) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      await updateDoc(userDocRef, {
+        coachListDisabled: arrayUnion(coach.ref),
+      });
+      // Dispatch Redux action to update the state
+      dispatch(disableCoachAccess(coach));
+      console.log(`Added ${coach.firstName} ${coach.lastName} to coachListDisabled.`);
+      // Remove from CoachAccess
+      dispatch(deleteFromCoachAccess(coach));
+    } catch (err) {
+      console.error("Error adding to disable coach list:", err);
     }
   };
 };
