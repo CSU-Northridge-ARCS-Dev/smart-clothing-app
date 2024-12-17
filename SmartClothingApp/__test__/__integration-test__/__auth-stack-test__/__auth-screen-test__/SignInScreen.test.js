@@ -51,8 +51,8 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   getEmail: jest.fn(),
   clearEmail: jest.fn(),
   getToken: jest.fn(() => Promise.resolve('mocked-token')), 
-  storeUID: jest.fn(),
-  clearUID: jest.fn(),
+  storeToken: jest.fn(),
+  clearToken: jest.fn(),
 }));
 
 // Mock AsyncStorage

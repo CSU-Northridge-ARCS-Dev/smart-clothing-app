@@ -16,7 +16,7 @@ import {
 
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
-import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
+//import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
 
 
 export default function HomeScreen({ navigation }) {
@@ -35,13 +35,13 @@ export default function HomeScreen({ navigation }) {
   const firstName = useSelector((state) => state.user.firstName);
 
   // Function to send a test notification
-  const sendTestNotification = () => {
-    sendNotification("Test Notification", "This is a test notification!");
-  };
+  // const sendTestNotification = () => {
+  //   sendNotification("Test Notification", "This is a test notification!");
+  // };
 
-  useEffect(() => {
-    sendTestNotification();
-  });
+  // useEffect(() => {
+  //   sendTestNotification();
+  // });
 
   return (
     <ScrollView style={styles.container}>
@@ -51,17 +51,17 @@ export default function HomeScreen({ navigation }) {
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         {/* Test Notification Button */}
-        <Button
+        {/* <Button
           mode="contained"
           onPress={sendTestNotification}
           style={{ marginTop: 20 }}
         >
           Send Test Notification
-        </Button>
+        </Button> */}
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Today Status
         </Text>
-        <ActivityCard
+        {/* <ActivityCard
           style={{ marginTop: 10 }}
           icon="directions-run"
           title="Activity"
@@ -90,7 +90,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Heartbeat Rate
         </Text>
-        <HeartRateChart data={defaultData}/>
+        <HeartRateChart data={defaultData}/> */}
       </View>
     </ScrollView>
   );

@@ -14,6 +14,7 @@ import { auth, database } from "./firebaseConfig.js";
 import { getUID, getMetrics, storeToken } from "./src/utils/localStorage.js";
 import { onAuthStateChanged } from "firebase/auth";
 
+
 import { getDoc, doc } from "firebase/firestore";
 
 import {
