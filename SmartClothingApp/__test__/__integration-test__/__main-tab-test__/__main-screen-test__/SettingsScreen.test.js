@@ -57,7 +57,19 @@ jest.mock('../../../../firebaseConfig.js', () => ({
     getUID: jest.fn(),
     clearUID: jest.fn(),
     getMetrics: jest.fn(),
-    clearMetrics: jest.fn()
+    clearMetrics: jest.fn(),
+    storeFirstName: jest.fn(),
+    getFirstName: jest.fn(),
+    clearFirstName: jest.fn(),
+    storeLastName: jest.fn(),
+    getLastName: jest.fn(),
+    clearLastName: jest.fn(),
+    storeEmail: jest.fn(),
+    getEmail: jest.fn(),
+    clearEmail: jest.fn(),
+    getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+    storeToken: jest.fn(),
+    clearToken: jest.fn(),
   }));
 
   // Mock AsyncStorage
@@ -82,7 +94,7 @@ jest.mock('../../../../firebaseConfig.js', () => ({
         })),
   }))
 
-jest.mock('firebase/firestore', () => ({
+  jest.mock('firebase/firestore', () => ({
     collection: jest.fn(() => ({ add: jest.fn() })),
     addDoc: jest.fn(),
     setDoc: jest.fn(),
@@ -99,6 +111,19 @@ jest.mock('firebase/firestore', () => ({
       }), // Mock 'data' as a function
     }),
   }))
+
+   jest.mock('expo-font', () => ({
+      loadAsync: jest.fn().mockResolvedValue(true),
+      isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+    }));
+
+  jest.mock('react-native-gesture-handler', () => {
+    const View = require('react-native').View;
+    return {
+      ...jest.requireActual('react-native-gesture-handler'),
+      GestureHandlerRootView: View,
+    };
+  });
 
 
 
@@ -133,7 +158,7 @@ describe('SettingsScreen', () => {
     jest.useFakeTimers();
 
     store = configureStore();
-    component = renderer.create(
+    component = render(
       <ReduxProvider store={store}>
         <PaperProvider>
           <NavigationContainer>
