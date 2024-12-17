@@ -56,6 +56,9 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   storeEmail: jest.fn(),
   getEmail: jest.fn(),
   clearEmail: jest.fn(),
+  getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+  storeUID: jest.fn(),
+  clearUID: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -66,11 +69,36 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   clear: jest.fn(() => Promise.resolve()),
 }));
 
+// jest.mock('../../../../src/actions/userActions.js', () => ({
+//   startLoginWithEmail: jest.fn((email, password) => (dispatch) => {
+//     return Promise.resolve(
+//       dispatch({
+//         type: 'LOGIN_SUCCESS',
+//         payload: {
+//           uuid: 'test-uuid-1234',
+//           uid: 'test-uuid-1234',
+//           email: email,
+//         },
+//       })
+//     );
+//   }),
+// }));
+
+
 // Mock Firebase Authentication
 jest.mock('../../../../firebaseConfig.js', () => ({
   auth: {
     loginWithEmail: jest.fn(() => Promise.resolve()),
-    startLoginWithEmail: jest.fn(() => Promise.resolve()),
+    startLoginWithEmail: jest.fn((email, password) =>
+      Promise.resolve({
+        user: {
+          uid: 'nvQpwMHj7eUKfsyEhVloGM7hvji2',
+          firstName: "MisterTest",
+          lastName: "Johnson",
+          email: email,
+        },
+      })
+    ),
     startLoadUserData: jest.fn(() => Promise.resolve()),
     startUpdateUserData: jest.fn(() => Promise.resolve()),
     updateUserMetricsData: jest.fn(() => Promise.resolve()),
@@ -170,6 +198,85 @@ jest.mock('d3', () => ({
   ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
 }));
 
+jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
+jest.mock('react-native-vector-icons/MaterialIcons', () => 'Icon');
+
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn().mockResolvedValue(true),
+  isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+}));
+
+jest.mock('@react-navigation/native', () => {
+    const actualNav = jest.requireActual('@react-navigation/native');
+    return {
+      ...actualNav,
+      useNavigation: () => ({
+        navigate: jest.fn(),
+        goBack: jest.fn(),
+      }),
+      useRoute: () => ({
+        //name: 'Previous Screen',
+        params: {
+            previousScreenTitle: 'Home',
+          },
+      }),
+    };
+  });
+
+
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const MockIcon = ({ name, size, color }) =>
+    React.createElement('svg', { name, size, color });
+  return {
+    AntDesign: MockIcon,
+    FontAwesome: MockIcon,
+    Ionicons: MockIcon,
+    MaterialIcons: MockIcon,
+    MaterialCommunityIcons: MockIcon,
+    Entypo: MockIcon,
+    Feather: MockIcon,
+    // Add other icon sets here if needed
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+jest.mock('../../../../src/hooks/useAppFonts', () => ({
+  useAppFonts: jest.fn(() => true),
+}));
+
+jest.mock('react-native-paper', () => {
+  const mock = jest.requireActual('react-native-paper');
+  return {
+    ...mock,
+    Provider: ({ children }) => <>{children}</>,
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+
+// jest.mock('expo-font', () => ({
+//   loadAsync: jest.fn().mockResolvedValue(true),
+// }));
+
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+}));
+
 
 
 
@@ -238,7 +345,7 @@ describe('SignUpToHome Integration Test', () => {
     const store = configureStore();
 
     // Wrap TestComponent with Providers and render
-    const { getAllByTestId, getByText, getAllByRole } = render(
+    const { getAllByTestId, getByText, getAllByRole, getByTestId } = render(
       <StoreProvider store={store}>
         <PaperProvider >
           <TestComponent />
@@ -247,14 +354,23 @@ describe('SignUpToHome Integration Test', () => {
     );
 
     // Find Inputs and Buttons 
-    const inputFields = getAllByTestId('text-input-outline');
-    const buttons = getAllByRole('button');
+    const emailInput = getByTestId('email-input');
+    const passwordInput = getByTestId('password-input');
+    const signInButton = getByTestId('sign-in-button');
+    // const inputFields = getAllByTestId('text-input-outline');
+    // const buttons = getAllByRole('button');
 
-    const emailInput =  inputFields[0];
-    const passwordInput =  inputFields[1];
-    const signInButton =  buttons[1];
+    // const emailInput =  inputFields[0];
+    // const passwordInput =  inputFields[1];
+    // const signInButton =  buttons[1];
 
     // Enter credentials and press Sign In Button
+    // await act(async () => {
+    //   fireEvent.changeText(emailInput, 'test1@gmail.com');
+    //   fireEvent.changeText(passwordInput, 'password123');
+    //   fireEvent.press(signInButton);
+    // });
+
     await act(() => {
       fireEvent.changeText(emailInput, 'test1@gmail.com');
     });
@@ -265,11 +381,18 @@ describe('SignUpToHome Integration Test', () => {
       fireEvent.press(signInButton);
     });
 
+    
     // Navigates to Dashboard after successful login
+    // await waitFor(() => {
+    //   expect(getByText('Dashboard')).toBeTruthy();
+    // });
+    // await act(async () => {
+    //   await waitFor(() => {
+    //     expect(getByText('Dashboard')).toBeTruthy();
+    //   });
+    // }
     await waitFor(() => {
       expect(getByText('Dashboard')).toBeTruthy();
-    });
-    
-
+    }, { timeout: 20000 });
   });
 });
