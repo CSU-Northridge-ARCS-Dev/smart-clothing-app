@@ -711,24 +711,24 @@ export const startAddToCoachAccess = (coach) => {
   };
 };
 
-export const startDisableCoachAccess = (coach) => {
-  return async (dispatch) => {
-    try {
-      const { uid } = auth.currentUser;
-      const userDocRef = doc(database, "Users", uid);
-      await updateDoc(userDocRef, {
-        coachListDisabled: arrayUnion(coach.ref),
-      });
-      // Dispatch Redux action to update the state
-      dispatch(disableCoachAccess(coach));
-      console.log(`Added ${coach.firstName} ${coach.lastName} to coachListDisabled.`);
-      // Remove from CoachAccess
-      dispatch(deleteFromCoachAccess(coach));
-    } catch (err) {
-      console.error("Error adding to disable coach list:", err);
-    }
-  };
-};
+// export const startDisableCoachAccess = (coach) => {
+//   return async (dispatch) => {
+//     try {
+//       const { uid } = auth.currentUser;
+//       const userDocRef = doc(database, "Users", uid);
+//       await updateDoc(userDocRef, {
+//         coachListDisabled: arrayUnion(coach.ref),
+//       });
+//       // Dispatch Redux action to update the state
+//       dispatch(disableCoachAccess(coach));
+//       console.log(`Added ${coach.firstName} ${coach.lastName} to coachListDisabled.`);
+//       // Remove from CoachAccess
+//       dispatch(deleteFromCoachAccess(coach));
+//     } catch (err) {
+//       console.error("Error adding to disable coach list:", err);
+//     }
+//   };
+// };
 
 export const deleteFromCoachAccess = (coach) => {
   return async (dispatch) => {

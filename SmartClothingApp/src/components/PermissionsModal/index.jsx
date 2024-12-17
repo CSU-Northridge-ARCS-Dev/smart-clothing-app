@@ -4,7 +4,7 @@ import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
 import { getDoc } from "firebase/firestore";
-import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions, fetchCoachAccess, startDisableCoachAccess } from "../../actions/userActions";
+import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions, fetchCoachAccess } from "../../actions/userActions";
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated  from 'react-native-reanimated'; 
 import CoachAccessSwipeAction from "./CoachAccessSwipeAction";
@@ -168,35 +168,35 @@ const toggleCoachAccess = (coachId) => {
     }
 
     // 2. Handle coach access for sharing (new logic)
-    console.log("Updating Coach Access", coachAccessPermissions);
-    try {
-      const updatedCoaches = Object.keys(coachAccessPermissions).map((coachId) => {
-        const coach = currentCoachAccess.find((c) => c.coachId === coachId);
-        return {
-          ...coach,
-          sharingEnabled: coachAccessPermissions[coachId],
-        }
-      });
-      // Separate coaches into disabled and enabled
-      const disabledCoaches = updatedCoaches.filter((coach) => !coach.sharingEnabled);
-      const enabledCoaches = updatedCoaches.filter((coach) => coach.sharingEnabled);
-      console.log("Disabled coaches:", disabledCoaches);
-      console.log("Enabled coaches:", enabledCoaches);
-      // Dispatch actions for disabled coaches
-      for (const coach of disabledCoaches) {
-        console.log(`Disabling data sharing for Coach: ${coach.firstName} ${coach.lastName}`);
-        // Add to Disable list and then removes from CoachAccess db & state
-        dispatch(startDisableCoachAccess(coach)); 
-      }
-      // Dispatch actions for enabled coaches (if needed)
-      for (const coach of enabledCoaches) {
-        console.log(`Ensuring data sharing for Coach: ${coach.firstName} ${coach.lastName}`);
-        dispatch(startAddToCoachAccess(coach)); // Assuming this is to keep sharing enabled
-      }
-      console.log("Coach access updated successfully.");
-    } catch (e) {
-      console.error("Error handling permissions and coach access:", e);
-    }
+    // console.log("Updating Coach Access", coachAccessPermissions);
+    // try {
+    //   const updatedCoaches = Object.keys(coachAccessPermissions).map((coachId) => {
+    //     const coach = currentCoachAccess.find((c) => c.coachId === coachId);
+    //     return {
+    //       ...coach,
+    //       sharingEnabled: coachAccessPermissions[coachId],
+    //     }
+    //   });
+    //   // Separate coaches into disabled and enabled
+    //   const disabledCoaches = updatedCoaches.filter((coach) => !coach.sharingEnabled);
+    //   const enabledCoaches = updatedCoaches.filter((coach) => coach.sharingEnabled);
+    //   console.log("Disabled coaches:", disabledCoaches);
+    //   console.log("Enabled coaches:", enabledCoaches);
+    //   // Dispatch actions for disabled coaches
+    //   for (const coach of disabledCoaches) {
+    //     console.log(`Disabling data sharing for Coach: ${coach.firstName} ${coach.lastName}`);
+    //     // Add to Disable list and then removes from CoachAccess db & state
+    //     dispatch(startDisableCoachAccess(coach)); 
+    //   }
+    //   // Dispatch actions for enabled coaches (if needed)
+    //   for (const coach of enabledCoaches) {
+    //     console.log(`Ensuring data sharing for Coach: ${coach.firstName} ${coach.lastName}`);
+    //     dispatch(startAddToCoachAccess(coach)); // Assuming this is to keep sharing enabled
+    //   }
+    //   console.log("Coach access updated successfully.");
+    // } catch (e) {
+    //   console.error("Error handling permissions and coach access:", e);
+    // }
     // Closing
     setFetchData(false);
     console.log("Setting fetchData to false");

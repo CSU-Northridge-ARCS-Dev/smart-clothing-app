@@ -164,6 +164,7 @@ const NotificationPermissionsModal = (props) => {
             mode="outlined"
             onPress={acceptAll}
             style={[styles.button, { backgroundColor: AppColor.primary }]}
+            labelStyle={styles.whiteText}
           >
             Accept All
           </Button>
@@ -174,6 +175,7 @@ const NotificationPermissionsModal = (props) => {
               dispatch(coachNotificationPermissionsModalVisible(false))
             }}
             style={[styles.button, { backgroundColor: AppColor.primary }]}
+            labelStyle={styles.whiteText}
           >
             Save Changes
           </Button>
@@ -222,7 +224,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   button: {
-    width: "30%",
+    width: "32%",
+  },
+  whiteText: {
+    color: "#fff", // Makes the text white
+    fontSize: 14,
+    fontFamily: AppFonts.chakraBold,
+    width: "100%",
+    textAlign: "center",
   },
 });
 
