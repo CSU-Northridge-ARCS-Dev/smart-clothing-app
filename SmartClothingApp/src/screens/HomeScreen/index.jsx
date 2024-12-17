@@ -61,7 +61,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Today Status
         </Text>
-        {/* <ActivityCard
+        <ActivityCard
           style={{ marginTop: 10 }}
           icon="directions-run"
           title="Activity"
@@ -90,7 +90,7 @@ export default function HomeScreen({ navigation }) {
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Heartbeat Rate
         </Text>
-        <HeartRateChart data={defaultData}/> */}
+        <HeartRateChart data={defaultData}/>
       </View>
     </ScrollView>
   );
