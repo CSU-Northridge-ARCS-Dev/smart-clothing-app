@@ -285,16 +285,7 @@ const toggleCoachAccess = (coachId) => {
           keyExtractor={(item) => item.coachId}
           renderItem={renderCoachItem}
         />
-{/* 
-        <View style={styles.btnContainer}>
-          <TouchableOpacity onPress={closeModal} style={styles.button}>
-            <Text style={styles.buttonText}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => console.log("Save Changes")} style={styles.button}>
-            <Text style={styles.buttonText}>Save Changes</Text>
-          </TouchableOpacity>
-        </View> */}
-
+        
         {error && <HelperText type="error">{error}</HelperText>}
 
         <View style={styles.btnContainer}>
@@ -305,10 +296,16 @@ const toggleCoachAccess = (coachId) => {
             mode="outlined"
             onPress={acceptAll}
             style={[styles.button, { backgroundColor: AppColor.primary }]}
+            labelStyle={styles.whiteText}
           >
             Accept All
           </Button>
-          <Button mode="outlined" onPress={handleSave} style={[styles.button, { backgroundColor: AppColor.primary }]}>
+          <Button 
+            mode="outlined" 
+            onPress={handleSave} 
+            style={[styles.button, { backgroundColor: AppColor.primary }]}
+            labelStyle={styles.whiteText}
+          >
             Save Changes
           </Button>
         </View>
@@ -400,7 +397,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   button: {
-    width: "30%",
+    width: "32%",
+  },
+  whiteText: {
+    color: "#fff", // Makes the text white
+    fontSize: 14,
+    fontFamily: AppFonts.chakraBold,
+    width: "100%",
+    textAlign: "center",
   },
 });
 
