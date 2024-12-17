@@ -40,7 +40,19 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   getUID: jest.fn(),
   clearUID: jest.fn(),
   getMetrics: jest.fn(),
-  clearMetrics: jest.fn()
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
+  getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+  storeUID: jest.fn(),
+  clearUID: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -96,6 +108,85 @@ jest.mock('../../../../src/actions/userActions.js', () => ({
   
 }));
 
+jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
+jest.mock('react-native-vector-icons/MaterialIcons', () => 'Icon');
+
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn().mockResolvedValue(true),
+  isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+}));
+
+jest.mock('@react-navigation/native', () => {
+    const actualNav = jest.requireActual('@react-navigation/native');
+    return {
+      ...actualNav,
+      useNavigation: () => ({
+        navigate: jest.fn(),
+        goBack: jest.fn(),
+      }),
+      useRoute: () => ({
+        //name: 'Previous Screen',
+        params: {
+            previousScreenTitle: 'Home',
+          },
+      }),
+    };
+  });
+
+
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const MockIcon = ({ name, size, color }) =>
+    React.createElement('svg', { name, size, color });
+  return {
+    AntDesign: MockIcon,
+    FontAwesome: MockIcon,
+    Ionicons: MockIcon,
+    MaterialIcons: MockIcon,
+    MaterialCommunityIcons: MockIcon,
+    Entypo: MockIcon,
+    Feather: MockIcon,
+    // Add other icon sets here if needed
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+jest.mock('../../../../src/hooks/useAppFonts', () => ({
+  useAppFonts: jest.fn(() => true),
+}));
+
+jest.mock('react-native-paper', () => {
+  const mock = jest.requireActual('react-native-paper');
+  return {
+    ...mock,
+    Provider: ({ children }) => <>{children}</>,
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+
+// jest.mock('expo-font', () => ({
+//   loadAsync: jest.fn().mockResolvedValue(true),
+// }));
+
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+}));
+
 
 
 const middlewares = [thunk];
@@ -123,10 +214,18 @@ describe('SigninScreen/Auth Integration Test', () => {
     // Prevents 'wrap act()' console log warning 
     jest.spyOn(console, 'error').mockImplementation((message) => {
       if (message.includes('Warning: An update to')) {
-        return;
+        return; // Exit gracefully
       }
-      console.error(message);
+      // Use the original implementation without recursion
+      process.stderr.write(`Error: ${message}\n`);
     });
+
+    // jest.spyOn(console, 'error').mockImplementation((message) => {
+    //   if (message.includes('Warning: An update to')) {
+    //     return;
+    //   }
+    //   console.error(message);
+    // });
 
     jest.useFakeTimers();
   });
