@@ -75,6 +75,9 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   storeEmail: jest.fn(),
   getEmail: jest.fn(),
   clearEmail: jest.fn(),
+  getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+  storeUID: jest.fn(),
+  clearUID: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -197,6 +200,85 @@ jest.mock('d3', () => ({
   }),
   tickStep: jest.fn().mockReturnValue(50),
   ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
+}));
+
+jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
+jest.mock('react-native-vector-icons/MaterialIcons', () => 'Icon');
+
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn().mockResolvedValue(true),
+  isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+}));
+
+jest.mock('@react-navigation/native', () => {
+    const actualNav = jest.requireActual('@react-navigation/native');
+    return {
+      ...actualNav,
+      useNavigation: () => ({
+        navigate: jest.fn(),
+        goBack: jest.fn(),
+      }),
+      useRoute: () => ({
+        //name: 'Previous Screen',
+        params: {
+            previousScreenTitle: 'Home',
+          },
+      }),
+    };
+  });
+
+
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const MockIcon = ({ name, size, color }) =>
+    React.createElement('svg', { name, size, color });
+  return {
+    AntDesign: MockIcon,
+    FontAwesome: MockIcon,
+    Ionicons: MockIcon,
+    MaterialIcons: MockIcon,
+    MaterialCommunityIcons: MockIcon,
+    Entypo: MockIcon,
+    Feather: MockIcon,
+    // Add other icon sets here if needed
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+jest.mock('../../../../src/hooks/useAppFonts', () => ({
+  useAppFonts: jest.fn(() => true),
+}));
+
+jest.mock('react-native-paper', () => {
+  const mock = jest.requireActual('react-native-paper');
+  return {
+    ...mock,
+    Provider: ({ children }) => <>{children}</>,
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+
+// jest.mock('expo-font', () => ({
+//   loadAsync: jest.fn().mockResolvedValue(true),
+// }));
+
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
 }));
   
   
