@@ -285,7 +285,7 @@ const toggleCoachAccess = (coachId) => {
           keyExtractor={(item) => item.coachId}
           renderItem={renderCoachItem}
         />
-
+{/* 
         <View style={styles.btnContainer}>
           <TouchableOpacity onPress={closeModal} style={styles.button}>
             <Text style={styles.buttonText}>Cancel</Text>
@@ -293,7 +293,7 @@ const toggleCoachAccess = (coachId) => {
           <TouchableOpacity onPress={() => console.log("Save Changes")} style={styles.button}>
             <Text style={styles.buttonText}>Save Changes</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         {error && <HelperText type="error">{error}</HelperText>}
 
