@@ -164,9 +164,9 @@ jest.mock('d3', () => ({
   ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
 }));
 
-jest.mock('expo-font');
-jest.mock('../../assets', () => ({
-  AppFontsResource: {},
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn().mockResolvedValue(true),
+  isLoaded: jest.fn().mockReturnValue(true), // Add this mock
 }));
 
 jest.mock('@react-navigation/native', () => {
@@ -186,6 +186,43 @@ jest.mock('@react-navigation/native', () => {
     };
   });
 
+  jest.mock('@expo/vector-icons', () => {
+    const React = require('react');
+    const MockIcon = ({ name, size, color }) =>
+      React.createElement('svg', { name, size, color });
+    return {
+      AntDesign: MockIcon,
+      FontAwesome: MockIcon,
+      Ionicons: MockIcon,
+      MaterialIcons: MockIcon,
+      MaterialCommunityIcons: MockIcon,
+      Entypo: MockIcon,
+      Feather: MockIcon,
+      // Add other icon sets here if needed
+    };
+  });
+
+  jest.mock('expo-asset', () => ({
+    Asset: {
+      loadAsync: jest.fn().mockResolvedValue([]),
+    },
+  }));
+
+
+  // jest.mock('expo-font', () => ({
+  //   loadAsync: jest.fn().mockResolvedValue(true),
+  // }));
+
+  jest.mock("expo-notifications", () => ({
+    setNotificationHandler: jest.fn(),
+    addNotificationReceivedListener: jest.fn(),
+    addNotificationResponseReceivedListener: jest.fn(),
+    getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  }));
+
+
+
+
 
 
 /**
@@ -203,16 +240,32 @@ describe('User Actions Integration Test', () => {
   let store;
 
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-        if (message.includes('Warning: An update to')) {
-          return;
-        }
-        console.error(message);
-      });
-  
     jest.useFakeTimers();
 
+    // Temporarily store the original console.error
+    originalConsoleError = console.error;
+
+    jest.spyOn(console, 'error').mockImplementation((message) => {
+      if (!message.includes('Warning: An update to')) {
+        originalConsoleError(message);
+      }
+    });
   });
+
+  afterEach(() => {
+    console.error.mockRestore();
+  });
+  // beforeEach(() => {
+  //   jest.spyOn(console, 'error').mockImplementation((message) => {
+  //       if (message.includes('Warning: An update to')) {
+  //         return;
+  //       }
+  //       console.error(message);
+  //     });
+  
+  //   jest.useFakeTimers();
+
+  // });
 
 
   /**
