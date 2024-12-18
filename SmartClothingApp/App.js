@@ -225,8 +225,8 @@ export default function App() {
       // Fetch user document from Firestore
       //const pendingPermissions = await fetchPendingPermissionsList(uid);
       //await store.dispatch(fetchPendingPermissions());
-      const uid = user.uid || null;
-      if(user !== null || uid === null) {
+      const uid = user.uid || await getUID();;
+      if(user !== null || uid !== null) {
         const pendingPermissions = user.pendingPermissions || await fetchPendingPermissionsList(uid);
         if(pendingPermissions.length > 0) {
           console.log("Pending coaches found. Opening Permissions Modal.");
