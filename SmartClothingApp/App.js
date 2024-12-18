@@ -96,7 +96,7 @@ export default function App() {
       if (token) {
         console.log("Expo push token:", token);
         await storeToken(token);
-        sendNotification("Welcome to the app!", token);
+        // sendNotification("Welcome to the app!", token);
       }
     } catch (error) {
       console.error("Error registering for push notifications:", error);
@@ -148,22 +148,23 @@ export default function App() {
       const userData = userDoc.data();
       const pendingPermissions = userData.pendingPermissions || [];
       console.log("Pending Permissions from DB:", pendingPermissions);
-      const pendingCoachList = await Promise.all(
-        pendingPermissions.map(async (coachId) => {
-          const coachDoc = await getDoc(doc(database, "Users", coachId));
-          if(coachDoc.exists()) {
-            const coachData = coachDoc.data();
-            const coachFullName = `${coachData.firstName || ""} ${coachData.lastName || ""}`.trim();
-            return {
-              coachId,
-              coachFullName,
-            }
-          }
-        })
-      );
-      // Filter out any null results
-      const validPendingCoachList = pendingCoachList.filter((item) => item!==null);
-      return validPendingCoachList;
+      return pendingPermissions;
+      // const pendingCoachList = await Promise.all(
+      //   pendingPermissions.map(async (coachId) => {
+      //     const coachDoc = await getDoc(doc(database, "Users", coachId));
+      //     if(coachDoc.exists()) {
+      //       const coachData = coachDoc.data();
+      //       const coachFullName = `${coachData.firstName || ""} ${coachData.lastName || ""}`.trim();
+      //       return {
+      //         coachId,
+      //         coachFullName,
+      //       }
+      //     }
+      //   })
+      // );
+      // // Filter out any null results
+      // const validPendingCoachList = pendingCoachList.filter((item) => item!==null);
+      // return validPendingCoachList;
     } else {
       console.error("User document not found.");
       return [];
@@ -224,24 +225,20 @@ export default function App() {
       // Fetch user document from Firestore
       //const pendingPermissions = await fetchPendingPermissionsList(uid);
       //await store.dispatch(fetchPendingPermissions());
-
-      if(user.pendingPermissions.length > 0) {
-        console.log("Pending coaches found. Opening Permissions Modal.");
-        //setPrevPendingCoaches(pendingPermissions);
-        setNotificationModalVisible(true);
-        store.dispatch(coachNotificationPermissionsModalVisible(true));
+      const uid = user.uid || null;
+      if(user !== null || uid === null) {
+        const pendingPermissions = user.pendingPermissions || await fetchPendingPermissionsList(uid);
+        if(pendingPermissions.length > 0) {
+          console.log("Pending coaches found. Opening Permissions Modal.");
+          //setPrevPendingCoaches(pendingPermissions);
+          setNotificationModalVisible(true);
+          store.dispatch(coachNotificationPermissionsModalVisible(true));
+        } else {
+          console.log("pendingPermissions null");
+        }
       } else {
-        console.log("pendingPermissions null");
+        console.log("user is null or user.uid is null");
       }
-      // if (pendingPermissions.length > 0) {
-      //   console.log("Pending coaches found. Opening Permissions Modal.");
-      //   //setPrevPendingCoaches(pendingPermissions);
-      //   setNotificationModalVisible(true);
-      //   store.dispatch(coachNotificationPermissionsModalVisible(true));
-      // } else {
-      //   //setPrevPendingCoaches([]);
-      //   console.log("pendingPermissions null");
-      // }
     } catch (error) {
       console.error("Error checking pending permissions:", error);
     }
@@ -268,6 +265,7 @@ export default function App() {
               } else {
                 console.log("User UUID not restored");
                 setIsLoggedIn(false);
+                setUser([]);
               }
               checkMetrics();
               // Check pending permissions after signing in
@@ -295,8 +293,10 @@ export default function App() {
   
   useEffect(() => {
     console.log("isLoggedIn state useEffect:", isLoggedIn);
+    console.log("isLoggedIn user:", user);
     const updatePendingPermissions = async () => {
       //const uid = await checkUID();
+      //await store.dispatch(fetchPendingPermissions());
       await checkPendingPermissions(user);
     };
     updatePendingPermissions();

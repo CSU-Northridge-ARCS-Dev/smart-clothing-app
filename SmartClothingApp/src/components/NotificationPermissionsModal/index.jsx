@@ -28,7 +28,9 @@ const NotificationPermissionsModal = (props) => {
   }, [pendingCoachPermissions]);
 
   useEffect(() => {
-    dispatch(fetchPendingPermissions());
+    if(visible) {
+      dispatch(fetchPendingPermissions());
+    }
   }, [visible]);
 
 
