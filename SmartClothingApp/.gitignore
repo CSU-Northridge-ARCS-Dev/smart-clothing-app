@@ -15,6 +15,11 @@ web-build/
 # android/
 ios/
 
+android/google-services.json
+android/app/google-services.json
+
+ios/GoogleService-Info.plist
+
 # Cloud Functions for Expo Push Notifications (Not Ready)
 functions/
 
