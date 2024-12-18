@@ -18,7 +18,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.arcs.smartclothingapp",
-      "buildNumber": "1.0.0"
+      "buildNumber": "1.0.0",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "entitlements": {
+        "com.apple.developer.usernotifications": true,
+        "aps-environment": "development"
+      }
     },
     "android": {
       "package": "com.arcs.smartclothingapp",
