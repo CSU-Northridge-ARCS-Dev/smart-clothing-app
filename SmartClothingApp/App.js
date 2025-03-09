@@ -245,7 +245,7 @@ export default function App() {
   };
   useEffect(() => {
     const loadAppResources = async () => {
-      setLoading(true);
+      //setLoading(true);
       const loadFont = async () => {
         const fontsLoaded = await useAppFonts();
         console.log("Fonts loaded:", fontsLoaded);
