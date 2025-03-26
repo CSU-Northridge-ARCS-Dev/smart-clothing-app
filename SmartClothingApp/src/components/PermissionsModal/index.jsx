@@ -3,12 +3,12 @@ import { Modal, View, StyleSheet, Text, FlatList, TouchableOpacity } from "react
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
-import { getDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, getDoc, setDoc } from "firebase/firestore";
 import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions, fetchCoachAccess } from "../../actions/userActions";
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated  from 'react-native-reanimated'; 
 import CoachAccessSwipeAction from "./CoachAccessSwipeAction";
-
+import { db } from "../../../firebaseConfig";
 
 
 const PermissionsModal = ({ visible, closeModal }) => {
@@ -59,6 +59,26 @@ const PermissionsModal = ({ visible, closeModal }) => {
 
 
 
+  const addAthleteReferenceToCoach = async (coachId, athleteId) => {
+    const coachRef = doc(db, "Users", coachId);
+    const athleteRef = doc(db, "Users", athleteId);
+  
+    try {
+      const coachDoc = await getDoc(coachRef);
+      if (!coachDoc.exists()) {
+        console.warn("Coach document not found");
+        return;
+      }
+  
+      await updateDoc(coachRef, {
+        authorizedAthletes: arrayUnion(athleteRef), // Appends athlete doc ref
+      });
+  
+      console.log("Athlete reference added to coach!");
+    } catch (error) {
+      console.error("Error adding athlete reference:", error);
+    }
+  };
 
   const togglePermission = (coachId) => {
     setPermissions((prev) => {
@@ -160,7 +180,8 @@ const toggleCoachAccess = (coachId) => {
         dispatch(removeFromPendingPermissions(coach, updatePendingPermissions));
         // Add the coach to the coachList
         dispatch(startAddToCoachAccess(coach));
-        console.log("Permissions updated successfully for approved coaches.");
+        await addAthleteReferenceToCoach(coach.coachId, user.uid);  
+        console.log("Permissions updated successfully for approved coaches.");    
       }
       //closeModal();
     } catch (e) {
