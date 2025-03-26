@@ -17,7 +17,27 @@ export const sendNotification = async (title, body) => {
 
 export const registerForPushNotificationsAsync = async () => {
   let token;
-  if (Device.isDevice) {
+  // if (Device.isDevice) {
+  //   const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  //   let finalStatus = existingStatus;
+  //   if (existingStatus !== 'granted') {
+  //     const { status } = await Notifications.requestPermissionsAsync();
+  //     finalStatus = status;
+  //     console.log('requestPermission for Notification: ' + status);
+  //   }
+  //   if (finalStatus !== 'granted') {
+  //     console.log('Failed to get push token for push notification!');
+  //     return;
+  //   }
+  //   console.log('EXPO_PROJECT_ID:', EXPO_PROJECT_ID); 
+
+  //   token = (await Notifications.getExpoPushTokenAsync({ projectId: EXPO_PROJECT_ID })).data;
+  //   console.log(token);
+  //   console.log('Expo Push Token:', token);
+  // } else {
+  //   console.log('Must use physical device for Push Notifications');
+  // }
+
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
@@ -34,9 +54,8 @@ export const registerForPushNotificationsAsync = async () => {
     token = (await Notifications.getExpoPushTokenAsync({ projectId: EXPO_PROJECT_ID })).data;
     console.log(token);
     console.log('Expo Push Token:', token);
-  } else {
-    console.log('Must use physical device for Push Notifications');
-  }
+
+
 
   if (Platform.OS === 'android') {
     Notifications.setNotificationChannelAsync('default', {
