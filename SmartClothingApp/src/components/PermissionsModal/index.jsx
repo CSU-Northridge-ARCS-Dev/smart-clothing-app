@@ -8,7 +8,7 @@ import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermis
 import { Swipeable } from 'react-native-gesture-handler';
 import Animated  from 'react-native-reanimated'; 
 import CoachAccessSwipeAction from "./CoachAccessSwipeAction";
-import { db } from "../../../firebaseConfig";
+import { database as db } from "../../../firebaseConfig";
 
 
 const PermissionsModal = ({ visible, closeModal }) => {
@@ -25,6 +25,9 @@ const PermissionsModal = ({ visible, closeModal }) => {
 
   const [activeCoach, setActiveCoach] = useState(null);  
   const [fetchData, setFetchData] = useState(true);
+
+  const uuid = useSelector((state) => state.user.uuid);
+
 
 
 
@@ -180,7 +183,7 @@ const toggleCoachAccess = (coachId) => {
         dispatch(removeFromPendingPermissions(coach, updatePendingPermissions));
         // Add the coach to the coachList
         dispatch(startAddToCoachAccess(coach));
-        await addAthleteReferenceToCoach(coach.coachId, user.uid);  
+        await addAthleteReferenceToCoach(coach.coachId, uuid);  
         console.log("Permissions updated successfully for approved coaches.");    
       }
       //closeModal();

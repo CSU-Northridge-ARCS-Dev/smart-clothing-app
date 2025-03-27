@@ -3,9 +3,11 @@ import { Modal, View, StyleSheet, Text, FlatList } from "react-native";
 import { Switch, Button, HelperText } from "react-native-paper";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { useDispatch, useSelector } from "react-redux";
-import { getDoc } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, getDoc, setDoc } from "firebase/firestore";
 import { removeFromPendingPermissions, startAddToCoachAccess, fetchPendingPermissions } from "../../actions/userActions";
 import { coachNotificationPermissionsModalVisible } from "../../actions/appActions";
+import { database as db } from "../../../firebaseConfig";
+
 
 const NotificationPermissionsModal = (props) => {
 
@@ -15,6 +17,10 @@ const NotificationPermissionsModal = (props) => {
   const pendingCoachPermissions = useSelector((state) => state.user.pendingPermissions);
 
   const [permissions, setPermissions] = useState({});
+
+  const uuid = useSelector((state) => state.user.uuid);
+
+
 
   // Update permissions state when pending permissions change
   useEffect(() => {
@@ -33,6 +39,32 @@ const NotificationPermissionsModal = (props) => {
     }
   }, [visible]);
 
+  const addAthleteReferenceToCoach = async (coachId, athleteId) => {
+    console.log("DB:", db);
+    console.log("Coach ID:", coachId);
+    console.log("Athlete ID:", athleteId);
+
+    const coachRef = doc(db, "Users", coachId);
+    const athleteRef = doc(db, "Users", athleteId);
+    
+    try {
+      const coachDoc = await getDoc(coachRef);
+      if (!coachDoc.exists()) {
+        console.warn("Coach document not found");
+        return;
+      }
+    
+      console.log("Adding athlete Ref to Coach account");
+      console.log(athleteRef);  
+      await updateDoc(coachRef, {
+        authorizedAthletes: arrayUnion(athleteRef), // Appends athlete doc ref
+      });
+    
+      console.log("Athlete reference added to coach!");
+    } catch (error) {
+      console.error("Error adding athlete reference:", error);
+    }
+  };
 
   const togglePermission = (coachId) => {
     setPermissions((prev) => ({
@@ -90,6 +122,9 @@ const NotificationPermissionsModal = (props) => {
         dispatch(removeFromPendingPermissions(coach, updatePendingPermissions));
         // Add the coach to the coachList
         dispatch(startAddToCoachAccess(coach));
+        console.log(coach.coachId);
+        console.log(uuid);
+        await addAthleteReferenceToCoach(coach.coachId, uuid); 
         console.log("Permissions updated successfully for approved coaches.");
       }
     } catch (e) {
