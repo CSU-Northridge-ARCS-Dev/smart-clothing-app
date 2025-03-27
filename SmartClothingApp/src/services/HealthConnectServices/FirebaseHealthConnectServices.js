@@ -18,8 +18,8 @@ import { auth, database } from "../../../firebaseConfig";
 import { useState } from "react";
 
 import { readSampleData } from "./HealthConnectServices";
-import { getHeartRateData } from "../../utils/HealthConnectUtils";
-import { sendHeartRateData } from "../../actions/userActions";
+import { getHeartRateData, getSleepData } from "../../utils/HealthConnectUtils";
+import { sendHeartRateData, sendSleepData } from "../../actions/userActions";
 
 async function getLatestDateFromCollection(collectionName) {
   try {
@@ -94,19 +94,20 @@ export async function updateWithLatestData() {
     console.log("Uploading of heart rate data complete!");
 
     // Update sleep data.
-    // console.log("Uploading sleep data...");
-    // const sStartDate = await getLatestDateFromCollection("SleepDataHC");
-    // console.log("sStartDate: ", sStartDate);
-    // const sleepData = await getSleepData(sStartDate, today);
-    // console.log("Fetching of sleep data complete");
-    // this.uploadSleepData(sleepData);
-    // console.log("Uploading of sleep data complete!");
+    console.log("Uploading sleep data...");
+    const sStartDate = await getLatestDateFromCollection("SleepDataHC");
+    console.log("sStartDate: ", sStartDate);
+    const sleepData = await getSleepData(sStartDate, nextDate);
+    console.log("Fetching of sleep data complete");
+    //this.uploadSleepData(sleepData);
+    await sendSleepData(sleepData);
+    console.log("Uploading of sleep data complete!");
 
     // Update activity rings data.
     // console.log("Uploading activity rings data...");
     // const arStartDate = await getLatestDateFromCollection("ActivityRingsData");
     // console.log("arStartDate: ", arStartDate);
-    // const activityRingsData = await getActivityRingsData(arStartDate, today);
+    // const activityRingsData = await getActivityRingsData(arStartDate, nextDate);
     // console.log("Fetching of activity rings data complete");
     // this.uploadActivityRingsData(activityRingsData);
     // console.log("Uploading of activity rings data complete!");
