@@ -230,17 +230,16 @@ export default class FirebaseHealthKitService {
   static async performInitialDataSync() {
     console.log("Performing initial data sync...");
 
-    // // Define start date (5 years ago) and end date (now).
+    // Define start date (5 years ago) and end date (now).
     // const startDate = new Date(
     //   new Date().setFullYear(new Date().getFullYear() - 5)
     // ).toISOString();
     // const endDate = new Date().toISOString();
 
-    // Go back and collect data from the past 3 months.
-    const startDate = new Date(
-      new Date().setMonth(new Date().getMonth() - 3)
-    ).toISOString();
+    // Define start date (1 week ago) and end date (now).
+    const startDate = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString();
     const endDate = new Date().toISOString();
+
 
     try {
       // Fetch and upload heart data.
