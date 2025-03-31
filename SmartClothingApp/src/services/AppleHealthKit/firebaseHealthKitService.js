@@ -140,7 +140,7 @@ export default class FirebaseHealthKitService {
       const fetchedData = [];
       return fetchedData;
     } catch (error) {
-      console.error("Error fetching activity rings darta: ", error);
+      console.error("Error fetching activity rings data: ", error);
       return [];
     }
   }
@@ -230,9 +230,15 @@ export default class FirebaseHealthKitService {
   static async performInitialDataSync() {
     console.log("Performing initial data sync...");
 
-    // Define start date (5 years ago) and end date (now).
+    // // Define start date (5 years ago) and end date (now).
+    // const startDate = new Date(
+    //   new Date().setFullYear(new Date().getFullYear() - 5)
+    // ).toISOString();
+    // const endDate = new Date().toISOString();
+
+    // Go back and collect data from the past 3 months.
     const startDate = new Date(
-      new Date().setFullYear(new Date().getFullYear() - 5)
+      new Date().setMonth(new Date().getMonth() - 3)
     ).toISOString();
     const endDate = new Date().toISOString();
 
@@ -241,6 +247,7 @@ export default class FirebaseHealthKitService {
       console.log("Fetching heart rate data...");
       const heartRateData = await getHeartRateData(startDate, endDate);
       console.log("Heart rate data fetched!");
+      console.log("heart rate data", heartRateData);
       this.uploadHeartRateData(heartRateData);
       console.log("Uploading of heart rate data complete!");
 

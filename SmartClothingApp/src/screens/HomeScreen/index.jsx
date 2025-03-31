@@ -71,11 +71,20 @@ export default function HomeScreen({ navigation }) {
 
   const firstName = useSelector((state) => state.user.firstName);
 
+  const testSendBatchWrite = async () => {
+    try {
+      console.log("test");
+    } catch (error) {
+      console.error("Error writing testing batch writes");
+    }
+  }
+
   return isLoading ? <LoadingOverlay /> : (
     <RefreshView style={styles.container}>
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
+        <Button onPress={async () => {await testSendBatchWrite()}}>Batch Write Test</Button>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         <Text variant="titleMedium" style={{ marginTop: 20 }}>

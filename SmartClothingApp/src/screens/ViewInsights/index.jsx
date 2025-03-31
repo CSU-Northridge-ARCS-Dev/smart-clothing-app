@@ -85,7 +85,7 @@ const ViewInsights = ({ route }) => {
     <RefreshView style={[{ flex: 1 }]}>
       <AppHeader title={previousScreenTitle} back={true} />
       <View style={{ padding: 10 }}>
-        <DateToolbar />
+        {/* <DateToolbar dateType="single" dataType="Activity Rings Data"/> */}
         <DailyInsights
           fromDashboard={false}
           handleRingPress={handleRingPress}

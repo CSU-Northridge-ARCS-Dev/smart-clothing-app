@@ -56,21 +56,23 @@ export const getHeartRateData = async (startDate, endDate) => {
   try {
     const heartRateData = await Controller.readHeartRateData(startDate, endDate);
     // console.log("Heart rate data recieved:", heartRateData);
-
+    console.log("controller hr data", heartRateData);
     // await sendHeartRateData(heartRateData);
-    
+    const arr = [];
     // Process and format heart rate data
     heartRateData.forEach(data => {
       const timestamp = new Date(data.date);
       const heartRate = data.heartRate;
       // console.log("Timestamp:", timestamp, "Heart rate:", heartRate);
-
-      return {heartRate, timestamp};
+      
+      arr.push({heartRate, timestamp});
       
       // Perform further processing as needed
     });
+    return arr;
   } catch (error) {
-    console.error("An unexpected error occurred while reading heart rate data:", error);
+    // console.error("An unexpected error occurred while reading heart rate data:", error);
+    return [];
   }
 };
 
@@ -147,7 +149,7 @@ export const getSleepData = async (startDate, endDate) => {
         startDate: dataPoint.startDate,
         endDate: dataPoint.endDate
       };
-      // console.log(`[${sleepItem.sleepValue.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startDate)} - ${convertToReadableFormat(sleepItem.endDate)}`)
+      console.log(`[${sleepItem.sleepValue.toUpperCase()}]: ${convertToReadableFormat(sleepItem.startDate)} - ${convertToReadableFormat(sleepItem.endDate)}`)
       return sleepItem
     });
 

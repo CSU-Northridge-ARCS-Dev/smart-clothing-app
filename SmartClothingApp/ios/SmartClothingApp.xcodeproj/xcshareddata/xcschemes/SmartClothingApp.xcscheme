@@ -60,6 +60,13 @@
             ReferencedContainer = "container:SmartClothingApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "Name: &quot;OS_ACTIVITY_MODE&quot;, Value:&quot;disable&quot;"
+            value = "&quot;disable&quot;"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

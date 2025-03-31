@@ -16,7 +16,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
 import { useFocusEffect } from "@react-navigation/native";
 import BaseCalendar from "./BaseCalendar";
-import { updateHeartRateDateRange, updateSleepDataDateRange } from "../../actions/appActions";
+import { updateHeartRateDateRange, updateSleepDataDateRange, updateActivityRingsDataDateRange } from "../../actions/appActions";
 
 
 const DateToolbar = (props) => {
@@ -33,6 +33,7 @@ const DateToolbar = (props) => {
 
   const heartRateDates = useSelector((state) => state.app.heartRateDateRangeData);
   const sleepDataDates = useSelector((state) => state.app.sleepDataDateRangeData);
+  const activityRingsDates = useSelector((state) => state.app.activityRingsDataDateRangeData);
   let dates;
   switch (props.dataType) {
     case 'Heart Rate':
@@ -40,6 +41,9 @@ const DateToolbar = (props) => {
       break;
     case 'Sleep Data':
       dates = sleepDataDates;
+      break;
+    case "Activity Rings Data":
+      dates = activityRingsDates;
       break;
     default:
       dates = {
@@ -90,6 +94,9 @@ const DateToolbar = (props) => {
         break;
       case "Sleep Data":
         await dispatch(updateSleepDataDateRange(startDate, endDate));
+        break;
+      case "Activity Rings Data":
+        await dispatch(updateActivityRingsDataDateRange(startDate, endDate));
         break;
       default:
         await dispatch(updateSleepDataDateRange(startDate, endDate));

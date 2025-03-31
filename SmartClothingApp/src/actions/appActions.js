@@ -42,6 +42,13 @@ export const updateSleepDataDateRangeData = (startDate, endDate) => {
   };
 };
 
+export const updateActivityRingsDataDateRangeData = (startDate, endDate) => {
+  return {
+    type: UPDATE_ACTIVITY_RINGS_DATA_DATE_RANGE,
+    payload: { startDate: startDate, endDate: endDate },
+  }
+}
+
 export const initialHealthDataSync = (onAccountCreation) => {
   return {
     type: INITIAL_HEALTH_DATA_SYNC,
@@ -115,3 +122,9 @@ export const updateSleepDataDateRange = (startDate, endDate) => {
     dispatch(updateSleepDataDateRangeData(startDate, endDate));
   };
 };
+
+export const updateActivityRingsDataDateRange = (startDate, endDate) => {
+  return async (dispatch) => {
+    dispatch(updateActivityRingsDataDateRangeData(startDate, endDate));
+  }
+}
