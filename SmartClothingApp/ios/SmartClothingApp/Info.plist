@@ -51,6 +51,8 @@
     <string>This app needs access to your health data to track fitness activities.</string>
     <key>NSHealthUpdateUsageDescription</key>
     <string>This app needs access to your health data to track fitness activities.</string>
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>This app needs local network access to connect to the development server.</string>
     <key>UIAppFonts</key>
     <array>
       <string>Feather.ttf</string>
