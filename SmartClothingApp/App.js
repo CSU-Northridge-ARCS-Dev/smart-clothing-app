@@ -31,7 +31,7 @@ import { getActivityRingsData } from "./src/utils/AppleHealthKit/AppleHealthKitU
 const store = configureStore();
 
 export default function App() {
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(true);
   //const [heartRateDataArr, setHeartRateDataArr] = useState([])
 
   // useEffect(() => {
