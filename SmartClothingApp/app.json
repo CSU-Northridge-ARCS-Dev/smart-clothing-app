@@ -23,6 +23,9 @@
       "entitlements": {
         "com.apple.developer.usernotifications": true,
         "aps-environment": "development"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
