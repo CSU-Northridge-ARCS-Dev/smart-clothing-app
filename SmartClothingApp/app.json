@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "SmartClothing",
+    "name": "SmartClothingApp",
     "slug": "SmartClothingApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -25,7 +25,8 @@
         "aps-environment": "development"
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDisplayName": "SmartClothing"
       }
     },
     "android": {

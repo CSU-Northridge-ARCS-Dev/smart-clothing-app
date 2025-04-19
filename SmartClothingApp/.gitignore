@@ -13,12 +13,18 @@ web-build/
 
 # Expo Workflow 
 # android/
-ios/
+# ios/
 
 android/google-services.json
 android/app/google-services.json
 
 ios/GoogleService-Info.plist
+ios/SmartClothing/GoogleService-Info.plist
+GoogleService-Info.plist
+
+com.arcs.smartclothingapp-push-sandbox.p12
+
+[expo]_comarcssmartclothingapp_AdHoc_1745035956280.mobileprovision
 
 # Cloud Functions for Expo Push Notifications (Not Ready)
 functions/
@@ -72,3 +78,5 @@ yarn-error.*
 *.tsbuildinfo
 
 # @end expo-cli
+
+Certificates.p12
