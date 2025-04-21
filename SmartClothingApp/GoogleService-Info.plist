@@ -9,6 +9,36 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
+	<string>com.arcs.smarttextile</string>
+	<key>PROJECT_ID</key>
+	<string>coach-student-invite</string>
+	<key>STORAGE_BUCKET</key>
+	<string>coach-student-invite.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:4619960446:ios:5677308a53cefaa642982f</string>
+</dict>
+</plist>
+<!-- <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCBXnHOkbZCMJ4jTrnsKUqwVxwobDr7kDY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>4619960446</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
 	<string>com.arcs.smartclothingapp</string>
 	<key>PROJECT_ID</key>
 	<string>coach-student-invite</string>
@@ -27,4 +57,4 @@
 	<key>GOOGLE_APP_ID</key>
 	<string>1:4619960446:ios:0a21ca6b850b0ea342982f</string>
 </dict>
-</plist>
+</plist> -->

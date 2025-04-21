@@ -47,6 +47,19 @@ target 'SmartClothingApp' do
     :privacy_file_aggregation_enabled => podfile_properties['apple.privacyManifestAggregationEnabled'] != 'false',
   )
 
+  # Required for push notifications (FCM)
+  pod 'FirebaseCore'
+  pod 'FirebaseMessaging'
+
+  # Optional: for app usage tracking
+  pod 'FirebaseAnalytics'
+
+  # Optional: if you're using auth, storage, or Firestore
+  pod 'FirebaseAuth'
+  pod 'FirebaseStorage'
+  pod 'FirebaseFirestore'
+
+
   post_install do |installer|
     react_native_post_install(
       installer,
