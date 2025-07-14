@@ -59,6 +59,13 @@ target 'SmartClothingApp' do
   pod 'FirebaseStorage'
   pod 'FirebaseFirestore'
 
+  # Disable modular headers just for gRPC-related pods
+  pod 'gRPC-C++',  :modular_headers => false
+  pod 'gRPC-Core', :modular_headers => false
+  pod 'abseil',    :modular_headers => false
+  # (Add BoringSSL-GRPC or others if CocoaPods asks)
+
+
 
   post_install do |installer|
     react_native_post_install(
