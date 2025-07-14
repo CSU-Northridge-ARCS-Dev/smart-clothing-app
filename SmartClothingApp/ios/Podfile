@@ -9,7 +9,7 @@ ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWO
 
 platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
-use_modular_headers!
+#use_modular_headers!
 
 install! 'cocoapods',
   :deterministic_uuids => false
