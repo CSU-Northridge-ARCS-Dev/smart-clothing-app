@@ -59,6 +59,11 @@ target 'SmartClothingApp' do
   pod 'FirebaseStorage'
   pod 'FirebaseFirestore'
 
+  # Was missing these
+  pod 'FirebaseCoreInternal',   :modular_headers => true
+  pod 'GoogleUtilities',        :modular_headers => true
+  pod 'RecaptchaInterop',       :modular_headers => true
+
   # Disable modular headers just for gRPC-related pods
   pod 'gRPC-C++',  :modular_headers => false
   pod 'gRPC-Core', :modular_headers => false
