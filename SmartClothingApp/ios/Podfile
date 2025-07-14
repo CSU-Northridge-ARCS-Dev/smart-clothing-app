@@ -9,7 +9,7 @@ ENV['EX_DEV_CLIENT_NETWORK_INSPECTOR'] = podfile_properties['EX_DEV_CLIENT_NETWO
 
 platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
-use_modular_headers!
+#use_modular_headers!
 
 install! 'cocoapods',
   :deterministic_uuids => false
@@ -59,6 +59,12 @@ target 'SmartClothingApp' do
   pod 'FirebaseStorage',        :modular_headers => true
   pod 'FirebaseFirestore',      :modular_headers => true
 
+  # Podfile  – add these four lines in the Firebase section ↓
+  pod 'FirebaseAuthInterop',      :modular_headers => true
+  pod 'FirebaseAppCheckInterop',  :modular_headers => true
+  pod 'FirebaseCoreExtension',    :modular_headers => true
+  pod 'FirebaseFirestoreInternal',:modular_headers => true
+
   # Was missing these
   pod 'FirebaseCoreInternal',   :modular_headers => true
   pod 'GoogleUtilities',        :modular_headers => true
@@ -69,7 +75,7 @@ target 'SmartClothingApp' do
   pod 'gRPC-Core', :modular_headers => false
   pod 'abseil',    :modular_headers => false
   # (Add BoringSSL-GRPC or others if CocoaPods asks)
-
+  pod 'BoringSSL-GRPC', :modular_headers => false 
 
 
   post_install do |installer|
