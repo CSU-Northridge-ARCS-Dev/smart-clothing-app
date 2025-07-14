@@ -17,7 +17,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arcs.smarttextile",
+      "bundleIdentifier": "com.arcs.smartclothingapp",
       "buildNumber": "1.0.0",
       "googleServicesFile": "./GoogleService-Info.plist",
       "entitlements": {
