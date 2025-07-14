@@ -48,16 +48,16 @@ target 'SmartClothingApp' do
   )
 
   # Required for push notifications (FCM)
-  pod 'FirebaseCore'
-  pod 'FirebaseMessaging'
+  pod 'FirebaseCore',           :modular_headers => true
+  pod 'FirebaseMessaging',      :modular_headers => true
 
   # Optional: for app usage tracking
-  pod 'FirebaseAnalytics'
+  pod 'FirebaseAnalytics',      :modular_headers => true
 
   # Optional: if you're using auth, storage, or Firestore
-  pod 'FirebaseAuth'
-  pod 'FirebaseStorage'
-  pod 'FirebaseFirestore'
+  pod 'FirebaseAuth',           :modular_headers => true
+  pod 'FirebaseStorage',        :modular_headers => true
+  pod 'FirebaseFirestore',      :modular_headers => true
 
   # Was missing these
   pod 'FirebaseCoreInternal',   :modular_headers => true
