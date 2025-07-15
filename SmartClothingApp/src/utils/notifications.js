@@ -2,18 +2,36 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { EXPO_PROJECT_ID } from '@env'; // Ensure this line is correct and .env file has EXPO_PROJECT_ID
 import { Alert, Platform } from 'react-native';
+import Constants from 'expo-constants';
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,   // ← show banner / alert
+    shouldShowBanner: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 //  DELETE if implemented to Server-side
+// export const sendNotification = async (title, body) => {
+//   await Notifications.scheduleNotificationAsync({
+//     content: {
+//       title: title,
+//       body: body,
+//     },
+//     trigger: null,
+//   });
+// };
+
 export const sendNotification = async (title, body) => {
+  console.log("sendNotification called with: ", body);
   await Notifications.scheduleNotificationAsync({
-    content: {
-      title: title,
-      body: body,
-    },
-    trigger: null,
+    content: { title, body },
+    trigger: { seconds: 2 },   // 1‑second delay
   });
 };
+
 
 export const registerForPushNotificationsAsync = async () => {
   let token;
@@ -49,6 +67,26 @@ export const registerForPushNotificationsAsync = async () => {
       console.log('Failed to get push token for push notification!');
       return;
     }
+
+
+    const projectId = 
+      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    if (!projectId) {
+      handleRegistrationError('Project ID not found');
+    }
+    try {
+      const pushTokenString = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId,
+        })
+      ).data;
+      console.log(pushTokenString);
+      token = pushTokenString;
+      return pushTokenString;
+    } catch (e) {
+      handleRegistrationError(`${e}`);
+    }
+    
     console.log('EXPO_PROJECT_ID:', EXPO_PROJECT_ID); 
 
     token = (await Notifications.getExpoPushTokenAsync({ projectId: EXPO_PROJECT_ID })).data;

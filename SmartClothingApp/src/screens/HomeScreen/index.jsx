@@ -41,7 +41,7 @@ export default function HomeScreen({ navigation }) {
 
   useEffect(() => {
     sendTestNotification();
-  });
+  }, []);
 
   return (
     <ScrollView style={styles.container}>
