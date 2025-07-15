@@ -18,9 +18,9 @@ web-build/
 android/google-services.json
 android/app/google-services.json
 
-ios/GoogleService-Info.plist
-ios/SmartClothing/GoogleService-Info.plist
-GoogleService-Info.plist
+# ios/GoogleService-Info.plist
+# ios/SmartClothing/GoogleService-Info.plist
+# GoogleService-Info.plist
 
 com.arcs.smartclothingapp-push-sandbox.p12
 

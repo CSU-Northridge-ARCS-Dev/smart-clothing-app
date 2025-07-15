@@ -12,11 +12,11 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F9CC26E9AE24990ABBD2130 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB0F494087040699BA21B97 /* noop-file.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
+		AA048B682E25D9550088A78D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = AA048B672E25D9550088A78D /* GoogleService-Info.plist */; };
 		AE0E33EA7CD637F02C8DFDE5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BD75242EB04D6C32B9519054 /* PrivacyInfo.xcprivacy */; };
 		B18059E884C0ABDD17F3DC3D /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC715A2D49A985799AEE119 /* ExpoModulesProvider.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C4492B0EC07EFC4E811A8269 /* Pods_SmartClothingApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B4E5087D9E449E001496279 /* Pods_SmartClothingApp.framework */; };
-		F3D113BE732F47468784EF36 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = DC5B4DF0784B4EF9B64A5158 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,12 +28,12 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SmartClothingApp/main.m; sourceTree = "<group>"; };
 		409D2D2E7DF8466B9B6B857C /* SmartClothingApp-Bridging-Header.h */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "SmartClothingApp-Bridging-Header.h"; path = "SmartClothingApp/SmartClothingApp-Bridging-Header.h"; sourceTree = "<group>"; };
 		9B4E5087D9E449E001496279 /* Pods_SmartClothingApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SmartClothingApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA048B672E25D9550088A78D /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "SmartClothingApp/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = SmartClothingApp/SplashScreen.storyboard; sourceTree = "<group>"; };
 		AA2EEE472DB398E500DD6A93 /* SmartClothingApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SmartClothingApp.entitlements; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		BD75242EB04D6C32B9519054 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = SmartClothingApp/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		DA0AB79DB5C9CE2EBA1AF77E /* Pods-SmartClothingApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SmartClothingApp.release.xcconfig"; path = "Target Support Files/Pods-SmartClothingApp/Pods-SmartClothingApp.release.xcconfig"; sourceTree = "<group>"; };
-		DC5B4DF0784B4EF9B64A5158 /* GoogleService-Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "SmartClothingApp/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED1B5944ECE2EEB131579912 /* Pods-SmartClothingApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SmartClothingApp.debug.xcconfig"; path = "Target Support Files/Pods-SmartClothingApp/Pods-SmartClothingApp.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EDB0F494087040699BA21B97 /* noop-file.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = "noop-file.swift"; path = "SmartClothingApp/noop-file.swift"; sourceTree = "<group>"; };
@@ -62,8 +62,8 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				AA048B672E25D9550088A78D /* GoogleService-Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				DC5B4DF0784B4EF9B64A5158 /* GoogleService-Info.plist */,
 				EDB0F494087040699BA21B97 /* noop-file.swift */,
 				409D2D2E7DF8466B9B6B857C /* SmartClothingApp-Bridging-Header.h */,
 				BD75242EB04D6C32B9519054 /* PrivacyInfo.xcprivacy */,
@@ -212,8 +212,8 @@
 			files = (
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				AA048B682E25D9550088A78D /* GoogleService-Info.plist in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				F3D113BE732F47468784EF36 /* GoogleService-Info.plist in Resources */,
 				AE0E33EA7CD637F02C8DFDE5 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -587,10 +587,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -660,10 +657,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
