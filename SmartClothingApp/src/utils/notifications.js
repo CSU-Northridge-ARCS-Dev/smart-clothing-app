@@ -72,7 +72,8 @@ export const registerForPushNotificationsAsync = async () => {
     const projectId = 
       Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
     if (!projectId) {
-      handleRegistrationError('Project ID not found');
+      //handleRegistrationError('Project ID not found');
+      console.log('Project ID not found');
     }
     try {
       const pushTokenString = (
@@ -84,7 +85,8 @@ export const registerForPushNotificationsAsync = async () => {
       token = pushTokenString;
       return pushTokenString;
     } catch (e) {
-      handleRegistrationError(`${e}`);
+      //handleRegistrationError(`${e}`);
+      console.log(e);
     }
     
     console.log('EXPO_PROJECT_ID:', EXPO_PROJECT_ID); 
