@@ -4,14 +4,14 @@ import { EXPO_PROJECT_ID } from '@env'; // Ensure this line is correct and .env 
 import { Alert, Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,   // ← show banner / alert
-    shouldShowBanner: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,   // ← show banner / alert
+//     shouldShowBanner: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
 
 //  DELETE if implemented to Server-side
 // export const sendNotification = async (title, body) => {
