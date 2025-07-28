@@ -308,7 +308,7 @@ exports[`ViewInsights renders correctly 1`] = `
                   <View
                     collapsable={false}
                     enabled={false}
-                    handlerTag={1}
+                    handlerTag={-1}
                     handlerType="PanGestureHandler"
                     needsOffscreenAlphaCompositing={false}
                     onGestureHandlerEvent={[Function]}

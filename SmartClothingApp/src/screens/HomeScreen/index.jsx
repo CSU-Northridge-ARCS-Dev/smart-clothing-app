@@ -51,13 +51,13 @@ export default function HomeScreen({ navigation }) {
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
         {/* Test Notification Button */}
-        <Button
+        {/* <Button
           mode="contained"
           onPress={sendTestNotification}
           style={{ marginTop: 20 }}
         >
           Send Test Notification
-        </Button>
+        </Button> */}
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Today Status
         </Text>
