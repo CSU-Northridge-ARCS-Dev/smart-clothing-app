@@ -22,6 +22,7 @@ import {
   updateUserMetricsData,
   restoreUUID,
   fetchPendingPermissions,
+  startRegisterPushToken,
 } from "./src/actions/userActions.js";
 import SplashScreen from "react-native-splash-screen";
 import {
@@ -92,12 +93,13 @@ export default function App() {
 
   const registerForPushNotifications = async () => {
     try {
-      const token = await registerForPushNotificationsAsync();
-      if (token) {
-        console.log("Expo push token:", token);
-        await storeToken(token);
-        // sendNotification("Welcome to the app!", token);
-      }
+      // const token = await registerForPushNotificationsAsync();
+      // if (token) {
+      //   console.log("Expo push token:", token);
+      //   await storeToken(token);
+      //   // sendNotification("Welcome to the app!", token);
+      // }
+      await store.dispatch(startRegisterPushToken());
     } catch (error) {
       console.error("Error registering for push notifications:", error);
     }

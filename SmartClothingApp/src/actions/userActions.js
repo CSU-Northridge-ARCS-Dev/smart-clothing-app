@@ -68,8 +68,7 @@ import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import * as Notifications from 'expo-notifications';
-
+import { registerForPushNotificationsAsync } from '../utils/notifications';
 
 
 const loginWithEmail = (user) => {
@@ -600,14 +599,9 @@ export const deleteAccount = () => {
 export const startRegisterPushToken = () => {
   return async (dispatch) => {
     try {
-      let { granted } = await Notifications.getPermissionsAsync();
-      if (!granted) {
-        const res = await Notifications.requestPermissionsAsync();
-        granted = res.granted;
-      }
-      if (!granted) return;
-
-      const { data: token } = await Notifications.getExpoPushTokenAsync();
+      const token = await registerForPushNotificationsAsync();
+      if (!token) return;
+      console.log('token: ',token);
       const userRef = doc(database, 'Users', auth.currentUser.uid);
       await updateDoc(userRef, { expoPushToken: token }); // or expoPushTokens: arrayUnion(token)
       await storeToken(token);

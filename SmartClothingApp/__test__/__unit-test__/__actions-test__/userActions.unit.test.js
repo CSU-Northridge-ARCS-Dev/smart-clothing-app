@@ -1514,7 +1514,7 @@ describe('Async User Actions', () => {
       errorSpy.mockRestore();
     });
 
-    it('clears Expo push token on logout (if implemented)', async () => {
+    it('clears Expo push token on logout', async () => {
       const store = mockStore({});
 
       const mockUserDocRef = {};

@@ -44,12 +44,42 @@ import ProfileScreen from '../../src/screens/Profile';
 
 import AppTheme from '../../src/constants/themes'; 
 
+import { doc, updateDoc } from 'firebase/firestore';
+
+import { 
+  storeUID, 
+  storeMetrics, 
+  getUID, 
+  clearUID, 
+  clearMetrics, 
+  getMetrics, 
+  storeFirstName,
+  getFirstName,
+  clearFirstName,
+  storeLastName,
+  getLastName,
+  clearLastName,
+  storeEmail,
+  getEmail,
+  clearEmail,
+  storeToken,
+  getToken,
+  clearToken
+} from "../../src/utils/localStorage.js";
+
 import {
   startLogout,
   startUpdateProfile,
   startUpdateUserData,
   startLoadUserData,
+  startRegisterPushToken,
+  scheduleLocalNotification,
 } from '../../src/actions/userActions';
+
+import { registerForPushNotificationsAsync } from '../../src/utils/notifications';
+import { auth, database } from '../../firebaseConfig';
+
+
 
 const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares);
@@ -76,6 +106,9 @@ jest.mock('../../src/utils/localStorage.js', () => ({
   storeEmail: jest.fn(),
   getEmail: jest.fn(),
   clearEmail: jest.fn(),
+  storeToken: jest.fn(),
+  getToken: jest.fn(),
+  clearToken: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -99,9 +132,12 @@ jest.mock('../../firebaseConfig', () => ({
     auth: {
         signOut: jest.fn(() => Promise.resolve()),
         currentUser: {
+            uid: 'testUID',
             displayName: 'John Doe',
+            delete: jest.fn().mockResolvedValue(),
         },
-    }
+    },
+    database: {},
   }));
 
 jest.mock('firebase/auth', () => ({
@@ -213,14 +249,29 @@ jest.mock('@react-navigation/native', () => {
   //   loadAsync: jest.fn().mockResolvedValue(true),
   // }));
 
-  jest.mock("expo-notifications", () => ({
-    setNotificationHandler: jest.fn(),
-    addNotificationReceivedListener: jest.fn(),
-    addNotificationResponseReceivedListener: jest.fn(),
-    getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
-  }));
+// Expo Notifications
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn(),
+  requestPermissionsAsync: jest.fn(),
+  getExpoPushTokenAsync: jest.fn(),
+  scheduleNotificationAsync: jest.fn(),
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+}));
 
+// Device actions used by AppHeader on logout
+jest.mock('../../src/actions/deviceActions.js', () => ({
+  removePushTokenFromBackend: jest.fn(() => (dispatch) =>
+    dispatch({ type: 'MOCK_REMOVE_PUSH_TOKEN' })
+  ),
+}));
 
+jest.mock('../../src/utils/notifications', () => ({
+  registerForPushNotificationsAsync: jest.fn(),
+  sendNotification: jest.fn(),
+}));
 
 
 
@@ -238,22 +289,26 @@ jest.mock('@react-navigation/native', () => {
  */
 describe('User Actions Integration Test', () => {
   let store;
+  let consoleErrorSpy;
 
   beforeEach(() => {
     jest.useFakeTimers();
+    jest.clearAllMocks();
 
     // Temporarily store the original console.error
-    originalConsoleError = console.error;
+    // originalConsoleError = console.error;
 
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-      if (!message.includes('Warning: An update to')) {
-        originalConsoleError(message);
-      }
-    });
+    // jest.spyOn(console, 'error').mockImplementation((message) => {
+    //   if (!message.includes('Warning: An update to')) {
+    //     originalConsoleError(message);
+    //   }
+    // });
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    console.error.mockRestore();
+    //console.error.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
   // beforeEach(() => {
   //   jest.spyOn(console, 'error').mockImplementation((message) => {
@@ -423,6 +478,114 @@ describe('User Actions Integration Test', () => {
         });
       });
   });
+
+
+
+  it('registers and stores Expo push token when util returns a token', async () => {
+    const store = mockStore({});
+    const token = 'ExponentPushToken[abc123]';
+
+    registerForPushNotificationsAsync.mockResolvedValue(token);
+
+    const mockUserDocRef = {};
+    doc.mockReturnValue(mockUserDocRef);
+    updateDoc.mockResolvedValue();
+    storeToken.mockResolvedValue();
+
+    await store.dispatch(startRegisterPushToken());
+
+    expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', auth.currentUser.uid);
+    expect(updateDoc).toHaveBeenCalledWith(mockUserDocRef, { expoPushToken: token });
+    expect(storeToken).toHaveBeenCalledWith(token);
+  });
+
+  it('does nothing when util returns null/undefined (permission denied)', async () => {
+    const store = mockStore({});
+    registerForPushNotificationsAsync.mockResolvedValue(undefined);
+
+    await store.dispatch(startRegisterPushToken());
+
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(storeToken).not.toHaveBeenCalled();
+  });
+
+  it('handles error from util gracefully', async () => {
+    const store = mockStore({});
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    registerForPushNotificationsAsync.mockRejectedValue(new Error('Token failure'));
+
+    await store.dispatch(startRegisterPushToken());
+
+    expect(updateDoc).not.toHaveBeenCalled();
+    expect(errSpy).toHaveBeenCalled();
+    errSpy.mockRestore();
+  });
+
+  it('should clear Expo push token in Firestore and local storage when logging out from AppHeader', async () => {
+    const initialState = {
+      auth: { uid: '123', displayName: 'John Doe' },
+      user: { profile: {}, metrics: {} },
+    };
+    const store = mockStore(initialState);
+
+    const mockUserDocRef = {};
+    doc.mockReturnValue(mockUserDocRef);
+    updateDoc.mockResolvedValue();
+    clearToken.mockResolvedValue();
+
+    const { getByTestId, queryByText } = render(
+      <Provider store={store}>
+        <PaperProvider>
+          <NavigationContainer>
+            <View>
+              <AppHeader title={'Test Title'} menu={true} />
+            </View>
+          </NavigationContainer>
+        </PaperProvider>
+      </Provider>
+    );
+
+    // Open menu
+    await act(async () => {
+      fireEvent.press(getByTestId('menu-action'));
+    });
+
+    await waitFor(() => {
+      expect(queryByText('Logout')).not.toBeNull();
+    });
+
+    // Click Logout -> confirm Yes
+    await act(async () => {
+      fireEvent.press(getByTestId('sign-out-button'));
+    });
+
+    let confirmBtn;
+    await waitFor(() => {
+      confirmBtn = getByTestId('yes-sign-out-button');
+    });
+
+    await act(async () => {
+      fireEvent.press(confirmBtn);
+    });
+
+    // Assert Redux actions (you already do this)
+    await waitFor(() => {
+      const actions = store.getActions();
+      expect(actions).toContainEqual({ type: 'LOGOUT' });
+      expect(actions).toContainEqual({ type: 'showErrorToast', payload: 'User logged out!' });
+      // Dispatched by AppHeader after startLogout
+      expect(actions).toContainEqual({ type: 'MOCK_REMOVE_PUSH_TOKEN' });
+    });
+
+    // Assert token cleared in Firestore + local
+    expect(doc).toHaveBeenCalledWith(expect.anything(), 'Users', 'testUID');
+    expect(updateDoc).toHaveBeenCalledWith(mockUserDocRef, { expoPushToken: null });
+    expect(clearToken).toHaveBeenCalled();
+  });
+
+
+
+
 
 
 
