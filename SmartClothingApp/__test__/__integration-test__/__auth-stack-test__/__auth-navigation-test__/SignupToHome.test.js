@@ -1,3 +1,5 @@
+// at the very top of the file
+const originalConsoleError = console.error.bind(console);
 /**
  * Integration tests for Sign-Up to Dashboard navigation flow in the Smart Clothing App.
  * 
@@ -33,6 +35,9 @@ import rootReducer from '../../../../src/store.js';
 import AppRouter from '../../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+
 
 
 
@@ -280,7 +285,11 @@ jest.mock('expo-notifications', () => ({
   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
 }));
-  
+
+
+
+
+  const createMockStore = configureMockStore([thunk]);
   
   // Create a StackNavigator with your Sign-In and Dashboard screens
 const Stack = createStackNavigator();
@@ -307,17 +316,52 @@ function TestComponent() {
  * @test {Sign-Up to Dashboard Integration}
  */
 describe('SignUpToHome Integration Test', () => {
+  // beforeEach(() => {
+  //   // Prevents 'wrap act()' console log warning 
+  //   jest.spyOn(console, 'error').mockImplementation((message) => {
+  //     if (message.includes('Warning: An update to')) {
+  //       return;
+  //     }
+  //     console.error(message);
+  //   });
+
+  //   jest.useFakeTimers();
+  // });
+  // beforeEach(() => {
+  //   originalError = console.error; // keep original
+  //   errorSpy = jest.spyOn(console, 'error').mockImplementation((...args) => {
+  //     const [first] = args;
+  //     if (typeof first === 'string' && first.includes('Warning: An update to')) return;
+  //     originalError(...args); // call the real console.error, not the mock
+  //   });
+
+  //   jest.useFakeTimers();
+  // });
+
+  // afterEach(() => {
+  //   errorSpy.mockRestore();
+  // });
   beforeEach(() => {
-    // Prevents 'wrap act()' console log warning 
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-      if (message.includes('Warning: An update to')) {
+    jest.useFakeTimers('modern');
+    store = createMockStore({});
+
+    jest.spyOn(console, 'error').mockImplementation((...args) => {
+      const [first, ...rest] = args;
+      if (typeof first === 'string' && first.includes('Warning: An update to')) {
         return;
       }
-      console.error(message);
+      originalConsoleError(first, ...rest);
     });
 
-    jest.useFakeTimers();
   });
+  afterEach(() => {
+    /* ... */
+    console.error.mockRestore();
+  });
+
+
+
+
 
 
   /**

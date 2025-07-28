@@ -17,10 +17,13 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { startSignupWithEmail } from "../../actions/userActions.js";
+import { 
+  startSignupWithEmail,
+  startRegisterPushToken
+} from "../../actions/userActions.js";
 
 import * as Notifications from 'expo-notifications';
-import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
+//import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
 import { savePushTokenToBackend } from '../../actions/deviceActions.js';
 import { getToken } from '../../utils/localStorage.js'
 
@@ -80,10 +83,18 @@ const SignupScreen = ({ navigation }) => {
   const registerForPushNotifications = async () => {
     // const token = await registerForPushNotificationsAsync();
     //const token = await getToken();
-    if (token) {
-      // Save the token in  backend 
-      console.log("Expo push token:", token);
-      await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+    // if (token) {
+    //   // Save the token in  backend 
+    //   console.log("Expo push token:", token);
+    //   await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+    // }
+
+
+    // token handling moved inside the thunk
+    try {
+      await dispatch(startRegisterPushToken());
+    } catch (error) {
+      console.error(error.toString());
     }
   };
 

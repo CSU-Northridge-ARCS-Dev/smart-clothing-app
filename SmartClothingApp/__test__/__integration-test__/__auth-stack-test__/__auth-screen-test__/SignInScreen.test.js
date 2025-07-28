@@ -22,7 +22,8 @@
 import React from 'react';
 import { render, fireEvent, waitFor, cleanup  } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
+//import configureStore from 'redux-mock-store';
+import configureMockStore from 'redux-mock-store';
 import { act } from 'react-test-renderer';
 import thunk from 'redux-thunk';
 import SigninScreen from '../../../../src/screens/SigninScreen';
@@ -179,19 +180,27 @@ jest.mock('expo-asset', () => ({
 //   loadAsync: jest.fn().mockResolvedValue(true),
 // }));
 
+// jest.mock('expo-notifications', () => ({
+//   setNotificationHandler: jest.fn(),
+//   addNotificationReceivedListener: jest.fn(),
+//   addNotificationResponseReceivedListener: jest.fn(),
+//   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+//   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+// }));
 jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
-  addNotificationReceivedListener: jest.fn(),
-  addNotificationResponseReceivedListener: jest.fn(),
+  addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
 }));
 
 
 
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
 
+const middlewares = [thunk];
+//const mockStore = configureStore(middlewares);
+const createMockStore = configureMockStore([thunk]);
 
 
 /**
@@ -208,34 +217,50 @@ const mockStore = configureStore(middlewares);
 describe('SigninScreen/Auth Integration Test', () => {
   let store;
 
+//   beforeEach(() => {
+//     store = mockStore({});
+
+//     // Prevents 'wrap act()' console log warning 
+//     jest.spyOn(console, 'error').mockImplementation((message) => {
+//       if (message.includes('Warning: An update to')) {
+//         return; // Exit gracefully
+//       }
+//       // Use the original implementation without recursion
+//       process.stderr.write(`Error: ${message}\n`);
+//     });
+
+//     // jest.spyOn(console, 'error').mockImplementation((message) => {
+//     //   if (message.includes('Warning: An update to')) {
+//     //     return;
+//     //   }
+//     //   console.error(message);
+//     // });
+
+//     jest.useFakeTimers();
+//   });
+
+//  // Clean up after each test by resetting the alert spy
+//  afterEach(() => {
+//     jest.clearAllTimers();
+//     jest.clearAllMocks();
+//     cleanup();
+//   });
+
+  let errorSpy;
   beforeEach(() => {
-    store = mockStore({});
-
-    // Prevents 'wrap act()' console log warning 
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-      if (message.includes('Warning: An update to')) {
-        return; // Exit gracefully
-      }
-      // Use the original implementation without recursion
-      process.stderr.write(`Error: ${message}\n`);
-    });
-
-    // jest.spyOn(console, 'error').mockImplementation((message) => {
-    //   if (message.includes('Warning: An update to')) {
-    //     return;
-    //   }
-    //   console.error(message);
-    // });
-
-    jest.useFakeTimers();
+    jest.useFakeTimers('modern'); // ✅ modern fake timers
+    store = createMockStore({});
   });
 
- // Clean up after each test by resetting the alert spy
- afterEach(() => {
-    jest.clearAllTimers();
+  afterEach(() => {
+    jest.runOnlyPendingTimers(); // ensure timers are drained
+    jest.useRealTimers();        // reset timer mocks
+    jest.clearAllTimers();       // cleanup
     jest.clearAllMocks();
     cleanup();
   });
+
+
 
 
   /**
