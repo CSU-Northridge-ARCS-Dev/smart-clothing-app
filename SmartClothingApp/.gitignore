@@ -81,3 +81,5 @@ yarn-error.*
 
 Certificates.p12
 credentials/
+
+google-services.json

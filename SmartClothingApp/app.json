@@ -30,7 +30,7 @@
     },
     "android": {
       "package": "com.arcs.smartclothingapp",
-      "googleServicesFile": "./google-services.json",
+      "googleServicesFile": "./android/app/google-services.json",
       "useNextNotificationsApi": true,
       "versionCode": 1
     },
