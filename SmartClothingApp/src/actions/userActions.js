@@ -596,20 +596,66 @@ export const deleteAccount = () => {
 
 
 // Register & save Expo push token (To Replace the one in App.js later)
+// export const startRegisterPushToken = () => {
+//   return async (dispatch) => {
+//     try {
+//       const token = await registerForPushNotificationsAsync();
+//       if (!token) return;
+//       console.log('token: ',token);
+//       const userRef = doc(database, 'Users', auth.currentUser.uid);
+//       await updateDoc(userRef, { expoPushToken: token }); // or expoPushTokens: arrayUnion(token)
+//       await storeToken(token);
+//     } catch (err) {
+//       console.error('startRegisterPushToken error:', err);
+//     }
+//   };
+// };
+// export const startRegisterPushToken = () => {
+//   return async (dispatch) => {
+//     try {
+//       const token = await registerForPushNotificationsAsync();
+//       if (!token) return;
+//       console.log('token: ', token);
+
+//       const user = auth.currentUser;
+//       if (!user || !user.uid) {
+//         console.warn('startRegisterPushToken: No authenticated user');
+//         return;
+//       }
+
+//       const userRef = doc(database, 'Users', user.uid);
+//       await updateDoc(userRef, { expoPushToken: token }); // or arrayUnion(token)
+//       await storeToken(token);
+//     } catch (err) {
+//       console.error('startRegisterPushToken error:', err);
+//     }
+//   };
+// };
 export const startRegisterPushToken = () => {
   return async (dispatch) => {
     try {
       const token = await registerForPushNotificationsAsync();
-      if (!token) return;
-      console.log('token: ',token);
-      const userRef = doc(database, 'Users', auth.currentUser.uid);
-      await updateDoc(userRef, { expoPushToken: token }); // or expoPushTokens: arrayUnion(token)
+      if (!token) return null;
+      console.log('token: ', token);
+
+      const user = auth.currentUser;
+      if (!user || !user.uid) {
+        console.warn('startRegisterPushToken: No authenticated user');
+        return null;
+      }
+
+      const userRef = doc(database, 'Users', user.uid);
+      await updateDoc(userRef, { expoPushToken: token }); // or arrayUnion(token)
       await storeToken(token);
+
+      return token;
     } catch (err) {
       console.error('startRegisterPushToken error:', err);
+      return null;
     }
   };
 };
+
 // Clear token on logout (or call inside startLogout before clearing local storage)
 export const clearPushTokenOnLogout = () => {
   return async () => {

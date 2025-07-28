@@ -92,7 +92,12 @@ const SignupScreen = ({ navigation }) => {
 
     // token handling moved inside the thunk
     try {
-      await dispatch(startRegisterPushToken());
+      const token = await dispatch(startRegisterPushToken());
+      if (token) {
+        // Save the token in  backend 
+        console.log("Expo push token:", token);
+        await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+      }
     } catch (error) {
       console.error(error.toString());
     }
