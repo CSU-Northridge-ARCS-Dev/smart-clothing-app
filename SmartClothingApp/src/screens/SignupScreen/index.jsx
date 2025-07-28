@@ -79,7 +79,7 @@ const SignupScreen = ({ navigation }) => {
 
   const registerForPushNotifications = async () => {
     // const token = await registerForPushNotificationsAsync();
-    const token = await getToken();
+    //const token = await getToken();
     if (token) {
       // Save the token in  backend 
       console.log("Expo push token:", token);

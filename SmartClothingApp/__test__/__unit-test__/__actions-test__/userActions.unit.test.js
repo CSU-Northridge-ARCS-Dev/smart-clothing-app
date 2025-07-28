@@ -41,6 +41,9 @@ import {
   storeEmail,
   getEmail,
   clearEmail,
+  storeToken,
+  getToken,
+  clearToken
 } from "../../../src/utils/localStorage.js";
 import { 
   setDoc, 
@@ -70,7 +73,10 @@ import {
   queryHeartRateData,
   deleteAccount,
   logout,
-  restoreUUID
+  restoreUUID,
+  startRegisterPushToken,
+  scheduleLocalNotification,
+  clearPushTokenOnLogout,
 } from '../../../src/actions/userActions.js'; 
 import { 
   LOGIN_WITH_EMAIL,
@@ -98,6 +104,7 @@ import {
 } from '../../../src/actions/appActions.js';
 import { type } from '@testing-library/react-native/build/user-event/type/type.js';
 import 'react-native-gesture-handler/jestSetup';
+import * as Notifications from 'expo-notifications';
 
 
 /**
@@ -121,6 +128,9 @@ jest.mock('../../../src/utils/localStorage.js', () => ({
   storeEmail: jest.fn(),
   getEmail: jest.fn(),
   clearEmail: jest.fn(),
+  storeToken: jest.fn(),
+  getToken: jest.fn(),
+  clearToken: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -219,6 +229,17 @@ jest.mock('react-native-paper', () => {
     Provider: ({ children }) => <>{children}</>,
   };
 });
+
+jest.mock('expo-notifications', () => ({
+  getPermissionsAsync: jest.fn(),
+  requestPermissionsAsync: jest.fn(),
+  getExpoPushTokenAsync: jest.fn(),
+  scheduleNotificationAsync: jest.fn(),
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn(),
+}));
 
 
 
@@ -1404,6 +1425,117 @@ describe('Async User Actions', () => {
   
       expect(actions).toContainEqual(toastError(errorMessage));
       expect(console.error).toHaveBeenCalledWith("Error deleting account:", expect.any(Error));
+    });
+  });
+
+
+
+  describe('Push Notifications', () => {
+    const uid = 'testUID';
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+      jest.clearAllMocks();
+
+      // Ensure auth.currentUser exists for these tests
+      auth.currentUser = { uid, email: 'test@example.com' };
+    });
+
+    it('registers and stores Expo push token when permission is already granted', async () => {
+      const store = mockStore({});
+      const token = 'ExponentPushToken[abc123]';
+
+      // Permissions already granted
+      Notifications.getPermissionsAsync.mockResolvedValue({ status: 'granted', granted: true });
+      Notifications.requestPermissionsAsync.mockResolvedValue({ status: 'granted', granted: true });
+      Notifications.getExpoPushTokenAsync.mockResolvedValue({ data: token });
+
+      const mockUserDocRef = {};
+      doc.mockReturnValue(mockUserDocRef);
+      updateDoc.mockResolvedValue();
+
+      storeToken.mockResolvedValue(); // if you store locally
+
+      await store.dispatch(startRegisterPushToken());
+
+      // Firestore saves token under Users/<uid>
+      expect(doc).toHaveBeenCalledWith(database, 'Users', uid);
+      expect(updateDoc).toHaveBeenCalledWith(mockUserDocRef, { expoPushToken: token });
+      // Optional local storage
+      expect(storeToken).toHaveBeenCalledWith(token);
+    });
+
+    it('requests permission then registers token when permission initially undetermined/denied', async () => {
+      const store = mockStore({});
+      const token = 'ExponentPushToken[xyz987]';
+
+      // First call = not granted; second = granted
+      Notifications.getPermissionsAsync.mockResolvedValueOnce({ status: 'undetermined', granted: false });
+      Notifications.requestPermissionsAsync.mockResolvedValueOnce({ status: 'granted', granted: true });
+
+      Notifications.getExpoPushTokenAsync.mockResolvedValue({ data: token });
+
+      const mockUserDocRef = {};
+      doc.mockReturnValue(mockUserDocRef);
+      updateDoc.mockResolvedValue();
+
+      await store.dispatch(startRegisterPushToken());
+
+      expect(Notifications.getPermissionsAsync).toHaveBeenCalled();
+      expect(Notifications.requestPermissionsAsync).toHaveBeenCalled();
+      expect(Notifications.getExpoPushTokenAsync).toHaveBeenCalled();
+
+      expect(doc).toHaveBeenCalledWith(database, 'Users', uid);
+      expect(updateDoc).toHaveBeenCalledWith(mockUserDocRef, { expoPushToken: token });
+    });
+
+    it('handles failure to fetch Expo push token gracefully', async () => {
+      const store = mockStore({});
+
+      Notifications.getPermissionsAsync.mockResolvedValue({ status: 'granted', granted: true });
+      Notifications.getExpoPushTokenAsync.mockRejectedValue(new Error('Token failure'));
+
+      const mockUserDocRef = {};
+      doc.mockReturnValue(mockUserDocRef);
+
+      // Spy on console.error or expect a toast
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const actionsBefore = store.getActions().length;
+
+      await store.dispatch(startRegisterPushToken());
+
+      // No Firestore write on failure
+      expect(updateDoc).not.toHaveBeenCalled();
+      // No new Redux actions required unless you dispatch a toast
+      const actionsAfter = store.getActions().length;
+      expect(actionsAfter).toBe(actionsBefore);
+
+      expect(errorSpy).toHaveBeenCalled();
+      errorSpy.mockRestore();
+    });
+
+    it('clears Expo push token on logout (if implemented)', async () => {
+      const store = mockStore({});
+
+      const mockUserDocRef = {};
+      doc.mockReturnValue(mockUserDocRef);
+      updateDoc.mockResolvedValue();
+
+      clearToken.mockResolvedValue();
+
+      // If you fold this into startLogout, replace with startLogout() here
+      await store.dispatch(clearPushTokenOnLogout());
+
+      // Remove token in Firestore (choose one impl and match here)
+      // Option A: set to null
+      expect(updateDoc).toHaveBeenCalledWith(mockUserDocRef, { expoPushToken: null });
+
+      // If you use arrayRemove for multi-device tokens, change expectation accordingly:
+      // expect(updateDoc).toHaveBeenCalledWith(mockUserDocRef, {
+      //   expoPushTokens: arrayRemove(expect.any(String)),
+      // });
+
+      expect(clearToken).toHaveBeenCalled();
     });
   });
 });

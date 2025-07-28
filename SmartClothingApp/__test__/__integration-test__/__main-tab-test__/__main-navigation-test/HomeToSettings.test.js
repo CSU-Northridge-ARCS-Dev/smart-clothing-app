@@ -122,6 +122,9 @@ jest.mock('firebase/firestore', () => ({
     }),
   }))
 
+
+
+
   // Mocking vector icons and other UI components
   jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons.js').MaterialIcons);
   jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons.js').FontAwesome5);
@@ -419,7 +422,42 @@ describe('Dashboard to Settings Integration Test', () => {
   });
 
 
+  /**
+   * Test case: Should open Manage Permissions from Settings screen
+   *
+   * @test {Settings to Manage Permissions}
+   */
+  it('Should navigate from main Settings Screen to Manage Permissions modal', async () => {
+    store = configureStore();
+
+    const { getByText } = render(
+      <StoreProvider store={store}>
+        <PaperProvider>
+          <TestComponent2 />
+        </PaperProvider>
+      </StoreProvider>
+    );
+
+    // Tap the "MANAGE PERMISSIONS" button
+    const managePermissionsText = getByText('MANAGE PERMISSIONS');
+    const managePermissionsView = managePermissionsText.parent || managePermissionsText;
+
+    await act(async () => {
+      fireEvent.press(managePermissionsView);
+    });
+
+    // Confirm the modal rendered by checking for its title and key labels
+    await waitFor(() => {
+      expect(getByText('Manage Permissions')).toBeTruthy();
+      expect(getByText('Health Data Sharing')).toBeTruthy();
+      expect(getByText('Coach Data Sharing')).toBeTruthy();
+    });
+  });
+
+
+
   
+
   // it('Should navigate from main Settings Screen to Delete Data Screen', async() => {
   //     store = configureStore();
 

@@ -15,7 +15,25 @@ import {
   arrayRemove,
 } from "firebase/firestore";
 
-import { storeUID, storeMetrics, storeFirstName, storeLastName, storeEmail, getUID, getMetrics, getFirstName, getLastName, getEmail, clearUID, clearMetrics, clearFirstName, clearLastName, clearEmail } from "../utils/localStorage.js";
+import { 
+  storeUID, 
+  storeMetrics, 
+  storeFirstName, 
+  storeLastName, 
+  storeEmail, 
+  getUID, 
+  getMetrics, 
+  getFirstName, 
+  getLastName, 
+  getEmail, 
+  clearUID, 
+  clearMetrics, 
+  clearFirstName, 
+  clearLastName, 
+  clearEmail ,
+  storeToken,
+  clearToken
+} from "../utils/localStorage.js";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -49,6 +67,10 @@ import {
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import * as Notifications from 'expo-notifications';
+
+
 
 const loginWithEmail = (user) => {
   return {
@@ -136,6 +158,10 @@ export const updateEmailData = (newEmail) => {
 export const startLogout = () => {
   return async (dispatch) => {
     try {
+
+      // clear Firestore + local token first
+      await dispatch(clearPushTokenOnLogout()); 
+
       const uidBefore = await getUID();
       console.log("UID before logout: ", uidBefore);
 
@@ -569,6 +595,53 @@ export const deleteAccount = () => {
 
 
 
+
+// Register & save Expo push token (To Replace the one in App.js later)
+export const startRegisterPushToken = () => {
+  return async (dispatch) => {
+    try {
+      let { granted } = await Notifications.getPermissionsAsync();
+      if (!granted) {
+        const res = await Notifications.requestPermissionsAsync();
+        granted = res.granted;
+      }
+      if (!granted) return;
+
+      const { data: token } = await Notifications.getExpoPushTokenAsync();
+      const userRef = doc(database, 'Users', auth.currentUser.uid);
+      await updateDoc(userRef, { expoPushToken: token }); // or expoPushTokens: arrayUnion(token)
+      await storeToken(token);
+    } catch (err) {
+      console.error('startRegisterPushToken error:', err);
+    }
+  };
+};
+// Clear token on logout (or call inside startLogout before clearing local storage)
+export const clearPushTokenOnLogout = () => {
+  return async () => {
+    try {
+      const userRef = doc(database, 'Users', auth.currentUser.uid);
+      // If you store a single token:
+      await updateDoc(userRef, { expoPushToken: null });
+
+      // If you store an array of tokens, switch to:
+      // const token = await getToken();
+      // if (token) await updateDoc(userRef, { expoPushTokens: arrayRemove(token) });
+
+      await clearToken();
+    } catch (err) {
+      console.error('clearPushTokenOnLogout error:', err);
+    }
+  };
+};
+
+
+
+
+
+
+
+
 export const fetchPendingPermissions = () => {
   console.log("fetchPermissions called.");
   return async (dispatch) => {
@@ -814,3 +887,7 @@ export const queryHeartRateData = async (startDate, endDate) => {
     return [];
   }
 };
+
+
+
+

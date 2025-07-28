@@ -28,7 +28,7 @@ export const sendNotification = async (title, body) => {
   console.log("sendNotification called with: ", body);
   await Notifications.scheduleNotificationAsync({
     content: { title, body },
-    trigger: { seconds: 7 },   // 1‑second delay
+    trigger: { seconds: 1 },   // 1‑second delay
   });
 };
 
