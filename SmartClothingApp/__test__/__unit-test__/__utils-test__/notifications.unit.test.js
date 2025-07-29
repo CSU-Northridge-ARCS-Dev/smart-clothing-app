@@ -3,6 +3,7 @@
  */
 
 // ---- global mocks (must come BEFORE the util is imported) ----
+
 jest.mock('@env', () => ({ EXPO_PROJECT_ID: 'test-project-id' }), { virtual: true });
 
 jest.mock('expo-constants', () => ({
@@ -10,6 +11,7 @@ jest.mock('expo-constants', () => ({
   isDevice: true,
 }), { virtual: true });
 
+// ✅ Real mock, not empty
 jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(),
   requestPermissionsAsync: jest.fn(),
@@ -17,15 +19,24 @@ jest.mock('expo-notifications', () => ({
   scheduleNotificationAsync: jest.fn(),
   setNotificationChannelAsync: jest.fn(),
   AndroidImportance: { MAX: 'MAX' },
-}));
+}), { virtual: true });
 
-// ---- now import; only once! ----
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import {
-  registerForPushNotificationsAsync,
-  sendNotification,
-} from '../../../src/utils/notifications';
+
+let Notifications; // <-- acquire AFTER reset
+let registerForPushNotificationsAsync;
+let sendNotification;
+
+beforeEach(() => {
+  jest.resetModules();
+  jest.isolateModules(() => {
+    // same instance the util will import
+    Notifications = require('expo-notifications');
+    ({ registerForPushNotificationsAsync, sendNotification } =
+      require('../../../src/utils/notifications'));
+  });
+});
+
 
 describe('../../../src/utils/notifications', () => {
   const originalOS = Platform.OS;
