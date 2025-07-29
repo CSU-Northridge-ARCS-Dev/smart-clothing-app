@@ -52,6 +52,9 @@ describe('userReducer', () => {
     lastName: null,
     email: null,
     authError: null,
+    coachAccess: [],
+    coachAccessDisabled: [],
+    pendingPermissions: [],
     userMetricsData: {
       gender: "No Data",
       dob: new Date(),

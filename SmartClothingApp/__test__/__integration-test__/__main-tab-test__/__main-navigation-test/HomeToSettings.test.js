@@ -66,7 +66,19 @@ jest.mock('../../../../firebaseConfig.js', () => ({
     getUID: jest.fn(),
     clearUID: jest.fn(),
     getMetrics: jest.fn(),
-    clearMetrics: jest.fn()
+    clearMetrics: jest.fn(),
+    storeFirstName: jest.fn(),
+    getFirstName: jest.fn(),
+    clearFirstName: jest.fn(),
+    storeLastName: jest.fn(),
+    getLastName: jest.fn(),
+    clearLastName: jest.fn(),
+    storeEmail: jest.fn(),
+    getEmail: jest.fn(),
+    clearEmail: jest.fn(),
+    getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+    storeToken: jest.fn(),
+    clearToken: jest.fn(),
   }));
   
   // Mock AsyncStorage
@@ -110,6 +122,9 @@ jest.mock('firebase/firestore', () => ({
     }),
   }))
 
+
+
+
   // Mocking vector icons and other UI components
   jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__mocks__/react-native-vector-icons.js').MaterialIcons);
   jest.mock('react-native-vector-icons/FontAwesome5', () => require('../../../__mocks__/react-native-vector-icons.js').FontAwesome5);
@@ -133,6 +148,95 @@ jest.mock('firebase/firestore', () => ({
       useChartPressState: MockUseChartPressState,
     };
   });
+
+  jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
+  jest.mock('react-native-vector-icons/MaterialIcons', () => 'Icon');
+
+  jest.mock('expo-font', () => ({
+    loadAsync: jest.fn().mockResolvedValue(true),
+    isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+  }));
+
+
+  jest.mock('@expo/vector-icons', () => {
+    const React = require('react');
+    const MockIcon = ({ name, size, color }) =>
+      React.createElement('svg', { name, size, color });
+    return {
+      AntDesign: MockIcon,
+      FontAwesome: MockIcon,
+      Ionicons: MockIcon,
+      MaterialIcons: MockIcon,
+      MaterialCommunityIcons: MockIcon,
+      Entypo: MockIcon,
+      Feather: MockIcon,
+      // Add other icon sets here if needed
+    };
+  });
+
+  jest.mock('expo-asset', () => ({
+    Asset: {
+      loadAsync: jest.fn().mockResolvedValue([]),
+    },
+  }));
+
+  jest.mock('../../../../src/hooks/useAppFonts', () => ({
+    useAppFonts: jest.fn(() => true),
+  }));
+
+  jest.mock('react-native-paper', () => {
+    const mock = jest.requireActual('react-native-paper');
+    return {
+      ...mock,
+      Provider: ({ children }) => <>{children}</>,
+    };
+  });
+
+  jest.mock('expo-asset', () => ({
+    Asset: {
+      loadAsync: jest.fn().mockResolvedValue([]),
+    },
+  }));
+
+  jest.mock('react-native-gesture-handler', () => {
+    const View = require('react-native').View;
+    return {
+      Swipeable: View,
+      DrawerLayout: View,
+      State: {},
+      PanGestureHandler: View,
+      BaseButton: View,
+      RectButton: View,
+      BorderlessButton: View,
+      FlatList: View,
+      ScrollView: View,
+      TextInput: View,
+      TouchableOpacity: View,
+      GestureHandlerRootView: View,
+      default: {
+        install: jest.fn(),
+      },
+    };
+  });
+
+  // jest.mock('expo-notifications', () => ({
+  //   setNotificationHandler: jest.fn(),
+  //   addNotificationReceivedListener: jest.fn(),
+  //   addNotificationResponseReceivedListener: jest.fn(),
+  //   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  //   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+  // }));
+
+
+  jest.mock('react-native-gesture-handler', () => {
+    const View = require('react-native').View;
+    return {
+      ...jest.requireActual('react-native-gesture-handler'),
+      GestureHandlerRootView: View,
+    };
+  });
+
+
 
 
 // Create a StackNavigator with your Sign-In and Dashboard screens
@@ -318,7 +422,42 @@ describe('Dashboard to Settings Integration Test', () => {
   });
 
 
+  /**
+   * Test case: Should open Manage Permissions from Settings screen
+   *
+   * @test {Settings to Manage Permissions}
+   */
+  it('Should navigate from main Settings Screen to Manage Permissions modal', async () => {
+    store = configureStore();
+
+    const { getByText } = render(
+      <StoreProvider store={store}>
+        <PaperProvider>
+          <TestComponent2 />
+        </PaperProvider>
+      </StoreProvider>
+    );
+
+    // Tap the "MANAGE PERMISSIONS" button
+    const managePermissionsText = getByText('MANAGE PERMISSIONS');
+    const managePermissionsView = managePermissionsText.parent || managePermissionsText;
+
+    await act(async () => {
+      fireEvent.press(managePermissionsView);
+    });
+
+    // Confirm the modal rendered by checking for its title and key labels
+    await waitFor(() => {
+      expect(getByText('Manage Permissions')).toBeTruthy();
+      expect(getByText('Health Data Sharing')).toBeTruthy();
+      expect(getByText('Coach Data Sharing')).toBeTruthy();
+    });
+  });
+
+
+
   
+
   // it('Should navigate from main Settings Screen to Delete Data Screen', async() => {
   //     store = configureStore();
 

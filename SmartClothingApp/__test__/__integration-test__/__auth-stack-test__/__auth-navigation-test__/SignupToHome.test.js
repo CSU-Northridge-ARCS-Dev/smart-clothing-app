@@ -1,3 +1,5 @@
+// at the very top of the file
+const originalConsoleError = console.error.bind(console);
 /**
  * Integration tests for Sign-Up to Dashboard navigation flow in the Smart Clothing App.
  * 
@@ -33,6 +35,9 @@ import rootReducer from '../../../../src/store.js';
 import AppRouter from '../../../../src/navigation/index.js';
 import {Provider as StoreProvider } from 'react-redux'; 
 import {PaperProvider}  from "react-native-paper";
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+
 
 
 
@@ -75,6 +80,9 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   storeEmail: jest.fn(),
   getEmail: jest.fn(),
   clearEmail: jest.fn(),
+  getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+  storeUID: jest.fn(),
+  clearUID: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -198,7 +206,90 @@ jest.mock('d3', () => ({
   tickStep: jest.fn().mockReturnValue(50),
   ticks: jest.fn().mockReturnValue([0, 50, 100, 150, 200]),
 }));
-  
+
+jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
+jest.mock('react-native-vector-icons/MaterialIcons', () => 'Icon');
+
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn().mockResolvedValue(true),
+  isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+}));
+
+jest.mock('@react-navigation/native', () => {
+    const actualNav = jest.requireActual('@react-navigation/native');
+    return {
+      ...actualNav,
+      useNavigation: () => ({
+        navigate: jest.fn(),
+        goBack: jest.fn(),
+      }),
+      useRoute: () => ({
+        //name: 'Previous Screen',
+        params: {
+            previousScreenTitle: 'Home',
+          },
+      }),
+    };
+  });
+
+
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const MockIcon = ({ name, size, color }) =>
+    React.createElement('svg', { name, size, color });
+  return {
+    AntDesign: MockIcon,
+    FontAwesome: MockIcon,
+    Ionicons: MockIcon,
+    MaterialIcons: MockIcon,
+    MaterialCommunityIcons: MockIcon,
+    Entypo: MockIcon,
+    Feather: MockIcon,
+    // Add other icon sets here if needed
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+jest.mock('../../../../src/hooks/useAppFonts', () => ({
+  useAppFonts: jest.fn(() => true),
+}));
+
+jest.mock('react-native-paper', () => {
+  const mock = jest.requireActual('react-native-paper');
+  return {
+    ...mock,
+    Provider: ({ children }) => <>{children}</>,
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+
+// jest.mock('expo-font', () => ({
+//   loadAsync: jest.fn().mockResolvedValue(true),
+// }));
+
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+}));
+
+
+
+
+  const createMockStore = configureMockStore([thunk]);
   
   // Create a StackNavigator with your Sign-In and Dashboard screens
 const Stack = createStackNavigator();
@@ -225,17 +316,52 @@ function TestComponent() {
  * @test {Sign-Up to Dashboard Integration}
  */
 describe('SignUpToHome Integration Test', () => {
+  // beforeEach(() => {
+  //   // Prevents 'wrap act()' console log warning 
+  //   jest.spyOn(console, 'error').mockImplementation((message) => {
+  //     if (message.includes('Warning: An update to')) {
+  //       return;
+  //     }
+  //     console.error(message);
+  //   });
+
+  //   jest.useFakeTimers();
+  // });
+  // beforeEach(() => {
+  //   originalError = console.error; // keep original
+  //   errorSpy = jest.spyOn(console, 'error').mockImplementation((...args) => {
+  //     const [first] = args;
+  //     if (typeof first === 'string' && first.includes('Warning: An update to')) return;
+  //     originalError(...args); // call the real console.error, not the mock
+  //   });
+
+  //   jest.useFakeTimers();
+  // });
+
+  // afterEach(() => {
+  //   errorSpy.mockRestore();
+  // });
   beforeEach(() => {
-    // Prevents 'wrap act()' console log warning 
-    jest.spyOn(console, 'error').mockImplementation((message) => {
-      if (message.includes('Warning: An update to')) {
+    jest.useFakeTimers('modern');
+    store = createMockStore({});
+
+    jest.spyOn(console, 'error').mockImplementation((...args) => {
+      const [first, ...rest] = args;
+      if (typeof first === 'string' && first.includes('Warning: An update to')) {
         return;
       }
-      console.error(message);
+      originalConsoleError(first, ...rest);
     });
 
-    jest.useFakeTimers();
   });
+  afterEach(() => {
+    /* ... */
+    console.error.mockRestore();
+  });
+
+
+
+
 
 
   /**

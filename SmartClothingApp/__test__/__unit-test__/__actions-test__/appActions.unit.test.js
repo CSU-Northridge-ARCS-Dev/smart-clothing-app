@@ -31,13 +31,15 @@ import {
     updateSleepDataDateRangeData,
     updateActivityRings,
     updateHeartRateDateRange,
-    updateSleepDataDateRange
+    updateSleepDataDateRange,
+    coachNotificationPermissionsModalVisible,
   } from '../../../src/actions/appActions.js'; 
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
   UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
+  COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
 } from '../../../src/actions/types.js';
 
 
@@ -181,6 +183,25 @@ describe('User Metrics Actions', () => {
     };
     expect(updateSleepDataDateRangeData(startDate, endDate)).toEqual(expectedAction);
   });
+
+  it('should create an action to toggle coach notification permissions modal visibility (true)', () => {
+    const expectedAction = {
+      type: COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
+      payload: { visibility: true },
+    };
+    expect(coachNotificationPermissionsModalVisible(true)).toEqual(expectedAction);
+  });
+
+  it('should create an action to toggle coach notification permissions modal visibility (false)', () => {
+    const expectedAction = {
+      type: COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
+      payload: { visibility: false },
+    };
+    expect(coachNotificationPermissionsModalVisible(false)).toEqual(expectedAction);
+  });
+
+
+
 
   /**
    * Test case: Should dispatch actions to update activity rings data for each day of the week

@@ -17,7 +17,15 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 
 // import GoogleButton from "../../components/GoogleButton";
 
-import { startSignupWithEmail } from "../../actions/userActions.js";
+import { 
+  startSignupWithEmail,
+  startRegisterPushToken
+} from "../../actions/userActions.js";
+
+import * as Notifications from 'expo-notifications';
+//import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
+import { savePushTokenToBackend } from '../../actions/deviceActions.js';
+import { getToken } from '../../utils/localStorage.js'
 
 const SignupScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -72,7 +80,31 @@ const SignupScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
-  const handleSignUpWithEmail = () => {
+  const registerForPushNotifications = async () => {
+    // const token = await registerForPushNotificationsAsync();
+    //const token = await getToken();
+    // if (token) {
+    //   // Save the token in  backend 
+    //   console.log("Expo push token:", token);
+    //   await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+    // }
+
+
+    // token handling moved inside the thunk
+    try {
+      const token = await dispatch(startRegisterPushToken());
+      if (token) {
+        // Save the token in  backend 
+        console.log("Expo push token:", token);
+        await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+      }
+    } catch (error) {
+      console.error(error.toString());
+    }
+  };
+
+
+  const handleSignUpWithEmail = async () => {
     if (!isValid()) {
       return;
     }
@@ -80,9 +112,15 @@ const SignupScreen = ({ navigation }) => {
     setIsSubmitting(true);
 
     console.log("User is ...", user);
-    dispatch(
-      startSignupWithEmail(user.email, user.password, user.fname, user.lname)
-    );
+    await dispatch(startSignupWithEmail(user.email, user.password, user.fname, user.lname))
+      .then(() => {
+        // After successful Signup
+        registerForPushNotifications();
+      })
+      .catch((error) => {
+        console.log(error);
+        //setIsSubmitting(false);
+      });
   };
 
   const toggleLockStatusPassword = () => {

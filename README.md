@@ -9,81 +9,197 @@ The Smart Clothing App is a mobile platform interfacing with sensor-equipped wea
 * [![Firebase][Firebase]][Firebase-url]
 
 ## Table of Contents
-- <a href="#project-goals">Project Goals</a>
-- <a href="#application-setup">Application Setup</a>
-- <a href="#application-launch">Application Launch</a>
-- <a href="#development-etiquette">Development Etiquette</a>
-- <a href="#troubleshooting">Troubleshooting</a>
+- [Project Goals](#project-goals)
+- [Scope of Functionalities](#scope-of-functionalities)
+- [Push Notifications](#push-notifications)
+- [Application Setup](#application-setup)
+- [Application Launch](#application-launch)
+- [Development Etiquette](#development-etiquette)
+- [Troubleshooting](#troubleshooting)
 
 ## Project Goals
 Smart textile products integrate the design research (environment and communication), physiology (human), and textile technology (E-textiles) all together. However, smart textiles are blind to many consumers with no sufficient knowledge in wearable technology to understand and analyze the real-time vital signs. Therefore, the main goal of this research is to figure out:
 
-1) User-oriented/centered technology that reflects CSUN student-athletes’ latent smart textile needs through the wear test in smart textiles and users’ feedback in this wearable technology.
-2) Development of an application that communicates with smart textiles using the collected authorized data shared by users, then processes and stores the data securely.
-3) Deployment/application of a large-scale consumer research instrument based on the multi-method measurement of student-athletes’ wearing experience and user feedback.
+1. User-oriented/centered technology that reflects CSUN student-athletes’ latent smart textile needs through the wear test in smart textiles and users’ feedback in this wearable technology.
+2. Development of an application that communicates with smart textiles using the collected authorized data shared by users, then processes and stores the data securely.
+3. Deployment/application of a large-scale consumer research instrument based on the multi-method measurement of student-athletes’ wearing experience and user feedback.
 
 A more outlined description can be found here: https://arcs.center/a-framework-for-smart-textile-large-scale-consumer-research/
 
-## Scope of functionalities
-- User authentication
-  - Functionality to log in and out with an account made in Firebase
-  - Forgot password
-- Account management
-  - Edit profile
-    - User metrics data (age, height, weight, sports, date of birth)
-    - First name and last name stored in authentication
-  - Settings
-    - Delete health data using time ranges
-    - Update email into a new one
-    - Change password
-    - Delete account
-- Data storage
-    - All the data gets pushed into Firebase
-- Data collection
-    - Retrieves user metrics data from the application itself through the account management system
-    - Retrieves health data from Apple HealthKit and Google Health Connect
+## Scope of Functionalities
+- **User authentication**
+  - Log in/out via Firebase Authentication
+  - Forgot password reset
 
-- Work-in-progress
-  - Injury prevention
-    - Use machine learning with all the data to provide injury prevention and training recommendations
-  - Data sharing
-    - Export data to a JSON/CSV format to a third-party platform like Boracle
-  - Performance insights
-    - Show trends and insights based on the data
-  
+- **Account management**
+  - Edit profile: Name, date of birth, height, weight, sports
+  - Change email/password
+  - Delete health data
+  - Delete account
+
+- **Data collection & storage**
+  - Pull metrics from user profile and wearable sources
+  - Store health data in Firebase and locally
+  - Integrate with Apple HealthKit (iOS) and Google Health Connect (Android)
+
+- **Coach-athlete invite system**
+  - Coaches can send invites to athletes
+  - Athletes can manage coach permissions, pause sharing, or remove coach access
+
+- **Work-in-progress**
+  - Injury prevention (ML-based)
+  - Export data to Boracle and third-party dashboards
+  - Performance insight visualization
+
+## Push Notifications
+
+This app supports **Expo Push Notifications**, triggered from the **Coaching Dashboard** and delivered to athlete devices.
+
+### ✅ Overview
+- Coaches send invitations through the dashboard
+- Athletes receive push notifications on their mobile device when:
+  - An invite is sent
+  - A coach takes certain actions
+
+> This system enables real-time updates and enhanced coach-athlete coordination.
+
+### 🔒 Apple Developer Note
+To run push notifications on iOS:
+- An Apple Developer account is required
+- The app must be built using **EAS Build** with a **development profile**
+- Team members should **never share login credentials**. Instead, request access to the Apple Developer Team from the account owner or admin.
+
+To safely collaborate:
+1. Project owner can invite others to Apple Dev Team via [App Store Connect](https://appstoreconnect.apple.com) → **Users and Access**
+2. Assigned **Developer** role is sufficient for testing and EAS builds
+3. For service accounts and `.env` setup related to push tokens, ask `@cfiguer055` directly
+
+---
+
+### 🛠 iOS Local Dev Instructions
+
+> Expo Go workflow won’t work — must use dev build via EAS CLI
+
+```bash
+cd SmartClothingApp
+npm install
+````
+
+**Terminal 1**: Build the dev client
+
+```bash
+eas build --platform ios --profile development
+```
+
+**Terminal 2**: Run metro server
+
+```bash
+npx expo start --clear
+```
+
+**Having trouble?**
+
+```bash
+cd ios
+rm -rf Pods Podfile.lock
+pod install
+cd ..
+# Repeat terminal 1 and 2 steps above
+```
+
+---
+
+### 🛠 Android Instructions
+
+```bash
+cd SmartClothingApp
+npm install
+npx expo run:android
+```
+
+**If the build fails:**
+
+```bash
+cd android
+./gradlew clean build
+cd ..
+npx expo run:android
+```
+
+Repeat until the issue clears.
+
+---
+
+### 📣 Integration With Coaching Dashboard
+
+This notification system connects with the [Coaching Dashboard](https://github.com/CSU-Northridge-ARCS-Dev/coaching-dashboard):
+
+* Coaches sign into their account
+* Go to the **Invite Page**
+* Enter an athlete’s email to send an invite
+* Athletes receive a push notification and can:
+
+  * Accept or reject the invite
+  * Temporarily stop tracking
+  * Permanently revoke coach access
+
+For full dashboard setup, see:
+[Dashboard README](https://github.com/CSU-Northridge-ARCS-Dev/coaching-dashboard)
+
+---
+
 ## Application Setup
-- Ensure node version is up to date
-- Contact admin for setting up .env file
-- Download Expo Go app on your mobile device.
-- You will need a .env file that is used to hold API keys. This file is not uploaded on github for security reasons.
-- Create a .env file outside of the src folder and enter the API keys. To get the API keys contact the project admin.
+
+* Ensure Node.js is up to date
+* Download Expo Go (only for testing non-push features)
+* Ask admin for `.env` file with secure API keys
+* Place `.env` in the root directory (outside `src/`)
+* Run `npm install` before any development
+
+---
 
 ## Application Launch
+
 ```bash
 cd smartclothingapp
 npx expo start
 ```
-To bypass login/signup page:
-- Go to reducers->userreducers.js
-- under initialState change uuid to true
+
+To bypass login/signup during dev:
+
+* Open `reducers/userReducer.js`
+* Set `uuid` to a valid value in `initialState`
+
+---
 
 ## Development Etiquette
-- Stable branch will be used to store the most stable version of the application. This branch must have a functioning and running application all the time.
-- Main branch can be used to work together and for implementation and testing etc. Code must be able to run.
-- All the other branches will be used for development and testing.
-- Pull requests must be reviewed and tested thoroughly before approval.
+
+* `stable`: production-ready branch
+* `main`: in-progress work, must be functional
+* Dev branches should be regularly rebased and merged via PR
+* All pull requests must be tested and reviewed
+
+---
 
 ## Troubleshooting
-- Error Code: "Main" has not been registered.
-    - Run: ```npx expo start --clear```
-- Must have JDK 17 to run the latest version.
-- Android Studio Build, PATH variable:
-    - go to settings
-    - type in: ```edit system variables```
-    - add ```C:\\Users\\ReplaceWithYourUser\\AppData\\Local\\Android\Sdk``` (this path can be found from Android Studio by going to the SDK Manager)
-    - set sdk.dir to the same path as well
-- Should Android build use the old path for JDK instead of the new one set up (even after deletion)
-    - You must go to the android folder and run the command ./gradlew stop to stop the old daemon process
+
+* **"Main" not registered** → run:
+
+```bash
+npx expo start --clear
+```
+
+* **Android SDK PATH issue**:
+
+  * Ensure correct path: `C:\Users\YOURNAME\AppData\Local\Android\Sdk`
+  * Set it in `local.properties` as `sdk.dir=...`
+
+* **Old JDK used**:
+
+  * Use `JDK 17` (recommended)
+  * Run `./gradlew stop` in `android/` to kill old daemon
+
+---
 
 [React Native]: https://img.shields.io/badge/react_native-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB
 [ReactNative-url]: https://reactnative.dev/
@@ -91,5 +207,3 @@ To bypass login/signup page:
 [Expo-url]: https://expo.dev/
 [Firebase]: https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase
 [Firebase-url]: https://firebase.google.com/
-
-

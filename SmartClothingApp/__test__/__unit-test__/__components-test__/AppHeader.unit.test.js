@@ -113,21 +113,67 @@ jest.mock('../../../src/actions/userActions.js', () => ({
 // Mock react-native-vector-icons/FontAwesome5
 jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
 
-jest.mock('react-native-paper', () => ({
-  ...jest.requireActual('react-native-paper'), // Retain other components as is
-  Appbar: {
-    Header: 'Appbar.Header',
-    BackAction: 'Appbar.BackAction',
-    Content: 'Appbar.Content',
-    Action: 'Appbar.Action',
-  },
-  Menu: {
-    ...jest.requireActual('react-native-paper').Menu, // Retain actual Menu behavior
-    Item: jest.fn().mockImplementation(({ title, onPress }) => (
-      <button onClick={onPress}>{title}</button> // Simplified for example purposes
-    )),
-  },
-}));
+// jest.mock('react-native-paper', () => ({
+//   ...jest.requireActual('react-native-paper'), // Retain other components as is
+//   Appbar: {
+//     Header: 'Appbar.Header',
+//     BackAction: 'Appbar.BackAction',
+//     Content: 'Appbar.Content',
+//     Action: 'Appbar.Action',
+//   },
+//   Menu: {
+//     ...jest.requireActual('react-native-paper').Menu, // Retain actual Menu behavior
+//     Item: jest.fn().mockImplementation(({ title, onPress }) => (
+//       <button onClick={onPress}>{title}</button> // Simplified for example purposes
+//     )),
+//   },
+// }));
+jest.mock('react-native-paper', () => {
+  const real = jest.requireActual('react-native-paper');
+  const React = require('react');
+  const { View, Text, TouchableOpacity } = require('react-native');
+
+  // Functional Appbar “subcomponents”
+  const Appbar = {
+    Header: ({ children, ...props }) => (
+      <View testID="Appbar.Header" {...props}>{children}</View>
+    ),
+    BackAction: ({ onPress, ...props }) => (
+      <TouchableOpacity testID="back-action" onPress={onPress} {...props}>
+        <Text>Back</Text>
+      </TouchableOpacity>
+    ),
+    Content: ({ title, ...props }) => (
+      <View testID="Appbar.Content" {...props}><Text>{title}</Text></View>
+    ),
+    Action: ({ onPress, testID = 'menu-action', ...props }) => (
+      <TouchableOpacity testID={testID} onPress={onPress} {...props}>
+        <Text>Action</Text>
+      </TouchableOpacity>
+    ),
+  };
+
+  // Functional Menu with static subcomponents
+  const Menu = Object.assign(
+    ({ visible, anchor, children, ...props }) => (
+      <View testID="Menu" {...props}>
+        <View testID="menu-anchor">{anchor}</View>
+        {visible ? <View testID="menu-view">{children}</View> : null}
+      </View>
+    ),
+    {
+      Item: ({ title, onPress, ...props }) => (
+        <TouchableOpacity testID={`menu-item-${title}`} onPress={onPress} {...props}>
+          <Text>{title}</Text>
+        </TouchableOpacity>
+      ),
+      Divider: (props) => <View testID="Menu.Divider" {...props} />,
+    }
+  );
+
+  return { ...real, Appbar, Menu, Provider: real.Provider };
+});
+
 
 jest.mock('@shopify/react-native-skia', () => require('../../__mocks__/@shopify__react-native-skia.js'));
 
@@ -211,6 +257,15 @@ jest.mock('victory-native', () => {
     navigate: mockNavigate,
     // Add other navigation methods you might need for testing
   };
+
+  jest.mock('react-native-gesture-handler', () => {
+    const View = require('react-native').View;
+    return {
+      ...jest.requireActual('react-native-gesture-handler'),
+      GestureHandlerRootView: View,
+    };
+  });
+
 
   
 

@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { startLogout } from "../../actions/userActions.js";
 import PromptModal from "../Dialogs/PromptModal";
+import { removePushTokenFromBackend } from "../../actions/deviceActions.js"
 
 const AppHeader = (props) => {
   const dispatch = useDispatch();
@@ -26,6 +27,7 @@ const AppHeader = (props) => {
   const onPressLogout = (res) => {
     if (res) {
       dispatch(startLogout());
+      dispatch(removePushTokenFromBackend());
     } else {
       setPrompt(false);
     }

@@ -21,28 +21,71 @@ exports[`AppHeader renders correctly with minimal props 1`] = `
       }
     }
   >
-    <Appbar.Header
+    <View
       elevated={true}
+      testID="Appbar.Header"
     >
-      <Appbar.Content
+      <View
         testID="Test Title"
-        title="Test Title"
         titleStyle={
           {
             "fontFamily": "ChakraPetch_BoldItalic",
           }
         }
-      />
-      <View
-        collapsable={false}
       >
-        <Appbar.Action
-          icon="dots-horizontal"
-          onPress={[Function]}
-          testID="menu-action"
-        />
+        <Text>
+          Test Title
+        </Text>
       </View>
-    </Appbar.Header>
+      <View
+        onDismiss={[Function]}
+        testID="Menu"
+      >
+        <View
+          testID="menu-anchor"
+        >
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
+              }
+            }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
+            accessible={true}
+            collapsable={false}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "opacity": 1,
+              }
+            }
+            testID="menu-action"
+          >
+            <Text>
+              Action
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
   </View>
   <View
     collapsable={false}

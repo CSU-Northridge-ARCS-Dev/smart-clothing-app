@@ -1,7 +1,51 @@
 import { GET_DEVICES } from "./types";
+import {
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  updateDoc,
+  getDoc,
+  getDocs,
+  deleteField 
+} from "firebase/firestore";
+import { auth, database } from "../../firebaseConfig.js";
 
 export const getDevices = () => {
   return {
     type: GET_DEVICES,
+  };
+};
+
+export const savePushTokenToBackend = (token) => {
+  return async (dispatch) => {
+    try {
+      const userId = auth.currentUser.uid;
+      const tokenRef = doc(database, "Users", userId);  // Firestore example
+
+      // Update or set the push token
+      await setDoc(tokenRef, { expoPushToken: token }, { merge: true });
+
+      console.log("Push token saved to the backend.");
+    } catch (error) {
+      console.error("Error saving push token:", error);
+    }
+  };
+};
+
+
+export const removePushTokenFromBackend = () => {
+  return async (dispatch) => {
+    try {
+      const userId = auth.currentUser.uid;
+      const tokenRef = doc(database, "Users", userId);
+
+      // Remove the push token field
+      await updateDoc(tokenRef, { expoPushToken: deleteField() });
+
+      console.log("Push token field removed from the backend.");
+    } catch (error) {
+      console.error("Error removing push token:", error);
+    }
   };
 };

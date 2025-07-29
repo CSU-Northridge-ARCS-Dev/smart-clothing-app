@@ -37,7 +37,7 @@ const DataCollectModal = (props) => {
   // if(currentUserMetricsData.dob.seconds !== undefined && currentUserMetricsData.dob.nanoseconds !== undefined) {
   //   dobDate = dobDate.seconds * 1000;
   // }
-  
+
   // Check if dob exists and has 'seconds' and 'nanoseconds' properties
   if (dobDate && dobDate.seconds !== undefined && dobDate.nanoseconds !== undefined) {
     dobDate = dobDate.seconds * 1000; // Convert Firestore Timestamp to milliseconds

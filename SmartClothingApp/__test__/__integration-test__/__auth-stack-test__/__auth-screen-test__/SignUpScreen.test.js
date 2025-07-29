@@ -38,7 +38,19 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   getUID: jest.fn(),
   clearUID: jest.fn(),
   getMetrics: jest.fn(),
-  clearMetrics: jest.fn()
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
+  getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+  storeUID: jest.fn(),
+  clearUID: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -86,7 +98,98 @@ jest.mock('firebase/auth', () => ({
 // }));
 
 jest.mock('../../../../src/actions/userActions.js', () => ({
-  startSignupWithEmail: jest.fn(() => jest.fn()),  // Return a function from the mock
+  //startSignupWithEmail: jest.fn(() => jest.fn()),  // Return a function from the mock
+  //startSignupWithEmail: jest.fn(() => Promise.resolve()),
+  startSignupWithEmail: jest.fn(() => (dispatch) => Promise.resolve()),
+  setAuthError: jest.fn(),
+}));
+
+jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
+jest.mock('react-native-vector-icons/MaterialIcons', () => 'Icon');
+
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn().mockResolvedValue(true),
+  isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+}));
+
+jest.mock('@react-navigation/native', () => {
+    const actualNav = jest.requireActual('@react-navigation/native');
+    return {
+      ...actualNav,
+      useNavigation: () => ({
+        navigate: jest.fn(),
+        goBack: jest.fn(),
+      }),
+      useRoute: () => ({
+        //name: 'Previous Screen',
+        params: {
+            previousScreenTitle: 'Home',
+          },
+      }),
+    };
+  });
+
+
+jest.mock('@expo/vector-icons', () => {
+  const React = require('react');
+  const MockIcon = ({ name, size, color }) =>
+    React.createElement('svg', { name, size, color });
+  return {
+    AntDesign: MockIcon,
+    FontAwesome: MockIcon,
+    Ionicons: MockIcon,
+    MaterialIcons: MockIcon,
+    MaterialCommunityIcons: MockIcon,
+    Entypo: MockIcon,
+    Feather: MockIcon,
+    // Add other icon sets here if needed
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+jest.mock('../../../../src/hooks/useAppFonts', () => ({
+  useAppFonts: jest.fn(() => true),
+}));
+
+jest.mock('react-native-paper', () => {
+  const mock = jest.requireActual('react-native-paper');
+  return {
+    ...mock,
+    Provider: ({ children }) => <>{children}</>,
+  };
+});
+
+jest.mock('expo-asset', () => ({
+  Asset: {
+    loadAsync: jest.fn().mockResolvedValue([]),
+  },
+}));
+
+
+// jest.mock('expo-font', () => ({
+//   loadAsync: jest.fn().mockResolvedValue(true),
+// }));
+
+jest.mock('expo-notifications', () => ({
+  setNotificationHandler: jest.fn(),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+  getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
+  getExpoPushTokenAsync: jest.fn(() =>
+    Promise.resolve({ data: 'mocked-expo-push-token' })
+  ),
+}));
+
+jest.mock('../../../../src/utils/notifications.js', () => ({
+  registerForPushNotificationsAsync: jest.fn(() => Promise.resolve('mocked-expo-push-token')),
+  sendNotification: jest.fn(),
 }));
 
 
@@ -120,13 +223,21 @@ describe('SignUpScreen/Auth Integration Test', () => {
 
     //store = mockStore({});
 
-    // Prevents 'wrap act()' console log warning 
+    originalConsoleError = console.error; // Save the original console.error
+
     jest.spyOn(console, 'error').mockImplementation((message) => {
       if (message.includes('Warning: An update to')) {
-        return;
+        return; // Ignore this warning
       }
-      console.error(message);
+      originalConsoleError(message); // Call the original console.error
     });
+    // Prevents 'wrap act()' console log warning 
+    // jest.spyOn(console, 'error').mockImplementation((message) => {
+    //   if (message.includes('Warning: An update to')) {
+    //     return;
+    //   }
+    //   console.error(message);
+    // });
 
     jest.useFakeTimers();
   });

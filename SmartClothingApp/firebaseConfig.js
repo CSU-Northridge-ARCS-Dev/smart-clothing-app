@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import {
   initializeAuth,
   getAuth,
@@ -39,13 +39,25 @@ const firebaseConfig = {
   messagingSenderId: FIREBASE_MESSANGIND_SENDER_ID,
   appId: FIREBASE_APP_ID,
   measurementId: FIREBASE_MEASUREMENT_ID,
+
 };
 
 
 const app = initializeApp(firebaseConfig);
+// Initialize Firebase only once
+// if (!getApps().length) {
+//   initializeApp(firebaseConfig);
+// } else {
+//   getApps()[0];  // Use the already initialized app
+// }
+
 const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
-// const auth = getAuth(app);
+
+// const auth = getAuth(app, {
+//   persistence: getReactNativePersistence(AsyncStorage),
+// });
+
 const database = getFirestore(app);
-export { auth, database };
+export { app, auth, database };

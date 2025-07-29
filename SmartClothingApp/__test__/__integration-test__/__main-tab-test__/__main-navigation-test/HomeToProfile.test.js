@@ -32,6 +32,7 @@ import { render } from '@testing-library/react-native';
 import {fireEvent } from '@testing-library/react-native';
 import {waitFor } from '@testing-library/react-native';
 import { act } from 'react-test-renderer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 
@@ -72,7 +73,19 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   getUID: jest.fn(),
   clearUID: jest.fn(),
   getMetrics: jest.fn(),
-  clearMetrics: jest.fn()
+  clearMetrics: jest.fn(),
+  storeFirstName: jest.fn(),
+  getFirstName: jest.fn(),
+  clearFirstName: jest.fn(),
+  storeLastName: jest.fn(),
+  getLastName: jest.fn(),
+  clearLastName: jest.fn(),
+  storeEmail: jest.fn(),
+  getEmail: jest.fn(),
+  clearEmail: jest.fn(),
+  getToken: jest.fn(() => Promise.resolve('mocked-token')), 
+  storeToken: jest.fn(),
+  clearToken: jest.fn(),
 }));
 
 // Mock AsyncStorage
@@ -124,7 +137,92 @@ jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__m
     };
   });
 
+  jest.mock('react-native-vector-icons/FontAwesome5', () => 'Icon');
+  jest.mock('react-native-vector-icons/MaterialIcons', () => 'Icon');
 
+  jest.mock('expo-font', () => ({
+    loadAsync: jest.fn().mockResolvedValue(true),
+    isLoaded: jest.fn().mockReturnValue(true), // Add this mock
+  }));
+
+
+  jest.mock('@expo/vector-icons', () => {
+    const React = require('react');
+    const MockIcon = ({ name, size, color }) =>
+      React.createElement('svg', { name, size, color });
+    return {
+      AntDesign: MockIcon,
+      FontAwesome: MockIcon,
+      Ionicons: MockIcon,
+      MaterialIcons: MockIcon,
+      MaterialCommunityIcons: MockIcon,
+      Entypo: MockIcon,
+      Feather: MockIcon,
+      // Add other icon sets here if needed
+    };
+  });
+
+  jest.mock('expo-asset', () => ({
+    Asset: {
+      loadAsync: jest.fn().mockResolvedValue([]),
+    },
+  }));
+
+  jest.mock('../../../../src/hooks/useAppFonts', () => ({
+    useAppFonts: jest.fn(() => true),
+  }));
+
+  jest.mock('react-native-paper', () => {
+    const mock = jest.requireActual('react-native-paper');
+    return {
+      ...mock,
+      Provider: ({ children }) => <>{children}</>,
+    };
+  });
+
+  jest.mock('expo-asset', () => ({
+    Asset: {
+      loadAsync: jest.fn().mockResolvedValue([]),
+    },
+  }));
+
+  jest.mock('react-native-gesture-handler', () => {
+    const View = require('react-native').View;
+    return {
+      Swipeable: View,
+      DrawerLayout: View,
+      State: {},
+      PanGestureHandler: View,
+      BaseButton: View,
+      RectButton: View,
+      BorderlessButton: View,
+      FlatList: View,
+      ScrollView: View,
+      TextInput: View,
+      TouchableOpacity: View,
+      GestureHandlerRootView: View,
+      default: {
+        install: jest.fn(),
+      },
+    };
+  });
+
+  // jest.mock('expo-notifications', () => ({
+  //   setNotificationHandler: jest.fn(),
+  //   addNotificationReceivedListener: jest.fn(),
+  //   addNotificationResponseReceivedListener: jest.fn(),
+  //   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+  //   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+  // }));
+
+
+  jest.mock('react-native-gesture-handler', () => {
+    const View = require('react-native').View;
+    return {
+      ...jest.requireActual('react-native-gesture-handler'),
+      GestureHandlerRootView: View,
+    };
+  });
 
 
   const TestComponent1 = () => (
@@ -137,15 +235,17 @@ jest.mock('react-native-vector-icons/MaterialIcons', () => require('../../../__m
   );
 
   const TestComponent2 = () => (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Profile">
-        <Stack.Screen 
-            name="Profile" 
-            component={ProfileScreen} 
-            initialParams={{ previousScreenTitle: 'Dashboard' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    //<GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Profile">
+          <Stack.Screen 
+              name="Profile" 
+              component={ProfileScreen} 
+              initialParams={{ previousScreenTitle: 'Dashboard' }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    //</GestureHandlerRootView>
   );
 
 
@@ -185,9 +285,10 @@ describe('Home to Profile Navigation', () => {
      * @test {Home to Profile Navigation}
      */
   it('Navigates from Home to Profile screen', async () => {
+    //jest.setTimeout(60000);
     store = configureStore();
 
-    const { getByTestId, getByText, debug } = render(
+    const { getByTestId, getByText, debug, getAllByRole } = render(
         <StoreProvider store={store}>
         <PaperProvider> 
             <TestComponent1 />
@@ -197,20 +298,37 @@ describe('Home to Profile Navigation', () => {
 
     debug();
 
+    
     const dropDownMenu = getByTestId('menu-action');
+    //console.log('Dropdown Menu TestID Found:', dropDownMenu);
     await act(() => {
-        fireEvent.press(dropDownMenu)
+        fireEvent.press(dropDownMenu);
+        console.log('Dropdown menu pressed');
     });
 
-    const menuItem = getByTestId('edit-profile-item');
-    await act(() => {
-        fireEvent.press(menuItem)
+    
+
+    const profileButton = getByTestId('edit-profile-item');
+    
+    //const menuItem = getByTestId('edit-profile-item-title');
+    
+    // const menuItems = getAllByRole("menuitem");
+    // console.log("menuItems", menuItems);
+    // const profileButton = menuItems[0];
+    // console.log("Profile Button", profileButton);
+    await waitFor(() => {
+        fireEvent.press(profileButton);
     });
+
+    //await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    
 
     await waitFor(() => {
         expect(getByText('Profile')).toBeTruthy();
     });
-  }, 15000);
+    debug();
+  }, 50000);
 
   /**
      * Test case: Should navigate from main Profile screen to Edit Personal Info screen

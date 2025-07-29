@@ -16,6 +16,9 @@ import {
 
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
+import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
+
+
 export default function HomeScreen({ navigation }) {
   const route = useRoute();
   const defaultData = [
@@ -30,6 +33,16 @@ export default function HomeScreen({ navigation }) {
     });
   };
   const firstName = useSelector((state) => state.user.firstName);
+
+  // Function to send a test notification
+  const sendTestNotification = () => {
+    sendNotification("Test Notification", "This is a test notification!");
+  };
+
+  // useEffect(() => {
+  //   sendTestNotification();
+  // }, []);
+
   return (
     <ScrollView style={styles.container}>
       <AppHeader title={"Dashboard"} />
@@ -37,6 +50,14 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.body}>
         <Text style={AppStyle.title}>Hello, {firstName}</Text>
         <DailyInsights fromDashboard={true} navigation={navigation} />
+        {/* Test Notification Button */}
+        {/* <Button
+          mode="contained"
+          onPress={sendTestNotification}
+          style={{ marginTop: 20 }}
+        >
+          Send Test Notification
+        </Button> */}
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
           Today Status
         </Text>

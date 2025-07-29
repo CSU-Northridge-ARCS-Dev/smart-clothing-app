@@ -8,7 +8,13 @@ import { firebaseErrorMessages } from "../../utils/firebaseErrorMessages";
 import Icon from "react-native-vector-icons/FontAwesome5";
 
 import { useSelector, useDispatch } from "react-redux";
-import { startLoginWithEmail } from "../../actions/userActions.js";
+import { startLoginWithEmail, startRegisterPushToken } from "../../actions/userActions.js";
+
+
+import * as Notifications from 'expo-notifications';
+//import { registerForPushNotificationsAsync, sendNotification } from '../../utils/notifications.js';
+import { savePushTokenToBackend } from '../../actions/deviceActions.js';
+import { getToken } from '../../utils/localStorage.js'
 
 // SigninScreen functional component that receives a 'navigation' prop as an argument
 const SigninScreen = ({ navigation }) => {
@@ -43,17 +49,41 @@ const SigninScreen = ({ navigation }) => {
     setIsSubmitting(false);
   };
 
-  // handleSignInWithEmail is a function that handles signing in process
-  const handleSignInWithEmail = () => {
-    // - !isValid performs sign in validation - email and password
-    // setIsSubmitting(true) - after validating, isSubmitting state is set to true to indicate form submission is in progress
-    // then asynchronous sign-in process is dispatched. 
+  const registerForPushNotifications = async () => {
+    // const token = await registerForPushNotificationsAsync();
+    // const token = await getToken();
+    // if (token) {
+    //   // Save the token in  backend 
+    //   console.log("Expo push token:", token);
+    //   await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+    // }
+    try {
+      const token = await dispatch(startRegisterPushToken());
+      if (token) {
+        // Save the token in  backend 
+        console.log("Expo push token:", token);
+        await dispatch(savePushTokenToBackend(token));  // Example of saving it to the backend
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleSignInWithEmail = async () => {
     if (!isValid()) {
         return;
     }
 
     setIsSubmitting(true);
-    dispatch(startLoginWithEmail(user.email, user.password));
+    await dispatch(startLoginWithEmail(user.email, user.password))
+      .then(() => {
+        // After successful login
+        registerForPushNotifications();
+      })
+      .catch((error) => {
+        console.log(error);
+        //setIsSubmitting(false);
+      });
   };
 
 

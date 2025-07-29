@@ -11,9 +11,29 @@ import {
   getFirestore,
   deleteDoc,
   orderBy,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 
-import { storeUID, storeMetrics, storeFirstName, storeLastName, storeEmail, getUID, getMetrics, getFirstName, getLastName, getEmail, clearUID, clearMetrics, clearFirstName, clearLastName, clearEmail } from "../utils/localStorage.js";
+import { 
+  storeUID, 
+  storeMetrics, 
+  storeFirstName, 
+  storeLastName, 
+  storeEmail, 
+  getUID, 
+  getMetrics, 
+  getFirstName, 
+  getLastName, 
+  getEmail, 
+  clearUID, 
+  clearMetrics, 
+  clearFirstName, 
+  clearLastName, 
+  clearEmail ,
+  storeToken,
+  clearToken
+} from "../utils/localStorage.js";
 
 import { auth, database } from "../../firebaseConfig.js";
 import { firebaseErrorsMessages } from "../utils/firebaseErrorsMessages.js";
@@ -37,11 +57,19 @@ import {
   UPDATE_USER_METRICS_DATA,
   UPDATE_EMAIL_SUCCESS,
   UPDATE_PASSWORD_SUCCESS,
+  ADD_TO_COACH_ACCESS,
+  DISABLE_COACH_ACCESS,
+  REMOVE_FROM_COACH_ACCESS,
+  UPDATE_COACH_ACCESS,
+  UPDATE_PENDING_PERMISSIONS,
 } from "./types";
 
 import { toastError } from "./toastActions.js";
 import { userMetricsDataModalVisible } from "./appActions.js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { registerForPushNotificationsAsync } from '../utils/notifications';
+
 
 const loginWithEmail = (user) => {
   return {
@@ -77,10 +105,62 @@ export const updatePasswordSuccess = () => {
   };
 };
 
+export const updateUserMetricsData = (userMetricsData) => {
+  return {
+    type: UPDATE_USER_METRICS_DATA,
+    payload: userMetricsData,
+  };
+};
+
+export const addToCoachAccess = (coach) => {
+  return {
+    type: ADD_TO_COACH_ACCESS,
+    payload: coach,
+  };
+};
+
+export const disableCoachAccess = (coach) => {
+  return {
+    type: DISABLE_COACH_ACCESS,
+    payload: coach,
+  };
+};
+
+export const removeFromCoachAccess = (coach) => {
+  return {
+    type: REMOVE_FROM_COACH_ACCESS,
+    payload: coach,
+  };
+};
+
+export const updateCoachAccess = (coachList) => {
+  return {
+    type: UPDATE_COACH_ACCESS,
+    payload: coachList,
+  };
+};
+
+export const updatePendingPermissions = (pendingPermissions) => {
+  return {
+    type: UPDATE_PENDING_PERMISSIONS,
+    payload: pendingPermissions,
+  };
+};
+
+export const updateEmailData = (newEmail) => {
+  return {
+    type: UPDATE_EMAIL_SUCCESS,
+    payload: newEmail,
+  };
+};
 
 export const startLogout = () => {
   return async (dispatch) => {
     try {
+
+      // clear Firestore + local token first
+      await dispatch(clearPushTokenOnLogout()); 
+
       const uidBefore = await getUID();
       console.log("UID before logout: ", uidBefore);
 
@@ -151,19 +231,7 @@ export const startUpdateProfile = (firstName, lastName) => {
   };
 };
 
-export const updateUserMetricsData = (userMetricsData) => {
-  return {
-    type: UPDATE_USER_METRICS_DATA,
-    payload: userMetricsData,
-  };
-};
 
-export const updateEmailData = (newEmail) => {
-  return {
-    type: UPDATE_EMAIL_SUCCESS,
-    payload: newEmail,
-  };
-};
 
 // export const startUpdateUserData = (userData) => {
 //   console.log("startUpdateUserData called with", userData);
@@ -203,6 +271,7 @@ export const startUpdateUserData = (userData) => {
     }
   };
 };
+
 
 export const startLoadUserData = () => {
   return async (dispatch) => {
@@ -257,41 +326,6 @@ export const startLoadUserData = () => {
 //   };
 // };
 
-// export const startSignupWithEmail = (email, password, firstName, lastName) => {
-//   return (dispatch) => {
-//     createUserWithEmailAndPassword(auth, email, password)
-//       .then((userCredential) => {
-//         const user = userCredential.user;
-//         console.log("User created successfully!");
-//         console.log(user);
-
-//         // After creating User, Adding First and Last Name to User Profile
-//         dispatch(startUpdateProfile(firstName, lastName));
-
-//         console.log("dispatch startUpdateProfile()");
-//         // After creating User, Adding User Data to Database, so showing userMetricsDataModal component
-//         dispatch(userMetricsDataModalVisible(true, true));
-
-//         console.log("dispatch userMetricsDataModalVisible");
-
-//         dispatch(
-//           signupWithEmail({
-//             uuid: user.uid,
-//             firstName: firstName,
-//             lastName: lastName,
-//             email: user.email,
-//           })
-//         );
-//         console.log("dispatch signupWithEmail");
-//       })
-//       .catch((error) => {
-//         console.log(error);
-//         console.log(firebaseErrorsMessages[error.code]);
-//         dispatch(toastError(firebaseErrorsMessages[error.code]));
-//       });
-//   };
-// };
-
 export const startSignupWithEmail = (email, password, firstName, lastName) => {
   return (dispatch) => {
     return createUserWithEmailAndPassword(auth, email, password)
@@ -304,13 +338,15 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
           lastName: lastName,
           email: user.email,
           createdAt: new Date(),
+          pendingPermissions: [],
+          coachList: [],
+          disabledCoachList: [],
         };
 
         // Save the user data upon sign-up using setDoc
         setDoc(doc(database, "Users", user.uid), initialUserData)
           .then(() => {
             console.log("User data saved to Firestore successfully.");
-
             storeUID(user.uid); // store the user UID securely in local storages
             storeFirstName(firstName);
             storeLastName(lastName);
@@ -338,11 +374,12 @@ export const startSignupWithEmail = (email, password, firstName, lastName) => {
   };
 };
 
+
 export const startLoginWithEmail = (email, password) => {
   console.log(email)
   console.log(password)
   return (dispatch) => {
-    signInWithEmailAndPassword(auth, email, password)
+    return signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
 
@@ -367,9 +404,11 @@ export const startLoginWithEmail = (email, password) => {
             email: user.email,
           })
         );
+        return user;
       })
       .catch((error) => {
         dispatch(toastError(firebaseErrorsMessages[error.code]));
+        throw error;
       });
   };
 };
@@ -551,6 +590,279 @@ export const deleteAccount = () => {
   };
 };
 
+
+
+
+
+
+// Register & save Expo push token (To Replace the one in App.js later)
+// export const startRegisterPushToken = () => {
+//   return async (dispatch) => {
+//     try {
+//       const token = await registerForPushNotificationsAsync();
+//       if (!token) return;
+//       console.log('token: ',token);
+//       const userRef = doc(database, 'Users', auth.currentUser.uid);
+//       await updateDoc(userRef, { expoPushToken: token }); // or expoPushTokens: arrayUnion(token)
+//       await storeToken(token);
+//     } catch (err) {
+//       console.error('startRegisterPushToken error:', err);
+//     }
+//   };
+// };
+// export const startRegisterPushToken = () => {
+//   return async (dispatch) => {
+//     try {
+//       const token = await registerForPushNotificationsAsync();
+//       if (!token) return;
+//       console.log('token: ', token);
+
+//       const user = auth.currentUser;
+//       if (!user || !user.uid) {
+//         console.warn('startRegisterPushToken: No authenticated user');
+//         return;
+//       }
+
+//       const userRef = doc(database, 'Users', user.uid);
+//       await updateDoc(userRef, { expoPushToken: token }); // or arrayUnion(token)
+//       await storeToken(token);
+//     } catch (err) {
+//       console.error('startRegisterPushToken error:', err);
+//     }
+//   };
+// };
+export const startRegisterPushToken = () => {
+  return async (dispatch) => {
+    try {
+      const token = await registerForPushNotificationsAsync();
+      if (!token) return null;
+      console.log('token: ', token);
+
+      const user = auth.currentUser;
+      if (!user || !user.uid) {
+        console.warn('startRegisterPushToken: No authenticated user');
+        return null;
+      }
+
+      const userRef = doc(database, 'Users', user.uid);
+      await updateDoc(userRef, { expoPushToken: token }); // or arrayUnion(token)
+      await storeToken(token);
+
+      return token;
+    } catch (err) {
+      console.error('startRegisterPushToken error:', err);
+      return null;
+    }
+  };
+};
+
+// Clear token on logout (or call inside startLogout before clearing local storage)
+export const clearPushTokenOnLogout = () => {
+  return async () => {
+    try {
+      const userRef = doc(database, 'Users', auth.currentUser.uid);
+      // If you store a single token:
+      await updateDoc(userRef, { expoPushToken: null });
+
+      // If you store an array of tokens, switch to:
+      // const token = await getToken();
+      // if (token) await updateDoc(userRef, { expoPushTokens: arrayRemove(token) });
+
+      await clearToken();
+    } catch (err) {
+      console.error('clearPushTokenOnLogout error:', err);
+    }
+  };
+};
+
+
+
+
+
+
+
+
+export const fetchPendingPermissions = () => {
+  console.log("fetchPermissions called.");
+  return async (dispatch) => {
+    try {
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const pendingPermissions = userData.pendingPermissions || [];
+        console.log("Fetched pendingPermissions:", pendingPermissions);
+        // Resolve each reference in pendingPermissions
+        const resolvedCoaches = await Promise.all(
+          pendingPermissions.map(async (coachRef) => {
+            try {
+              const coachDocSnap = await getDoc(coachRef);
+              if (coachDocSnap.exists()) {
+                const coachData = coachDocSnap.data();
+                const coachId = coachRef.path.split("/").pop(); // Extract coachId from the path
+                return {
+                  coachId,
+                  firstName: coachData.firstName || "Unknown",
+                  lastName: coachData.lastName || "Unknown",
+                  ref: coachRef,
+                };
+              } else {
+                console.log("Coach document not found for reference:", coachRef.path);
+                return null;
+              }
+            } catch (error) {
+              console.error("Error resolving coach reference:", error);
+              return null;
+            }
+          })
+        );
+        // Filter out any null results from failed resolutions
+        const validCoaches = resolvedCoaches.filter((coach) => coach !== null);
+        console.log("Resolved coach objects:", validCoaches);
+        dispatch(updatePendingPermissions(validCoaches));
+      } else {
+        console.log("No user document found!");
+      }//await updateDoc(userDocRef, pendingPermissions);
+    } catch (e) {
+      console.log("Error updating pending permissions in the database!");
+      console.log(e);
+    }
+  };
+};
+
+export const removeFromPendingPermissions = (coach, updatedPendingPermissions) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      // Atomically remove the coachId from pendingPermissions
+      console.log("Removing Coach Ref", coach.ref);
+      await updateDoc(userDocRef, {
+        pendingPermissions: arrayRemove(coach.ref),
+      });
+      // Dispatch to update state with the new pending permissions list
+      dispatch(updatePendingPermissions(updatedPendingPermissions));
+      
+    } catch (err) {
+      console.error("Error removing from pendingPermissions:", err);
+    }
+  };
+};
+
+export const fetchCoachAccess = () => {
+  console.log("fetchCoachAccess called.");
+  return async (dispatch) => {
+    try {
+      const userDocRef = doc(database, "Users", auth.currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const coachAccess = userData.coachList || [];
+        const disabledCoachList = userData.CoachListDisabled || [];
+        console.log("Fetched coachList:", coachAccess);
+        console.log("Fetched disabledCoachList:", disabledCoachList);
+        const resolvedCoaches = await Promise.all(
+          coachAccess.map(async (coachRef) => {
+            try {
+              const coachDocSnap = await getDoc(coachRef);
+              if(coachDocSnap.exists()) {
+                const coachData = coachDocSnap.data();
+                const coachId = coachRef.path.split("/").pop(); // Extract coachId from the path
+                return {
+                  coachId,
+                  firstName: coachData.firstName || "Unknown",
+                  lastName: coachData.lastName || "Unknown",
+                  ref: coachRef,
+                  sharingEnabled: !disabledCoachList.some(
+                    (disabledRef) => disabledRef.path === coachRef.path
+                  ),
+                };
+              } else {
+                console.log("Coach document not found for reference:", coachRef.path);
+                return null;
+              }
+            } catch (e) {
+              console.error("Error resolving coach reference:", error);
+              return null;
+            }
+          })
+        );
+        // Filter out any null results from failed resolutions
+        const validCoaches = resolvedCoaches.filter((coach) => coach !== null);
+        console.log("Resolved coach objects:", validCoaches);
+        dispatch(updateCoachAccess(validCoaches));
+        // Dispatch addToCoachAccess for each coach one by one
+        // validCoaches.forEach((coach) => {
+        //   dispatch(addToCoachAccess(coach));
+        // });
+      } else {
+        console.log("No user document found!");
+      }
+    } catch (e) {
+      console.log("Error updating pending permissions in the database!");
+      console.log(e);
+    }
+  };
+};
+
+export const startAddToCoachAccess = (coach) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      // Atomically add the coachId to coachList
+      await updateDoc(userDocRef, {
+        coachList: arrayUnion(coach.ref),
+      });
+      // Dispatch Redux action to update the state
+      dispatch(addToCoachAccess(coach));
+      //dispatch({ type: "ADD_TO_COACH_ACCESS", payload: coachId });
+      console.log(`Added ${coach.firstName} ${coach.lastName} to coachList.`);
+    } catch (err) {
+      console.error("Error adding to coach list:", err);
+    }
+  };
+};
+
+// export const startDisableCoachAccess = (coach) => {
+//   return async (dispatch) => {
+//     try {
+//       const { uid } = auth.currentUser;
+//       const userDocRef = doc(database, "Users", uid);
+//       await updateDoc(userDocRef, {
+//         coachListDisabled: arrayUnion(coach.ref),
+//       });
+//       // Dispatch Redux action to update the state
+//       dispatch(disableCoachAccess(coach));
+//       console.log(`Added ${coach.firstName} ${coach.lastName} to coachListDisabled.`);
+//       // Remove from CoachAccess
+//       dispatch(deleteFromCoachAccess(coach));
+//     } catch (err) {
+//       console.error("Error adding to disable coach list:", err);
+//     }
+//   };
+// };
+
+export const deleteFromCoachAccess = (coach) => {
+  return async (dispatch) => {
+    try {
+      const { uid } = auth.currentUser;
+      const userDocRef = doc(database, "Users", uid);
+      // Add logic to remove coach access from Firestore or your backend
+      console.log("Deleting coach access for:", coach.ref);
+      await updateDoc(userDocRef, {
+        coachList: arrayRemove(coach.ref),
+      });
+      dispatch(removeFromCoachAccess(coach));
+      console.log(`Removed ${coach.ref.path} from Coach Access.`);
+      console.log(`Removed ${coach.firstName} ${coach.lastName} from Coach Access.`);
+    } catch (error) {
+      console.error("Error deleting coach access:", error);
+    }
+  };
+};
+
+
 export const querySleepData = async (startDate, endDate) => {
   try {
     //get the user ID
@@ -615,3 +927,7 @@ export const queryHeartRateData = async (startDate, endDate) => {
     return [];
   }
 };
+
+
+
+

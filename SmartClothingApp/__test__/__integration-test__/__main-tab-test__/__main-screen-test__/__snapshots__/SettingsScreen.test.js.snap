@@ -211,11 +211,17 @@ exports[`SettingsScreen renders correctly 1`] = `
               }
               onGestureCancel={[Function]}
               pointerEvents="box-none"
-              sheetAllowedDetents="large"
+              sheetAllowedDetents={
+                [
+                  1,
+                ]
+              }
               sheetCornerRadius={-1}
+              sheetElevation={24}
               sheetExpandsWhenScrolledToEdge={true}
               sheetGrabberVisible={false}
-              sheetLargestUndimmedDetent="all"
+              sheetInitialDetent={0}
+              sheetLargestUndimmedDetent={-1}
               style={
                 {
                   "bottom": 0,
@@ -223,6 +229,7 @@ exports[`SettingsScreen renders correctly 1`] = `
                   "position": "absolute",
                   "right": 0,
                   "top": 0,
+                  "zIndex": undefined,
                 }
               }
             >
@@ -300,7 +307,8 @@ exports[`SettingsScreen renders correctly 1`] = `
                 >
                   <View
                     collapsable={false}
-                    handlerTag={1}
+                    enabled={false}
+                    handlerTag={-1}
                     handlerType="PanGestureHandler"
                     needsOffscreenAlphaCompositing={false}
                     onGestureHandlerEvent={[Function]}
@@ -576,7 +584,11 @@ exports[`SettingsScreen renders correctly 1`] = `
                                               >
                                                 <Image
                                                   accessibilityIgnoresInvertColors={true}
-                                                  source={1}
+                                                  source={
+                                                    {
+                                                      "testUri": "../../react-native-paper/lib/commonjs/assets/back-chevron.png",
+                                                    }
+                                                  }
                                                   style={
                                                     [
                                                       {
@@ -841,6 +853,76 @@ Settings
                                     }
                                   >
                                     Change your account password
+                                  </Text>
+                                </View>
+                                <View
+                                  accessibilityState={
+                                    {
+                                      "busy": undefined,
+                                      "checked": undefined,
+                                      "disabled": undefined,
+                                      "expanded": undefined,
+                                      "selected": undefined,
+                                    }
+                                  }
+                                  accessibilityValue={
+                                    {
+                                      "max": undefined,
+                                      "min": undefined,
+                                      "now": undefined,
+                                      "text": undefined,
+                                    }
+                                  }
+                                  accessible={true}
+                                  collapsable={false}
+                                  focusable={true}
+                                  onClick={[Function]}
+                                  onResponderGrant={[Function]}
+                                  onResponderMove={[Function]}
+                                  onResponderRelease={[Function]}
+                                  onResponderTerminate={[Function]}
+                                  onResponderTerminationRequest={[Function]}
+                                  onStartShouldSetResponder={[Function]}
+                                  style={
+                                    {
+                                      "alignItems": "flex-start",
+                                      "backgroundColor": "#EAF0F8",
+                                      "borderRadius": 10,
+                                      "elevation": 4,
+                                      "height": 90,
+                                      "justifyContent": "center",
+                                      "opacity": 1,
+                                      "padding": 15,
+                                      "width": "85%",
+                                    }
+                                  }
+                                >
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "fontSize": 21,
+                                        },
+                                        {
+                                          "color": "rgb(17, 96, 164)",
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    MANAGE PERMISSIONS
+                                  </Text>
+                                  <Text
+                                    style={
+                                      [
+                                        {
+                                          "color": "#7D7A7A",
+                                          "fontSize": 14,
+                                          "paddingTop": 5,
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    Manage data sharing and permissions
                                   </Text>
                                 </View>
                                 <View

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "SmartClothing",
+    "name": "SmartClothingApp",
     "slug": "SmartClothingApp",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,10 +17,22 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.arcs.smartclothingapp"
+      "bundleIdentifier": "com.arcs.smartclothingapp",
+      "buildNumber": "1.0.0",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "entitlements": {
+        "aps-environment": "development"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleDisplayName": "SmartClothing"
+      }
     },
     "android": {
-      "package": "com.arcs.smartclothingapp"
+      "package": "com.arcs.smartclothingapp",
+      "googleServicesFile": "./android/app/google-services.json",
+      "useNextNotificationsApi": true,
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,7 +43,21 @@
       }
     },
     "plugins": [
-      "./plugins/customNamespacePlugin"
-    ]
+      "expo-font",
+      "./plugins/customNamespacePlugin",
+      [
+        "expo-notifications",
+        {
+          "icon": "./local/assets/notification_icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
+        }
+      ]
+    ],
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/90fe7b8b-b25e-4389-8373-0f4ba76b7b02"
+    }
   }
 }
