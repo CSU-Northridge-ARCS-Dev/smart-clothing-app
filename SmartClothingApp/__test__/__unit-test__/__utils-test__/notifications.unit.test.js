@@ -2,43 +2,51 @@
  * @file notifications.unit.test.js
  */
 
+// Mock BEFORE imports that reach the SUT
 jest.mock('expo-constants', () => ({
   expoConfig: { extra: { eas: { projectId: 'test-proj-123' } } },
   isDevice: true,
-}), { virtual: true });
+}));
+
+// This pulls from __mocks__/expo-notifications.js
+jest.mock('expo-notifications');
 
 import { Platform } from 'react-native';
 const originalOS = Platform.OS;
-const setOS = os => Object.defineProperty(Platform, 'OS', { configurable: true, get: () => os });
+const setOS = os =>
+  Object.defineProperty(Platform, 'OS', { configurable: true, get: () => os });
 
-afterEach(() => {
-  Object.defineProperty(Platform, 'OS', { configurable: true, get: () => originalOS });
-  jest.resetModules();     // clean import cache between tests
+let Notifications;
+let registerForPushNotificationsAsync;
+let sendNotification;
+
+beforeEach(() => {
+  // Fresh module graph so SUT + test share the same mock instance
+  jest.resetModules();
+
+  // Re-require the mock and the SUT *after* reset
+  Notifications = require('expo-notifications');
+  ({ registerForPushNotificationsAsync, sendNotification } =
+    require('../../../src/utils/notifications'));
+
   jest.clearAllMocks();
 });
 
-/** helper to load util with a fresh, per-test mock of expo-notifications */
-function loadWithExpoNotificationsMock(factory) {
-  jest.doMock('expo-notifications', factory, { virtual: true });
-  const Notifications = require('expo-notifications');
-  const { registerForPushNotificationsAsync, sendNotification } =
-    require('../../../src/utils/notifications');
-  return { Notifications, registerForPushNotificationsAsync, sendNotification };
-}
+afterEach(() => {
+  Object.defineProperty(Platform, 'OS', {
+    configurable: true,
+    get: () => originalOS,
+  });
+});
 
 describe('registerForPushNotificationsAsync', () => {
   it('returns token and sets Android channel when permission already granted', async () => {
     setOS('android');
 
-    const { Notifications, registerForPushNotificationsAsync } =
-      loadWithExpoNotificationsMock(() => ({
-        getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
-        requestPermissionsAsync: jest.fn(),
-        getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: 'ExponentPushToken[abc123]' }),
-        scheduleNotificationAsync: jest.fn(),
-        setNotificationChannelAsync: jest.fn(),
-        AndroidImportance: { MAX: 'MAX' },
-      }));
+    Notifications.getPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    Notifications.getExpoPushTokenAsync.mockResolvedValue({
+      data: 'ExponentPushToken[abc123]',
+    });
 
     const token = await registerForPushNotificationsAsync();
 
@@ -48,21 +56,20 @@ describe('registerForPushNotificationsAsync', () => {
       expect.objectContaining({ projectId: expect.any(String) })
     );
     expect(token).toBe('ExponentPushToken[abc123]');
-    expect(Notifications.setNotificationChannelAsync).toHaveBeenCalledWith('default', expect.any(Object));
+    expect(Notifications.setNotificationChannelAsync).toHaveBeenCalledWith(
+      'default',
+      expect.any(Object)
+    );
   });
 
   it('requests permission then returns token (iOS) and does not set Android channel', async () => {
     setOS('ios');
 
-    const { Notifications, registerForPushNotificationsAsync } =
-      loadWithExpoNotificationsMock(() => ({
-        getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'undetermined' }),
-        requestPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
-        getExpoPushTokenAsync: jest.fn().mockResolvedValue({ data: 'ExponentPushToken[xyz987]' }),
-        scheduleNotificationAsync: jest.fn(),
-        setNotificationChannelAsync: jest.fn(),
-        AndroidImportance: { MAX: 'MAX' },
-      }));
+    Notifications.getPermissionsAsync.mockResolvedValue({ status: 'undetermined' });
+    Notifications.requestPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    Notifications.getExpoPushTokenAsync.mockResolvedValue({
+      data: 'ExponentPushToken[xyz987]',
+    });
 
     const token = await registerForPushNotificationsAsync();
 
@@ -78,15 +85,8 @@ describe('registerForPushNotificationsAsync', () => {
   it('returns undefined and does not fetch token when permission denied', async () => {
     setOS('android');
 
-    const { Notifications, registerForPushNotificationsAsync } =
-      loadWithExpoNotificationsMock(() => ({
-        getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'denied' }),
-        requestPermissionsAsync: jest.fn().mockResolvedValue({ status: 'denied' }),
-        getExpoPushTokenAsync: jest.fn(),
-        scheduleNotificationAsync: jest.fn(),
-        setNotificationChannelAsync: jest.fn(),
-        AndroidImportance: { MAX: 'MAX' },
-      }));
+    Notifications.getPermissionsAsync.mockResolvedValue({ status: 'denied' });
+    Notifications.requestPermissionsAsync.mockResolvedValue({ status: 'denied' });
 
     const token = await registerForPushNotificationsAsync();
 
@@ -98,15 +98,8 @@ describe('registerForPushNotificationsAsync', () => {
   it('propagates error if getExpoPushTokenAsync throws', async () => {
     setOS('android');
 
-    const { Notifications, registerForPushNotificationsAsync } =
-      loadWithExpoNotificationsMock(() => ({
-        getPermissionsAsync: jest.fn().mockResolvedValue({ status: 'granted' }),
-        requestPermissionsAsync: jest.fn(),
-        getExpoPushTokenAsync: jest.fn().mockRejectedValue(new Error('Token failure')),
-        scheduleNotificationAsync: jest.fn(),
-        setNotificationChannelAsync: jest.fn(),
-        AndroidImportance: { MAX: 'MAX' },
-      }));
+    Notifications.getPermissionsAsync.mockResolvedValue({ status: 'granted' });
+    Notifications.getExpoPushTokenAsync.mockRejectedValue(new Error('Token failure'));
 
     await expect(registerForPushNotificationsAsync()).rejects.toThrow('Token failure');
     expect(Notifications.getExpoPushTokenAsync).toHaveBeenCalledWith(
@@ -118,17 +111,8 @@ describe('registerForPushNotificationsAsync', () => {
 
 describe('sendNotification', () => {
   it('schedules a local notification with title, body, and 1s trigger', async () => {
-    const { Notifications, sendNotification } =
-      loadWithExpoNotificationsMock(() => ({
-        getPermissionsAsync: jest.fn(),
-        requestPermissionsAsync: jest.fn(),
-        getExpoPushTokenAsync: jest.fn(),
-        scheduleNotificationAsync: jest.fn(),
-        setNotificationChannelAsync: jest.fn(),
-        AndroidImportance: { MAX: 'MAX' },
-      }));
-
     await sendNotification('Hello', 'World');
+
     expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledWith({
       content: { title: 'Hello', body: 'World' },
       trigger: { seconds: 1 },
