@@ -2,10 +2,14 @@
  * @file notifications.unit.test.js
  */
 
-// 1) Mock @env FIRST (before any imports that reach the module under test)
+// ---- global mocks (must come BEFORE the util is imported) ----
 jest.mock('@env', () => ({ EXPO_PROJECT_ID: 'test-project-id' }), { virtual: true });
 
-// 2) Mock expo-notifications next
+jest.mock('expo-constants', () => ({
+  expoConfig: { extra: { eas: { projectId: 'test-proj-123' } } },
+  isDevice: true,
+}), { virtual: true });
+
 jest.mock('expo-notifications', () => ({
   getPermissionsAsync: jest.fn(),
   requestPermissionsAsync: jest.fn(),
@@ -15,6 +19,7 @@ jest.mock('expo-notifications', () => ({
   AndroidImportance: { MAX: 'MAX' },
 }));
 
+// ---- now import; only once! ----
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import {
