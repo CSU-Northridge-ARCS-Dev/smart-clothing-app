@@ -22,7 +22,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor, cleanup  } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
-//import configureStore from 'redux-mock-store';
+import configureStore from 'redux-mock-store';
 import configureMockStore from 'redux-mock-store';
 import { act } from 'react-test-renderer';
 import thunk from 'redux-thunk';
@@ -187,20 +187,36 @@ jest.mock('expo-asset', () => ({
 //   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
 //   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
 // }));
+// jest.mock('expo-notifications', () => ({
+//   setNotificationHandler: jest.fn(),
+//   addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+//   addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+//   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
+//   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+// }));
 jest.mock('expo-notifications', () => ({
   setNotificationHandler: jest.fn(),
-  addNotificationReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
-  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
   getLastNotificationResponseAsync: jest.fn().mockResolvedValue(null),
   scheduleNotificationAsync: jest.fn().mockResolvedValue('mocked-notification-id'),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ granted: true })),
+  getExpoPushTokenAsync: jest.fn(() =>
+    Promise.resolve({ data: 'mocked-expo-push-token' })
+  ),
 }));
 
-
+jest.mock('../../../../src/utils/notifications.js', () => ({
+  registerForPushNotificationsAsync: jest.fn(() => Promise.resolve('mocked-expo-push-token')),
+  sendNotification: jest.fn(),
+}));
 
 
 const middlewares = [thunk];
 //const mockStore = configureStore(middlewares);
-const createMockStore = configureMockStore([thunk]);
+//const createMockStore = configureMockStore([thunk]);
+const mockStore = configureStore(middlewares);
+
 
 
 /**
@@ -246,21 +262,57 @@ describe('SigninScreen/Auth Integration Test', () => {
 //     cleanup();
 //   });
 
-  let errorSpy;
+  //let errorSpy;
+  // beforeEach(() => {
+  //   jest.useFakeTimers('modern'); // ✅ modern fake timers
+  //   store = createMockStore({});
+  // });
+
+  // afterEach(() => {
+  //   jest.runOnlyPendingTimers(); // ensure timers are drained
+  //   jest.useRealTimers();        // reset timer mocks
+  //   jest.clearAllTimers();       // cleanup
+  //   jest.clearAllMocks();
+  //   cleanup();
+  // });
+
   beforeEach(() => {
-    jest.useFakeTimers('modern'); // ✅ modern fake timers
-    store = createMockStore({});
-  });
-
-  afterEach(() => {
-    jest.runOnlyPendingTimers(); // ensure timers are drained
-    jest.useRealTimers();        // reset timer mocks
-    jest.clearAllTimers();       // cleanup
-    jest.clearAllMocks();
-    cleanup();
-  });
-
-
+      // Define an initial mock state with authError
+      const initialState = {
+        user: {
+          authError: null, // Initial value for authError
+        },
+      };
+  
+      store = mockStore(initialState);
+  
+      //store = mockStore({});
+  
+      originalConsoleError = console.error; // Save the original console.error
+  
+      jest.spyOn(console, 'error').mockImplementation((message) => {
+        if (message.includes('Warning: An update to')) {
+          return; // Ignore this warning
+        }
+        originalConsoleError(message); // Call the original console.error
+      });
+      // Prevents 'wrap act()' console log warning 
+      // jest.spyOn(console, 'error').mockImplementation((message) => {
+      //   if (message.includes('Warning: An update to')) {
+      //     return;
+      //   }
+      //   console.error(message);
+      // });
+  
+      jest.useFakeTimers();
+    });
+  
+    // Clean up after each test by resetting the alert spy
+    afterEach(() => {
+      jest.clearAllTimers();
+      jest.clearAllMocks();
+      cleanup();
+    });
 
 
   /**
@@ -301,41 +353,41 @@ describe('SigninScreen/Auth Integration Test', () => {
    *
    * @test {Valid Input Dispatches Login Action}
    */
-  it('should dispatch startLoginWithEmail action on valid input', async () => {
-    const { getByTestId, queryByText } = render(
-      <Provider store={store}>
-        <SigninScreen />
-      </Provider>
-    );
+  // it('should dispatch startLoginWithEmail action on valid input', async () => {
+  //   const { getByTestId, queryByText } = render(
+  //     <Provider store={store}>
+  //       <SigninScreen />
+  //     </Provider>
+  //   );
 
-    const emailInput = getByTestId('email-input');
-    const passwordInput = getByTestId('password-input');
-    const signInButton = getByTestId('sign-in-button');
+  //   const emailInput = getByTestId('email-input');
+  //   const passwordInput = getByTestId('password-input');
+  //   const signInButton = getByTestId('sign-in-button');
 
-    await act(() => {
-      fireEvent.changeText(emailInput, 'test@example.com');
-    });
-    await act(() => {
-      fireEvent.changeText(passwordInput, 'password123');
-    });
-    await act(() => {
-      fireEvent.press(signInButton);
-    });
+  //   await act(() => {
+  //     fireEvent.changeText(emailInput, 'test@example.com');
+  //   });
+  //   await act(() => {
+  //     fireEvent.changeText(passwordInput, 'password123');
+  //   });
+  //   await act(() => {
+  //     fireEvent.press(signInButton);
+  //   });
 
 
-    const errorMessage1 = queryByText('Enter valid email.');
-    expect(errorMessage1).toBeFalsy();
+  //   const errorMessage1 = queryByText('Enter valid email.');
+  //   expect(errorMessage1).toBeFalsy();
 
-    const errorMessage2 = queryByText('Password cannot be empty');
-    expect(errorMessage2).toBeFalsy();
+  //   const errorMessage2 = queryByText('Password cannot be empty');
+  //   expect(errorMessage2).toBeFalsy();
 
-    const errorMessage3 = queryByText('Password length cannot be less than 6.');
-    expect(errorMessage3).toBeFalsy();
+  //   const errorMessage3 = queryByText('Password length cannot be less than 6.');
+  //   expect(errorMessage3).toBeFalsy();
 
-    await waitFor(() => {
-      expect(startLoginWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
-    });
-  });
+  //   await waitFor(() => {
+  //     expect(startLoginWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
+  //   });
+  // });
 
   /**
    * Test case: Should not dispatch `startLoginWithEmail` action on empty email

@@ -77,7 +77,7 @@ import {
 } from '../../src/actions/userActions';
 
 import { registerForPushNotificationsAsync } from '../../src/utils/notifications';
-import { auth, database } from '../../firebaseConfig';
+import { auth } from '../../firebaseConfig';
 
 
 
@@ -161,7 +161,7 @@ jest.mock('firebase/firestore', () => ({
     addDoc: jest.fn(),
     setDoc: jest.fn(),
     doc: jest.fn(() => ({ setDoc: jest.fn() })),
-    updateDoc: jest.fn(),
+    updateDoc: jest.fn(() => Promise.resolve()),
     getDoc: jest.fn(),
   }));
 
