@@ -103,10 +103,13 @@ function normalizeWorkout(a) {
   return workout;
 }
 
-// rawActivities: the already date-filtered list from fitbit-api getActivities
-function normalizeDay(date, rawSleep, rawHeart, rawActivities) {
+// rawActivities: the already date-filtered list from fitbit-api getActivities.
+// rawSummary: the daily activity summary (getDaySummary), for steps.
+function normalizeDay(date, rawSleep, rawHeart, rawActivities, rawSummary) {
+  const steps = rawSummary && rawSummary.summary && rawSummary.summary.steps;
   return {
     date,
+    steps: steps ?? null,
     sleep: normalizeSleep(rawSleep),
     heart: normalizeHeart(date, rawHeart),
     workouts: (rawActivities || [])
@@ -115,4 +118,4 @@ function normalizeDay(date, rawSleep, rawHeart, rawActivities) {
   };
 }
 
-module.exports = { normalizeDay, WORKOUT_TYPES };
+module.exports = { normalizeDay, pickMainSleep, WORKOUT_TYPES };
