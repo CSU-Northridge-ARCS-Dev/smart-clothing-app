@@ -64,3 +64,18 @@ export function calculateTotalDuration(dates) {
 
 // const duration = calculateTotalDuration(dateRanges);
 // console.log(`Total Duration: ${duration.totalHours} hours and ${duration.totalMinutes} minutes`);
+
+// Local calendar date as YYYY-MM-DD. Unlike toISOString(), this does not
+// shift to UTC, so late evening stays on the same day.
+export function toLocalDateString(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// Adds whole days to a YYYY-MM-DD string and returns a YYYY-MM-DD string.
+export function addDaysToDateString(dateString, days) {
+  const [y, m, d] = dateString.split("-").map(Number);
+  return toLocalDateString(new Date(y, m - 1, d + days));
+}
