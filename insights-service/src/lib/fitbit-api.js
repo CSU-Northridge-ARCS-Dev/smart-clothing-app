@@ -1,4 +1,4 @@
-// Ported from Momentum backend/lib/fitbit-api.js. Tokens are passed in by the
+//Tokens are passed in by the
 // caller (they live on the phone) instead of being loaded from a database.
 const { getConfig } = require("../config");
 
@@ -85,10 +85,18 @@ function getSleep(accessToken, date) {
   return fitbitFetch(accessToken, `/1.2/user/-/sleep/date/${date}.json`);
 }
 
+// YYYY-MM-DD minus one day (calendar arithmetic, no timezone involved)
+function previousDate(date) {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+// Two-day range so yesterday's resting HR comes back in the same call
 function getHeart(accessToken, date) {
   return fitbitFetch(
     accessToken,
-    `/1/user/-/activities/heart/date/${date}/1d.json`,
+    `/1/user/-/activities/heart/date/${previousDate(date)}/${date}.json`,
   );
 }
 
@@ -134,6 +142,7 @@ module.exports = {
   refreshTokens,
   getSleep,
   getHeart,
+  previousDate,
   getActivities,
   withFreshToken,
 };
