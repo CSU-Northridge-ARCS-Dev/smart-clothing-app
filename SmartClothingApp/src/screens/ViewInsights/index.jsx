@@ -1,163 +1,191 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Platform,
-} from "react-native";
-import { AppHeader } from "../../components";
-import ActivityRings from "../../components/visualizations/ActivityRings/ActivityRings";
-import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
-import { useSelector, useDispatch } from "react-redux";
-import { updateActivityRings } from "../../actions/appActions";
+import React, { useState } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { useSelector } from "react-redux";
+import { Button, ProgressBar, Text } from "react-native-paper";
+
+import { AppHeader, FitbitConnectPrompt } from "../../components";
+import ActivityRings, {
+  RINGS,
+} from "../../components/visualizations/ActivityRings/ActivityRings";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import ActivityChart from "../../components/visualizations/ActivityChart/ActivityChart";
-import DateToolbar from "../../components/DateToolbar/DateToolbar";
+import { fitbitCardStyles as card } from "../../components/fitbit/styles";
+import { AppColor, AppFonts } from "../../constants/themes";
+import { STEP_GOAL, SLEEP_GOAL_MINUTES } from "../../constants/goals";
+import { toLocalDateString } from "../../utils/dateConversions";
+import {
+  formatDateLabel,
+  formatMinutes,
+  formatSteps,
+} from "../../utils/fitbitFormat";
+import { toRingProgress } from "../../utils/rings";
 
-const ViewInsights = ({ route }) => {
-  const { previousScreenTitle } = route.params;
-  const dispatch = useDispatch();
-  const activityRingsData = useSelector((state) => state.app.activityRingsData);
-  const [currentRingData, setCurrentRingData] = useState({
-    ring1: 0,
-    ring2: 0,
-    ring3: 0,
-  });
+const ringStyle = (key) => RINGS.find((r) => r.key === key);
 
-  const maxCal = 800;
-  const maxMin = 30;
-  const maxHrs = 12;
+// One goal: name, value / goal and a bar in the ring's color
+const GoalRow = ({ ringKey, value, goal, progress, testID }) => {
+  const { label, colors } = ringStyle(ringKey);
+  return (
+    <View style={styles.goalRow} testID={testID}>
+      <View style={styles.goalHeader}>
+        <View style={[styles.swatch, { backgroundColor: colors[0] }]} />
+        <Text style={card.title}>{label}</Text>
+      </View>
+      <Text style={[styles.goalValue, { color: colors[0] }]}>
+        {value}
+        <Text style={card.unit}> / {goal}</Text>
+      </Text>
+      <ProgressBar
+        progress={Math.min(progress, 1)}
+        color={colors[0]}
+        style={styles.bar}
+      />
+    </View>
+  );
+};
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
+// Steps and sleep for the last 7 days against their goals. Tap a
+// small ring to see that day in the big ring.
+const ViewInsights = ({ route, navigation }) => {
+  const { previousScreenTitle } = route.params || {};
+  const today = toLocalDateString();
+  const [selectedDate, setSelectedDate] = useState(today);
 
-  const onChangeDate = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === "ios");
-    if (selectedDate) {
-      console.log(selectedDate);
-      setCurrentDate(selectedDate);
+  const status = useSelector((state) => state.device.fitbit.status);
+  const weekState = useSelector((state) => state.device.fitbit.weeks[today]);
+  const connected = status === "connected";
+  const week = (connected && weekState && weekState.data) || [];
+  const entry = week.find((d) => d.date === selectedDate);
+  const progress = toRingProgress(entry);
+
+  const renderDetails = () => {
+    if (status === "unknown") return null;
+    if (!connected) {
+      return (
+        <FitbitConnectPrompt
+          onPress={() => navigation.navigate("Main", { screen: "Device" })}
+          message="Connect your watch through Fitbit to fill your steps and sleep rings."
+        />
+      );
     }
+    return (
+      <>
+        <GoalRow
+          ringKey="steps"
+          value={formatSteps(entry ? entry.steps : null)}
+          goal={formatSteps(STEP_GOAL)}
+          progress={progress.steps}
+          testID="goal-steps"
+        />
+        <GoalRow
+          ringKey="sleep"
+          value={formatMinutes(entry ? entry.sleepMinutes : null)}
+          goal={formatMinutes(SLEEP_GOAL_MINUTES)}
+          progress={progress.sleep}
+          testID="goal-sleep"
+        />
+        <Button
+          mode="outlined"
+          icon="arrow-right"
+          contentStyle={{ flexDirection: "row-reverse" }}
+          style={styles.summaryButton}
+          onPress={() =>
+            navigation.navigate("DailySummary", { date: selectedDate })
+          }
+        >
+          Daily summary
+        </Button>
+      </>
+    );
   };
-
-  // console.log(activityRingsData);
-
-  const handleRingPress = (day) => {
-    const currentRingData = {
-      ring1: activityRingsData[day].ring1,
-      ring2: activityRingsData[day].ring2,
-      ring3: activityRingsData[day].ring3,
-    };
-
-    setCurrentRingData(currentRingData);
-  };
-
-  const handleUpdate = async () => {
-    await dispatch(updateActivityRings());
-  };
-
-  const formattedDate = currentDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  useEffect(() => {
-    setCurrentDate(currentDate);
-  }, [currentDate]);
 
   return (
-    <ScrollView style={[{ flex: 1 }]}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 30 }}>
       <AppHeader title={previousScreenTitle} back={true} />
-      <View style={{ padding: 10 }}>
-        <DateToolbar />
+      <View style={styles.body}>
         <DailyInsights
           fromDashboard={false}
-          handleRingPress={handleRingPress}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
         />
+        <Text style={styles.dateText} testID="selected-date">
+          {selectedDate === today ? "Today" : formatDateLabel(selectedDate)}
+        </Text>
+        <View style={styles.bigRing}>
+          <ActivityRings
+            scale={0.9}
+            canvasWidth={400}
+            canvasHeight={220}
+            horiPos={2}
+            vertPos={2}
+            totalProgress={progress}
+          />
+        </View>
+        <View style={styles.legend}>
+          {RINGS.map(({ key, label, colors }) => (
+            <View key={key} style={styles.legendItem}>
+              <View style={[styles.swatch, { backgroundColor: colors[0] }]} />
+              <Text style={card.muted}>
+                {label} ({key === "steps" ? "outer" : "inner"})
+              </Text>
+            </View>
+          ))}
+        </View>
+        {renderDetails()}
       </View>
-      <ActivityRings //big ring
-        scale={0.9}
-        canvasWidth={400}
-        canvasHeight={220}
-        horiPos={2}
-        vertPos={2}
-        totalProgress={{ ...currentRingData }}
-      />
-      <ActivityChart
-        color={AppColor.ringMove}
-        name="Move"
-        type="CAL"
-        goal={maxCal}
-        progress={314}
-      ></ActivityChart>
-      <ActivityChart
-        color={AppColor.ringExercise}
-        name="Exercise"
-        type="MIN"
-        goal={maxMin}
-        progress={15}
-      ></ActivityChart>
-      <ActivityChart
-        color={AppColor.ringStand}
-        name="Stand"
-        type="HRS"
-        goal={maxHrs}
-        progress={3}
-      ></ActivityChart>
-      {showDatePicker && (
-        <DateTimePicker
-          testID="date-time-picker"
-          value={currentDate}
-          mode="date"
-          display="default"
-          onChange={onChangeDate}
-        />
-      )}
-      <Button
-        title="Update Activity Rings Data"
-        onPress={() => {
-          handleUpdate();
-          // updateDataAtIndex(7, 5);
-        }}
-      />
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  title: {
-    fontSize: 20,
-    textAlign: "left",
-    color: "black",
-  },
-  content: {
-    paddingHorizontal: 20,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    marginBottom: 20,
-    marginVertical: 24,
-    paddingTop: 200,
-  },
-  insights: {
-    marginVertical: 10,
-    elevation: 2,
-    shadowColor: AppColor.shadow,
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 5, height: 5 },
-    backgroundColor: AppColor.primaryContainer,
+  body: {
     padding: 10,
-    borderRadius: 10,
-    height: 130,
-    overflow: "hidden",
   },
-  ringsRow: {
+  dateText: {
+    fontFamily: AppFonts.chakraBold,
+    fontSize: 20,
+    color: AppColor.primary,
+    textAlign: "center",
+    marginTop: 6,
+  },
+  bigRing: {
+    alignItems: "center",
+  },
+  legend: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
+    gap: 20,
+    marginBottom: 6,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  swatch: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  goalRow: {
+    ...StyleSheet.flatten(card.card),
+  },
+  goalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  goalValue: {
+    fontFamily: AppFonts.chakraBold,
+    fontSize: 26,
+  },
+  bar: {
+    height: 8,
+    borderRadius: 4,
+    marginTop: 6,
+  },
+  summaryButton: {
+    marginTop: 12,
+    alignSelf: "flex-end",
   },
 });
 
