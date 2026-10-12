@@ -5,6 +5,9 @@ import {
   FITBIT_DAY_LOADED,
   FITBIT_DAY_ERROR,
   FITBIT_CLEAR_DAYS,
+  FITBIT_WEEK_LOADING,
+  FITBIT_WEEK_LOADED,
+  FITBIT_WEEK_ERROR,
 } from "./../actions/types";
 
 const dummyDevicesData = [
@@ -39,10 +42,13 @@ const dummyDevicesData = [
 // status: "unknown" | "not_connected" | "connecting" | "connected" | "error"
 // days: { [YYYY-MM-DD]: { loading, error, data } }, shared by Home and
 // DailySummary so a date is only fetched once per session.
+// weeks: { [endDate]: { loading, error, data } }, data being the 7 entries
+// [{ date, steps, sleepMinutes }] behind the activity rings.
 const initialFitbitState = {
   status: "unknown",
   error: null,
   days: {},
+  weeks: {},
 };
 
 const initialState = {
@@ -50,13 +56,25 @@ const initialState = {
   fitbit: initialFitbitState,
 };
 
-const setDay = (state, date, day) => ({
+// map is "days" or "weeks"
+const setEntry = (state, map, key, entry) => ({
   ...state,
   fitbit: {
     ...state.fitbit,
-    days: { ...state.fitbit.days, [date]: day },
+    [map]: { ...state.fitbit[map], [key]: entry },
   },
 });
+
+// Keeps the old data while an entry reloads
+const loadingEntry = (previous) => ({
+  loading: true,
+  error: null,
+  data: previous ? previous.data : null,
+});
+
+const loadedEntry = (data) => ({ loading: false, error: null, data });
+
+const errorEntry = (error) => ({ loading: false, error, data: null });
 
 const deviceReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -71,28 +89,30 @@ const deviceReducer = (state = initialState, action) => {
           error: action.error || null,
         },
       };
-    case FITBIT_DAY_LOADING: {
-      const previous = state.fitbit.days[action.date];
-      return setDay(state, action.date, {
-        loading: true,
-        error: null,
-        data: previous ? previous.data : null,
-      });
-    }
+    case FITBIT_DAY_LOADING:
+      return setEntry(
+        state,
+        "days",
+        action.date,
+        loadingEntry(state.fitbit.days[action.date])
+      );
     case FITBIT_DAY_LOADED:
-      return setDay(state, action.date, {
-        loading: false,
-        error: null,
-        data: action.day,
-      });
+      return setEntry(state, "days", action.date, loadedEntry(action.day));
     case FITBIT_DAY_ERROR:
-      return setDay(state, action.date, {
-        loading: false,
-        error: action.error,
-        data: null,
-      });
+      return setEntry(state, "days", action.date, errorEntry(action.error));
+    case FITBIT_WEEK_LOADING:
+      return setEntry(
+        state,
+        "weeks",
+        action.endDate,
+        loadingEntry(state.fitbit.weeks[action.endDate])
+      );
+    case FITBIT_WEEK_LOADED:
+      return setEntry(state, "weeks", action.endDate, loadedEntry(action.week));
+    case FITBIT_WEEK_ERROR:
+      return setEntry(state, "weeks", action.endDate, errorEntry(action.error));
     case FITBIT_CLEAR_DAYS:
-      return { ...state, fitbit: { ...state.fitbit, days: {} } };
+      return { ...state, fitbit: { ...state.fitbit, days: {}, weeks: {} } };
     default:
       return state;
   }
