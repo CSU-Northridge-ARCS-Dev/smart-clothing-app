@@ -88,6 +88,32 @@ describe("fitbit-api", () => {
       );
     });
 
+    it("getDaySummary calls the daily activity summary", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, { summary: { steps: 1 } }));
+      await fitbitApi.getDaySummary("tok", "2026-10-10");
+      expect(fetch.mock.calls[0][0]).toBe(
+        "https://api.fitbit.com/1/user/-/activities/date/2026-10-10.json",
+      );
+    });
+
+    it("getStepsRange calls the steps time series for the range", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, { "activities-steps": [] }));
+      await fitbitApi.getStepsRange("tok", "2026-10-04", "2026-10-10");
+      const [url, init] = fetch.mock.calls[0];
+      expect(url).toBe(
+        "https://api.fitbit.com/1/user/-/activities/steps/date/2026-10-04/2026-10-10.json",
+      );
+      expect(init.headers.Authorization).toBe("Bearer tok");
+    });
+
+    it("getSleepRange calls the v1.2 sleep range endpoint", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, { sleep: [] }));
+      await fitbitApi.getSleepRange("tok", "2026-10-04", "2026-10-10");
+      expect(fetch.mock.calls[0][0]).toBe(
+        "https://api.fitbit.com/1.2/user/-/sleep/date/2026-10-04/2026-10-10.json",
+      );
+    });
+
     it("previousDate crosses month and year boundaries", () => {
       expect(fitbitApi.previousDate("2026-11-01")).toBe("2026-10-31");
       expect(fitbitApi.previousDate("2026-01-01")).toBe("2025-12-31");
