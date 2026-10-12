@@ -5,6 +5,9 @@ import {
   FITBIT_DAY_LOADED,
   FITBIT_DAY_ERROR,
   FITBIT_CLEAR_DAYS,
+  FITBIT_WEEK_LOADING,
+  FITBIT_WEEK_LOADED,
+  FITBIT_WEEK_ERROR,
 } from "./types";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
@@ -27,6 +30,7 @@ import {
 import {
   getFitbitAuthUrl,
   getFitbitDay,
+  getFitbitWeek,
   getErrorCode,
 } from "../services/insightsApi";
 
@@ -94,6 +98,24 @@ export const fitbitDayError = (date, error) => ({
   error,
 });
 
+export const fitbitWeekLoading = (endDate) => ({
+  type: FITBIT_WEEK_LOADING,
+  endDate,
+});
+
+export const fitbitWeekLoaded = (endDate, week) => ({
+  type: FITBIT_WEEK_LOADED,
+  endDate,
+  week,
+});
+
+export const fitbitWeekError = (endDate, error) => ({
+  type: FITBIT_WEEK_ERROR,
+  endDate,
+  error,
+});
+
+// Clears the loaded days and weeks
 export const clearFitbitDays = () => ({ type: FITBIT_CLEAR_DAYS });
 
 // Connected means a token pair is in SecureStore
@@ -152,31 +174,55 @@ export const startDisconnectFitbit = () => {
   };
 };
 
-// Loads one day (YYYY-MM-DD) into state.device.fitbit.days. A day already
-// loaded is not fetched again unless force is true.
+// Shared by the day and week loaders. existing is the cached entry; one
+// already loaded (or loading) is not fetched again unless force is true.
+const loadFitbitEntry = async (
+  dispatch,
+  existing,
+  force,
+  { fetch, loading, loaded, failed }
+) => {
+  if (!force && existing && (existing.loading || existing.data)) return;
+
+  const tokens = await getFitbitTokens();
+  if (!tokens) {
+    dispatch(setFitbitStatus("not_connected"));
+    return;
+  }
+
+  dispatch(loading());
+  try {
+    dispatch(loaded(await fetch()));
+  } catch (error) {
+    const code = getErrorCode(error);
+    dispatch(failed(code));
+    if (FITBIT_REAUTH_ERRORS.includes(code)) {
+      await clearFitbitTokens();
+      dispatch(clearFitbitDays());
+      dispatch(setFitbitStatus("not_connected", code));
+    }
+  }
+};
+
+// Loads one day (YYYY-MM-DD) into state.device.fitbit.days
 export const startLoadFitbitDay = (date, { force = false } = {}) => {
-  return async (dispatch, getState) => {
-    const existing = getState().device.fitbit.days[date];
-    if (!force && existing && (existing.loading || existing.data)) return;
+  return (dispatch, getState) =>
+    loadFitbitEntry(dispatch, getState().device.fitbit.days[date], force, {
+      fetch: () => getFitbitDay(date),
+      loading: () => fitbitDayLoading(date),
+      loaded: (day) => fitbitDayLoaded(date, day),
+      failed: (code) => fitbitDayError(date, code),
+    });
+};
 
-    const tokens = await getFitbitTokens();
-    if (!tokens) {
-      dispatch(setFitbitStatus("not_connected"));
-      return;
-    }
-
-    dispatch(fitbitDayLoading(date));
-    try {
-      const day = await getFitbitDay(date);
-      dispatch(fitbitDayLoaded(date, day));
-    } catch (error) {
-      const code = getErrorCode(error);
-      dispatch(fitbitDayError(date, code));
-      if (FITBIT_REAUTH_ERRORS.includes(code)) {
-        await clearFitbitTokens();
-        dispatch(clearFitbitDays());
-        dispatch(setFitbitStatus("not_connected", code));
-      }
-    }
-  };
+// Loads the 7 days ending at endDate (steps and sleep for the activity rings)
+// into state.device.fitbit.weeks
+export const startLoadFitbitWeek = (endDate, { force = false } = {}) => {
+  return (dispatch, getState) =>
+    loadFitbitEntry(dispatch, getState().device.fitbit.weeks[endDate], force, {
+      fetch: () => getFitbitWeek(endDate),
+      loading: () => fitbitWeekLoading(endDate),
+      loaded: (week) => fitbitWeekLoaded(endDate, week),
+      failed: (code) => fitbitWeekError(endDate, code),
+    });
 };
