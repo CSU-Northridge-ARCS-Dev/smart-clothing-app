@@ -20,6 +20,7 @@ let insightsApi;
 let addAuthHeaders;
 let getErrorCode;
 let getFitbitDay;
+let getFitbitWeek;
 let getFitbitAuthUrl;
 let fitbitTokens;
 
@@ -45,7 +46,8 @@ beforeEach(() => {
   fitbitTokens = require('../../../src/utils/fitbitTokens');
   const api = require('../../../src/services/insightsApi');
   insightsApi = api.default;
-  ({ addAuthHeaders, getErrorCode, getFitbitDay, getFitbitAuthUrl } = api);
+  ({ addAuthHeaders, getErrorCode, getFitbitDay, getFitbitWeek, getFitbitAuthUrl } =
+    api);
   jest.clearAllMocks();
 });
 
@@ -113,6 +115,17 @@ describe('requests', () => {
     insightsApi.defaults.adapter = respondWith(200, { day: {} });
     await getFitbitDay('2026-10-10');
     expect(fitbitTokens.setFitbitTokens).not.toHaveBeenCalled();
+  });
+
+  it('getFitbitWeek asks for the week ending at the date', async () => {
+    let seen;
+    const week = [{ date: '2026-10-10', steps: 8432, sleepMinutes: 412 }];
+    insightsApi.defaults.adapter = (config) => {
+      seen = config;
+      return respondWith(200, { week })(config);
+    };
+    expect(await getFitbitWeek('2026-10-10')).toEqual(week);
+    expect(seen.url).toBe('/api/fitbit/week/2026-10-10');
   });
 
   it('getFitbitAuthUrl sends returnTo and returns the url', async () => {
