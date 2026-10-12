@@ -1,6 +1,6 @@
 const { normalizeDay } = require("../src/lib/normalizeDay");
 
-// Shapes follow the Fitbit Web API responses (sleep v1.2, heart 1d,
+// Shapes follow the Fitbit Web API responses (sleep v1.2, heart over a 2-day range,
 // activities/list). Values are made up.
 const sleepFixture = {
   sleep: [
@@ -27,6 +27,11 @@ const sleepFixture = {
           rem: { minutes: 102 },
           wake: { minutes: 38 },
         },
+        data: [
+          { dateTime: "2026-10-09T23:10:00.000", level: "wake", seconds: 600, extra: 1 },
+          { dateTime: "2026-10-09T23:20:00.000", level: "light", seconds: 1800 },
+          { dateTime: "2026-10-09T23:50:00.000", level: "deep", seconds: 2400 },
+        ],
       },
     },
   ],
@@ -34,6 +39,7 @@ const sleepFixture = {
 
 const heartFixture = {
   "activities-heart": [
+    { dateTime: "2026-10-09", value: { restingHeartRate: 59 } },
     {
       dateTime: "2026-10-10",
       value: {
@@ -107,6 +113,11 @@ describe("normalizeDay", () => {
       wake: 38,
       bedTime: "2026-10-09T23:10:00.000",
       wakeTime: "2026-10-10T06:40:00.000",
+      levels: [
+        { dateTime: "2026-10-09T23:10:00.000", level: "wake", seconds: 600 },
+        { dateTime: "2026-10-09T23:20:00.000", level: "light", seconds: 1800 },
+        { dateTime: "2026-10-09T23:50:00.000", level: "deep", seconds: 2400 },
+      ],
     });
   });
 
@@ -121,6 +132,7 @@ describe("normalizeDay", () => {
     expect(sleep.totalMinutes).toBe(150);
     expect(sleep.deep).toBeNull();
     expect(sleep.rem).toBeNull();
+    expect(sleep.levels).toEqual([]);
   });
 
   it("returns null sleep when there are no sleep logs", () => {
@@ -129,19 +141,32 @@ describe("normalizeDay", () => {
     expect(normalizeDay("2026-10-10", null, heartFixture, []).sleep).toBeNull();
   });
 
-  it("returns resting HR and zone minutes", () => {
+  it("returns resting HR, yesterday's resting HR and zone minutes", () => {
     expect(day.heart).toEqual({
       restingHeartRate: 56,
+      previousRestingHeartRate: 59,
       zones: { fatBurn: 45, cardio: 22, peak: 4 },
     });
   });
 
+  it("uses the entry for the date, whatever the order", () => {
+    const reversed = {
+      "activities-heart": [...heartFixture["activities-heart"]].reverse(),
+    };
+    const heart = normalizeDay("2026-10-10", null, reversed, []).heart;
+    expect(heart.restingHeartRate).toBe(56);
+    expect(heart.previousRestingHeartRate).toBe(59);
+  });
+
   it("returns a null resting HR and zero zones when heart data is missing", () => {
     const noResting = {
-      "activities-heart": [{ value: { heartRateZones: [] } }],
+      "activities-heart": [
+        { dateTime: "2026-10-10", value: { heartRateZones: [] } },
+      ],
     };
     expect(normalizeDay("2026-10-10", null, noResting, []).heart).toEqual({
       restingHeartRate: null,
+      previousRestingHeartRate: null,
       zones: { fatBurn: 0, cardio: 0, peak: 0 },
     });
     expect(normalizeDay("2026-10-10", null, {}, []).heart.restingHeartRate)
@@ -150,6 +175,40 @@ describe("normalizeDay", () => {
 
   it("keeps only Run, Weights and Walk workouts", () => {
     expect(day.workouts.map((w) => w.type)).toEqual(["Run", "Weights", "Walk"]);
+  });
+
+  it("shows a Workout with GPS and a distance as a Run", () => {
+    // Shape of the lead's real Pixel Watch run on 2026-10-11 (activityTypeId 91060)
+    const out = normalizeDay("2026-10-11", null, null, [
+      {
+        activityName: "Workout",
+        activityTypeId: 91060,
+        hasGps: true,
+        activeDuration: 723780,
+        distance: 1.6049,
+        distanceUnit: "Kilometer",
+        averageHeartRate: 175,
+      },
+    ]);
+    expect(out.workouts[0]).toMatchObject({
+      type: "Run",
+      durationMin: 12,
+      avgHeartRate: 175,
+      distanceKm: 1.6,
+      paceMinPerKm: 7.5,
+    });
+  });
+
+  it("keeps a generic Workout, with distance and pace only when Fitbit has one", () => {
+    const out = normalizeDay("2026-10-11", null, null, [
+      { activityName: "Workout", activeDuration: 723780 },
+      { activityName: "Workout", activeDuration: 720000, distance: 2.1, distanceUnit: "Kilometer" },
+    ]);
+    expect(out.workouts.map((w) => w.type)).toEqual(["Workout", "Workout"]);
+    expect(out.workouts[0].durationMin).toBe(12);
+    expect(out.workouts[0]).not.toHaveProperty("distanceKm");
+    expect(out.workouts[1].distanceKm).toBe(2.1);
+    expect(out.workouts[1].paceMinPerKm).toBe(5.7);
   });
 
   it("adds distance and pace to a run", () => {
