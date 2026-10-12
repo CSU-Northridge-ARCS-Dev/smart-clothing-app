@@ -53,7 +53,8 @@
           "defaultChannel": "default",
           "enableBackgroundRemoteNotifications": false
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "runtimeVersion": "1.0.0",
     "updates": {
