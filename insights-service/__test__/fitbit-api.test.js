@@ -80,12 +80,18 @@ describe("fitbit-api", () => {
       expect(init.headers.Authorization).toBe("Bearer tok");
     });
 
-    it("getHeart calls the 1d heart endpoint", async () => {
+    it("getHeart asks for the day before and the date", async () => {
       fetch.mockResolvedValue(fakeResponse(200, {}));
       await fitbitApi.getHeart("tok", "2026-10-10");
       expect(fetch.mock.calls[0][0]).toBe(
-        "https://api.fitbit.com/1/user/-/activities/heart/date/2026-10-10/1d.json",
+        "https://api.fitbit.com/1/user/-/activities/heart/date/2026-10-09/2026-10-10.json",
       );
+    });
+
+    it("previousDate crosses month and year boundaries", () => {
+      expect(fitbitApi.previousDate("2026-11-01")).toBe("2026-10-31");
+      expect(fitbitApi.previousDate("2026-01-01")).toBe("2025-12-31");
+      expect(fitbitApi.previousDate("2028-03-01")).toBe("2028-02-29");
     });
 
     it("getActivities keeps only activities that start on the date", async () => {
