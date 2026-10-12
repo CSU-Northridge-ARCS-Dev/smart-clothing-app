@@ -12,6 +12,7 @@ import DataCollectModal from "./DataCollectModal";
 import {
   HeartCard,
   SleepCard,
+  StepsCard,
   WorkoutList,
   FitbitConnectPrompt,
 } from "./fitbit";
@@ -30,6 +31,7 @@ export {
   DataCollectModal,
   HeartCard,
   SleepCard,
+  StepsCard,
   WorkoutList,
   FitbitConnectPrompt,
 };
