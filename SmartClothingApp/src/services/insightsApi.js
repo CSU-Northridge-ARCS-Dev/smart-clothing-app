@@ -69,10 +69,17 @@ export const getFitbitAuthUrl = async (returnTo) => {
   return response.data.url;
 };
 
-// The normalized day: { date, sleep, heart, workouts }. date is YYYY-MM-DD.
+// The normalized day: { date, steps, sleep, heart, workouts }. date is YYYY-MM-DD.
 export const getFitbitDay = async (date) => {
   const response = await insightsApi.get(`/api/fitbit/day/${date}`);
   return response.data.day;
+};
+
+// 7 entries [{ date, steps, sleepMinutes }] ending at endDate (YYYY-MM-DD),
+// oldest first. Missing values are null.
+export const getFitbitWeek = async (endDate) => {
+  const response = await insightsApi.get(`/api/fitbit/week/${endDate}`);
+  return response.data.week;
 };
 
 export default insightsApi;
