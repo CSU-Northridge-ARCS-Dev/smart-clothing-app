@@ -269,7 +269,9 @@ describe("Fitbit routes", () => {
     beforeEach(() => {
       fitbitApi.getSleep.mockResolvedValue({ sleep: [] });
       fitbitApi.getHeart.mockResolvedValue({
-        "activities-heart": [{ value: { restingHeartRate: 58 } }],
+        "activities-heart": [
+          { dateTime: "2026-10-10", value: { restingHeartRate: 58 } },
+        ],
       });
       fitbitApi.getActivities.mockResolvedValue([
         { activityName: "Run", activeDuration: 600000 },
