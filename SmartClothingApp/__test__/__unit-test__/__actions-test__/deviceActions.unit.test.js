@@ -12,6 +12,7 @@ import {
   startConnectFitbit,
   startDisconnectFitbit,
   startLoadFitbitDay,
+  startLoadFitbitWeek,
 } from '../../../src/actions/deviceActions';
 import {
   FITBIT_SET_STATUS,
@@ -19,6 +20,9 @@ import {
   FITBIT_DAY_LOADED,
   FITBIT_DAY_ERROR,
   FITBIT_CLEAR_DAYS,
+  FITBIT_WEEK_LOADING,
+  FITBIT_WEEK_LOADED,
+  FITBIT_WEEK_ERROR,
 } from '../../../src/actions/types';
 import {
   getFitbitTokens,
@@ -28,6 +32,7 @@ import {
 import {
   getFitbitAuthUrl,
   getFitbitDay,
+  getFitbitWeek,
 } from '../../../src/services/insightsApi';
 
 // These pull from __mocks__/
@@ -59,6 +64,7 @@ jest.mock('../../../src/utils/fitbitTokens', () => ({
 jest.mock('../../../src/services/insightsApi', () => ({
   getFitbitAuthUrl: jest.fn(),
   getFitbitDay: jest.fn(),
+  getFitbitWeek: jest.fn(),
   getErrorCode: jest.requireActual('../../../src/services/insightsApi')
     .getErrorCode,
 }));
@@ -67,8 +73,10 @@ const mockStore = configureMockStore([thunk]);
 const RETURN_TO = 'exp://127.0.0.1:8081/--/fitbit';
 const TOKENS = { accessToken: 'a', refreshToken: 'r' };
 
-const storeWithDays = (days = {}) =>
-  mockStore({ device: { fitbit: { status: 'connected', error: null, days } } });
+const storeWithDays = (days = {}, weeks = {}) =>
+  mockStore({
+    device: { fitbit: { status: 'connected', error: null, days, weeks } },
+  });
 
 const serviceError = (code) => {
   const error = new Error('Request failed');
@@ -232,6 +240,72 @@ describe('startLoadFitbitDay', () => {
     const store = storeWithDays();
     await store.dispatch(startLoadFitbitDay('2026-10-10'));
     expect(getFitbitDay).not.toHaveBeenCalled();
+    expect(store.getActions()[0].status).toBe('not_connected');
+  });
+});
+
+describe('startLoadFitbitWeek', () => {
+  const WEEK = [{ date: '2026-10-10', steps: 8432, sleepMinutes: 412 }];
+
+  beforeEach(() => {
+    getFitbitTokens.mockResolvedValue(TOKENS);
+  });
+
+  it('loads the week into the store', async () => {
+    getFitbitWeek.mockResolvedValue(WEEK);
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitWeek('2026-10-10'));
+    expect(getFitbitWeek).toHaveBeenCalledWith('2026-10-10');
+    expect(getFitbitDay).not.toHaveBeenCalled();
+    expect(store.getActions()).toEqual([
+      { type: FITBIT_WEEK_LOADING, endDate: '2026-10-10' },
+      { type: FITBIT_WEEK_LOADED, endDate: '2026-10-10', week: WEEK },
+    ]);
+  });
+
+  it('skips a week that is already loaded unless forced', async () => {
+    getFitbitWeek.mockResolvedValue(WEEK);
+    const store = storeWithDays(
+      {},
+      { '2026-10-10': { loading: false, error: null, data: WEEK } }
+    );
+    await store.dispatch(startLoadFitbitWeek('2026-10-10'));
+    expect(getFitbitWeek).not.toHaveBeenCalled();
+    await store.dispatch(startLoadFitbitWeek('2026-10-10', { force: true }));
+    expect(getFitbitWeek).toHaveBeenCalledTimes(1);
+  });
+
+  it('records a Fitbit error for the week and stays connected', async () => {
+    getFitbitWeek.mockRejectedValue(serviceError('FITBIT_API_ERROR'));
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitWeek('2026-10-10'));
+    expect(store.getActions().pop()).toEqual({
+      type: FITBIT_WEEK_ERROR,
+      endDate: '2026-10-10',
+      error: 'FITBIT_API_ERROR',
+    });
+    expect(clearFitbitTokens).not.toHaveBeenCalled();
+  });
+
+  it('disconnects when Fitbit needs a new login', async () => {
+    getFitbitWeek.mockRejectedValue(serviceError('FITBIT_REAUTH_REQUIRED'));
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitWeek('2026-10-10'));
+    expect(clearFitbitTokens).toHaveBeenCalled();
+    const types = store.getActions().map((a) => a.type);
+    expect(types).toContain(FITBIT_CLEAR_DAYS);
+    expect(store.getActions().pop()).toEqual({
+      type: FITBIT_SET_STATUS,
+      status: 'not_connected',
+      error: 'FITBIT_REAUTH_REQUIRED',
+    });
+  });
+
+  it('does not call the service without tokens', async () => {
+    getFitbitTokens.mockResolvedValue(null);
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitWeek('2026-10-10'));
+    expect(getFitbitWeek).not.toHaveBeenCalled();
     expect(store.getActions()[0].status).toBe('not_connected');
   });
 });
