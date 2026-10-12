@@ -26,17 +26,14 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import {
     userMetricsDataModalVisible,
-    updateActivityRingsData,
     updateHeartRateDateRangeData,
     updateSleepDataDateRangeData,
-    updateActivityRings,
     updateHeartRateDateRange,
     updateSleepDataDateRange,
     coachNotificationPermissionsModalVisible,
   } from '../../../src/actions/appActions.js'; 
 import {
   USER_METRICS_DATA_MODAL_VISIBLE,
-  UPDATE_ACTIVITY_RINGS_DATA,
   UPDATE_HEART_RATE_DATE_RANGE,
   UPDATE_SLEEP_DATA_DATE_RANGE,
   COACH_NOTIFICATION_PERMISSIONS_MODAL_VISIBLE,
@@ -105,7 +102,6 @@ jest.mock('firebase/auth', () => ({
  * Mocks are set up for Firebase Firestore and AsyncStorage to simulate database interactions.
  *
  * @test {userMetricsDataModalVisible} Action to update user metrics modal visibility.
- * @test {updateActivityRingsData} Action to update activity rings data.
  * @test {updateHeartRateDateRangeData} Action to update heart rate data range.
  */
 describe('User Metrics Actions', () => {
@@ -128,28 +124,6 @@ describe('User Metrics Actions', () => {
     expect(userMetricsDataModalVisible(true, true)).toEqual(expectedAction);
   });
   
-  /**
-   * Test case: Should create an action to update activity ring data for a specific day
-   *
-   * This test ensures that `updateActivityRingsData` generates an action with the correct
-   * payload, including the day of the week and the activity ring data (ring1, ring2, ring3).
-   * @test {updateActivityRingsData}
-   */
-  it('should create an action to toggle activity ring data', () => {
-    const day = "Monday"
-    const ringData = { ring1: '1.0', ring2: '1.0', ring3: '1.0' };
-    
-    const expectedAction = {
-      type: UPDATE_ACTIVITY_RINGS_DATA,
-      payload: {
-        day: day,
-        rings: ringData
-      }
-    }
-
-    expect(updateActivityRingsData(day, ringData)).toEqual(expectedAction);
-  });
-
   /**
    * Test case: Should create an action to update heart rate date range
    *
@@ -203,45 +177,6 @@ describe('User Metrics Actions', () => {
 
 
 
-  /**
-   * Test case: Should dispatch actions to update activity rings data for each day of the week
-   *
-   * This test simulates the `updateActivityRings` thunk, which dispatches activity ring data
-   * for each day of the week. It ensures that all actions are dispatched with the correct
-   * data after the asynchronous operation completes.
-   * @test {updateActivityRings}
-   */
-  it('should dispatch actions to update activity rings data', async () => {
-    const store = mockStore({});
-    const daysOfWeek = [
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-    ];
-
-    const ringData = { ring1: '1.0', ring2: '1.0', ring3: '1.0' };
-
-    // Mock the random value generator if necessary or ensure predictable output for tests
-    jest.spyOn(Math, 'random').mockReturnValue(0.5);
-
-    const expectedActions = daysOfWeek.map(day => ({
-      type: UPDATE_ACTIVITY_RINGS_DATA,
-      payload: {
-        day,
-        rings: ringData
-      }
-    }));
-
-    // Dispatch the thunk action
-    await store.dispatch(updateActivityRings());
-    const actions = store.getActions();
-
-    // Verify that each action is dispatched correctly
-    expectedActions.forEach((expectedAction, index) => {
-      expect(actions[index]).toEqual(expectedAction);
-    });
-
-    // Restore Math.random to its original implementation
-    Math.random.mockRestore();
-  }, 10000);
 
   /**
    * Test case: Should dispatch actions to update heart rate data date range
