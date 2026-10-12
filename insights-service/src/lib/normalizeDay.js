@@ -1,9 +1,13 @@
 // Turns raw Fitbit responses for one date into the day object the app and
 // (from P3) Claude use. Pure function: no I/O.
 
-// Workout types recorded on the Pixel Watch that the PoC keeps (T-003 decision)
-const WORKOUT_TYPES = ["Run", "Weights", "Walk"];
-const DISTANCE_TYPES = ["Run", "Walk"];
+// Workout types recorded on the Pixel Watch that the PoC keeps.
+// "Workout" is included because the Pixel Watch logged a run started with the
+// Run exercise as "Workout" (activityTypeId 91060); see
+// workoutType for how it is shown.
+const WORKOUT_TYPES = ["Run", "Weights", "Walk", "Workout"];
+// Distance and pace are only added when Fitbit has a distance
+const DISTANCE_TYPES = ["Run", "Walk", "Workout"];
 const KM_PER_MILE = 1.609344;
 
 const round1 = (n) => Math.round(n * 10) / 10;
@@ -45,18 +49,25 @@ function normalizeSleep(rawSleep) {
     wake: stageMinutes("wake"),
     bedTime: entry.startTime || null,
     wakeTime: entry.endTime || null,
+    // Timeline for the app's hypnogram. Too long for the Claude prompt.
+    levels: ((entry.levels && entry.levels.data) || []).map((l) => ({
+      dateTime: l.dateTime,
+      level: l.level,
+      seconds: l.seconds,
+    })),
   };
 }
 
-function normalizeHeart(rawHeart) {
-  const value =
-    (rawHeart &&
-      rawHeart["activities-heart"] &&
-      rawHeart["activities-heart"][0] &&
-      rawHeart["activities-heart"][0].value) ||
-    {};
+// rawHeart covers the day before and the date itself 
+function normalizeHeart(date, rawHeart) {
+  const entries = (rawHeart && rawHeart["activities-heart"]) || [];
+  const today = entries.find((e) => e.dateTime === date);
+  const previous = entries.find((e) => e.dateTime && e.dateTime < date);
+  const value = (today && today.value) || {};
+  const previousValue = (previous && previous.value) || {};
   return {
     restingHeartRate: value.restingHeartRate ?? null,
+    previousRestingHeartRate: previousValue.restingHeartRate ?? null,
     zones: zoneMinutes(value.heartRateZones),
   };
 }
@@ -65,8 +76,15 @@ function toKm(distance, unit) {
   return /mile/i.test(unit || "") ? distance * KM_PER_MILE : distance;
 }
 
+// A generic "Workout" with GPS and a distance is a run the watch didn't label
+// as one. Without GPS (for example a gym session) it stays "Workout".
+function workoutType(a) {
+  if (a.activityName === "Workout" && a.hasGps && a.distance > 0) return "Run";
+  return a.activityName;
+}
+
 function normalizeWorkout(a) {
-  const type = a.activityName;
+  const type = workoutType(a);
   const durationMin = Math.round((a.activeDuration || a.duration || 0) / 60000);
   const workout = {
     type,
@@ -90,7 +108,7 @@ function normalizeDay(date, rawSleep, rawHeart, rawActivities) {
   return {
     date,
     sleep: normalizeSleep(rawSleep),
-    heart: normalizeHeart(rawHeart),
+    heart: normalizeHeart(date, rawHeart),
     workouts: (rawActivities || [])
       .filter((a) => WORKOUT_TYPES.includes(a.activityName))
       .map(normalizeWorkout),
