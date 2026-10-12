@@ -15,6 +15,7 @@ import {
   AppHeader,
   HeartCard,
   SleepCard,
+  StepsCard,
   WorkoutList,
   FitbitConnectPrompt,
 } from "../../components";
@@ -35,7 +36,7 @@ const ERROR_MESSAGES = {
   Network_Error: "Can't reach the insights service. Is it running?",
 };
 
-// One day of Pixel Watch data: sleep, heart rate and workouts.
+// One day of Pixel Watch data: sleep, steps, heart rate and workouts.
 // The AI feedback for the day goes here
 const DailySummary = ({ route, navigation }) => {
   const dispatch = useDispatch();
@@ -84,6 +85,7 @@ const DailySummary = ({ route, navigation }) => {
     return (
       <>
         <SleepCard sleep={day.sleep} />
+        <StepsCard steps={day.steps} />
         <HeartCard heart={day.heart} />
         <WorkoutList workouts={day.workouts} />
         <View style={card.card} testID="ai-feedback-placeholder">
