@@ -103,6 +103,21 @@ describe("normalizeDay", () => {
     expect(day.date).toBe("2026-10-10");
   });
 
+  it("takes steps from the daily summary", () => {
+    const withSteps = normalizeDay("2026-10-10", null, null, [], {
+      summary: { steps: 8432 },
+    });
+    expect(withSteps.steps).toBe(8432);
+  });
+
+  it("keeps 0 steps and returns null steps without a summary", () => {
+    expect(
+      normalizeDay("2026-10-10", null, null, [], { summary: { steps: 0 } }).steps,
+    ).toBe(0);
+    expect(day.steps).toBeNull();
+    expect(normalizeDay("2026-10-10", null, null, [], {}).steps).toBeNull();
+  });
+
   it("uses the main sleep log and its stage minutes", () => {
     expect(day.sleep).toEqual({
       totalMinutes: 412,
