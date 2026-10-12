@@ -5,6 +5,9 @@ jest.mock("../src/lib/fitbit-api", () => ({
   getSleep: jest.fn(),
   getHeart: jest.fn(),
   getActivities: jest.fn(),
+  getDaySummary: jest.fn(),
+  getStepsRange: jest.fn(),
+  getSleepRange: jest.fn(),
   withFreshToken: jest.fn(),
 }));
 
@@ -251,22 +254,23 @@ describe("Fitbit routes", () => {
     });
   });
 
+  const FITBIT_HEADERS = {
+    ...AUTH,
+    "X-Fitbit-Token": "access-1",
+    "X-Fitbit-Refresh-Token": "refresh-1",
+  };
+
+  // Make withFreshToken run the callback like the real one does
+  function passThrough(refreshedTokens = null) {
+    fitbitApi.withFreshToken.mockImplementation(async (tokens, fn) => ({
+      result: await fn(refreshedTokens ? refreshedTokens.accessToken : tokens.accessToken),
+      refreshedTokens,
+    }));
+  }
+
   describe("GET /api/fitbit/day/:date", () => {
-    const FITBIT_HEADERS = {
-      ...AUTH,
-      "X-Fitbit-Token": "access-1",
-      "X-Fitbit-Refresh-Token": "refresh-1",
-    };
-
-    // Make withFreshToken run the callback like the real one does
-    function passThrough(refreshedTokens = null) {
-      fitbitApi.withFreshToken.mockImplementation(async (tokens, fn) => ({
-        result: await fn(refreshedTokens ? refreshedTokens.accessToken : tokens.accessToken),
-        refreshedTokens,
-      }));
-    }
-
     beforeEach(() => {
+      fitbitApi.getDaySummary.mockResolvedValue({ summary: { steps: 8432 } });
       fitbitApi.getSleep.mockResolvedValue({ sleep: [] });
       fitbitApi.getHeart.mockResolvedValue({
         "activities-heart": [
@@ -321,7 +325,12 @@ describe("Fitbit routes", () => {
         "access-1",
         "2026-10-10",
       );
+      expect(fitbitApi.getDaySummary).toHaveBeenCalledWith(
+        "access-1",
+        "2026-10-10",
+      );
       expect(res.body.day.date).toBe("2026-10-10");
+      expect(res.body.day.steps).toBe(8432);
       expect(res.body.day.sleep).toBeNull();
       expect(res.body.day.heart.restingHeartRate).toBe(58);
       expect(res.body.day.workouts.map((w) => w.type)).toEqual(["Run"]);
@@ -368,6 +377,105 @@ describe("Fitbit routes", () => {
         .set(FITBIT_HEADERS);
       expect(res.status).toBe(500);
       expect(res.body).toEqual({ error: "INTERNAL_ERROR" });
+    });
+  });
+  describe("GET /api/fitbit/week/:endDate", () => {
+    beforeEach(() => {
+      fitbitApi.getStepsRange.mockResolvedValue({
+        "activities-steps": [
+          { dateTime: "2026-10-09", value: "9120" },
+          { dateTime: "2026-10-10", value: "12004" },
+        ],
+      });
+      fitbitApi.getSleepRange.mockResolvedValue({
+        sleep: [{ dateOfSleep: "2026-10-10", isMainSleep: true, minutesAsleep: 412 }],
+      });
+    });
+
+    it("requires a Firebase ID token", async () => {
+      const res = await request(app)
+        .get("/api/fitbit/week/2026-10-10")
+        .set("X-Fitbit-Token", "a");
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual({ error: "UNAUTHENTICATED" });
+    });
+
+    it("returns 400 for a bad date", async () => {
+      const res = await request(app)
+        .get("/api/fitbit/week/last-week")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(400);
+      expect(res.body).toEqual({ error: "INVALID_DATE" });
+    });
+
+    it("returns 401 FITBIT_NOT_CONNECTED without a Fitbit token", async () => {
+      const res = await request(app).get("/api/fitbit/week/2026-10-10").set(AUTH);
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual({ error: "FITBIT_NOT_CONNECTED" });
+    });
+
+    it("returns 7 days from two range calls", async () => {
+      passThrough();
+      const res = await request(app)
+        .get("/api/fitbit/week/2026-10-10")
+        .set(FITBIT_HEADERS);
+
+      expect(res.status).toBe(200);
+      expect(fitbitApi.getStepsRange).toHaveBeenCalledWith(
+        "access-1",
+        "2026-10-04",
+        "2026-10-10",
+      );
+      expect(fitbitApi.getSleepRange).toHaveBeenCalledWith(
+        "access-1",
+        "2026-10-04",
+        "2026-10-10",
+      );
+      expect(fitbitApi.getSleep).not.toHaveBeenCalled();
+      expect(res.body.week).toHaveLength(7);
+      expect(res.body.week[0]).toEqual({
+        date: "2026-10-04",
+        steps: null,
+        sleepMinutes: null,
+      });
+      expect(res.body.week[6]).toEqual({
+        date: "2026-10-10",
+        steps: 12004,
+        sleepMinutes: 412,
+      });
+      expect(res.body).not.toHaveProperty("refreshedTokens");
+    });
+
+    it("includes refreshedTokens when the service refreshed", async () => {
+      passThrough({ ...TOKENS, accessToken: "access-2", refreshToken: "refresh-2" });
+      const res = await request(app)
+        .get("/api/fitbit/week/2026-10-10")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(200);
+      expect(fitbitApi.getStepsRange.mock.calls[0][0]).toBe("access-2");
+      expect(res.body.refreshedTokens.refreshToken).toBe("refresh-2");
+    });
+
+    it("returns 502 with any refreshed tokens when Fitbit fails", async () => {
+      const error = new Error("FITBIT_API_ERROR");
+      error.refreshedTokens = { ...TOKENS, refreshToken: "refresh-2" };
+      fitbitApi.withFreshToken.mockRejectedValue(error);
+      const res = await request(app)
+        .get("/api/fitbit/week/2026-10-10")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(502);
+      expect(res.body.refreshedTokens.refreshToken).toBe("refresh-2");
+    });
+
+    it("returns 401 FITBIT_REAUTH_REQUIRED when the refresh fails", async () => {
+      fitbitApi.withFreshToken.mockRejectedValue(
+        new Error("FITBIT_REAUTH_REQUIRED"),
+      );
+      const res = await request(app)
+        .get("/api/fitbit/week/2026-10-10")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual({ error: "FITBIT_REAUTH_REQUIRED" });
     });
   });
 });
