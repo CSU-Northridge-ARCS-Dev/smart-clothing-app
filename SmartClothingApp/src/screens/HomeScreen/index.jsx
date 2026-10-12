@@ -1,18 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
-import { Button, Text } from "react-native-paper";
-import { useRoute } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { ActivityIndicator, Button, Text } from "react-native-paper";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
 
 import {
-  ActivityCard,
   AppHeader,
-  BreathingRateChart,
-  HeartRateChart,
-  VentilationChart,
   DataCollectModal,
+  HeartCard,
+  SleepCard,
+  FitbitConnectPrompt,
 } from "../../components";
+import {
+  startCheckFitbit,
+  startLoadFitbitDay,
+} from "../../actions/deviceActions";
+import { toLocalDateString } from "../../utils/dateConversions";
 
 import { AppColor, AppFonts, AppStyle } from "../../constants/themes.js";
 
@@ -21,18 +25,52 @@ import { registerForPushNotificationsAsync, sendNotification } from '../../utils
 
 export default function HomeScreen({ navigation }) {
   const route = useRoute();
-  const defaultData = [
-    70, 63, 63, 63, 42, 42, 42, 58, 57, 57, 62, 62, 63, 67, 73, 67, 71, 71, 71,
-    71, 71, 66, 66, 86, 86, 89, 86, 86, 86, 92, 90, 86, 86, 84, 84, 84, 84, 84,
-    93, 92, 92, 90, 91, 91, 91, 85, 85, 85, 85, 87, 93, 99, 95, 91, 87, 85, 85,
-    87, 87, 86,
-  ];
   const navigate = (screen) => {
     navigation.navigate(screen, {
       previousScreenTitle: route.name,
     });
   };
   const firstName = useSelector((state) => state.user.firstName);
+  const dispatch = useDispatch();
+  const today = toLocalDateString();
+  const fitbitStatus = useSelector((state) => state.device.fitbit.status);
+  const todayState = useSelector((state) => state.device.fitbit.days[today]);
+
+  // Today's Pixel Watch data. Loaded once per session (pull to refresh on
+  // DailySummary); the focus check picks up a connect from the Devices tab.
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(startCheckFitbit()).then((connected) => {
+        if (connected) dispatch(startLoadFitbitDay(today));
+      });
+    }, [today])
+  );
+
+  const openDailySummary = () =>
+    navigation.navigate("DailySummary", { date: today });
+
+  const renderToday = () => {
+    if (fitbitStatus === "unknown") return null;
+    if (fitbitStatus !== "connected") {
+      return <FitbitConnectPrompt onPress={() => navigation.navigate("Device")} />;
+    }
+    if (!todayState || (todayState.loading && !todayState.data)) {
+      return <ActivityIndicator style={{ marginTop: 20 }} />;
+    }
+    if (todayState.error || !todayState.data) {
+      return (
+        <Text style={{ marginTop: 10 }}>
+          Couldn't load today's Pixel Watch data.
+        </Text>
+      );
+    }
+    return (
+      <>
+        <SleepCard sleep={todayState.data.sleep} onPress={openDailySummary} />
+        <HeartCard heart={todayState.data.heart} onPress={openDailySummary} />
+      </>
+    );
+  };
 
   // Function to send a test notification
   const sendTestNotification = () => {
@@ -44,7 +82,11 @@ export default function HomeScreen({ navigation }) {
   // }, []);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      // Room for the floating tab bar so the last card can scroll into view
+      contentContainerStyle={{ paddingBottom: 120 }}
+    >
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
       <View style={styles.body}>
@@ -59,38 +101,9 @@ export default function HomeScreen({ navigation }) {
           Send Test Notification
         </Button> */}
         <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Today Status
+          Today
         </Text>
-        <ActivityCard
-          style={{ marginTop: 10 }}
-          icon="directions-run"
-          title="Activity"
-          value="8H 25Min"
-        />
-        <ActivityCard
-          style={{ marginTop: 10 }}
-          icon="transfer-within-a-station"
-          title="Steps"
-          value="8000"
-        />
-        <ActivityCard
-          style={{ marginTop: 10 }}
-          icon="fitness-center"
-          title="Calories"
-          value="2000 Kcal"
-        />
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Breath Rate
-        </Text>
-        <BreathingRateChart />
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Ventilation Rate
-        </Text>
-        <VentilationChart />
-        <Text variant="titleMedium" style={{ marginTop: 20 }}>
-          Heartbeat Rate
-        </Text>
-        <HeartRateChart data={defaultData}/>
+        {renderToday()}
       </View>
     </ScrollView>
   );
