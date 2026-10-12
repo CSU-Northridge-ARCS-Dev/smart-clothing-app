@@ -9,6 +9,9 @@ import {
   FITBIT_DAY_LOADED,
   FITBIT_DAY_ERROR,
   FITBIT_CLEAR_DAYS,
+  FITBIT_WEEK_LOADING,
+  FITBIT_WEEK_LOADED,
+  FITBIT_WEEK_ERROR,
 } from '../../../src/actions/types';
 
 const DATE = '2026-10-10';
@@ -26,8 +29,13 @@ describe('deviceReducer', () => {
     expect(initial.devicesData[2].connection).toBe('fitbit');
   });
 
-  it('starts with an unknown Fitbit status and no days', () => {
-    expect(initial.fitbit).toEqual({ status: 'unknown', error: null, days: {} });
+  it('starts with an unknown Fitbit status and no days or weeks', () => {
+    expect(initial.fitbit).toEqual({
+      status: 'unknown',
+      error: null,
+      days: {},
+      weeks: {},
+    });
   });
 
   it('sets the status and error', () => {
@@ -63,5 +71,33 @@ describe('deviceReducer', () => {
     expect(state.fitbit.days[DATE].error).toBe('FITBIT_API_ERROR');
     state = deviceReducer(state, { type: FITBIT_CLEAR_DAYS });
     expect(state.fitbit.days).toEqual({});
+  });
+
+  it('tracks a week from loading to loaded, keeping old data on reload', () => {
+    const WEEK = [{ date: DATE, steps: 8432, sleepMinutes: 412 }];
+    let state = deviceReducer(initial, { type: FITBIT_WEEK_LOADING, endDate: DATE });
+    expect(state.fitbit.weeks[DATE]).toEqual({ loading: true, error: null, data: null });
+    state = deviceReducer(state, { type: FITBIT_WEEK_LOADED, endDate: DATE, week: WEEK });
+    expect(state.fitbit.weeks[DATE]).toEqual({ loading: false, error: null, data: WEEK });
+    state = deviceReducer(state, { type: FITBIT_WEEK_LOADING, endDate: DATE });
+    expect(state.fitbit.weeks[DATE].data).toBe(WEEK);
+    expect(state.fitbit.days).toEqual({});
+  });
+
+  it('records a week error, and clearing removes weeks too', () => {
+    let state = deviceReducer(initial, { type: FITBIT_DAY_LOADED, date: DATE, day: DAY });
+    state = deviceReducer(state, {
+      type: FITBIT_WEEK_ERROR,
+      endDate: DATE,
+      error: 'FITBIT_API_ERROR',
+    });
+    expect(state.fitbit.weeks[DATE]).toEqual({
+      loading: false,
+      error: 'FITBIT_API_ERROR',
+      data: null,
+    });
+    state = deviceReducer(state, { type: FITBIT_CLEAR_DAYS });
+    expect(state.fitbit.days).toEqual({});
+    expect(state.fitbit.weeks).toEqual({});
   });
 });
