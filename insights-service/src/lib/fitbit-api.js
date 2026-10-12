@@ -1,6 +1,7 @@
 //Tokens are passed in by the
 // caller (they live on the phone) instead of being loaded from a database.
 const { getConfig } = require("../config");
+const { addDays } = require("./dates");
 
 const FITBIT_TOKEN_URL = "https://api.fitbit.com/oauth2/token";
 const FITBIT_API = "https://api.fitbit.com";
@@ -85,11 +86,27 @@ function getSleep(accessToken, date) {
   return fitbitFetch(accessToken, `/1.2/user/-/sleep/date/${date}.json`);
 }
 
-// YYYY-MM-DD minus one day (calendar arithmetic, no timezone involved)
+// YYYY-MM-DD minus one day
 function previousDate(date) {
-  const d = new Date(`${date}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
+  return addDays(date, -1);
+}
+
+// Daily activity summary; summary.steps is the day's step count
+function getDaySummary(accessToken, date) {
+  return fitbitFetch(accessToken, `/1/user/-/activities/date/${date}.json`);
+}
+
+// Steps per day for a date range: { "activities-steps": [{ dateTime, value }] }
+function getStepsRange(accessToken, start, end) {
+  return fitbitFetch(
+    accessToken,
+    `/1/user/-/activities/steps/date/${start}/${end}.json`,
+  );
+}
+
+// Sleep logs for a date range; each log carries its dateOfSleep
+function getSleepRange(accessToken, start, end) {
+  return fitbitFetch(accessToken, `/1.2/user/-/sleep/date/${start}/${end}.json`);
 }
 
 // Two-day range so yesterday's resting HR comes back in the same call
@@ -142,6 +159,9 @@ module.exports = {
   refreshTokens,
   getSleep,
   getHeart,
+  getDaySummary,
+  getStepsRange,
+  getSleepRange,
   previousDate,
   getActivities,
   withFreshToken,
