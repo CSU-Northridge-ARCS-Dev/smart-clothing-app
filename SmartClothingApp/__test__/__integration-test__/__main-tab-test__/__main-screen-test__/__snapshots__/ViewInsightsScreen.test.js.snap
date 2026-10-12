@@ -360,12 +360,15 @@ exports[`ViewInsights renders correctly 1`] = `
                           }
                         >
                           <RCTScrollView
+                            contentContainerStyle={
+                              {
+                                "paddingBottom": 30,
+                              }
+                            }
                             style={
-                              [
-                                {
-                                  "flex": 1,
-                                },
-                              ]
+                              {
+                                "flex": 1,
+                              }
                             }
                           >
                             <View>
@@ -876,45 +879,6 @@ exports[`ViewInsights renders correctly 1`] = `
                                 <View
                                   style={
                                     {
-                                      "alignItems": "center",
-                                      "flexDirection": "row",
-                                      "justifyContent": "space-between",
-                                    }
-                                  }
-                                >
-                                  <Text
-                                    style={
-                                      {
-                                        "color": "black",
-                                        "fontSize": 20,
-                                        "textAlign": "left",
-                                      }
-                                    }
-                                  >
-                                    6/25/2024
-                                  </Text>
-                                  <View
-                                    style={
-                                      {
-                                        "flexDirection": "row",
-                                        "gap": 10,
-                                      }
-                                    }
-                                  >
-                                    <text>
-                                      FontAwesome5: calendar-alt
-                                    </text>
-                                    <text>
-                                      FontAwesome5: sliders-h
-                                    </text>
-                                    <text>
-                                      FontAwesome5: upload
-                                    </text>
-                                  </View>
-                                </View>
-                                <View
-                                  style={
-                                    {
                                       "backgroundColor": "rgb(211, 228, 255)",
                                       "borderRadius": 10,
                                       "elevation": 2,
@@ -929,6 +893,7 @@ exports[`ViewInsights renders correctly 1`] = `
                                       "shadowRadius": 10,
                                     }
                                   }
+                                  testID="daily-insights"
                                 >
                                   <Text
                                     style={
@@ -949,884 +914,908 @@ exports[`ViewInsights renders correctly 1`] = `
                                   <View
                                     style={
                                       {
-                                        "justifyContent": "center",
+                                        "flexDirection": "row",
+                                        "justifyContent": "space-between",
+                                      }
+                                    }
+                                  >
+                                    <View
+                                      accessibilityLabel="2024-06-18: no data"
+                                      accessibilityRole="button"
+                                      accessibilityState={
+                                        {
+                                          "busy": undefined,
+                                          "checked": undefined,
+                                          "disabled": true,
+                                          "expanded": undefined,
+                                          "selected": undefined,
+                                        }
+                                      }
+                                      accessibilityValue={
+                                        {
+                                          "max": undefined,
+                                          "min": undefined,
+                                          "now": undefined,
+                                          "text": undefined,
+                                        }
+                                      }
+                                      accessible={true}
+                                      collapsable={false}
+                                      focusable={false}
+                                      onClick={[Function]}
+                                      onResponderGrant={[Function]}
+                                      onResponderMove={[Function]}
+                                      onResponderRelease={[Function]}
+                                      onResponderTerminate={[Function]}
+                                      onResponderTerminationRequest={[Function]}
+                                      onStartShouldSetResponder={[Function]}
+                                      style={
+                                        {
+                                          "alignItems": "center",
+                                          "opacity": 0.5,
+                                        }
+                                      }
+                                      testID="ring-2024-06-18"
+                                    >
+                                      <Text
+                                        style={
+                                          [
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                              "fontFamily": "Poppins_Bold",
+                                              "fontSize": 16,
+                                            },
+                                            {
+                                              "fontFamily": "ChakraPetch_Bold",
+                                            },
+                                            false,
+                                          ]
+                                        }
+                                      >
+                                        T
+                                      </Text>
+                                      <View
+                                        style={
+                                          {
+                                            "height": 50,
+                                            "width": 50,
+                                          }
+                                        }
+                                      >
+                                        <div
+                                          style={
+                                            [
+                                              {
+                                                "flex": 1,
+                                                "height": 50,
+                                                "width": 50,
+                                              },
+                                            ]
+                                          }
+                                        >
+                                          <div>
+                                            Mock Ring Component - 
+                                            41.650000000000006
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                          <div>
+                                            Mock Ring Component - 
+                                            31.450000000000003
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                        </div>
+                                      </View>
+                                    </View>
+                                    <View
+                                      accessibilityLabel="2024-06-19: no data"
+                                      accessibilityRole="button"
+                                      accessibilityState={
+                                        {
+                                          "busy": undefined,
+                                          "checked": undefined,
+                                          "disabled": true,
+                                          "expanded": undefined,
+                                          "selected": undefined,
+                                        }
+                                      }
+                                      accessibilityValue={
+                                        {
+                                          "max": undefined,
+                                          "min": undefined,
+                                          "now": undefined,
+                                          "text": undefined,
+                                        }
+                                      }
+                                      accessible={true}
+                                      collapsable={false}
+                                      focusable={false}
+                                      onClick={[Function]}
+                                      onResponderGrant={[Function]}
+                                      onResponderMove={[Function]}
+                                      onResponderRelease={[Function]}
+                                      onResponderTerminate={[Function]}
+                                      onResponderTerminationRequest={[Function]}
+                                      onStartShouldSetResponder={[Function]}
+                                      style={
+                                        {
+                                          "alignItems": "center",
+                                          "opacity": 0.5,
+                                        }
+                                      }
+                                      testID="ring-2024-06-19"
+                                    >
+                                      <Text
+                                        style={
+                                          [
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                              "fontFamily": "Poppins_Bold",
+                                              "fontSize": 16,
+                                            },
+                                            {
+                                              "fontFamily": "ChakraPetch_Bold",
+                                            },
+                                            false,
+                                          ]
+                                        }
+                                      >
+                                        W
+                                      </Text>
+                                      <View
+                                        style={
+                                          {
+                                            "height": 50,
+                                            "width": 50,
+                                          }
+                                        }
+                                      >
+                                        <div
+                                          style={
+                                            [
+                                              {
+                                                "flex": 1,
+                                                "height": 50,
+                                                "width": 50,
+                                              },
+                                            ]
+                                          }
+                                        >
+                                          <div>
+                                            Mock Ring Component - 
+                                            41.650000000000006
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                          <div>
+                                            Mock Ring Component - 
+                                            31.450000000000003
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                        </div>
+                                      </View>
+                                    </View>
+                                    <View
+                                      accessibilityLabel="2024-06-20: no data"
+                                      accessibilityRole="button"
+                                      accessibilityState={
+                                        {
+                                          "busy": undefined,
+                                          "checked": undefined,
+                                          "disabled": true,
+                                          "expanded": undefined,
+                                          "selected": undefined,
+                                        }
+                                      }
+                                      accessibilityValue={
+                                        {
+                                          "max": undefined,
+                                          "min": undefined,
+                                          "now": undefined,
+                                          "text": undefined,
+                                        }
+                                      }
+                                      accessible={true}
+                                      collapsable={false}
+                                      focusable={false}
+                                      onClick={[Function]}
+                                      onResponderGrant={[Function]}
+                                      onResponderMove={[Function]}
+                                      onResponderRelease={[Function]}
+                                      onResponderTerminate={[Function]}
+                                      onResponderTerminationRequest={[Function]}
+                                      onStartShouldSetResponder={[Function]}
+                                      style={
+                                        {
+                                          "alignItems": "center",
+                                          "opacity": 0.5,
+                                        }
+                                      }
+                                      testID="ring-2024-06-20"
+                                    >
+                                      <Text
+                                        style={
+                                          [
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                              "fontFamily": "Poppins_Bold",
+                                              "fontSize": 16,
+                                            },
+                                            {
+                                              "fontFamily": "ChakraPetch_Bold",
+                                            },
+                                            false,
+                                          ]
+                                        }
+                                      >
+                                        T
+                                      </Text>
+                                      <View
+                                        style={
+                                          {
+                                            "height": 50,
+                                            "width": 50,
+                                          }
+                                        }
+                                      >
+                                        <div
+                                          style={
+                                            [
+                                              {
+                                                "flex": 1,
+                                                "height": 50,
+                                                "width": 50,
+                                              },
+                                            ]
+                                          }
+                                        >
+                                          <div>
+                                            Mock Ring Component - 
+                                            41.650000000000006
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                          <div>
+                                            Mock Ring Component - 
+                                            31.450000000000003
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                        </div>
+                                      </View>
+                                    </View>
+                                    <View
+                                      accessibilityLabel="2024-06-21: no data"
+                                      accessibilityRole="button"
+                                      accessibilityState={
+                                        {
+                                          "busy": undefined,
+                                          "checked": undefined,
+                                          "disabled": true,
+                                          "expanded": undefined,
+                                          "selected": undefined,
+                                        }
+                                      }
+                                      accessibilityValue={
+                                        {
+                                          "max": undefined,
+                                          "min": undefined,
+                                          "now": undefined,
+                                          "text": undefined,
+                                        }
+                                      }
+                                      accessible={true}
+                                      collapsable={false}
+                                      focusable={false}
+                                      onClick={[Function]}
+                                      onResponderGrant={[Function]}
+                                      onResponderMove={[Function]}
+                                      onResponderRelease={[Function]}
+                                      onResponderTerminate={[Function]}
+                                      onResponderTerminationRequest={[Function]}
+                                      onStartShouldSetResponder={[Function]}
+                                      style={
+                                        {
+                                          "alignItems": "center",
+                                          "opacity": 0.5,
+                                        }
+                                      }
+                                      testID="ring-2024-06-21"
+                                    >
+                                      <Text
+                                        style={
+                                          [
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                              "fontFamily": "Poppins_Bold",
+                                              "fontSize": 16,
+                                            },
+                                            {
+                                              "fontFamily": "ChakraPetch_Bold",
+                                            },
+                                            false,
+                                          ]
+                                        }
+                                      >
+                                        F
+                                      </Text>
+                                      <View
+                                        style={
+                                          {
+                                            "height": 50,
+                                            "width": 50,
+                                          }
+                                        }
+                                      >
+                                        <div
+                                          style={
+                                            [
+                                              {
+                                                "flex": 1,
+                                                "height": 50,
+                                                "width": 50,
+                                              },
+                                            ]
+                                          }
+                                        >
+                                          <div>
+                                            Mock Ring Component - 
+                                            41.650000000000006
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                          <div>
+                                            Mock Ring Component - 
+                                            31.450000000000003
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                        </div>
+                                      </View>
+                                    </View>
+                                    <View
+                                      accessibilityLabel="2024-06-22: no data"
+                                      accessibilityRole="button"
+                                      accessibilityState={
+                                        {
+                                          "busy": undefined,
+                                          "checked": undefined,
+                                          "disabled": true,
+                                          "expanded": undefined,
+                                          "selected": undefined,
+                                        }
+                                      }
+                                      accessibilityValue={
+                                        {
+                                          "max": undefined,
+                                          "min": undefined,
+                                          "now": undefined,
+                                          "text": undefined,
+                                        }
+                                      }
+                                      accessible={true}
+                                      collapsable={false}
+                                      focusable={false}
+                                      onClick={[Function]}
+                                      onResponderGrant={[Function]}
+                                      onResponderMove={[Function]}
+                                      onResponderRelease={[Function]}
+                                      onResponderTerminate={[Function]}
+                                      onResponderTerminationRequest={[Function]}
+                                      onStartShouldSetResponder={[Function]}
+                                      style={
+                                        {
+                                          "alignItems": "center",
+                                          "opacity": 0.5,
+                                        }
+                                      }
+                                      testID="ring-2024-06-22"
+                                    >
+                                      <Text
+                                        style={
+                                          [
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                              "fontFamily": "Poppins_Bold",
+                                              "fontSize": 16,
+                                            },
+                                            {
+                                              "fontFamily": "ChakraPetch_Bold",
+                                            },
+                                            false,
+                                          ]
+                                        }
+                                      >
+                                        S
+                                      </Text>
+                                      <View
+                                        style={
+                                          {
+                                            "height": 50,
+                                            "width": 50,
+                                          }
+                                        }
+                                      >
+                                        <div
+                                          style={
+                                            [
+                                              {
+                                                "flex": 1,
+                                                "height": 50,
+                                                "width": 50,
+                                              },
+                                            ]
+                                          }
+                                        >
+                                          <div>
+                                            Mock Ring Component - 
+                                            41.650000000000006
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                          <div>
+                                            Mock Ring Component - 
+                                            31.450000000000003
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                        </div>
+                                      </View>
+                                    </View>
+                                    <View
+                                      accessibilityLabel="2024-06-23: no data"
+                                      accessibilityRole="button"
+                                      accessibilityState={
+                                        {
+                                          "busy": undefined,
+                                          "checked": undefined,
+                                          "disabled": true,
+                                          "expanded": undefined,
+                                          "selected": undefined,
+                                        }
+                                      }
+                                      accessibilityValue={
+                                        {
+                                          "max": undefined,
+                                          "min": undefined,
+                                          "now": undefined,
+                                          "text": undefined,
+                                        }
+                                      }
+                                      accessible={true}
+                                      collapsable={false}
+                                      focusable={false}
+                                      onClick={[Function]}
+                                      onResponderGrant={[Function]}
+                                      onResponderMove={[Function]}
+                                      onResponderRelease={[Function]}
+                                      onResponderTerminate={[Function]}
+                                      onResponderTerminationRequest={[Function]}
+                                      onStartShouldSetResponder={[Function]}
+                                      style={
+                                        {
+                                          "alignItems": "center",
+                                          "opacity": 0.5,
+                                        }
+                                      }
+                                      testID="ring-2024-06-23"
+                                    >
+                                      <Text
+                                        style={
+                                          [
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                              "fontFamily": "Poppins_Bold",
+                                              "fontSize": 16,
+                                            },
+                                            {
+                                              "fontFamily": "ChakraPetch_Bold",
+                                            },
+                                            false,
+                                          ]
+                                        }
+                                      >
+                                        S
+                                      </Text>
+                                      <View
+                                        style={
+                                          {
+                                            "height": 50,
+                                            "width": 50,
+                                          }
+                                        }
+                                      >
+                                        <div
+                                          style={
+                                            [
+                                              {
+                                                "flex": 1,
+                                                "height": 50,
+                                                "width": 50,
+                                              },
+                                            ]
+                                          }
+                                        >
+                                          <div>
+                                            Mock Ring Component - 
+                                            41.650000000000006
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                          <div>
+                                            Mock Ring Component - 
+                                            31.450000000000003
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                        </div>
+                                      </View>
+                                    </View>
+                                    <View
+                                      accessibilityLabel="2024-06-24: no data"
+                                      accessibilityRole="button"
+                                      accessibilityState={
+                                        {
+                                          "busy": undefined,
+                                          "checked": undefined,
+                                          "disabled": true,
+                                          "expanded": undefined,
+                                          "selected": undefined,
+                                        }
+                                      }
+                                      accessibilityValue={
+                                        {
+                                          "max": undefined,
+                                          "min": undefined,
+                                          "now": undefined,
+                                          "text": undefined,
+                                        }
+                                      }
+                                      accessible={true}
+                                      collapsable={false}
+                                      focusable={false}
+                                      onClick={[Function]}
+                                      onResponderGrant={[Function]}
+                                      onResponderMove={[Function]}
+                                      onResponderRelease={[Function]}
+                                      onResponderTerminate={[Function]}
+                                      onResponderTerminationRequest={[Function]}
+                                      onStartShouldSetResponder={[Function]}
+                                      style={
+                                        {
+                                          "alignItems": "center",
+                                          "opacity": 1,
+                                        }
+                                      }
+                                      testID="ring-2024-06-24"
+                                    >
+                                      <Text
+                                        style={
+                                          [
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                              "fontFamily": "Poppins_Bold",
+                                              "fontSize": 16,
+                                            },
+                                            {
+                                              "fontFamily": "ChakraPetch_Bold",
+                                            },
+                                            {
+                                              "color": "rgb(17, 96, 164)",
+                                            },
+                                          ]
+                                        }
+                                      >
+                                        M
+                                      </Text>
+                                      <View
+                                        style={
+                                          {
+                                            "height": 50,
+                                            "width": 50,
+                                          }
+                                        }
+                                      >
+                                        <div
+                                          style={
+                                            [
+                                              {
+                                                "flex": 1,
+                                                "height": 50,
+                                                "width": 50,
+                                              },
+                                            ]
+                                          }
+                                        >
+                                          <div>
+                                            Mock Ring Component - 
+                                            41.650000000000006
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                          <div>
+                                            Mock Ring Component - 
+                                            31.450000000000003
+                                            , 
+                                            0
+                                            , 
+                                            0
+                                            , 
+                                            5.1000000000000005
+                                            , 
+                                            0.17
+                                          </div>
+                                        </div>
+                                      </View>
+                                    </View>
+                                  </View>
+                                </View>
+                                <Text
+                                  style={
+                                    [
+                                      {
+                                        "textAlign": "left",
+                                      },
+                                      {
+                                        "color": "rgba(28, 27, 31, 1)",
+                                        "fontFamily": "System",
+                                        "fontWeight": "400",
+                                        "letterSpacing": 0,
+                                      },
+                                      {
+                                        "writingDirection": "ltr",
+                                      },
+                                      {
+                                        "color": "rgb(17, 96, 164)",
+                                        "fontFamily": "ChakraPetch_Bold",
+                                        "fontSize": 20,
+                                        "marginTop": 6,
+                                        "textAlign": "center",
+                                      },
+                                    ]
+                                  }
+                                  testID="selected-date"
+                                >
+                                  Today
+                                </Text>
+                                <View
+                                  style={
+                                    {
+                                      "alignItems": "center",
+                                    }
+                                  }
+                                >
+                                  <div
+                                    style={
+                                      [
+                                        {
+                                          "flex": 1,
+                                          "height": 220,
+                                          "width": 400,
+                                        },
+                                      ]
+                                    }
+                                  >
+                                    <div>
+                                      Mock Ring Component - 
+                                      220.5
+                                      , 
+                                      0
+                                      , 
+                                      0
+                                      , 
+                                      27
+                                      , 
+                                      0.9
+                                    </div>
+                                    <div>
+                                      Mock Ring Component - 
+                                      166.5
+                                      , 
+                                      0
+                                      , 
+                                      0
+                                      , 
+                                      27
+                                      , 
+                                      0.9
+                                    </div>
+                                  </div>
+                                </View>
+                                <View
+                                  style={
+                                    {
+                                      "flexDirection": "row",
+                                      "gap": 20,
+                                      "justifyContent": "center",
+                                      "marginBottom": 6,
+                                    }
+                                  }
+                                >
+                                  <View
+                                    style={
+                                      {
+                                        "alignItems": "center",
+                                        "flexDirection": "row",
+                                        "gap": 6,
                                       }
                                     }
                                   >
                                     <View
                                       style={
-                                        {
-                                          "flexDirection": "row",
-                                          "justifyContent": "space-between",
-                                        }
+                                        [
+                                          {
+                                            "borderRadius": 6,
+                                            "height": 12,
+                                            "width": 12,
+                                          },
+                                          {
+                                            "backgroundColor": "rgb(0, 191, 143)",
+                                          },
+                                        ]
+                                      }
+                                    />
+                                    <Text
+                                      style={
+                                        [
+                                          {
+                                            "textAlign": "left",
+                                          },
+                                          {
+                                            "color": "rgba(28, 27, 31, 1)",
+                                            "fontFamily": "System",
+                                            "fontWeight": "400",
+                                            "letterSpacing": 0,
+                                          },
+                                          {
+                                            "writingDirection": "ltr",
+                                          },
+                                          {
+                                            "color": "rgb(67, 71, 78)",
+                                            "fontFamily": "Poppins_Regular",
+                                            "fontSize": 12,
+                                          },
+                                        ]
                                       }
                                     >
-                                      <View
-                                        style={
-                                          {
-                                            "alignItems": "center",
-                                          }
-                                        }
-                                      >
-                                        <Text
-                                          style={
-                                            [
-                                              {
-                                                "color": "rgb(17, 96, 164)",
-                                                "fontFamily": "Poppins_Bold",
-                                                "fontSize": 16,
-                                              },
-                                              {
-                                                "fontFamily": "ChakraPetch_Bold",
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          S
-                                        </Text>
-                                        <View
-                                          accessibilityState={
-                                            {
-                                              "busy": undefined,
-                                              "checked": undefined,
-                                              "disabled": undefined,
-                                              "expanded": undefined,
-                                              "selected": undefined,
-                                            }
-                                          }
-                                          accessible={true}
-                                          focusable={true}
-                                          onClick={[Function]}
-                                          onResponderGrant={[Function]}
-                                          onResponderMove={[Function]}
-                                          onResponderRelease={[Function]}
-                                          onResponderTerminate={[Function]}
-                                          onResponderTerminationRequest={[Function]}
-                                          onStartShouldSetResponder={[Function]}
-                                          style={
-                                            [
-                                              {
-                                                "height": 50,
-                                                "width": 50,
-                                              },
-                                              {
-                                                "opacity": 0.5,
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          <div
-                                            style={
-                                              [
-                                                {
-                                                  "flex": 1,
-                                                  "height": 50,
-                                                  "width": 50,
-                                                },
-                                              ]
-                                            }
-                                          >
-                                            <div>
-                                              Mock Ring Component - 
-                                              21.250000000000004
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              31.450000000000003
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              41.650000000000006
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                          </div>
-                                        </View>
-                                      </View>
-                                      <View
-                                        style={
-                                          {
-                                            "alignItems": "center",
-                                          }
-                                        }
-                                      >
-                                        <Text
-                                          style={
-                                            [
-                                              {
-                                                "color": "rgb(17, 96, 164)",
-                                                "fontFamily": "Poppins_Bold",
-                                                "fontSize": 16,
-                                              },
-                                              {
-                                                "fontFamily": "ChakraPetch_Bold",
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          M
-                                        </Text>
-                                        <View
-                                          accessibilityState={
-                                            {
-                                              "busy": undefined,
-                                              "checked": undefined,
-                                              "disabled": undefined,
-                                              "expanded": undefined,
-                                              "selected": undefined,
-                                            }
-                                          }
-                                          accessible={true}
-                                          focusable={true}
-                                          onClick={[Function]}
-                                          onResponderGrant={[Function]}
-                                          onResponderMove={[Function]}
-                                          onResponderRelease={[Function]}
-                                          onResponderTerminate={[Function]}
-                                          onResponderTerminationRequest={[Function]}
-                                          onStartShouldSetResponder={[Function]}
-                                          style={
-                                            [
-                                              {
-                                                "height": 50,
-                                                "width": 50,
-                                              },
-                                              {
-                                                "opacity": 0.5,
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          <div
-                                            style={
-                                              [
-                                                {
-                                                  "flex": 1,
-                                                  "height": 50,
-                                                  "width": 50,
-                                                },
-                                              ]
-                                            }
-                                          >
-                                            <div>
-                                              Mock Ring Component - 
-                                              21.250000000000004
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              31.450000000000003
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              41.650000000000006
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                          </div>
-                                        </View>
-                                      </View>
-                                      <View
-                                        style={
-                                          {
-                                            "alignItems": "center",
-                                          }
-                                        }
-                                      >
-                                        <Text
-                                          style={
-                                            [
-                                              {
-                                                "color": "rgb(17, 96, 164)",
-                                                "fontFamily": "Poppins_Bold",
-                                                "fontSize": 16,
-                                              },
-                                              {
-                                                "fontFamily": "ChakraPetch_Bold",
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          T
-                                        </Text>
-                                        <View
-                                          accessibilityState={
-                                            {
-                                              "busy": undefined,
-                                              "checked": undefined,
-                                              "disabled": undefined,
-                                              "expanded": undefined,
-                                              "selected": undefined,
-                                            }
-                                          }
-                                          accessible={true}
-                                          focusable={true}
-                                          onClick={[Function]}
-                                          onResponderGrant={[Function]}
-                                          onResponderMove={[Function]}
-                                          onResponderRelease={[Function]}
-                                          onResponderTerminate={[Function]}
-                                          onResponderTerminationRequest={[Function]}
-                                          onStartShouldSetResponder={[Function]}
-                                          style={
-                                            [
-                                              {
-                                                "height": 50,
-                                                "width": 50,
-                                              },
-                                              {
-                                                "opacity": 0.5,
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          <div
-                                            style={
-                                              [
-                                                {
-                                                  "flex": 1,
-                                                  "height": 50,
-                                                  "width": 50,
-                                                },
-                                              ]
-                                            }
-                                          >
-                                            <div>
-                                              Mock Ring Component - 
-                                              21.250000000000004
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              31.450000000000003
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              41.650000000000006
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                          </div>
-                                        </View>
-                                      </View>
-                                      <View
-                                        style={
-                                          {
-                                            "alignItems": "center",
-                                          }
-                                        }
-                                      >
-                                        <Text
-                                          style={
-                                            [
-                                              {
-                                                "color": "rgb(17, 96, 164)",
-                                                "fontFamily": "Poppins_Bold",
-                                                "fontSize": 16,
-                                              },
-                                              {
-                                                "fontFamily": "ChakraPetch_Bold",
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          W
-                                        </Text>
-                                        <View
-                                          accessibilityState={
-                                            {
-                                              "busy": undefined,
-                                              "checked": undefined,
-                                              "disabled": undefined,
-                                              "expanded": undefined,
-                                              "selected": undefined,
-                                            }
-                                          }
-                                          accessible={true}
-                                          focusable={true}
-                                          onClick={[Function]}
-                                          onResponderGrant={[Function]}
-                                          onResponderMove={[Function]}
-                                          onResponderRelease={[Function]}
-                                          onResponderTerminate={[Function]}
-                                          onResponderTerminationRequest={[Function]}
-                                          onStartShouldSetResponder={[Function]}
-                                          style={
-                                            [
-                                              {
-                                                "height": 50,
-                                                "width": 50,
-                                              },
-                                              {
-                                                "opacity": 0.5,
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          <div
-                                            style={
-                                              [
-                                                {
-                                                  "flex": 1,
-                                                  "height": 50,
-                                                  "width": 50,
-                                                },
-                                              ]
-                                            }
-                                          >
-                                            <div>
-                                              Mock Ring Component - 
-                                              21.250000000000004
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              31.450000000000003
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              41.650000000000006
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                          </div>
-                                        </View>
-                                      </View>
-                                      <View
-                                        style={
-                                          {
-                                            "alignItems": "center",
-                                          }
-                                        }
-                                      >
-                                        <Text
-                                          style={
-                                            [
-                                              {
-                                                "color": "rgb(17, 96, 164)",
-                                                "fontFamily": "Poppins_Bold",
-                                                "fontSize": 16,
-                                              },
-                                              {
-                                                "fontFamily": "ChakraPetch_Bold",
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          T
-                                        </Text>
-                                        <View
-                                          accessibilityState={
-                                            {
-                                              "busy": undefined,
-                                              "checked": undefined,
-                                              "disabled": undefined,
-                                              "expanded": undefined,
-                                              "selected": undefined,
-                                            }
-                                          }
-                                          accessible={true}
-                                          focusable={true}
-                                          onClick={[Function]}
-                                          onResponderGrant={[Function]}
-                                          onResponderMove={[Function]}
-                                          onResponderRelease={[Function]}
-                                          onResponderTerminate={[Function]}
-                                          onResponderTerminationRequest={[Function]}
-                                          onStartShouldSetResponder={[Function]}
-                                          style={
-                                            [
-                                              {
-                                                "height": 50,
-                                                "width": 50,
-                                              },
-                                              {
-                                                "opacity": 0.5,
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          <div
-                                            style={
-                                              [
-                                                {
-                                                  "flex": 1,
-                                                  "height": 50,
-                                                  "width": 50,
-                                                },
-                                              ]
-                                            }
-                                          >
-                                            <div>
-                                              Mock Ring Component - 
-                                              21.250000000000004
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              31.450000000000003
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              41.650000000000006
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                          </div>
-                                        </View>
-                                      </View>
-                                      <View
-                                        style={
-                                          {
-                                            "alignItems": "center",
-                                          }
-                                        }
-                                      >
-                                        <Text
-                                          style={
-                                            [
-                                              {
-                                                "color": "rgb(17, 96, 164)",
-                                                "fontFamily": "Poppins_Bold",
-                                                "fontSize": 16,
-                                              },
-                                              {
-                                                "fontFamily": "ChakraPetch_Bold",
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          F
-                                        </Text>
-                                        <View
-                                          accessibilityState={
-                                            {
-                                              "busy": undefined,
-                                              "checked": undefined,
-                                              "disabled": undefined,
-                                              "expanded": undefined,
-                                              "selected": undefined,
-                                            }
-                                          }
-                                          accessible={true}
-                                          focusable={true}
-                                          onClick={[Function]}
-                                          onResponderGrant={[Function]}
-                                          onResponderMove={[Function]}
-                                          onResponderRelease={[Function]}
-                                          onResponderTerminate={[Function]}
-                                          onResponderTerminationRequest={[Function]}
-                                          onStartShouldSetResponder={[Function]}
-                                          style={
-                                            [
-                                              {
-                                                "height": 50,
-                                                "width": 50,
-                                              },
-                                              {
-                                                "opacity": 0.5,
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          <div
-                                            style={
-                                              [
-                                                {
-                                                  "flex": 1,
-                                                  "height": 50,
-                                                  "width": 50,
-                                                },
-                                              ]
-                                            }
-                                          >
-                                            <div>
-                                              Mock Ring Component - 
-                                              21.250000000000004
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              31.450000000000003
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              41.650000000000006
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                          </div>
-                                        </View>
-                                      </View>
-                                      <View
-                                        style={
-                                          {
-                                            "alignItems": "center",
-                                          }
-                                        }
-                                      >
-                                        <Text
-                                          style={
-                                            [
-                                              {
-                                                "color": "rgb(17, 96, 164)",
-                                                "fontFamily": "Poppins_Bold",
-                                                "fontSize": 16,
-                                              },
-                                              {
-                                                "fontFamily": "ChakraPetch_Bold",
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          S
-                                        </Text>
-                                        <View
-                                          accessibilityState={
-                                            {
-                                              "busy": undefined,
-                                              "checked": undefined,
-                                              "disabled": undefined,
-                                              "expanded": undefined,
-                                              "selected": undefined,
-                                            }
-                                          }
-                                          accessible={true}
-                                          focusable={true}
-                                          onClick={[Function]}
-                                          onResponderGrant={[Function]}
-                                          onResponderMove={[Function]}
-                                          onResponderRelease={[Function]}
-                                          onResponderTerminate={[Function]}
-                                          onResponderTerminationRequest={[Function]}
-                                          onStartShouldSetResponder={[Function]}
-                                          style={
-                                            [
-                                              {
-                                                "height": 50,
-                                                "width": 50,
-                                              },
-                                              {
-                                                "opacity": 0.5,
-                                              },
-                                            ]
-                                          }
-                                        >
-                                          <div
-                                            style={
-                                              [
-                                                {
-                                                  "flex": 1,
-                                                  "height": 50,
-                                                  "width": 50,
-                                                },
-                                              ]
-                                            }
-                                          >
-                                            <div>
-                                              Mock Ring Component - 
-                                              21.250000000000004
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              31.450000000000003
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                            <div>
-                                              Mock Ring Component - 
-                                              41.650000000000006
-                                              , 
-                                              0
-                                              , 
-                                              0
-                                              , 
-                                              5.1000000000000005
-                                              , 
-                                              0.17
-                                            </div>
-                                          </div>
-                                        </View>
-                                      </View>
-                                    </View>
+                                      Steps
+                                       (
+                                      outer
+                                      )
+                                    </Text>
                                   </View>
-                                </View>
-                              </View>
-                              <div
-                                style={
-                                  [
-                                    {
-                                      "flex": 1,
-                                      "height": 220,
-                                      "width": 400,
-                                    },
-                                  ]
-                                }
-                              >
-                                <div>
-                                  Mock Ring Component - 
-                                  112.5
-                                  , 
-                                  0
-                                  , 
-                                  0
-                                  , 
-                                  27
-                                  , 
-                                  0.9
-                                </div>
-                                <div>
-                                  Mock Ring Component - 
-                                  166.5
-                                  , 
-                                  0
-                                  , 
-                                  0
-                                  , 
-                                  27
-                                  , 
-                                  0.9
-                                </div>
-                                <div>
-                                  Mock Ring Component - 
-                                  220.5
-                                  , 
-                                  0
-                                  , 
-                                  0
-                                  , 
-                                  27
-                                  , 
-                                  0.9
-                                </div>
-                              </div>
-                              <div
-                                data-testid="mock-activity-chart"
-                              >
-                                <div>
-                                  Mock ActivityChart: Move
-                                </div>
-                                <div>
-                                  Type: CAL, Goal: 800, Progress: 314, Color: rgb(9, 14, 62)
-                                </div>
-                              </div>
-                              <div
-                                data-testid="mock-activity-chart"
-                              >
-                                <div>
-                                  Mock ActivityChart: Exercise
-                                </div>
-                                <div>
-                                  Type: MIN, Goal: 30, Progress: 15, Color: rgb(33, 100, 180)
-                                </div>
-                              </div>
-                              <div
-                                data-testid="mock-activity-chart"
-                              >
-                                <div>
-                                  Mock ActivityChart: Stand
-                                </div>
-                                <div>
-                                  Type: HRS, Goal: 12, Progress: 3, Color: rgb(6, 188, 255)
-                                </div>
-                              </div>
-                              <View
-                                accessibilityRole="button"
-                                accessibilityState={
-                                  {
-                                    "busy": undefined,
-                                    "checked": undefined,
-                                    "disabled": undefined,
-                                    "expanded": undefined,
-                                    "selected": undefined,
-                                  }
-                                }
-                                accessibilityValue={
-                                  {
-                                    "max": undefined,
-                                    "min": undefined,
-                                    "now": undefined,
-                                    "text": undefined,
-                                  }
-                                }
-                                accessible={true}
-                                collapsable={false}
-                                focusable={true}
-                                onClick={[Function]}
-                                onResponderGrant={[Function]}
-                                onResponderMove={[Function]}
-                                onResponderRelease={[Function]}
-                                onResponderTerminate={[Function]}
-                                onResponderTerminationRequest={[Function]}
-                                onStartShouldSetResponder={[Function]}
-                                style={
-                                  {
-                                    "opacity": 1,
-                                  }
-                                }
-                              >
-                                <View
-                                  style={
-                                    [
-                                      {},
-                                    ]
-                                  }
-                                >
-                                  <Text
+                                  <View
                                     style={
-                                      [
-                                        {
-                                          "color": "#007AFF",
-                                          "fontSize": 18,
-                                          "margin": 8,
-                                          "textAlign": "center",
-                                        },
-                                      ]
+                                      {
+                                        "alignItems": "center",
+                                        "flexDirection": "row",
+                                        "gap": 6,
+                                      }
                                     }
                                   >
-                                    Update Activity Rings Data
-                                  </Text>
+                                    <View
+                                      style={
+                                        [
+                                          {
+                                            "borderRadius": 6,
+                                            "height": 12,
+                                            "width": 12,
+                                          },
+                                          {
+                                            "backgroundColor": "rgb(73, 70, 200)",
+                                          },
+                                        ]
+                                      }
+                                    />
+                                    <Text
+                                      style={
+                                        [
+                                          {
+                                            "textAlign": "left",
+                                          },
+                                          {
+                                            "color": "rgba(28, 27, 31, 1)",
+                                            "fontFamily": "System",
+                                            "fontWeight": "400",
+                                            "letterSpacing": 0,
+                                          },
+                                          {
+                                            "writingDirection": "ltr",
+                                          },
+                                          {
+                                            "color": "rgb(67, 71, 78)",
+                                            "fontFamily": "Poppins_Regular",
+                                            "fontSize": 12,
+                                          },
+                                        ]
+                                      }
+                                    >
+                                      Sleep
+                                       (
+                                      inner
+                                      )
+                                    </Text>
+                                  </View>
                                 </View>
                               </View>
                             </View>
