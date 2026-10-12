@@ -9,6 +9,12 @@ export function formatMinutes(minutes) {
   return `${h}h ${String(m).padStart(2, "0")}m`;
 }
 
+// 8432 -> "8,432", null -> "--". Done by hand so it doesn't depend on Intl.
+export function formatSteps(steps) {
+  if (typeof steps !== "number" || !Number.isFinite(steps)) return "--";
+  return String(Math.round(steps)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Fitbit times are wall-clock strings ("2026-10-09T23:10:00.000", sometimes
 // with an offset). Read the HH:MM directly so the phone's timezone is not
 // applied a second time. -> "11:10 PM"
