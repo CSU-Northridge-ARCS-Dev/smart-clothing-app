@@ -1,18 +1,17 @@
-// Ported from Momentum backend/routes/fitbit.js. Firebase auth replaces Auth0,
-// tokens go back to the app instead of a database, and returnTo replaces the
-// fixed momentum:// scheme.
+// tokens go back to the app 
 const { Router } = require("express");
 const { getConfig } = require("../config");
 const requireFirebaseUser = require("../middleware/requireFirebaseUser");
 const { createStateStore } = require("../lib/oauthState");
 const fitbitApi = require("../lib/fitbit-api");
 const { normalizeDay } = require("../lib/normalizeDay");
+const { normalizeWeek, weekDates } = require("../lib/normalizeWeek");
 
 const FITBIT_AUTH_URL = "https://www.fitbit.com/oauth2/authorize";
 const FITBIT_SCOPES = "sleep heartrate activity profile";
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-// The callback puts tokens in the redirect URL, so only app schemes are allowed
+// The callback puts tokens in the redirect URL
 function parseReturnTo(returnTo) {
   if (!returnTo) return null;
   let url;
@@ -122,37 +121,73 @@ function createFitbitRouter({ stateStore = createStateStore() } = {}) {
     }
   });
 
-  // GET /api/fitbit/day/:date - normalized sleep, heart and workouts
-  router.get("/day/:date", requireFirebaseUser, async (req, res) => {
-    const { date } = req.params;
-    if (!DATE_RE.test(date)) {
-      return res.status(400).json({ error: "INVALID_DATE" });
-    }
+  // Shared by the data routes: validates :date, reads the Fitbit tokens from
+  // the headers, runs fetchAll with a fresh token and sends toBody(result).
+  function fitbitDataRoute(context, fetchAll, toBody) {
+    return async (req, res) => {
+      const { date } = req.params;
+      if (!DATE_RE.test(date)) {
+        return res.status(400).json({ error: "INVALID_DATE" });
+      }
 
-    const accessToken = req.get("X-Fitbit-Token");
-    if (!accessToken) {
-      return res.status(401).json({ error: "FITBIT_NOT_CONNECTED" });
-    }
-    const refreshToken = req.get("X-Fitbit-Refresh-Token");
+      const accessToken = req.get("X-Fitbit-Token");
+      if (!accessToken) {
+        return res.status(401).json({ error: "FITBIT_NOT_CONNECTED" });
+      }
+      const refreshToken = req.get("X-Fitbit-Refresh-Token");
 
-    try {
-      const { result, refreshedTokens } = await fitbitApi.withFreshToken(
-        { accessToken, refreshToken },
-        (token) =>
-          Promise.all([
-            fitbitApi.getSleep(token, date),
-            fitbitApi.getHeart(token, date),
-            fitbitApi.getActivities(token, date),
-          ]),
-      );
-      const [sleep, heart, activities] = result;
-      const body = { day: normalizeDay(date, sleep, heart, activities) };
-      if (refreshedTokens) body.refreshedTokens = refreshedTokens;
-      res.json(body);
-    } catch (error) {
-      sendFitbitError(res, error, "Fitbit day");
-    }
-  });
+      try {
+        const { result, refreshedTokens } = await fitbitApi.withFreshToken(
+          { accessToken, refreshToken },
+          (token) => fetchAll(token, date),
+        );
+        const body = toBody(date, result);
+        if (refreshedTokens) body.refreshedTokens = refreshedTokens;
+        res.json(body);
+      } catch (error) {
+        sendFitbitError(res, error, context);
+      }
+    };
+  }
+
+  // GET /api/fitbit/day/:date - normalized steps, sleep, heart and workouts
+  router.get(
+    "/day/:date",
+    requireFirebaseUser,
+    fitbitDataRoute(
+      "Fitbit day",
+      (token, date) =>
+        Promise.all([
+          fitbitApi.getSleep(token, date),
+          fitbitApi.getHeart(token, date),
+          fitbitApi.getActivities(token, date),
+          fitbitApi.getDaySummary(token, date),
+        ]),
+      (date, [sleep, heart, activities, summary]) => ({
+        day: normalizeDay(date, sleep, heart, activities, summary),
+      }),
+    ),
+  );
+
+  // GET /api/fitbit/week/:endDate - [{ date, steps, sleepMinutes }] for the 7
+  // days ending at endDate (activity rings). Two Fitbit range calls.
+  router.get(
+    "/week/:date",
+    requireFirebaseUser,
+    fitbitDataRoute(
+      "Fitbit week",
+      (token, endDate) => {
+        const start = weekDates(endDate)[0];
+        return Promise.all([
+          fitbitApi.getStepsRange(token, start, endDate),
+          fitbitApi.getSleepRange(token, start, endDate),
+        ]);
+      },
+      (endDate, [steps, sleep]) => ({
+        week: normalizeWeek(endDate, steps, sleep),
+      }),
+    ),
+  );
 
   return router;
 }
