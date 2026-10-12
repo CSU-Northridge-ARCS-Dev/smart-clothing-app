@@ -9,6 +9,12 @@ import BreathingRateChart from "./visualizations/BreathingRateChart";
 import HeartRateChart from "./visualizations/HeartRateChart";
 import VentilationChart from "./visualizations/VentilationChart";
 import DataCollectModal from "./DataCollectModal";
+import {
+  HeartCard,
+  SleepCard,
+  WorkoutList,
+  FitbitConnectPrompt,
+} from "./fitbit";
 
 export {
   GoogleButton,
@@ -22,4 +28,8 @@ export {
   HeartRateChart,
   ActivityCard,
   DataCollectModal,
+  HeartCard,
+  SleepCard,
+  WorkoutList,
+  FitbitConnectPrompt,
 };
