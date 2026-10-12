@@ -35,11 +35,21 @@ const DeviceCard = (props) => {
           uppercase
           style={{ flex: 1 }}
           onPress={props.onPress}
+          testID={`view-${props.device.id}`}
         >
           View
         </Button>
-        <Button mode="contained" compact uppercase style={{ flex: 2 }}>
-          Connect
+        <Button
+          mode="contained"
+          compact
+          uppercase
+          style={{ flex: 2 }}
+          onPress={props.onConnect}
+          loading={props.connectLoading}
+          disabled={props.connectLoading}
+          testID={`connect-${props.device.id}`}
+        >
+          {props.connectLabel || "Connect"}
         </Button>
       </View>
     </View>
