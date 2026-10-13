@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-11",
+  "steps": 8412,
+  "sleep": {
+    "totalMinutes": 382,
+    "efficiency": 91,
+    "deep": 58,
+    "light": 221,
+    "rem": 72,
+    "wake": 41,
+    "bedTime": "2026-10-10T23:48:00.000",
+    "wakeTime": "2026-10-11T07:11:00.000",
+    "levels": [
+      { "dateTime": "2026-10-10T23:48:00.000", "level": "wake", "seconds": 300 },
+      { "dateTime": "2026-10-10T23:53:00.000", "level": "light", "seconds": 1800 },
+      { "dateTime": "2026-10-11T00:23:00.000", "level": "deep", "seconds": 2400 }
+    ]
+  },
+  "heart": {
+    "restingHeartRate": 61,
+    "previousRestingHeartRate": 59,
+    "zones": { "fatBurn": 34, "cardio": 6, "peak": 7 }
+  },
+  "workouts": [
+    {
+      "logId": "904183528666901765",
+      "type": "Run",
+      "startTime": "2026-10-11T20:53:00.000-07:00",
+      "durationMin": 12,
+      "avgHeartRate": 175,
+      "calories": 141,
+      "steps": 1720,
+      "hasGps": true,
+      "zones": { "fatBurn": 1, "cardio": 4, "peak": 7 },
+      "distanceKm": 1.6,
+      "paceMinPerKm": 7.5
+    }
+  ]
+}
