@@ -4,12 +4,34 @@ const { getConfig } = require("../config");
 const requireFirebaseUser = require("../middleware/requireFirebaseUser");
 const { createStateStore } = require("../lib/oauthState");
 const fitbitApi = require("../lib/fitbit-api");
-const { normalizeDay } = require("../lib/normalizeDay");
+const {
+  DATE_RE,
+  fetchDayRaw,
+  toDay,
+  sendFitbitError,
+} = require("../lib/fitbitDay");
 const { normalizeWeek, weekDates } = require("../lib/normalizeWeek");
+const {
+  workoutDetail,
+  monthWorkouts,
+  tcxLacksHeartRate,
+} = require("../lib/workoutDetail");
+const { workoutWindow } = require("../lib/heartIntraday");
 
 const FITBIT_AUTH_URL = "https://www.fitbit.com/oauth2/authorize";
-const FITBIT_SCOPES = "sleep heartrate activity profile";
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// location lets the activity TCX include the GPS route
+const FITBIT_SCOPES = "sleep heartrate activity profile location";
+const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+const LOG_ID_RE = /^\d+$/;
+// Fitbit's maximum page size for the Activity Log List
+const MONTH_ACTIVITY_LIMIT = 100;
+
+// Param checks for the data routes: the error code, or null when valid
+const validDate = ({ date }) => (DATE_RE.test(date) ? null : "INVALID_DATE");
+const validMonth = ({ month }) =>
+  MONTH_RE.test(month) ? null : "INVALID_MONTH";
+const validWorkout = ({ date, logId }) =>
+  validDate({ date }) || (LOG_ID_RE.test(logId) ? null : "INVALID_LOG_ID");
 
 // The callback puts tokens in the redirect URL
 function parseReturnTo(returnTo) {
@@ -32,21 +54,6 @@ function redirectWith(res, returnTo, params) {
   res.redirect(url.toString());
 }
 
-// Maps fitbit-api error codes to responses. Refreshed tokens are passed back
-// even on failure, because the old refresh token is already spent.
-function sendFitbitError(res, error, context) {
-  const extra = error.refreshedTokens
-    ? { refreshedTokens: error.refreshedTokens }
-    : {};
-  if (error.message === "FITBIT_REAUTH_REQUIRED") {
-    return res.status(401).json({ error: "FITBIT_REAUTH_REQUIRED", ...extra });
-  }
-  if (error.message === "FITBIT_API_ERROR") {
-    return res.status(502).json({ error: "FITBIT_API_ERROR", ...extra });
-  }
-  console.error(`${context} error:`, error);
-  return res.status(500).json({ error: "INTERNAL_ERROR", ...extra });
-}
 
 function createFitbitRouter({ stateStore = createStateStore() } = {}) {
   const router = Router();
@@ -121,13 +128,14 @@ function createFitbitRouter({ stateStore = createStateStore() } = {}) {
     }
   });
 
-  // Shared by the data routes: validates :date, reads the Fitbit tokens from
-  // the headers, runs fetchAll with a fresh token and sends toBody(result).
-  function fitbitDataRoute(context, fetchAll, toBody) {
+  // Shared by the data routes: checks the params with validate, reads the
+  // Fitbit tokens from the headers, runs fetchAll(token, params) with a fresh
+  // token and sends toBody(params, result).
+  function fitbitDataRoute(context, validate, fetchAll, toBody) {
     return async (req, res) => {
-      const { date } = req.params;
-      if (!DATE_RE.test(date)) {
-        return res.status(400).json({ error: "INVALID_DATE" });
+      const invalid = validate(req.params);
+      if (invalid) {
+        return res.status(400).json({ error: invalid });
       }
 
       const accessToken = req.get("X-Fitbit-Token");
@@ -136,15 +144,18 @@ function createFitbitRouter({ stateStore = createStateStore() } = {}) {
       }
       const refreshToken = req.get("X-Fitbit-Refresh-Token");
 
+      let refreshed = null;
       try {
         const { result, refreshedTokens } = await fitbitApi.withFreshToken(
           { accessToken, refreshToken },
-          (token) => fetchAll(token, date),
+          (token) => fetchAll(token, req.params),
         );
-        const body = toBody(date, result);
+        refreshed = refreshedTokens;
+        const body = toBody(req.params, result);
         if (refreshedTokens) body.refreshedTokens = refreshedTokens;
         res.json(body);
       } catch (error) {
+        if (refreshed && !error.refreshedTokens) error.refreshedTokens = refreshed;
         sendFitbitError(res, error, context);
       }
     };
@@ -156,16 +167,9 @@ function createFitbitRouter({ stateStore = createStateStore() } = {}) {
     requireFirebaseUser,
     fitbitDataRoute(
       "Fitbit day",
-      (token, date) =>
-        Promise.all([
-          fitbitApi.getSleep(token, date),
-          fitbitApi.getHeart(token, date),
-          fitbitApi.getActivities(token, date),
-          fitbitApi.getDaySummary(token, date),
-        ]),
-      (date, [sleep, heart, activities, summary]) => ({
-        day: normalizeDay(date, sleep, heart, activities, summary),
-      }),
+      validDate,
+      (token, { date }) => fetchDayRaw(token, date),
+      ({ date }, raw) => ({ day: toDay(date, raw) }),
     ),
   );
 
@@ -176,15 +180,85 @@ function createFitbitRouter({ stateStore = createStateStore() } = {}) {
     requireFirebaseUser,
     fitbitDataRoute(
       "Fitbit week",
-      (token, endDate) => {
+      validDate,
+      (token, { date: endDate }) => {
         const start = weekDates(endDate)[0];
         return Promise.all([
           fitbitApi.getStepsRange(token, start, endDate),
           fitbitApi.getSleepRange(token, start, endDate),
         ]);
       },
-      (endDate, [steps, sleep]) => ({
+      ({ date: endDate }, [steps, sleep]) => ({
         week: normalizeWeek(endDate, steps, sleep),
+      }),
+    ),
+  );
+
+  // GET /api/fitbit/workout/:date/:logId - one workout with its route and
+  // heart rate points, each tagged with its zone. The activity is looked up
+  // in that day's list first, so an unknown logId never reaches the TCX call.
+  // A login from before the location scope gets a 403 on the TCX; the workout
+  // is still returned, with needsReconnect set. When the TCX has no heart rate
+  // (or was refused), the intraday heart rate for the workout's window is
+  // fetched instead.
+  router.get(
+    "/workout/:date/:logId",
+    requireFirebaseUser,
+    fitbitDataRoute(
+      "Fitbit workout",
+      validWorkout,
+      async (token, { date, logId }) => {
+        const activities = await fitbitApi.getActivities(token, date);
+        const activity = activities.find((a) => String(a.logId) === logId);
+        if (!activity) return { activity: null };
+
+        let tcx = null;
+        let tcxDenied = false;
+        try {
+          tcx = await fitbitApi.getActivityTcx(token, logId);
+        } catch (error) {
+          if (error.message !== "FITBIT_FORBIDDEN") throw error;
+          tcxDenied = true;
+        }
+
+        let heartIntraday = null;
+        const window = workoutWindow(activity);
+        if (window && tcxLacksHeartRate(tcx)) {
+          try {
+            heartIntraday = await fitbitApi.getHeartIntraday(
+              token,
+              date,
+              window.start,
+              window.end,
+            );
+          } catch (error) {
+            if (error.message !== "FITBIT_FORBIDDEN") throw error;
+          }
+        }
+        return { activity, tcx, tcxDenied, heartIntraday };
+      },
+      (params, { activity, tcx, tcxDenied, heartIntraday }) => {
+        if (!activity) throw new Error("WORKOUT_NOT_FOUND");
+        return {
+          workout: workoutDetail(activity, tcx, { tcxDenied, heartIntraday }),
+        };
+      },
+    ),
+  );
+
+  // GET /api/fitbit/workouts/:month - [{ date, logId, type }] for every kept
+  // workout in a YYYY-MM month (the Workout page calendar). One list call.
+  router.get(
+    "/workouts/:month",
+    requireFirebaseUser,
+    fitbitDataRoute(
+      "Fitbit month",
+      validMonth,
+      (token, { month }) =>
+        fitbitApi.getActivitiesFrom(token, `${month}-01`, MONTH_ACTIVITY_LIMIT),
+      ({ month }, activities) => ({
+        month,
+        workouts: monthWorkouts(month, activities),
       }),
     ),
   );
