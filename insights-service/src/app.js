@@ -1,6 +1,7 @@
 const express = require("express");
 const healthRouter = require("./routes/health");
 const { createFitbitRouter } = require("./routes/fitbit");
+const { createInsightsRouter } = require("./routes/insights");
 
 // Builds the Express app without listening, so supertest can drive it
 function createApp(options = {}) {
@@ -10,6 +11,7 @@ function createApp(options = {}) {
 
   app.use("/api/health", healthRouter);
   app.use("/api/fitbit", createFitbitRouter(options));
+  app.use("/api/insights", createInsightsRouter(options));
 
   app.use((req, res) => {
     res.status(404).json({ error: "NOT_FOUND" });
