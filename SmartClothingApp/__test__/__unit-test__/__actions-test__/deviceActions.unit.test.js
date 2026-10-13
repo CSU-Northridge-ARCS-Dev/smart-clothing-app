@@ -13,6 +13,8 @@ import {
   startDisconnectFitbit,
   startLoadFitbitDay,
   startLoadFitbitWeek,
+  startLoadFitbitWorkout,
+  startLoadFitbitMonth,
 } from '../../../src/actions/deviceActions';
 import {
   FITBIT_SET_STATUS,
@@ -23,6 +25,12 @@ import {
   FITBIT_WEEK_LOADING,
   FITBIT_WEEK_LOADED,
   FITBIT_WEEK_ERROR,
+  FITBIT_WORKOUT_LOADING,
+  FITBIT_WORKOUT_LOADED,
+  FITBIT_WORKOUT_ERROR,
+  FITBIT_MONTH_LOADING,
+  FITBIT_MONTH_LOADED,
+  FITBIT_MONTH_ERROR,
 } from '../../../src/actions/types';
 import {
   getFitbitTokens,
@@ -33,6 +41,8 @@ import {
   getFitbitAuthUrl,
   getFitbitDay,
   getFitbitWeek,
+  getFitbitWorkout,
+  getFitbitMonthWorkouts,
 } from '../../../src/services/insightsApi';
 
 // These pull from __mocks__/
@@ -65,6 +75,8 @@ jest.mock('../../../src/services/insightsApi', () => ({
   getFitbitAuthUrl: jest.fn(),
   getFitbitDay: jest.fn(),
   getFitbitWeek: jest.fn(),
+  getFitbitWorkout: jest.fn(),
+  getFitbitMonthWorkouts: jest.fn(),
   getErrorCode: jest.requireActual('../../../src/services/insightsApi')
     .getErrorCode,
 }));
@@ -73,9 +85,11 @@ const mockStore = configureMockStore([thunk]);
 const RETURN_TO = 'exp://127.0.0.1:8081/--/fitbit';
 const TOKENS = { accessToken: 'a', refreshToken: 'r' };
 
-const storeWithDays = (days = {}, weeks = {}) =>
+const storeWithDays = (days = {}, weeks = {}, workouts = {}, months = {}) =>
   mockStore({
-    device: { fitbit: { status: 'connected', error: null, days, weeks } },
+    device: {
+      fitbit: { status: 'connected', error: null, days, weeks, workouts, months },
+    },
   });
 
 const serviceError = (code) => {
@@ -307,5 +321,96 @@ describe('startLoadFitbitWeek', () => {
     await store.dispatch(startLoadFitbitWeek('2026-10-10'));
     expect(getFitbitWeek).not.toHaveBeenCalled();
     expect(store.getActions()[0].status).toBe('not_connected');
+  });
+});
+
+describe('startLoadFitbitWorkout', () => {
+  const LOG_ID = 74512345678;
+  const WORKOUT = { logId: LOG_ID, type: 'Run', points: [], hasRoute: false };
+
+  beforeEach(() => {
+    getFitbitTokens.mockResolvedValue(TOKENS);
+  });
+
+  it('loads the workout into the store', async () => {
+    getFitbitWorkout.mockResolvedValue(WORKOUT);
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitWorkout('2026-10-11', LOG_ID));
+    expect(getFitbitWorkout).toHaveBeenCalledWith('2026-10-11', LOG_ID);
+    expect(store.getActions()).toEqual([
+      { type: FITBIT_WORKOUT_LOADING, logId: LOG_ID },
+      { type: FITBIT_WORKOUT_LOADED, logId: LOG_ID, workout: WORKOUT },
+    ]);
+  });
+
+  it('skips a workout that is already loaded unless forced', async () => {
+    getFitbitWorkout.mockResolvedValue(WORKOUT);
+    const store = storeWithDays({}, {}, {
+      [LOG_ID]: { loading: false, error: null, data: WORKOUT },
+    });
+    await store.dispatch(startLoadFitbitWorkout('2026-10-11', LOG_ID));
+    expect(getFitbitWorkout).not.toHaveBeenCalled();
+    await store.dispatch(
+      startLoadFitbitWorkout('2026-10-11', LOG_ID, { force: true })
+    );
+    expect(getFitbitWorkout).toHaveBeenCalledTimes(1);
+  });
+
+  it('records a missing workout and stays connected', async () => {
+    getFitbitWorkout.mockRejectedValue(serviceError('WORKOUT_NOT_FOUND'));
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitWorkout('2026-10-11', LOG_ID));
+    expect(store.getActions().pop()).toEqual({
+      type: FITBIT_WORKOUT_ERROR,
+      logId: LOG_ID,
+      error: 'WORKOUT_NOT_FOUND',
+    });
+    expect(clearFitbitTokens).not.toHaveBeenCalled();
+  });
+
+  it('disconnects when Fitbit needs a new login', async () => {
+    getFitbitWorkout.mockRejectedValue(serviceError('FITBIT_REAUTH_REQUIRED'));
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitWorkout('2026-10-11', LOG_ID));
+    expect(clearFitbitTokens).toHaveBeenCalled();
+    expect(store.getActions().pop().status).toBe('not_connected');
+  });
+});
+
+describe('startLoadFitbitMonth', () => {
+  const WORKOUTS = [{ date: '2026-10-11', logId: 1, type: 'Run' }];
+
+  beforeEach(() => {
+    getFitbitTokens.mockResolvedValue(TOKENS);
+  });
+
+  it('loads the month into the store', async () => {
+    getFitbitMonthWorkouts.mockResolvedValue(WORKOUTS);
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitMonth('2026-10'));
+    expect(getFitbitMonthWorkouts).toHaveBeenCalledWith('2026-10');
+    expect(store.getActions()).toEqual([
+      { type: FITBIT_MONTH_LOADING, month: '2026-10' },
+      { type: FITBIT_MONTH_LOADED, month: '2026-10', workouts: WORKOUTS },
+    ]);
+  });
+
+  it('skips a month that is already loading', async () => {
+    const store = storeWithDays({}, {}, {}, {
+      '2026-10': { loading: true, error: null, data: null },
+    });
+    await store.dispatch(startLoadFitbitMonth('2026-10'));
+    expect(getFitbitMonthWorkouts).not.toHaveBeenCalled();
+  });
+
+  it('records an error for the month', async () => {
+    getFitbitMonthWorkouts.mockRejectedValue(serviceError('FITBIT_API_ERROR'));
+    const store = storeWithDays();
+    await store.dispatch(startLoadFitbitMonth('2026-10'));
+    expect(store.getActions().pop()).toEqual({
+      type: FITBIT_MONTH_ERROR,
+      month: '2026-10',
+      error: 'FITBIT_API_ERROR',
+    });
   });
 });

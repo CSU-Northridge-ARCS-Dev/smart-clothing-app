@@ -1,5 +1,5 @@
 /**
- * Integration tests for the Pixel Watch screens : DailySummary,
+ * Integration tests for the Pixel Watch screens : DailySummary, WorkoutDetail,
  * the Home cards and the Pixel Watch card on MyDevices, plus the steps and
  * sleep activity rings on Home and Insights, rendered with the
  * real store and a NavigationContainer.
@@ -20,8 +20,10 @@ import {
   waitFor,
   within,
 } from '@testing-library/react-native';
+import { Calendar } from 'react-native-calendars';
 
 import DailySummary from '../../../../src/screens/DailySummary/index.jsx';
+import WorkoutDetail from '../../../../src/screens/WorkoutDetail/index.jsx';
 import HomeScreen from '../../../../src/screens/HomeScreen/index.jsx';
 import MyDevices from '../../../../src/screens/MyDevices/index.jsx';
 import ViewInsights from '../../../../src/screens/ViewInsights/index.jsx';
@@ -30,6 +32,8 @@ import { getFitbitTokens } from '../../../../src/utils/fitbitTokens';
 import {
   getFitbitDay,
   getFitbitWeek,
+  getFitbitWorkout,
+  getFitbitMonthWorkouts,
 } from '../../../../src/services/insightsApi';
 import { lastSevenDates } from '../../../../src/utils/rings';
 import {
@@ -90,6 +94,8 @@ jest.mock('../../../../src/services/insightsApi', () => ({
   getFitbitAuthUrl: jest.fn(),
   getFitbitDay: jest.fn(),
   getFitbitWeek: jest.fn(),
+  getFitbitWorkout: jest.fn(),
+  getFitbitMonthWorkouts: jest.fn(),
   getErrorCode: (e) =>
     (e && e.response && e.response.data && e.response.data.error) ||
     (e && e.message) ||
@@ -149,6 +155,7 @@ const dayFor = (date) => ({
   },
   workouts: [
     {
+      logId: 745,
       type: 'Run',
       startTime: '2026-10-10T07:00:00.000-07:00',
       durationMin: 30,
@@ -245,6 +252,131 @@ describe('DailySummary', () => {
     getFitbitDay.mockRejectedValue({ response: { data: { error: 'FITBIT_API_ERROR' } } });
     const { findByText } = renderDailySummary();
     expect(await findByText("Fitbit didn't respond. Pull down to try again.")).toBeTruthy();
+  });
+});
+
+const RUN_DETAIL = {
+  logId: 745,
+  type: 'Run',
+  date: TODAY,
+  startTime: '2026-10-10T07:00:00.000-07:00',
+  durationMin: 12,
+  avgHeartRate: 160,
+  calories: 164,
+  steps: 1932,
+  distanceKm: 1.6,
+  paceMinPerKm: 7.5,
+  hasGps: true,
+  hasRoute: true,
+  zones: { fatBurn: 3, cardio: 6, peak: 2 },
+  points: [
+    { t: 0, lat: 34.24, lon: -118.53, bpm: 110, zone: 'outOfRange' },
+    { t: 60, lat: 34.245, lon: -118.53, bpm: 150, zone: 'cardio' },
+    { t: 120, lat: 34.25, lon: -118.53, bpm: 180, zone: 'peak' },
+  ],
+};
+
+const WEIGHTS_DETAIL = {
+  ...RUN_DETAIL,
+  logId: 746,
+  type: 'Weights',
+  distanceKm: undefined,
+  paceMinPerKm: undefined,
+  hasGps: false,
+  hasRoute: false,
+  points: RUN_DETAIL.points.map((p) => ({ ...p, lat: null, lon: null })),
+};
+
+describe('WorkoutDetail', () => {
+  const MONTH = TODAY.slice(0, 7);
+
+  beforeEach(() => {
+    getFitbitTokens.mockResolvedValue(TOKENS);
+    getFitbitWorkout.mockResolvedValue(RUN_DETAIL);
+    getFitbitMonthWorkouts.mockResolvedValue([
+      { date: TODAY, logId: 745, type: 'Run' },
+    ]);
+  });
+
+  const renderWorkout = (logId) =>
+    renderStack('WorkoutDetail', [
+      <Stack.Screen
+        key="wd"
+        name="WorkoutDetail"
+        component={WorkoutDetail}
+        initialParams={{ date: TODAY, logId }}
+      />,
+      <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+    ]);
+
+  it('opens from a workout row on DailySummary and shows the route map', async () => {
+    const { findByTestId, getByTestId } = renderStack(
+      'DailySummary',
+      [
+        <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+        <Stack.Screen key="wd" name="WorkoutDetail" component={WorkoutDetail} />,
+      ]
+    );
+    fireEvent.press(await findByTestId('workout-row-745'));
+
+    expect(await findByTestId('route-map')).toBeTruthy();
+    expect(getByTestId('route-webview').props.source.html).toContain('34.245');
+    expect(within(getByTestId('workout-stats')).getByText('164 cal')).toBeTruthy();
+    expect(getByTestId('heart-rate-timeline')).toBeTruthy();
+    expect(getByTestId('workout-calendar')).toBeTruthy();
+    expect(getFitbitWorkout).toHaveBeenCalledWith(TODAY, 745);
+    expect(getFitbitMonthWorkouts).toHaveBeenCalledWith(MONTH);
+  });
+
+  it('shows the heart rate chart and no map for a workout without GPS', async () => {
+    getFitbitWorkout.mockResolvedValue(WEIGHTS_DETAIL);
+    const { findByTestId, queryByTestId, getByTestId } = renderWorkout(746);
+    expect(await findByTestId('workout-stats')).toBeTruthy();
+    expect(getByTestId('heart-rate-timeline')).toBeTruthy();
+    expect(queryByTestId('route-map')).toBeNull();
+    expect(queryByTestId('route-reconnect-hint')).toBeNull();
+    expect(getByTestId('workout-title').props.children).toContain('Weights');
+  });
+
+  it('asks to reconnect when a GPS run comes back without a route', async () => {
+    getFitbitWorkout.mockResolvedValue({ ...RUN_DETAIL, hasRoute: false });
+    const { findByTestId, queryByTestId } = renderWorkout(745);
+    expect(await findByTestId('route-reconnect-hint')).toBeTruthy();
+    expect(queryByTestId('route-map')).toBeNull();
+  });
+
+  it('asks to reconnect for the route but keeps the stats and heart rate when Fitbit refused the route file', async () => {
+    getFitbitWorkout.mockResolvedValue({
+      ...RUN_DETAIL,
+      points: RUN_DETAIL.points.map((p) => ({ ...p, lat: null, lon: null })),
+      hasRoute: false,
+      needsReconnect: true,
+    });
+    const { findByTestId, queryByTestId } = renderWorkout(745);
+    expect(await findByTestId('route-reconnect-hint')).toBeTruthy();
+    expect(queryByTestId('workout-stats')).toBeTruthy();
+    expect(queryByTestId('heart-rate-timeline')).toBeTruthy();
+    expect(queryByTestId('route-map')).toBeNull();
+  });
+
+  it('loads another month when the calendar changes month', async () => {
+    const { findByTestId, UNSAFE_getByType } = renderWorkout(745);
+    await findByTestId('workout-calendar');
+    await waitFor(() =>
+      expect(getFitbitMonthWorkouts).toHaveBeenCalledWith(MONTH)
+    );
+    UNSAFE_getByType(Calendar).props.onMonthChange({ dateString: '2026-01-01' });
+    await waitFor(() =>
+      expect(getFitbitMonthWorkouts).toHaveBeenCalledWith('2026-01')
+    );
+  });
+
+  it('shows an error card when the workout is gone', async () => {
+    getFitbitWorkout.mockRejectedValue({
+      response: { data: { error: 'WORKOUT_NOT_FOUND' } },
+    });
+    const { findByText } = renderWorkout(745);
+    expect(await findByText('This workout is no longer on Fitbit.')).toBeTruthy();
   });
 });
 

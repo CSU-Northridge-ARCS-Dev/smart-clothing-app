@@ -8,6 +8,12 @@ import {
   FITBIT_WEEK_LOADING,
   FITBIT_WEEK_LOADED,
   FITBIT_WEEK_ERROR,
+  FITBIT_WORKOUT_LOADING,
+  FITBIT_WORKOUT_LOADED,
+  FITBIT_WORKOUT_ERROR,
+  FITBIT_MONTH_LOADING,
+  FITBIT_MONTH_LOADED,
+  FITBIT_MONTH_ERROR,
 } from "./../actions/types";
 
 const dummyDevicesData = [
@@ -44,11 +50,17 @@ const dummyDevicesData = [
 // DailySummary so a date is only fetched once per session.
 // weeks: { [endDate]: { loading, error, data } }, data being the 7 entries
 // [{ date, steps, sleepMinutes }] behind the activity rings.
+// workouts: { [logId]: { loading, error, data } }, one workout with its route
+// and heart rate points for the Workout page.
+// months: { [YYYY-MM]: { loading, error, data } }, data being the month's
+// workouts [{ date, logId, type }] for the Workout page calendar.
 const initialFitbitState = {
   status: "unknown",
   error: null,
   days: {},
   weeks: {},
+  workouts: {},
+  months: {},
 };
 
 const initialState = {
@@ -56,7 +68,7 @@ const initialState = {
   fitbit: initialFitbitState,
 };
 
-// map is "days" or "weeks"
+// map is "days", "weeks", "workouts" or "months"
 const setEntry = (state, map, key, entry) => ({
   ...state,
   fitbit: {
@@ -111,8 +123,38 @@ const deviceReducer = (state = initialState, action) => {
       return setEntry(state, "weeks", action.endDate, loadedEntry(action.week));
     case FITBIT_WEEK_ERROR:
       return setEntry(state, "weeks", action.endDate, errorEntry(action.error));
+    case FITBIT_WORKOUT_LOADING:
+      return setEntry(
+        state,
+        "workouts",
+        action.logId,
+        loadingEntry(state.fitbit.workouts[action.logId])
+      );
+    case FITBIT_WORKOUT_LOADED:
+      return setEntry(
+        state,
+        "workouts",
+        action.logId,
+        loadedEntry(action.workout)
+      );
+    case FITBIT_WORKOUT_ERROR:
+      return setEntry(state, "workouts", action.logId, errorEntry(action.error));
+    case FITBIT_MONTH_LOADING:
+      return setEntry(
+        state,
+        "months",
+        action.month,
+        loadingEntry(state.fitbit.months[action.month])
+      );
+    case FITBIT_MONTH_LOADED:
+      return setEntry(state, "months", action.month, loadedEntry(action.workouts));
+    case FITBIT_MONTH_ERROR:
+      return setEntry(state, "months", action.month, errorEntry(action.error));
     case FITBIT_CLEAR_DAYS:
-      return { ...state, fitbit: { ...state.fitbit, days: {}, weeks: {} } };
+      return {
+        ...state,
+        fitbit: { ...state.fitbit, days: {}, weeks: {}, workouts: {}, months: {} },
+      };
     default:
       return state;
   }

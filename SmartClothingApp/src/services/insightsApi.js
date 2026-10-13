@@ -82,4 +82,19 @@ export const getFitbitWeek = async (endDate) => {
   return response.data.week;
 };
 
+// One workout with its route and heart rate points:
+// { ...workout, date, zoneRanges, points: [{ t, lat, lon, bpm, zone }], hasRoute }
+export const getFitbitWorkout = async (date, logId) => {
+  const response = await insightsApi.get(
+    `/api/fitbit/workout/${date}/${logId}`
+  );
+  return response.data.workout;
+};
+
+// [{ date, logId, type }] for every workout in a YYYY-MM month
+export const getFitbitMonthWorkouts = async (month) => {
+  const response = await insightsApi.get(`/api/fitbit/workouts/${month}`);
+  return response.data.workouts;
+};
+
 export default insightsApi;

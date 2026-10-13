@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   AccessibilityScreen,
   DailySummary,
+  WorkoutDetail,
   DeviceDetails,
   HomeScreen,
   MyDevices,
@@ -159,6 +160,7 @@ const AllNavigationStack = () => {
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="DeviceDetails" component={DeviceDetails} />
       <Stack.Screen name="DailySummary" component={DailySummary} />
+      <Stack.Screen name="WorkoutDetail" component={WorkoutDetail} />
       <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen name="Accessibility" component={AccessibilityScreen} />
     </Stack.Navigator>

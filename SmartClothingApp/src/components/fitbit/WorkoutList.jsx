@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Text } from "react-native-paper";
+import { Icon, Text, TouchableRipple } from "react-native-paper";
 
 import { AppColor } from "../../constants/themes";
 import {
@@ -22,8 +22,9 @@ const workoutDetails = (w) => {
   return parts.join(" · ");
 };
 
-// workouts: Run / Weights / Walk / Workout sessions recorded on the watch
-const WorkoutList = ({ workouts, style }) => (
+// workouts: Run / Weights / Walk / Workout sessions recorded on the watch.
+// onPressWorkout(workout) makes the rows that have a logId tappable.
+const WorkoutList = ({ workouts, onPressWorkout, style }) => (
   <View style={[card.card, style]} testID="workout-list">
     <Text style={card.title}>Workouts</Text>
     {!workouts || workouts.length === 0 ? (
@@ -31,18 +32,45 @@ const WorkoutList = ({ workouts, style }) => (
         No workouts recorded on the watch.
       </Text>
     ) : (
-      workouts.map((w, i) => (
-        <View
-          key={`${w.type}-${w.startTime}-${i}`}
-          style={[styles.row, i > 0 && styles.divider]}
-        >
-          <View style={styles.header}>
-            <Text style={[card.title, styles.type]}>{w.type}</Text>
-            <Text style={card.muted}>{formatClockTime(w.startTime)}</Text>
+      workouts.map((w, i) => {
+        const tappable = Boolean(onPressWorkout && w.logId);
+        const row = (
+          <View style={styles.rowContent}>
+            <View style={{ flex: 1 }}>
+              <View style={styles.header}>
+                <Text style={[card.title, styles.type]}>{w.type}</Text>
+                <Text style={card.muted}>{formatClockTime(w.startTime)}</Text>
+              </View>
+              <Text style={card.muted}>{workoutDetails(w)}</Text>
+            </View>
+            {tappable ? (
+              <Icon
+                source="chevron-right"
+                size={22}
+                color={AppColor.onSurfaceVariant}
+              />
+            ) : null}
           </View>
-          <Text style={card.muted}>{workoutDetails(w)}</Text>
-        </View>
-      ))
+        );
+        const key = `${w.type}-${w.startTime}-${i}`;
+        const rowStyle = [styles.row, i > 0 && styles.divider];
+        return tappable ? (
+          <TouchableRipple
+            key={key}
+            style={rowStyle}
+            onPress={() => onPressWorkout(w)}
+            testID={`workout-row-${w.logId}`}
+            accessibilityRole="button"
+            accessibilityLabel={`Open ${w.type} workout`}
+          >
+            {row}
+          </TouchableRipple>
+        ) : (
+          <View key={key} style={rowStyle}>
+            {row}
+          </View>
+        );
+      })
     )}
   </View>
 );
@@ -54,6 +82,10 @@ const styles = StyleSheet.create({
   divider: {
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: AppColor.outlineVariant,
+  },
+  rowContent: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   header: {
     flexDirection: "row",

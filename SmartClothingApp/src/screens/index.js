@@ -1,5 +1,6 @@
 import AccessibilityScreen from "./Accessibility";
 import DailySummary from "./DailySummary";
+import WorkoutDetail from "./WorkoutDetail";
 import DeviceDetails from "./DeviceDetails";
 import ForgotPasswordScreen from "./ForgotPasswordScreen";
 import HomeScreen from "./HomeScreen";
@@ -28,4 +29,5 @@ export {
   ViewHeartRateData,
   ViewSleepData,
   DailySummary,
+  WorkoutDetail,
 };

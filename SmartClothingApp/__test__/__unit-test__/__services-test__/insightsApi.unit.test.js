@@ -21,6 +21,8 @@ let addAuthHeaders;
 let getErrorCode;
 let getFitbitDay;
 let getFitbitWeek;
+let getFitbitWorkout;
+let getFitbitMonthWorkouts;
 let getFitbitAuthUrl;
 let fitbitTokens;
 
@@ -46,8 +48,15 @@ beforeEach(() => {
   fitbitTokens = require('../../../src/utils/fitbitTokens');
   const api = require('../../../src/services/insightsApi');
   insightsApi = api.default;
-  ({ addAuthHeaders, getErrorCode, getFitbitDay, getFitbitWeek, getFitbitAuthUrl } =
-    api);
+  ({
+    addAuthHeaders,
+    getErrorCode,
+    getFitbitDay,
+    getFitbitWeek,
+    getFitbitWorkout,
+    getFitbitMonthWorkouts,
+    getFitbitAuthUrl,
+  } = api);
   jest.clearAllMocks();
 });
 
@@ -126,6 +135,28 @@ describe('requests', () => {
     };
     expect(await getFitbitWeek('2026-10-10')).toEqual(week);
     expect(seen.url).toBe('/api/fitbit/week/2026-10-10');
+  });
+
+  it('getFitbitWorkout asks for the workout by date and logId', async () => {
+    let seen;
+    const workout = { logId: 745, type: 'Run', points: [], hasRoute: false };
+    insightsApi.defaults.adapter = (config) => {
+      seen = config;
+      return respondWith(200, { workout })(config);
+    };
+    expect(await getFitbitWorkout('2026-10-11', 745)).toEqual(workout);
+    expect(seen.url).toBe('/api/fitbit/workout/2026-10-11/745');
+  });
+
+  it('getFitbitMonthWorkouts asks for the month and returns its workouts', async () => {
+    let seen;
+    const workouts = [{ date: '2026-10-11', logId: 745, type: 'Run' }];
+    insightsApi.defaults.adapter = (config) => {
+      seen = config;
+      return respondWith(200, { month: '2026-10', workouts })(config);
+    };
+    expect(await getFitbitMonthWorkouts('2026-10')).toEqual(workouts);
+    expect(seen.url).toBe('/api/fitbit/workouts/2026-10');
   });
 
   it('getFitbitAuthUrl sends returnTo and returns the url', async () => {

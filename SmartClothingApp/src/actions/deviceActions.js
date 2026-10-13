@@ -8,6 +8,12 @@ import {
   FITBIT_WEEK_LOADING,
   FITBIT_WEEK_LOADED,
   FITBIT_WEEK_ERROR,
+  FITBIT_WORKOUT_LOADING,
+  FITBIT_WORKOUT_LOADED,
+  FITBIT_WORKOUT_ERROR,
+  FITBIT_MONTH_LOADING,
+  FITBIT_MONTH_LOADED,
+  FITBIT_MONTH_ERROR,
 } from "./types";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
@@ -31,6 +37,8 @@ import {
   getFitbitAuthUrl,
   getFitbitDay,
   getFitbitWeek,
+  getFitbitWorkout,
+  getFitbitMonthWorkouts,
   getErrorCode,
 } from "../services/insightsApi";
 
@@ -116,6 +124,40 @@ export const fitbitWeekError = (endDate, error) => ({
 });
 
 // Clears the loaded days and weeks
+export const fitbitWorkoutLoading = (logId) => ({
+  type: FITBIT_WORKOUT_LOADING,
+  logId,
+});
+
+export const fitbitWorkoutLoaded = (logId, workout) => ({
+  type: FITBIT_WORKOUT_LOADED,
+  logId,
+  workout,
+});
+
+export const fitbitWorkoutError = (logId, error) => ({
+  type: FITBIT_WORKOUT_ERROR,
+  logId,
+  error,
+});
+
+export const fitbitMonthLoading = (month) => ({
+  type: FITBIT_MONTH_LOADING,
+  month,
+});
+
+export const fitbitMonthLoaded = (month, workouts) => ({
+  type: FITBIT_MONTH_LOADED,
+  month,
+  workouts,
+});
+
+export const fitbitMonthError = (month, error) => ({
+  type: FITBIT_MONTH_ERROR,
+  month,
+  error,
+});
+
 export const clearFitbitDays = () => ({ type: FITBIT_CLEAR_DAYS });
 
 // Connected means a token pair is in SecureStore
@@ -224,5 +266,28 @@ export const startLoadFitbitWeek = (endDate, { force = false } = {}) => {
       loading: () => fitbitWeekLoading(endDate),
       loaded: (week) => fitbitWeekLoaded(endDate, week),
       failed: (code) => fitbitWeekError(endDate, code),
+    });
+};
+
+// Loads one workout (route and heart rate points) into
+// state.device.fitbit.workouts. date is the day it was recorded.
+export const startLoadFitbitWorkout = (date, logId, { force = false } = {}) => {
+  return (dispatch, getState) =>
+    loadFitbitEntry(dispatch, getState().device.fitbit.workouts[logId], force, {
+      fetch: () => getFitbitWorkout(date, logId),
+      loading: () => fitbitWorkoutLoading(logId),
+      loaded: (workout) => fitbitWorkoutLoaded(logId, workout),
+      failed: (code) => fitbitWorkoutError(logId, code),
+    });
+};
+
+// Loads the workout days of a YYYY-MM month into state.device.fitbit.months
+export const startLoadFitbitMonth = (month, { force = false } = {}) => {
+  return (dispatch, getState) =>
+    loadFitbitEntry(dispatch, getState().device.fitbit.months[month], force, {
+      fetch: () => getFitbitMonthWorkouts(month),
+      loading: () => fitbitMonthLoading(month),
+      loaded: (workouts) => fitbitMonthLoaded(month, workouts),
+      failed: (code) => fitbitMonthError(month, code),
     });
 };

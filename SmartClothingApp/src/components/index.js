@@ -15,6 +15,10 @@ import {
   StepsCard,
   WorkoutList,
   FitbitConnectPrompt,
+  RouteMap,
+  HeartRateTimeline,
+  WorkoutStats,
+  WorkoutCalendar,
 } from "./fitbit";
 
 export {
@@ -34,4 +38,8 @@ export {
   StepsCard,
   WorkoutList,
   FitbitConnectPrompt,
+  RouteMap,
+  HeartRateTimeline,
+  WorkoutStats,
+  WorkoutCalendar,
 };

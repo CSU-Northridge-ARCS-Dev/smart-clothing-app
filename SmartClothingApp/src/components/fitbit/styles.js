@@ -43,6 +43,7 @@ export const fitbitCardStyles = StyleSheet.create({
 });
 
 export const ZONE_COLORS = {
+  outOfRange: "#7C8C99",
   fatBurn: "#4DA58E",
   cardio: "#C4945A",
   peak: "#C4555A",

@@ -87,7 +87,12 @@ const DailySummary = ({ route, navigation }) => {
         <SleepCard sleep={day.sleep} />
         <StepsCard steps={day.steps} />
         <HeartCard heart={day.heart} />
-        <WorkoutList workouts={day.workouts} />
+        <WorkoutList
+          workouts={day.workouts}
+          onPressWorkout={(w) =>
+            navigation.navigate("WorkoutDetail", { date, logId: w.logId })
+          }
+        />
         <View style={card.card} testID="ai-feedback-placeholder">
           <Text style={card.title}>AI Feedback</Text>
           <Text style={card.empty}>
