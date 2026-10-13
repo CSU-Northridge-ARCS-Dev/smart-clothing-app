@@ -15,6 +15,10 @@ function getConfig() {
     fitbitClientSecret: process.env.FITBIT_CLIENT_SECRET,
     fitbitRedirectUri: process.env.FITBIT_REDIRECT_URI,
     firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    coachModel: process.env.COACH_MODEL,
+    // Empty means the default usage-log.csv in the service folder
+    usageLogPath: process.env.USAGE_LOG_PATH || null,
     allowedReturnSchemes: schemes.length ? schemes : DEFAULT_RETURN_SCHEMES,
   };
 }
