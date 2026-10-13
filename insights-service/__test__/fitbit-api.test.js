@@ -140,6 +140,79 @@ describe("fitbit-api", () => {
       expect(list.map((a) => a.activityName)).toEqual(["Run", "Weights"]);
     });
 
+    it("getActivitiesFrom asks for the list from a date with a limit", async () => {
+      fetch.mockResolvedValue(
+        fakeResponse(200, { activities: [{ logId: 1 }, { logId: 2 }] }),
+      );
+
+      const list = await fitbitApi.getActivitiesFrom("tok", "2026-10-01", 100);
+
+      expect(fetch.mock.calls[0][0]).toBe(
+        "https://api.fitbit.com/1/user/-/activities/list.json?afterDate=2026-10-01&sort=asc&offset=0&limit=100",
+      );
+      expect(list).toEqual([{ logId: "1" }, { logId: "2" }]);
+    });
+
+    it("getActivitiesFrom returns an empty list when Fitbit sends none", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, {}));
+      expect(await fitbitApi.getActivitiesFrom("tok", "2026-10-01", 100)).toEqual([]);
+    });
+
+    it("getActivityTcx returns the TCX file as text", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, "<TrainingCenterDatabase/>"));
+
+      const xml = await fitbitApi.getActivityTcx("tok", "74512345678");
+
+      expect(fetch).toHaveBeenCalledWith(
+        "https://api.fitbit.com/1/user/-/activities/74512345678.tcx",
+        { headers: { Authorization: "Bearer tok" } },
+      );
+      expect(xml).toBe("<TrainingCenterDatabase/>");
+    });
+
+    it("getActivityTcx throws FITBIT_TOKEN_EXPIRED on a 401", async () => {
+      fetch.mockResolvedValue(fakeResponse(401, ""));
+      await expect(fitbitApi.getActivityTcx("old", "1")).rejects.toThrow(
+        "FITBIT_TOKEN_EXPIRED",
+      );
+    });
+
+    it("keeps a logId too big for a JS number exact, as a string", async () => {
+      // Real Pixel Watch ids are past Number.MAX_SAFE_INTEGER
+      fetch.mockResolvedValue(
+        fakeResponse(
+          200,
+          '{"activities":[{"logId":904183528666901765,"activityName":"Workout","startTime":"2026-09-29T07:00:00.000-07:00","calories":164}]}',
+        ),
+      );
+      const list = await fitbitApi.getActivities("tok", "2026-09-29");
+      expect(list[0].logId).toBe("904183528666901765");
+      expect(list[0].calories).toBe(164);
+    });
+
+    it("parseFitbitJson only quotes logIds", () => {
+      expect(
+        fitbitApi.parseFitbitJson('{"logId": 12, "steps": 34, "name": "logId"}'),
+      ).toEqual({ logId: "12", steps: 34, name: "logId" });
+    });
+
+    it("getHeartIntraday asks for 1-second heart rate between two times", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, { "activities-heart-intraday": {} }));
+      await fitbitApi.getHeartIntraday("tok", "2026-09-21", "20:23", "21:08");
+      expect(fetch.mock.calls[0][0]).toBe(
+        "https://api.fitbit.com/1/user/-/activities/heart/date/2026-09-21/1d/1sec/time/20:23/21:08.json",
+      );
+    });
+
+    it("throws FITBIT_FORBIDDEN on a 403 (missing scope)", async () => {
+      fetch.mockResolvedValue(
+        fakeResponse(403, { error: { code: 403, status: "PERMISSION_DENIED" } }),
+      );
+      await expect(fitbitApi.getActivityTcx("tok", "1")).rejects.toThrow(
+        "FITBIT_FORBIDDEN",
+      );
+    });
+
     it("throws FITBIT_TOKEN_EXPIRED on a 401", async () => {
       fetch.mockResolvedValue(fakeResponse(401, { errors: [] }));
       await expect(fitbitApi.getSleep("old", "2026-10-10")).rejects.toThrow(
