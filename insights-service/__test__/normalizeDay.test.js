@@ -228,10 +228,14 @@ describe("normalizeDay", () => {
 
   it("adds distance and pace to a run", () => {
     expect(day.workouts[0]).toEqual({
+      logId: null,
       type: "Run",
       startTime: "2026-10-10T07:00:00.000-07:00",
       durationMin: 30,
       avgHeartRate: 152,
+      calories: null,
+      steps: null,
+      hasGps: false,
       zones: { fatBurn: 5, cardio: 20, peak: 5 },
       distanceKm: 5,
       paceMinPerKm: 6,
@@ -250,6 +254,27 @@ describe("normalizeDay", () => {
     expect(walk.distanceKm).toBe(1.6);
     expect(walk.paceMinPerKm).toBe(12.4);
     expect(walk.zones).toEqual({ fatBurn: 0, cardio: 0, peak: 0 });
+  });
+
+  it("keeps the logId, calories, steps and GPS flag from the activity record", () => {
+    const out = normalizeDay("2026-10-11", null, null, [
+      {
+        logId: 74512345678,
+        activityName: "Workout",
+        hasGps: true,
+        activeDuration: 723780,
+        distance: 1.6049,
+        distanceUnit: "Kilometer",
+        calories: 164,
+        steps: 1932,
+      },
+    ]);
+    expect(out.workouts[0]).toMatchObject({
+      logId: 74512345678,
+      calories: 164,
+      steps: 1932,
+      hasGps: true,
+    });
   });
 
   it("returns an empty workout list when there are no activities", () => {
