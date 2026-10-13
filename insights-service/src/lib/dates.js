@@ -5,4 +5,10 @@ function addDays(date, n) {
   return d.toISOString().slice(0, 10);
 }
 
-module.exports = { addDays };
+// YYYY-MM-DD an activity started on (its local time, as Fitbit reports it)
+function activityDate(a) {
+  const start = a.startTime || a.originalStartTime;
+  return start ? start.slice(0, 10) : null;
+}
+
+module.exports = { addDays, activityDate };
