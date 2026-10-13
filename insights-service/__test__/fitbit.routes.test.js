@@ -8,11 +8,14 @@ jest.mock("../src/lib/fitbit-api", () => ({
   getDaySummary: jest.fn(),
   getStepsRange: jest.fn(),
   getSleepRange: jest.fn(),
+  getActivitiesFrom: jest.fn(),
+  getActivityTcx: jest.fn(),
+  getHeartIntraday: jest.fn(),
   withFreshToken: jest.fn(),
 }));
 
 const request = require("supertest");
-const { setFitbitEnv } = require("./helpers");
+const { setFitbitEnv, tcxXml, ACTIVITY_ZONES } = require("./helpers");
 const { verifyIdToken } = require("../src/lib/firebaseAdmin");
 const fitbitApi = require("../src/lib/fitbit-api");
 const { createStateStore } = require("../src/lib/oauthState");
@@ -98,7 +101,7 @@ describe("Fitbit routes", () => {
         "https://tunnel.example/api/fitbit/callback",
       );
       expect(url.searchParams.get("scope")).toBe(
-        "sleep heartrate activity profile",
+        "sleep heartrate activity profile location",
       );
       expect(stateStore.consume(url.searchParams.get("state"))).toEqual({
         uid: "user-1",
@@ -473,6 +476,293 @@ describe("Fitbit routes", () => {
       );
       const res = await request(app)
         .get("/api/fitbit/week/2026-10-10")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual({ error: "FITBIT_REAUTH_REQUIRED" });
+    });
+  });
+  describe("GET /api/fitbit/workout/:date/:logId", () => {
+    const URL = "/api/fitbit/workout/2026-10-11/74512345678";
+    const run = {
+      logId: 74512345678,
+      activityName: "Workout",
+      hasGps: true,
+      startTime: "2026-10-11T07:00:00.000-07:00",
+      activeDuration: 723780,
+      distance: 1.6049,
+      distanceUnit: "Kilometer",
+      calories: 164,
+      steps: 1932,
+      heartRateZones: ACTIVITY_ZONES,
+    };
+
+    beforeEach(() => {
+      fitbitApi.getActivities.mockResolvedValue([
+        { logId: 1, activityName: "Walk", startTime: "2026-10-11T06:00:00.000-07:00" },
+        run,
+      ]);
+      fitbitApi.getActivityTcx.mockResolvedValue(
+        tcxXml([
+          { time: "2026-10-11T07:00:00.000-07:00", lat: 34.24, lon: -118.53, bpm: 110 },
+          { time: "2026-10-11T07:05:00.000-07:00", lat: 34.25, lon: -118.53, bpm: 150 },
+        ]),
+      );
+    });
+
+    it("requires a Firebase ID token", async () => {
+      const res = await request(app).get(URL).set("X-Fitbit-Token", "a");
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual({ error: "UNAUTHENTICATED" });
+    });
+
+    it("returns 400 for a bad date or logId", async () => {
+      let res = await request(app)
+        .get("/api/fitbit/workout/today/74512345678")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(400);
+      expect(res.body).toEqual({ error: "INVALID_DATE" });
+
+      res = await request(app)
+        .get("/api/fitbit/workout/2026-10-11/abc")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(400);
+      expect(res.body).toEqual({ error: "INVALID_LOG_ID" });
+      expect(fitbitApi.withFreshToken).not.toHaveBeenCalled();
+    });
+
+    it("returns 401 FITBIT_NOT_CONNECTED without a Fitbit token", async () => {
+      const res = await request(app).get(URL).set(AUTH);
+      expect(res.status).toBe(401);
+      expect(res.body).toEqual({ error: "FITBIT_NOT_CONNECTED" });
+    });
+
+    it("returns the workout with zone-tagged route points", async () => {
+      passThrough();
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+
+      expect(res.status).toBe(200);
+      expect(fitbitApi.getActivities).toHaveBeenCalledWith("access-1", "2026-10-11");
+      expect(fitbitApi.getActivityTcx).toHaveBeenCalledWith(
+        "access-1",
+        "74512345678",
+      );
+      expect(res.body.workout).toMatchObject({
+        logId: 74512345678,
+        type: "Run",
+        date: "2026-10-11",
+        calories: 164,
+        steps: 1932,
+        hasGps: true,
+        hasRoute: true,
+      });
+      expect(res.body.workout.points.map((p) => p.zone)).toEqual([
+        "outOfRange",
+        "cardio",
+      ]);
+      expect(res.body).not.toHaveProperty("refreshedTokens");
+    });
+
+    it("still returns the workout when Fitbit refuses the TCX (no location scope)", async () => {
+      passThrough();
+      fitbitApi.getActivityTcx.mockRejectedValue(new Error("FITBIT_FORBIDDEN"));
+      fitbitApi.getHeartIntraday.mockResolvedValue({});
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+      expect(res.status).toBe(200);
+      expect(res.body.workout).toMatchObject({
+        calories: 164,
+        points: [],
+        hasRoute: false,
+        needsReconnect: true,
+      });
+    });
+
+    it("does not fetch intraday heart rate when the TCX has it", async () => {
+      passThrough();
+      await request(app).get(URL).set(FITBIT_HEADERS);
+      expect(fitbitApi.getHeartIntraday).not.toHaveBeenCalled();
+    });
+
+    it("uses the intraday heart rate when the TCX has none", async () => {
+      passThrough();
+      fitbitApi.getActivityTcx.mockResolvedValue(
+        tcxXml([{ time: "2026-10-11T07:00:00.000-07:00" }]),
+      );
+      fitbitApi.getHeartIntraday.mockResolvedValue({
+        "activities-heart-intraday": {
+          dataset: [
+            { time: "07:00:00", value: 112 },
+            { time: "07:01:00", value: 145 },
+            { time: "07:02:00", value: 175 },
+          ],
+        },
+      });
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+
+      expect(res.status).toBe(200);
+      // 723780 ms of active time from 07:00 ends in the 13th minute
+      expect(fitbitApi.getHeartIntraday).toHaveBeenCalledWith(
+        "access-1",
+        "2026-10-11",
+        "07:00",
+        "07:13",
+      );
+      expect(res.body.workout.points).toEqual([
+        { t: 0, lat: null, lon: null, bpm: 112, zone: "outOfRange" },
+        { t: 60, lat: null, lon: null, bpm: 145, zone: "cardio" },
+        { t: 120, lat: null, lon: null, bpm: 175, zone: "peak" },
+      ]);
+    });
+
+    it("uses the intraday heart rate when the TCX was refused", async () => {
+      passThrough();
+      fitbitApi.getActivityTcx.mockRejectedValue(new Error("FITBIT_FORBIDDEN"));
+      fitbitApi.getHeartIntraday.mockResolvedValue({
+        "activities-heart-intraday": {
+          dataset: [
+            { time: "07:00:00", value: 112 },
+            { time: "07:01:00", value: 145 },
+            { time: "07:02:00", value: 175 },
+          ],
+        },
+      });
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+      expect(res.body.workout.needsReconnect).toBe(true);
+      expect(res.body.workout.points).toHaveLength(3);
+    });
+
+    it("still returns the workout when the intraday call is refused", async () => {
+      passThrough();
+      fitbitApi.getActivityTcx.mockResolvedValue(tcxXml([]));
+      fitbitApi.getHeartIntraday.mockRejectedValue(new Error("FITBIT_FORBIDDEN"));
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+      expect(res.status).toBe(200);
+      expect(res.body.workout.points).toEqual([]);
+    });
+
+    it("matches a logId sent as a string", async () => {
+      passThrough();
+      fitbitApi.getActivities.mockResolvedValue([
+        { ...run, logId: "904183528666901765" },
+      ]);
+      const res = await request(app)
+        .get("/api/fitbit/workout/2026-10-11/904183528666901765")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(200);
+      expect(fitbitApi.getActivityTcx).toHaveBeenCalledWith(
+        "access-1",
+        "904183528666901765",
+      );
+      expect(res.body.workout.logId).toBe("904183528666901765");
+      expect(res.body.workout.needsReconnect).toBe(false);
+    });
+
+    it("returns 502 when a data call is refused", async () => {
+      fitbitApi.withFreshToken.mockRejectedValue(new Error("FITBIT_FORBIDDEN"));
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+      expect(res.status).toBe(502);
+      expect(res.body).toEqual({ error: "FITBIT_API_ERROR" });
+    });
+
+    it("returns 404 WORKOUT_NOT_FOUND without fetching a TCX for an unknown logId", async () => {
+      passThrough();
+      const res = await request(app)
+        .get("/api/fitbit/workout/2026-10-11/999")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(404);
+      expect(res.body).toEqual({ error: "WORKOUT_NOT_FOUND" });
+      expect(fitbitApi.getActivityTcx).not.toHaveBeenCalled();
+    });
+
+    it("keeps refreshed tokens on a 404", async () => {
+      passThrough({ ...TOKENS, accessToken: "access-2", refreshToken: "refresh-2" });
+      const res = await request(app)
+        .get("/api/fitbit/workout/2026-10-11/999")
+        .set(FITBIT_HEADERS);
+      expect(res.status).toBe(404);
+      expect(res.body.refreshedTokens.refreshToken).toBe("refresh-2");
+    });
+
+    it("includes refreshedTokens when the service refreshed", async () => {
+      passThrough({ ...TOKENS, accessToken: "access-2", refreshToken: "refresh-2" });
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+      expect(res.status).toBe(200);
+      expect(fitbitApi.getActivityTcx.mock.calls[0][0]).toBe("access-2");
+      expect(res.body.refreshedTokens.refreshToken).toBe("refresh-2");
+    });
+
+    it("returns 502 with any refreshed tokens when Fitbit fails", async () => {
+      const error = new Error("FITBIT_API_ERROR");
+      error.refreshedTokens = { ...TOKENS, refreshToken: "refresh-2" };
+      fitbitApi.withFreshToken.mockRejectedValue(error);
+      const res = await request(app).get(URL).set(FITBIT_HEADERS);
+      expect(res.status).toBe(502);
+      expect(res.body.refreshedTokens.refreshToken).toBe("refresh-2");
+    });
+  });
+
+  describe("GET /api/fitbit/workouts/:month", () => {
+    beforeEach(() => {
+      fitbitApi.getActivitiesFrom.mockResolvedValue([
+        { logId: 1, activityName: "Run", startTime: "2026-10-01T07:00:00.000-07:00" },
+        { logId: 2, activityName: "Yoga", startTime: "2026-10-02T07:00:00.000-07:00" },
+        { logId: 3, activityName: "Weights", startTime: "2026-10-11T17:00:00.000-07:00" },
+        { logId: 4, activityName: "Walk", startTime: "2026-11-02T07:00:00.000-07:00" },
+      ]);
+    });
+
+    it("requires a Firebase ID token", async () => {
+      const res = await request(app)
+        .get("/api/fitbit/workouts/2026-10")
+        .set("X-Fitbit-Token", "a");
+      expect(res.status).toBe(401);
+    });
+
+    it("returns 400 for a bad month", async () => {
+      for (const month of ["2026-13", "2026-1", "october"]) {
+        const res = await request(app)
+          .get(`/api/fitbit/workouts/${month}`)
+          .set(FITBIT_HEADERS);
+        expect(res.status).toBe(400);
+        expect(res.body).toEqual({ error: "INVALID_MONTH" });
+      }
+    });
+
+    it("returns the month's workouts from one list call", async () => {
+      passThrough();
+      const res = await request(app)
+        .get("/api/fitbit/workouts/2026-10")
+        .set(FITBIT_HEADERS);
+
+      expect(res.status).toBe(200);
+      expect(fitbitApi.getActivitiesFrom).toHaveBeenCalledTimes(1);
+      expect(fitbitApi.getActivitiesFrom).toHaveBeenCalledWith(
+        "access-1",
+        "2026-10-01",
+        100,
+      );
+      expect(res.body).toEqual({
+        month: "2026-10",
+        workouts: [
+          { date: "2026-10-01", logId: 1, type: "Run" },
+          { date: "2026-10-11", logId: 3, type: "Weights" },
+        ],
+      });
+    });
+
+    it("includes refreshedTokens when the service refreshed", async () => {
+      passThrough({ ...TOKENS, accessToken: "access-2", refreshToken: "refresh-2" });
+      const res = await request(app)
+        .get("/api/fitbit/workouts/2026-10")
+        .set(FITBIT_HEADERS);
+      expect(res.body.refreshedTokens.refreshToken).toBe("refresh-2");
+    });
+
+    it("returns 401 FITBIT_REAUTH_REQUIRED when the refresh fails", async () => {
+      fitbitApi.withFreshToken.mockRejectedValue(
+        new Error("FITBIT_REAUTH_REQUIRED"),
+      );
+      const res = await request(app)
+        .get("/api/fitbit/workouts/2026-10")
         .set(FITBIT_HEADERS);
       expect(res.status).toBe(401);
       expect(res.body).toEqual({ error: "FITBIT_REAUTH_REQUIRED" });
