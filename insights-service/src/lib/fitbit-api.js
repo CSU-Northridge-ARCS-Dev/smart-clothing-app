@@ -1,7 +1,7 @@
 //Tokens are passed in by the
 // caller (they live on the phone) instead of being loaded from a database.
 const { getConfig } = require("../config");
-const { addDays } = require("./dates");
+const { addDays, activityDate } = require("./dates");
 
 const FITBIT_TOKEN_URL = "https://api.fitbit.com/oauth2/token";
 const FITBIT_API = "https://api.fitbit.com";
@@ -64,8 +64,17 @@ function refreshTokens(refreshToken) {
   );
 }
 
-// Authenticated GET. 401 means the access token is expired or revoked.
-async function fitbitFetch(accessToken, path) {
+// Fitbit activity logIds can be larger than Number.MAX_SAFE_INTEGER, so
+// JSON.parse would round them (and the rounded id points at no activity).
+// Quote them first so they stay exact strings.
+function parseFitbitJson(text) {
+  return JSON.parse(text.replace(/"logId"\s*:\s*(\d+)/g, '"logId":"$1"'));
+}
+
+// Authenticated GET. 401 means the access token is expired or revoked; 403
+// means the login lacks a scope the call needs (FITBIT_FORBIDDEN).
+// as is "json" or "text" (TCX files are XML).
+async function fitbitFetch(accessToken, path, as = "json") {
   const response = await fetch(`${FITBIT_API}${path}`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
@@ -76,10 +85,13 @@ async function fitbitFetch(accessToken, path) {
   if (!response.ok) {
     const error = await response.text();
     console.error(`Fitbit API error (${response.status}) ${path}:`, error);
-    throw new Error("FITBIT_API_ERROR");
+    throw new Error(
+      response.status === 403 ? "FITBIT_FORBIDDEN" : "FITBIT_API_ERROR",
+    );
   }
 
-  return response.json();
+  const text = await response.text();
+  return as === "text" ? text : parseFitbitJson(text);
 }
 
 function getSleep(accessToken, date) {
@@ -117,17 +129,36 @@ function getHeart(accessToken, date) {
   );
 }
 
+// Activity Log List from afterDate onward, oldest first. Fitbit caps limit at 100.
+async function getActivitiesFrom(accessToken, afterDate, limit) {
+  const data = await fitbitFetch(
+    accessToken,
+    `/1/user/-/activities/list.json?afterDate=${afterDate}&sort=asc&offset=0&limit=${limit}`,
+  );
+  return data.activities || [];
+}
+
 // Activity Log List only accepts one of afterDate/beforeDate, so fetch from
 // the date onward and keep only entries that start on that date.
 async function getActivities(accessToken, date) {
-  const data = await fitbitFetch(
+  const list = await getActivitiesFrom(accessToken, date, 20);
+  return list.filter((a) => activityDate(a) === date);
+}
+
+// One activity as TCX (XML): trackpoints with time, heart rate and, with the
+// location scope, GPS position.
+function getActivityTcx(accessToken, logId) {
+  return fitbitFetch(accessToken, `/1/user/-/activities/${logId}.tcx`, "text");
+}
+
+// Heart rate every second (or as often as the watch recorded it) between two
+// HH:MM times on a date: { "activities-heart-intraday": { dataset: [{ time,
+// value }] } }. Intraday data needs a Personal app (the T-003 Fitbit app is).
+function getHeartIntraday(accessToken, date, start, end) {
+  return fitbitFetch(
     accessToken,
-    `/1/user/-/activities/list.json?afterDate=${date}&sort=asc&offset=0&limit=20`,
+    `/1/user/-/activities/heart/date/${date}/1d/1sec/time/${start}/${end}.json`,
   );
-  return (data.activities || []).filter((a) => {
-    const start = a.startTime || a.originalStartTime;
-    return start ? start.slice(0, 10) === date : false;
-  });
 }
 
 // Runs fn(accessToken). If Fitbit says the token expired, refreshes once and
@@ -155,6 +186,7 @@ async function withFreshToken({ accessToken, refreshToken }, fn) {
 }
 
 module.exports = {
+  parseFitbitJson,
   exchangeCodeForTokens,
   refreshTokens,
   getSleep,
@@ -164,5 +196,8 @@ module.exports = {
   getSleepRange,
   previousDate,
   getActivities,
+  getActivitiesFrom,
+  getActivityTcx,
+  getHeartIntraday,
   withFreshToken,
 };
