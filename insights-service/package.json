@@ -2,7 +2,7 @@
   "name": "insights-service",
   "version": "0.1.0",
   "private": true,
-  "description": "Stateless backend for the T-003 AI Feedback PoC: Fitbit OAuth + day data (Claude feedback lands in P3)",
+  "description": "Stateless backend for the T-003 AI Feedback PoC: Fitbit OAuth, day data and Claude feedback",
   "main": "src/server.js",
   "engines": {
     "node": ">=20"
@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "jest"
+    "test": "jest",
+    "try-coach": "node scripts/tryCoach.js"
   },
   "jest": {
     "testEnvironment": "node",
@@ -21,6 +22,7 @@
   "dependencies": {
     "dotenv": "^16.6.1",
     "express": "^4.22.3",
+    "fast-xml-parser": "^4.5.7",
     "firebase-admin": "^14.5.0"
   },
   "devDependencies": {
