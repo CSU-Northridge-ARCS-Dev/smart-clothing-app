@@ -1,4 +1,4 @@
-// Shared test helpers (not a test file: jest only runs *.test.js)
+// Shared test helpers
 
 // Minimal stand-in for a fetch Response
 function fakeResponse(status, body) {
@@ -29,4 +29,49 @@ function setFitbitEnv() {
   delete process.env.ALLOWED_RETURN_SCHEMES;
 }
 
-module.exports = { fakeResponse, tokenBody, setFitbitEnv };
+// A Fitbit-style TCX file. trackpoints: [{ time, lat, lon, bpm }]; leave out
+// lat/lon or bpm to drop the Position or HeartRateBpm element.
+function tcxXml(trackpoints, { laps = 1 } = {}) {
+  const point = ({ time, lat, lon, bpm }) =>
+    [
+      "<Trackpoint>",
+      `<Time>${time}</Time>`,
+      lat != null
+        ? `<Position><LatitudeDegrees>${lat}</LatitudeDegrees><LongitudeDegrees>${lon}</LongitudeDegrees></Position>`
+        : "",
+      "<AltitudeMeters>80.2</AltitudeMeters>",
+      bpm != null ? `<HeartRateBpm><Value>${bpm}</Value></HeartRateBpm>` : "",
+      "</Trackpoint>",
+    ].join("");
+  const perLap = Math.ceil(trackpoints.length / laps);
+  const lapXml = [];
+  for (let i = 0; i < trackpoints.length; i += perLap) {
+    const points = trackpoints.slice(i, i + perLap).map(point).join("");
+    lapXml.push(
+      `<Lap StartTime="${trackpoints[i].time}"><TotalTimeSeconds>60</TotalTimeSeconds><Track>${points}</Track></Lap>`,
+    );
+  }
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2">',
+    '<Activities><Activity Sport="Running"><Id>2026-10-11T07:00:00.000-07:00</Id>',
+    lapXml.join(""),
+    "</Activity></Activities></TrainingCenterDatabase>",
+  ].join("");
+}
+
+// Fitbit activity heartRateZones with bpm ranges, as on the lead's real run
+const ACTIVITY_ZONES = [
+  { name: "Out of Range", min: 30, max: 115, minutes: 1 },
+  { name: "Fat Burn", min: 115, max: 140, minutes: 3 },
+  { name: "Cardio", min: 140, max: 171, minutes: 6 },
+  { name: "Peak", min: 171, max: 220, minutes: 2 },
+];
+
+module.exports = {
+  fakeResponse,
+  tokenBody,
+  setFitbitEnv,
+  tcxXml,
+  ACTIVITY_ZONES,
+};
