@@ -87,10 +87,14 @@ function normalizeWorkout(a) {
   const type = workoutType(a);
   const durationMin = Math.round((a.activeDuration || a.duration || 0) / 60000);
   const workout = {
+    logId: a.logId ?? null,
     type,
     startTime: a.startTime || a.originalStartTime || null,
     durationMin,
     avgHeartRate: a.averageHeartRate ?? null,
+    calories: a.calories ?? null,
+    steps: a.steps ?? null,
+    hasGps: Boolean(a.hasGps),
     zones: zoneMinutes(a.heartRateZones),
   };
 
@@ -118,4 +122,10 @@ function normalizeDay(date, rawSleep, rawHeart, rawActivities, rawSummary) {
   };
 }
 
-module.exports = { normalizeDay, pickMainSleep, WORKOUT_TYPES };
+module.exports = {
+  normalizeDay,
+  normalizeWorkout,
+  pickMainSleep,
+  workoutType,
+  WORKOUT_TYPES,
+};
