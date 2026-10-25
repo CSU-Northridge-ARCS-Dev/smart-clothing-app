@@ -216,6 +216,18 @@ export const startDisconnectFitbit = () => {
   };
 };
 
+// If a service error means the Fitbit login is no longer usable, forget the
+// tokens and go back to not connected. Returns true when that happened.
+export const startHandleFitbitError = (code) => {
+  return async (dispatch) => {
+    if (!FITBIT_REAUTH_ERRORS.includes(code)) return false;
+    await clearFitbitTokens();
+    dispatch(clearFitbitDays());
+    dispatch(setFitbitStatus("not_connected", code));
+    return true;
+  };
+};
+
 // Shared by the day and week loaders. existing is the cached entry; one
 // already loaded (or loading) is not fetched again unless force is true.
 const loadFitbitEntry = async (
@@ -238,11 +250,7 @@ const loadFitbitEntry = async (
   } catch (error) {
     const code = getErrorCode(error);
     dispatch(failed(code));
-    if (FITBIT_REAUTH_ERRORS.includes(code)) {
-      await clearFitbitTokens();
-      dispatch(clearFitbitDays());
-      dispatch(setFitbitStatus("not_connected", code));
-    }
+    await dispatch(startHandleFitbitError(code));
   }
 };
 
