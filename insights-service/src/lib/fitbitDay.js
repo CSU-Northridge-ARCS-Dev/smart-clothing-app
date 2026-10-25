@@ -1,22 +1,37 @@
-// Shared by the Fitbit and insights routes: the date format, the four Fitbit
-// calls behind one day, and the mapping from fitbit-api errors to responses.
+// Shared by the Fitbit and insights routes: the date format, the Fitbit calls
+// behind one day, and the mapping from fitbit-api errors to responses.
 const fitbitApi = require("./fitbit-api");
 const { normalizeDay } = require("./normalizeDay");
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-// Raw sleep, heart, activities and summary for one YYYY-MM-DD date
+// A call the day can do without: any failure gives null, except an expired
+// token, which is rethrown so withFreshToken refreshes and retries.
+async function optional(promise, label, date) {
+  try {
+    return await promise;
+  } catch (error) {
+    if (error.message === "FITBIT_TOKEN_EXPIRED") throw error;
+    console.warn(`Fitbit ${label} for ${date} skipped (${error.message})`);
+    return null;
+  }
+}
+
+// Raw sleep, heart, activities and summary for one YYYY-MM-DD date, plus the
+// 5-minute heart rate and VO2 max, which are null when their call fails
 function fetchDayRaw(token, date) {
   return Promise.all([
     fitbitApi.getSleep(token, date),
     fitbitApi.getHeart(token, date),
     fitbitApi.getActivities(token, date),
     fitbitApi.getDaySummary(token, date),
+    optional(fitbitApi.getHeartDay5min(token, date), "5-min heart rate", date),
+    optional(fitbitApi.getVo2Max(token, date), "VO2 max", date),
   ]);
 }
 
-function toDay(date, [sleep, heart, activities, summary]) {
-  return normalizeDay(date, sleep, heart, activities, summary);
+function toDay(date, [sleep, heart, activities, summary, heart5min, cardio]) {
+  return normalizeDay(date, sleep, heart, activities, summary, heart5min, cardio);
 }
 
 // Maps fitbit-api error codes to responses. Refreshed tokens are passed back
