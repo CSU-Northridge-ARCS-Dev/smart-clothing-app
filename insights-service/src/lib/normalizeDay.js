@@ -1,5 +1,6 @@
 // Turns raw Fitbit responses for one date into the day object the app and
 // (from P3) Claude use. Pure function: no I/O.
+const { secondsOfDay } = require("./heartIntraday");
 
 // Workout types recorded on the Pixel Watch that the PoC keeps.
 // "Workout" is included because the Pixel Watch logged a run started with the
@@ -9,6 +10,8 @@ const WORKOUT_TYPES = ["Run", "Weights", "Walk", "Workout"];
 // Distance and pace are only added when Fitbit has a distance
 const DISTANCE_TYPES = ["Run", "Walk", "Workout"];
 const KM_PER_MILE = 1.609344;
+// 5-minute slots in a day, for heart.hr5min
+const SLOTS_PER_DAY = 288;
 
 const round1 = (n) => Math.round(n * 10) / 10;
 
@@ -58,8 +61,40 @@ function normalizeSleep(rawSleep) {
   };
 }
 
-// rawHeart covers the day before and the date itself 
-function normalizeHeart(date, rawHeart) {
+// 5-minute intraday response -> 288 average bpm values from local midnight,
+// null where the watch has no reading. null when the call failed or the
+// day has no readings at all.
+function hr5min(rawHeart5min) {
+  const dataset =
+    (rawHeart5min &&
+      rawHeart5min["activities-heart-intraday"] &&
+      rawHeart5min["activities-heart-intraday"].dataset) ||
+    [];
+  const slots = new Array(SLOTS_PER_DAY).fill(null);
+  let any = false;
+  for (const d of dataset) {
+    if (!d.time || !Number.isFinite(d.value)) continue;
+    const slot = Math.floor(secondsOfDay(d.time) / 300);
+    if (slot < 0 || slot >= SLOTS_PER_DAY) continue;
+    slots[slot] = Math.round(d.value);
+    any = true;
+  }
+  return any ? slots : null;
+}
+
+// Cardio score response -> { low, high } in ml/kg/min. Fitbit gives a range
+// ("44-48") or one value (low and high the same). null with no estimate.
+function normalizeVo2Max(rawCardio) {
+  const entry = rawCardio && rawCardio.cardioScore && rawCardio.cardioScore[0];
+  const raw = entry && entry.value && entry.value.vo2Max;
+  if (raw == null) return null;
+  const parts = String(raw).split("-").map((p) => parseFloat(p));
+  if (parts.length > 2 || parts.some((n) => !Number.isFinite(n))) return null;
+  return { low: parts[0], high: parts[parts.length - 1] };
+}
+
+// rawHeart covers the day before and the date itself
+function normalizeHeart(date, rawHeart, rawHeart5min) {
   const entries = (rawHeart && rawHeart["activities-heart"]) || [];
   const today = entries.find((e) => e.dateTime === date);
   const previous = entries.find((e) => e.dateTime && e.dateTime < date);
@@ -69,6 +104,7 @@ function normalizeHeart(date, rawHeart) {
     restingHeartRate: value.restingHeartRate ?? null,
     previousRestingHeartRate: previousValue.restingHeartRate ?? null,
     zones: zoneMinutes(value.heartRateZones),
+    hr5min: hr5min(rawHeart5min),
   };
 }
 
@@ -109,13 +145,23 @@ function normalizeWorkout(a) {
 
 // rawActivities: the already date-filtered list from fitbit-api getActivities.
 // rawSummary: the daily activity summary (getDaySummary), for steps.
-function normalizeDay(date, rawSleep, rawHeart, rawActivities, rawSummary) {
+// rawHeart5min and rawCardio: getHeartDay5min and getVo2Max, null if they failed.
+function normalizeDay(
+  date,
+  rawSleep,
+  rawHeart,
+  rawActivities,
+  rawSummary,
+  rawHeart5min,
+  rawCardio,
+) {
   const steps = rawSummary && rawSummary.summary && rawSummary.summary.steps;
   return {
     date,
     steps: steps ?? null,
     sleep: normalizeSleep(rawSleep),
-    heart: normalizeHeart(date, rawHeart),
+    heart: normalizeHeart(date, rawHeart, rawHeart5min),
+    vo2Max: normalizeVo2Max(rawCardio),
     workouts: (rawActivities || [])
       .filter((a) => WORKOUT_TYPES.includes(a.activityName))
       .map(normalizeWorkout),
