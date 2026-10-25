@@ -30,14 +30,15 @@ import {
 } from "../../utils/dateConversions";
 import { formatDateLabel } from "../../utils/fitbitFormat";
 import { AppColor, AppFonts } from "../../constants/themes";
+import AIFeedbackSection from "./AIFeedbackSection";
 
 const ERROR_MESSAGES = {
   FITBIT_API_ERROR: "Fitbit didn't respond. Pull down to try again.",
   Network_Error: "Can't reach the insights service. Is it running?",
 };
 
-// One day of Pixel Watch data: sleep, steps, heart rate and workouts.
-// The AI feedback for the day goes here
+// One day of Pixel Watch data: sleep, steps, heart rate and workouts,
+// with Claude's feedback for the day at the bottom
 const DailySummary = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const today = toLocalDateString();
@@ -93,12 +94,7 @@ const DailySummary = ({ route, navigation }) => {
             navigation.navigate("WorkoutDetail", { date, logId: w.logId })
           }
         />
-        <View style={card.card} testID="ai-feedback-placeholder">
-          <Text style={card.title}>AI Feedback</Text>
-          <Text style={card.empty}>
-            Personalised feedback for this day will appear here.
-          </Text>
-        </View>
+        <AIFeedbackSection date={date} />
       </>
     );
   };
