@@ -51,4 +51,4 @@ function intradayPoints(rawIntraday, activity) {
     .filter((p) => p.t >= 0);
 }
 
-module.exports = { workoutWindow, intradayPoints };
+module.exports = { secondsOfDay, workoutWindow, intradayPoints };
