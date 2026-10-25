@@ -34,7 +34,14 @@ import {
   getFitbitWeek,
   getFitbitWorkout,
   getFitbitMonthWorkouts,
+  generateInsight,
 } from '../../../../src/services/insightsApi';
+import {
+  getCachedFeedback,
+  setCachedFeedback,
+  getAIConsent,
+  setAIConsent,
+} from '../../../../src/utils/localStorage.js';
 import { lastSevenDates } from '../../../../src/utils/rings';
 import {
   toLocalDateString,
@@ -75,6 +82,10 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   getToken: jest.fn(() => Promise.resolve('mocked-token')),
   storeToken: jest.fn(),
   clearToken: jest.fn(),
+  getCachedFeedback: jest.fn(),
+  setCachedFeedback: jest.fn(),
+  getAIConsent: jest.fn(),
+  setAIConsent: jest.fn(),
 }));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -96,6 +107,7 @@ jest.mock('../../../../src/services/insightsApi', () => ({
   getFitbitWeek: jest.fn(),
   getFitbitWorkout: jest.fn(),
   getFitbitMonthWorkouts: jest.fn(),
+  generateInsight: jest.fn(),
   getErrorCode: (e) =>
     (e && e.response && e.response.data && e.response.data.error) ||
     (e && e.message) ||
@@ -199,10 +211,28 @@ const renderStack = (initialRouteName, screens) =>
     </StoreProvider>
   );
 
+// In-memory stand-ins for the AI feedback cache and consent in AsyncStorage
+let feedbackCache;
+let aiConsent;
+
 beforeEach(() => {
   jest.clearAllMocks();
   getFitbitDay.mockImplementation((date) => Promise.resolve(dayFor(date)));
   getFitbitWeek.mockImplementation((date) => Promise.resolve(weekFor(date)));
+  feedbackCache = {};
+  aiConsent = false;
+  getCachedFeedback.mockImplementation((date) =>
+    Promise.resolve(feedbackCache[date] || null)
+  );
+  setCachedFeedback.mockImplementation((date, insight) => {
+    feedbackCache[date] = insight;
+    return Promise.resolve();
+  });
+  getAIConsent.mockImplementation(() => Promise.resolve(aiConsent));
+  setAIConsent.mockImplementation((value) => {
+    aiConsent = value;
+    return Promise.resolve();
+  });
 });
 
 describe('DailySummary', () => {
@@ -226,7 +256,7 @@ describe('DailySummary', () => {
     expect(within(getByTestId('steps-card')).getByText('8,432')).toBeTruthy();
     expect(getByText('Run')).toBeTruthy();
     expect(getByText('Today')).toBeTruthy();
-    expect(getByTestId('ai-feedback-placeholder')).toBeTruthy();
+    expect(getByTestId('ai-feedback-section')).toBeTruthy();
     expect(getFitbitDay).toHaveBeenCalledWith(TODAY);
   });
 
@@ -252,6 +282,106 @@ describe('DailySummary', () => {
     getFitbitDay.mockRejectedValue({ response: { data: { error: 'FITBIT_API_ERROR' } } });
     const { findByText } = renderDailySummary();
     expect(await findByText("Fitbit didn't respond. Pull down to try again.")).toBeTruthy();
+  });
+});
+
+describe('DailySummary AI feedback', () => {
+  const INSIGHT = {
+    headline: 'Good sleep set up your run',
+    keySignals: ['6h 52m of sleep'],
+    focus: ['Easy day tomorrow'],
+  };
+
+  const renderDailySummary = () =>
+    renderStack('DailySummary', [
+      <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+    ]);
+
+  beforeEach(() => {
+    getFitbitTokens.mockResolvedValue(TOKENS);
+    generateInsight.mockResolvedValue({ insight: INSIGHT, usage: {} });
+  });
+
+  it('asks for consent first, then shows the feedback', async () => {
+    const { findByText, getByText, queryByTestId } = renderDailySummary();
+    fireEvent.press(await findByText('Get feedback'));
+
+    expect(await findByText('Share your data with AI?')).toBeTruthy();
+    expect(generateInsight).not.toHaveBeenCalled();
+
+    fireEvent.press(getByText('I agree'));
+    expect(await findByText('Good sleep set up your run')).toBeTruthy();
+    expect(getByText('Easy day tomorrow')).toBeTruthy();
+    expect(setAIConsent).toHaveBeenCalledWith(true);
+    expect(generateInsight).toHaveBeenCalledWith(TODAY, expect.any(Object));
+    expect(setCachedFeedback).toHaveBeenCalledWith(TODAY, INSIGHT);
+    expect(queryByTestId('consent-modal')).toBeNull();
+  });
+
+  it('does not call the service when consent is declined', async () => {
+    const { findByText, getByText, queryByText } = renderDailySummary();
+    fireEvent.press(await findByText('Get feedback'));
+    fireEvent.press(await findByText('Not now'));
+    await waitFor(() => expect(queryByText('Share your data with AI?')).toBeNull());
+    expect(getByText('Get feedback')).toBeTruthy();
+    expect(generateInsight).not.toHaveBeenCalled();
+  });
+
+  it('shows the cached feedback for a day without calling Claude', async () => {
+    aiConsent = true;
+    feedbackCache[TODAY] = INSIGHT;
+    const { findByText, getByTestId } = renderDailySummary();
+    expect(await findByText('Good sleep set up your run')).toBeTruthy();
+
+    // Another day has nothing cached, and coming back shows the cache again
+    fireEvent.press(getByTestId('prev-day'));
+    expect(await findByText('Get feedback')).toBeTruthy();
+    fireEvent.press(getByTestId('next-day'));
+    expect(await findByText('Good sleep set up your run')).toBeTruthy();
+    expect(generateInsight).not.toHaveBeenCalled();
+  });
+
+  it('regenerates the feedback on request', async () => {
+    aiConsent = true;
+    feedbackCache[TODAY] = { headline: 'Old feedback', keySignals: [], focus: [] };
+    const { findByText } = renderDailySummary();
+    fireEvent.press(await findByText('Regenerate'));
+    expect(await findByText('Good sleep set up your run')).toBeTruthy();
+    expect(generateInsight).toHaveBeenCalledTimes(1);
+  });
+
+  it('explains when the day has no sleep or workouts', async () => {
+    aiConsent = true;
+    generateInsight.mockResolvedValue({ insight: null, reason: 'NO_DATA' });
+    const { findByText } = renderDailySummary();
+    fireEvent.press(await findByText('Get feedback'));
+    expect(await findByText(/no sleep or workout recorded/)).toBeTruthy();
+    expect(setCachedFeedback).not.toHaveBeenCalled();
+  });
+
+  it('shows an error and lets the user try again', async () => {
+    aiConsent = true;
+    generateInsight.mockRejectedValueOnce({
+      response: { data: { error: 'COACH_API_ERROR' } },
+    });
+    const { findByText } = renderDailySummary();
+    fireEvent.press(await findByText('Get feedback'));
+    expect(
+      await findByText("The AI coach didn't respond. Try again in a moment.")
+    ).toBeTruthy();
+
+    fireEvent.press(await findByText('Try again'));
+    expect(await findByText('Good sleep set up your run')).toBeTruthy();
+  });
+
+  it('asks to reconnect the watch when Fitbit needs a new login', async () => {
+    aiConsent = true;
+    generateInsight.mockRejectedValue({
+      response: { data: { error: 'FITBIT_REAUTH_REQUIRED' } },
+    });
+    const { findByText, findByTestId } = renderDailySummary();
+    fireEvent.press(await findByText('Get feedback'));
+    expect(await findByTestId('fitbit-connect-prompt')).toBeTruthy();
   });
 });
 
