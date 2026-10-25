@@ -182,3 +182,43 @@ export const clearEmail = async () => {
     console.error("Error clearing email", error);
   }
 };
+
+const feedbackKey = (date) => `aiFeedback:${date}`;
+
+// Get the cached AI feedback for a day (YYYY-MM-DD), or null
+export const getCachedFeedback = async (date) => {
+  try {
+    const insight = await AsyncStorage.getItem(feedbackKey(date));
+    return insight ? JSON.parse(insight) : null;
+  } catch (error) {
+    console.error("Error getting cached feedback:", error);
+    return null;
+  }
+};
+
+// Cache the AI feedback for a day, so reopening it doesn't call Claude again
+export const setCachedFeedback = async (date, insight) => {
+  try {
+    await AsyncStorage.setItem(feedbackKey(date), JSON.stringify(insight));
+  } catch (error) {
+    console.error("Error caching feedback:", error);
+  }
+};
+
+// Whether the user agreed to send their data to Claude
+export const getAIConsent = async () => {
+  try {
+    return (await AsyncStorage.getItem("aiConsent")) === "true";
+  } catch (error) {
+    console.error("Error getting AI consent:", error);
+    return false;
+  }
+};
+
+export const setAIConsent = async (value) => {
+  try {
+    await AsyncStorage.setItem("aiConsent", value ? "true" : "false");
+  } catch (error) {
+    console.error("Error storing AI consent:", error);
+  }
+};
