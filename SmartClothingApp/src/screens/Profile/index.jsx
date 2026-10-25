@@ -15,12 +15,12 @@ import {
 import PersonalModal from "../../components/PersonalModal/PersonalModal";
 import { userMetricsDataModalVisible } from "../../actions/appActions";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
+import { ageFromDob } from "../../utils/age";
 
 const ProfileScreen = ({ navigation, route }) => {
   const { gender, dob, height, weight, sports } = useSelector(
     (state) => state.user.userMetricsData
   );
-  let dobDate = dob;
 
   const { firstName, lastName } = useSelector((state) => state.user);
   const [age, setAge] = useState("");
@@ -62,19 +62,8 @@ const ProfileScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    if (dob) {
-      if (dob.seconds !== undefined && dob.nanoseconds !== undefined) {
-        dobDate = dob.toDate();
-      }
-      let age = new Date().getFullYear() - new Date(dobDate).getFullYear();
-
-      if (
-        new Date().getMonth() < new Date(dobDate).getMonth() ||
-        (new Date().getMonth() === new Date(dobDate).getMonth() &&
-          new Date().getDate() < new Date(dobDate).getDate())
-      ) {
-        age -= 1;
-      }
+    const age = ageFromDob(dob);
+    if (age !== null) {
       console.log("calculated age = ", age);
       setAge(age);
     }
