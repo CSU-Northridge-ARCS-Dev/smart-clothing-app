@@ -138,8 +138,7 @@ async function getActivitiesFrom(accessToken, afterDate, limit) {
   return data.activities || [];
 }
 
-// Activity Log List only accepts one of afterDate/beforeDate, so fetch from
-// the date onward and keep only entries that start on that date.
+// Activity Log List only accepts one of afterDate/beforeDate, 
 async function getActivities(accessToken, date) {
   const list = await getActivitiesFrom(accessToken, date, 20);
   return list.filter((a) => activityDate(a) === date);
@@ -151,14 +150,29 @@ function getActivityTcx(accessToken, logId) {
   return fitbitFetch(accessToken, `/1/user/-/activities/${logId}.tcx`, "text");
 }
 
-// Heart rate every second (or as often as the watch recorded it) between two
+// Heart rate every second
 // HH:MM times on a date: { "activities-heart-intraday": { dataset: [{ time,
-// value }] } }. Intraday data needs a Personal app (the T-003 Fitbit app is).
+// value }] } }. 
 function getHeartIntraday(accessToken, date, start, end) {
   return fitbitFetch(
     accessToken,
     `/1/user/-/activities/heart/date/${date}/1d/1sec/time/${start}/${end}.json`,
   );
+}
+
+// The whole day's heart rate averaged per 5 minutes: { "activities-heart-intraday":
+// { dataset: [{ time: "HH:MM:SS", value }] } }
+function getHeartDay5min(accessToken, date) {
+  return fitbitFetch(
+    accessToken,
+    `/1/user/-/activities/heart/date/${date}/1d/5min.json`,
+  );
+}
+
+// Cardio fitness score: { cardioScore: [{ dateTime, value: { vo2Max } }] },
+// vo2Max a range ("44-48") or one value.
+function getVo2Max(accessToken, date) {
+  return fitbitFetch(accessToken, `/1/user/-/cardioscore/date/${date}.json`);
 }
 
 // Runs fn(accessToken). If Fitbit says the token expired, refreshes once and
@@ -199,5 +213,7 @@ module.exports = {
   getActivitiesFrom,
   getActivityTcx,
   getHeartIntraday,
+  getHeartDay5min,
+  getVo2Max,
   withFreshToken,
 };
