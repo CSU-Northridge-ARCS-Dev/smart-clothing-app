@@ -24,6 +24,7 @@ let getFitbitWeek;
 let getFitbitWorkout;
 let getFitbitMonthWorkouts;
 let getFitbitAuthUrl;
+let generateInsight;
 let fitbitTokens;
 
 const REFRESHED = {
@@ -56,6 +57,7 @@ beforeEach(() => {
     getFitbitWorkout,
     getFitbitMonthWorkouts,
     getFitbitAuthUrl,
+    generateInsight,
   } = api);
   jest.clearAllMocks();
 });
@@ -170,6 +172,58 @@ describe('requests', () => {
     const url = await getFitbitAuthUrl('exp://127.0.0.1:8081/--/fitbit');
     expect(url).toBe('https://www.fitbit.com/oauth2/authorize?x=1');
     expect(seen.params).toEqual({ returnTo: 'exp://127.0.0.1:8081/--/fitbit' });
+  });
+});
+
+describe('generateInsight', () => {
+  const PROFILE = { gender: 'male', age: 22, height: 70, weight: 165, sports: 'running' };
+  const INSIGHT = { headline: 'Solid day', keySignals: ['a'], focus: ['b'] };
+
+  beforeEach(() => {
+    fitbitTokens.getFitbitTokens.mockResolvedValue({
+      accessToken: 'access-1',
+      refreshToken: 'refresh-1',
+    });
+  });
+
+  it('posts the date and profile and returns the body', async () => {
+    let seen;
+    const body = {
+      insight: INSIGHT,
+      usage: { model: 'm', inputTokens: 1, outputTokens: 2 },
+    };
+    insightsApi.defaults.adapter = (config) => {
+      seen = config;
+      return respondWith(200, body)(config);
+    };
+    expect(await generateInsight('2026-10-11', PROFILE)).toEqual(body);
+    expect(seen.method).toBe('post');
+    expect(seen.url).toBe('/api/insights/generate');
+    expect(JSON.parse(seen.data)).toEqual({ date: '2026-10-11', profile: PROFILE });
+    expect(seen.headers['X-Fitbit-Token']).toBe('access-1');
+  });
+
+  it('returns the NO_DATA answer as is', async () => {
+    insightsApi.defaults.adapter = respondWith(200, { insight: null, reason: 'NO_DATA' });
+    expect(await generateInsight('2026-10-11', PROFILE)).toEqual({
+      insight: null,
+      reason: 'NO_DATA',
+    });
+  });
+
+  it('saves refreshed tokens when Claude fails with a 502', async () => {
+    insightsApi.defaults.adapter = respondWith(502, {
+      error: 'COACH_API_ERROR',
+      refreshedTokens: REFRESHED,
+    });
+    let caught;
+    try {
+      await generateInsight('2026-10-11', PROFILE);
+    } catch (e) {
+      caught = e;
+    }
+    expect(getErrorCode(caught)).toBe('COACH_API_ERROR');
+    expect(fitbitTokens.setFitbitTokens).toHaveBeenCalledWith(REFRESHED);
   });
 });
 
