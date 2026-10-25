@@ -4,9 +4,7 @@ import { INSIGHTS_API_URL } from "@env";
 import { auth } from "../../firebaseConfig.js";
 import { getFitbitTokens, setFitbitTokens } from "../utils/fitbitTokens";
 
-// Client for insights-service. This is the only module that knows the
-// service URL. Every request carries the Firebase ID token and, when the
-// watch is connected, the Fitbit token pair.
+// Client for insights-service
 const insightsApi = axios.create({
   baseURL: INSIGHTS_API_URL,
   timeout: 30000,
@@ -30,8 +28,7 @@ export const addAuthHeaders = async (config) => {
   return config;
 };
 
-// Fitbit refresh tokens are single-use. If the service refreshed them, the new
-// pair must be saved, even when the response is an error.
+// Fitbit refresh tokens are single-use
 export const saveRefreshedTokens = async (data) => {
   if (data && data.refreshedTokens) {
     await setFitbitTokens(data.refreshedTokens);
@@ -95,6 +92,17 @@ export const getFitbitWorkout = async (date, logId) => {
 export const getFitbitMonthWorkouts = async (month) => {
   const response = await insightsApi.get(`/api/fitbit/workouts/${month}`);
   return response.data.workouts;
+};
+
+// Claude feedback for one day. profile is { gender, age, height, weight, sports }
+//  Returns { insight, usage } or
+// { insight: null, reason: "NO_DATA" } when the day has no sleep or workouts.
+export const generateInsight = async (date, profile) => {
+  const response = await insightsApi.post("/api/insights/generate", {
+    date,
+    profile,
+  });
+  return response.data;
 };
 
 export default insightsApi;
