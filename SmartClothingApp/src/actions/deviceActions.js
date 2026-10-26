@@ -41,6 +41,8 @@ import {
   getFitbitMonthWorkouts,
   getErrorCode,
 } from "../services/insightsApi";
+import { saveDailyStats } from "../services/healthStore";
+import { toLocalDateString } from "../utils/dateConversions";
 
 export const getDevices = () => {
   return {
@@ -230,11 +232,12 @@ export const startHandleFitbitError = (code) => {
 
 // Shared by the day and week loaders. existing is the cached entry; one
 // already loaded (or loading) is not fetched again unless force is true.
+// saved, if given, runs after a successful load.
 const loadFitbitEntry = async (
   dispatch,
   existing,
   force,
-  { fetch, loading, loaded, failed }
+  { fetch, loading, loaded, failed, saved }
 ) => {
   if (!force && existing && (existing.loading || existing.data)) return;
 
@@ -245,16 +248,37 @@ const loadFitbitEntry = async (
   }
 
   dispatch(loading());
+  let data;
   try {
-    dispatch(loaded(await fetch()));
+    data = await fetch();
+    dispatch(loaded(data));
   } catch (error) {
     const code = getErrorCode(error);
     dispatch(failed(code));
     await dispatch(startHandleFitbitError(code));
+    return;
+  }
+  if (saved) await saved(data);
+};
+
+// Saves a finished day to Firestore. Today isn't over yet, so it's skipped,
+// and a failed write is only logged so the screen still shows the day.
+const saveFinishedDay = async (date, day) => {
+  const uid = auth.currentUser?.uid;
+  if (!uid || date >= toLocalDateString()) return;
+  try {
+    await saveDailyStats(uid, day, {
+      source: "fitbit",
+      device: null,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
+  } catch (error) {
+    console.log("DailyStats save error: ", error);
   }
 };
 
-// Loads one day (YYYY-MM-DD) into state.device.fitbit.days
+// Loads one day (YYYY-MM-DD) into state.device.fitbit.days, then saves it
+// to Firestore if the day is finished
 export const startLoadFitbitDay = (date, { force = false } = {}) => {
   return (dispatch, getState) =>
     loadFitbitEntry(dispatch, getState().device.fitbit.days[date], force, {
@@ -262,6 +286,7 @@ export const startLoadFitbitDay = (date, { force = false } = {}) => {
       loading: () => fitbitDayLoading(date),
       loaded: (day) => fitbitDayLoaded(date, day),
       failed: (code) => fitbitDayError(date, code),
+      saved: (day) => saveFinishedDay(date, day),
     });
 };
 
