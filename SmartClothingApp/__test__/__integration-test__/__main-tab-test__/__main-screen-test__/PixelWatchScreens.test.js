@@ -114,6 +114,11 @@ jest.mock('../../../../src/services/insightsApi', () => ({
     'UNKNOWN_ERROR',
 }));
 
+jest.mock('../../../../src/services/healthStore', () => ({
+  saveDailyStats: jest.fn(),
+  saveAIFeedback: jest.fn(),
+}));
+
 jest.mock('expo-web-browser');
 jest.mock('expo-linking');
 jest.mock('expo-notifications');
