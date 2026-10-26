@@ -1,7 +1,7 @@
 /**
  * @file insightActions.unit.test.js
  * startGenerateFeedback : the profile sent to the service, the phone cache,
- * NO_DATA and the error paths.
+ * NO_DATA, the error paths and the Firestore save.
  */
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -17,6 +17,8 @@ import {
   setCachedFeedback,
 } from '../../../src/utils/localStorage';
 import { clearFitbitTokens } from '../../../src/utils/fitbitTokens';
+import { saveAIFeedback } from '../../../src/services/healthStore';
+import { auth } from '../../../firebaseConfig.js';
 
 jest.mock('firebase/firestore', () => ({
   collection: jest.fn(),
@@ -48,6 +50,10 @@ jest.mock('../../../src/utils/localStorage', () => ({
   setCachedFeedback: jest.fn(),
 }));
 
+jest.mock('../../../src/services/healthStore', () => ({
+  saveAIFeedback: jest.fn(),
+}));
+
 jest.mock('../../../src/services/insightsApi', () => ({
   generateInsight: jest.fn(),
   getErrorCode: jest.requireActual('../../../src/services/insightsApi')
@@ -57,6 +63,11 @@ jest.mock('../../../src/services/insightsApi', () => ({
 const mockStore = configureMockStore([thunk]);
 const DATE = '2026-10-11';
 const INSIGHT = { headline: 'Solid day', keySignals: ['a'], focus: ['b'] };
+const USAGE = {
+  model: 'claude-opus-5-5',
+  inputTokens: 1200,
+  outputTokens: 150,
+};
 
 // Born Mar 1, 2004
 const METRICS = {
@@ -88,6 +99,8 @@ const rejectionOf = async (promise) => {
 beforeEach(() => {
   jest.clearAllMocks();
   getCachedFeedback.mockResolvedValue(null);
+  saveAIFeedback.mockResolvedValue();
+  auth.currentUser = { uid: 'user-1' };
 });
 
 describe('buildCoachProfile', () => {
@@ -170,5 +183,61 @@ describe('startGenerateFeedback', () => {
         error: 'FITBIT_REAUTH_REQUIRED',
       },
     ]);
+  });
+});
+
+describe('startGenerateFeedback saving to Firestore', () => {
+  it('saves the feedback with the model and token counts', async () => {
+    generateInsight.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    await storeWith().dispatch(startGenerateFeedback(DATE));
+    expect(saveAIFeedback).toHaveBeenCalledWith('user-1', DATE, INSIGHT, USAGE, {
+      dataSource: 'fitbit',
+      regenerate: false,
+    });
+  });
+
+  it('counts a forced generate as a regenerate', async () => {
+    generateInsight.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    await storeWith().dispatch(startGenerateFeedback(DATE, { force: true }));
+    expect(saveAIFeedback).toHaveBeenCalledWith('user-1', DATE, INSIGHT, USAGE, {
+      dataSource: 'fitbit',
+      regenerate: true,
+    });
+  });
+
+  it('writes nothing when the phone cache answers', async () => {
+    getCachedFeedback.mockResolvedValue(INSIGHT);
+    await storeWith().dispatch(startGenerateFeedback(DATE));
+    expect(saveAIFeedback).not.toHaveBeenCalled();
+  });
+
+  it('writes nothing for NO_DATA', async () => {
+    generateInsight.mockResolvedValue({ insight: null, reason: 'NO_DATA' });
+    await storeWith().dispatch(startGenerateFeedback(DATE));
+    expect(saveAIFeedback).not.toHaveBeenCalled();
+  });
+
+  it('writes nothing when the service fails', async () => {
+    generateInsight.mockRejectedValue(serviceError('COACH_API_ERROR'));
+    await rejectionOf(storeWith().dispatch(startGenerateFeedback(DATE)));
+    expect(saveAIFeedback).not.toHaveBeenCalled();
+  });
+
+  it('still returns the insight when the write fails', async () => {
+    const log = jest.spyOn(console, 'log').mockImplementation(() => {});
+    generateInsight.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    saveAIFeedback.mockRejectedValue(new Error('permission-denied'));
+    const result = await storeWith().dispatch(startGenerateFeedback(DATE));
+    expect(result).toEqual({ insight: INSIGHT });
+    expect(log).toHaveBeenCalled();
+    log.mockRestore();
+  });
+
+  it('writes nothing without a signed-in user', async () => {
+    auth.currentUser = null;
+    generateInsight.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    const result = await storeWith().dispatch(startGenerateFeedback(DATE));
+    expect(result).toEqual({ insight: INSIGHT });
+    expect(saveAIFeedback).not.toHaveBeenCalled();
   });
 });
