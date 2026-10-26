@@ -44,6 +44,7 @@ import {
   getFitbitWorkout,
   getFitbitMonthWorkouts,
 } from '../../../src/services/insightsApi';
+import { saveDailyStats } from '../../../src/services/healthStore';
 
 // These pull from __mocks__/
 jest.mock('expo-web-browser');
@@ -79,6 +80,10 @@ jest.mock('../../../src/services/insightsApi', () => ({
   getFitbitMonthWorkouts: jest.fn(),
   getErrorCode: jest.requireActual('../../../src/services/insightsApi')
     .getErrorCode,
+}));
+
+jest.mock('../../../src/services/healthStore', () => ({
+  saveDailyStats: jest.fn(),
 }));
 
 const mockStore = configureMockStore([thunk]);
@@ -255,6 +260,66 @@ describe('startLoadFitbitDay', () => {
     await store.dispatch(startLoadFitbitDay('2026-10-10'));
     expect(getFitbitDay).not.toHaveBeenCalled();
     expect(store.getActions()[0].status).toBe('not_connected');
+  });
+
+  describe('saving to Firestore', () => {
+    const day = { date: '2026-10-10', steps: 9842, heart: {}, workouts: [] };
+
+    beforeEach(() => {
+      jest.useFakeTimers({ now: new Date(2026, 9, 11, 9, 0) });
+      getFitbitDay.mockResolvedValue(day);
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('saves a finished day after it loads', async () => {
+      const store = storeWithDays();
+      await store.dispatch(startLoadFitbitDay('2026-10-10'));
+      expect(saveDailyStats).toHaveBeenCalledWith('user-1', day, {
+        source: 'fitbit',
+        device: null,
+        timezone: expect.any(String),
+      });
+    });
+
+    it('never saves today', async () => {
+      getFitbitDay.mockResolvedValue({ ...day, date: '2026-10-11' });
+      const store = storeWithDays();
+      await store.dispatch(startLoadFitbitDay('2026-10-11'));
+      expect(getFitbitDay).toHaveBeenCalled();
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('still shows the day when the write fails', async () => {
+      saveDailyStats.mockRejectedValue(new Error('offline'));
+      const store = storeWithDays();
+      await store.dispatch(startLoadFitbitDay('2026-10-10'));
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_DAY_LOADING, date: '2026-10-10' },
+        { type: FITBIT_DAY_LOADED, date: '2026-10-10', day },
+      ]);
+      expect(console.log).toHaveBeenCalledWith(
+        'DailyStats save error: ',
+        expect.any(Error)
+      );
+    });
+
+    it('does not save a day that failed to load', async () => {
+      getFitbitDay.mockRejectedValue(serviceError('FITBIT_API_ERROR'));
+      const store = storeWithDays();
+      await store.dispatch(startLoadFitbitDay('2026-10-10'));
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('does not save again a day that is already loaded', async () => {
+      const store = storeWithDays({
+        '2026-10-10': { loading: false, error: null, data: day },
+      });
+      await store.dispatch(startLoadFitbitDay('2026-10-10'));
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
   });
 });
 
