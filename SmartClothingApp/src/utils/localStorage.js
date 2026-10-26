@@ -205,6 +205,26 @@ export const setCachedFeedback = async (date, insight) => {
   }
 };
 
+const lastSavedKey = (uid) => `lastSavedDate:${uid}`;
+
+// The last day (YYYY-MM-DD) the auto-save wrote for this user, or null
+export const getLastSavedDate = async (uid) => {
+  try {
+    return await AsyncStorage.getItem(lastSavedKey(uid));
+  } catch (error) {
+    console.error("Error getting last saved date:", error);
+    return null;
+  }
+};
+
+export const setLastSavedDate = async (uid, date) => {
+  try {
+    await AsyncStorage.setItem(lastSavedKey(uid), date);
+  } catch (error) {
+    console.error("Error storing last saved date:", error);
+  }
+};
+
 // Whether the user agreed to send their data to Claude
 export const getAIConsent = async () => {
   try {
