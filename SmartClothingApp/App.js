@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native";
+import { AppState, SafeAreaView } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as StoreProvider } from "react-redux";
@@ -31,6 +31,7 @@ import {
 } from "./src/utils/notifications.js";
 import NotificationPermissionsModal from "./src/components/NotificationPermissionsModal/index.jsx";
 import { coachNotificationPermissionsModalVisible } from "./src/actions/appActions.js";
+import { startAutoSaveDays } from "./src/actions/deviceActions.js";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Configure notifications
@@ -49,8 +50,6 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [isNotificationModalVisible, setNotificationModalVisible] = useState(false);
-  // const [coachName, setCoachName] = useState("");
-  // const [coachId, setCoachId] = useState("");
   const [recentNotificationCoach, setRecentNotificationCoach] = useState({ 
     coachId:"",
     coachName:""
@@ -286,11 +285,20 @@ export default function App() {
       await Promise.all([loadFont(), checkAuthState()]);
       setLoading(false);
       registerForPushNotifications();
+      store.dispatch(startAutoSaveDays());
       //setTimeout(() => setLoading(false), 500);
       //registerForPushNotifications();
       
     };
     loadAppResources();
+  }, []);
+
+  // Back in the foreground: save any finished days not saved yet
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") store.dispatch(startAutoSaveDays());
+    });
+    return () => subscription.remove();
   }, []);
   
   useEffect(() => {
