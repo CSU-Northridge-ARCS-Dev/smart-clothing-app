@@ -15,6 +15,7 @@ import {
   startLoadFitbitWeek,
   startLoadFitbitWorkout,
   startLoadFitbitMonth,
+  startAutoSaveDays,
 } from '../../../src/actions/deviceActions';
 import {
   FITBIT_SET_STATUS,
@@ -45,6 +46,11 @@ import {
   getFitbitMonthWorkouts,
 } from '../../../src/services/insightsApi';
 import { saveDailyStats } from '../../../src/services/healthStore';
+import {
+  getLastSavedDate,
+  setLastSavedDate,
+} from '../../../src/utils/localStorage';
+import { auth } from '../../../firebaseConfig.js';
 
 // These pull from __mocks__/
 jest.mock('expo-web-browser');
@@ -84,6 +90,11 @@ jest.mock('../../../src/services/insightsApi', () => ({
 
 jest.mock('../../../src/services/healthStore', () => ({
   saveDailyStats: jest.fn(),
+}));
+
+jest.mock('../../../src/utils/localStorage', () => ({
+  getLastSavedDate: jest.fn(),
+  setLastSavedDate: jest.fn(),
 }));
 
 const mockStore = configureMockStore([thunk]);
@@ -320,6 +331,141 @@ describe('startLoadFitbitDay', () => {
       await store.dispatch(startLoadFitbitDay('2026-10-10'));
       expect(saveDailyStats).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('startAutoSaveDays', () => {
+  const dayFor = (date) => ({ date, steps: 9842, heart: {}, workouts: [] });
+  const fetchedDates = () => getFitbitDay.mock.calls.map(([date]) => date);
+  const savedDates = () => setLastSavedDate.mock.calls.map(([, date]) => date);
+
+  beforeEach(() => {
+    // Today is 2026-10-11
+    jest.useFakeTimers({ now: new Date(2026, 9, 11, 9, 0) });
+    getFitbitTokens.mockResolvedValue(TOKENS);
+    getFitbitDay.mockImplementation(async (date) => dayFor(date));
+    saveDailyStats.mockResolvedValue();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    auth.currentUser = { uid: 'user-1' };
+  });
+
+  it('saves yesterday and moves the last saved date to it', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-09');
+    const store = storeWithDays();
+    await store.dispatch(startAutoSaveDays());
+    expect(getLastSavedDate).toHaveBeenCalledWith('user-1');
+    expect(saveDailyStats).toHaveBeenCalledWith(
+      'user-1',
+      dayFor('2026-10-10'),
+      { source: 'fitbit', device: null, timezone: expect.any(String) }
+    );
+    expect(setLastSavedDate).toHaveBeenCalledWith('user-1', '2026-10-10');
+  });
+
+  it('puts each saved day in the store', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-09');
+    const store = storeWithDays();
+    await store.dispatch(startAutoSaveDays());
+    expect(store.getActions()).toEqual([
+      { type: FITBIT_DAY_LOADED, date: '2026-10-10', day: dayFor('2026-10-10') },
+    ]);
+  });
+
+  it('catches up missed days oldest first', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-08');
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(fetchedDates()).toEqual(['2026-10-09', '2026-10-10']);
+    expect(savedDates()).toEqual(['2026-10-09', '2026-10-10']);
+  });
+
+  it('goes back at most 3 days', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-01');
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(fetchedDates()).toEqual(['2026-10-08', '2026-10-09', '2026-10-10']);
+  });
+
+  it('saves the last 3 days on the first run', async () => {
+    getLastSavedDate.mockResolvedValue(null);
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(fetchedDates()).toEqual(['2026-10-08', '2026-10-09', '2026-10-10']);
+  });
+
+  it('does nothing when yesterday is already saved', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-10');
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(getFitbitDay).not.toHaveBeenCalled();
+    expect(saveDailyStats).not.toHaveBeenCalled();
+  });
+
+  it('never saves today', async () => {
+    getLastSavedDate.mockResolvedValue(null);
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(fetchedDates()).not.toContain('2026-10-11');
+  });
+
+  it('does nothing without a signed-in user', async () => {
+    auth.currentUser = null;
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(getLastSavedDate).not.toHaveBeenCalled();
+    expect(getFitbitDay).not.toHaveBeenCalled();
+  });
+
+  it('does nothing without a Fitbit connection', async () => {
+    getFitbitTokens.mockResolvedValue(null);
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(getFitbitDay).not.toHaveBeenCalled();
+  });
+
+  it('stops at a day that fails to load and keeps the last saved date', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-08');
+    getFitbitDay.mockRejectedValueOnce(serviceError('FITBIT_API_ERROR'));
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(fetchedDates()).toEqual(['2026-10-09']);
+    expect(saveDailyStats).not.toHaveBeenCalled();
+    expect(setLastSavedDate).not.toHaveBeenCalled();
+    expect(clearFitbitTokens).not.toHaveBeenCalled();
+  });
+
+  it('disconnects when Fitbit needs a new login', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-09');
+    getFitbitDay.mockRejectedValue(serviceError('FITBIT_REAUTH_REQUIRED'));
+    const store = storeWithDays();
+    await store.dispatch(startAutoSaveDays());
+    expect(clearFitbitTokens).toHaveBeenCalled();
+    expect(store.getActions().pop()).toEqual({
+      type: FITBIT_SET_STATUS,
+      status: 'not_connected',
+      error: 'FITBIT_REAUTH_REQUIRED',
+    });
+  });
+
+  it('stops at a failed write', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-08');
+    saveDailyStats.mockRejectedValueOnce(new Error('offline'));
+    await storeWithDays().dispatch(startAutoSaveDays());
+    expect(fetchedDates()).toEqual(['2026-10-09']);
+    expect(setLastSavedDate).not.toHaveBeenCalled();
+  });
+
+  it('ignores a second run while one is in progress', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-09');
+    const store = storeWithDays();
+    await Promise.all([
+      store.dispatch(startAutoSaveDays()),
+      store.dispatch(startAutoSaveDays()),
+    ]);
+    expect(getFitbitDay).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs again after the previous run finishes', async () => {
+    getLastSavedDate.mockResolvedValue('2026-10-09');
+    const store = storeWithDays();
+    await store.dispatch(startAutoSaveDays());
+    await store.dispatch(startAutoSaveDays());
+    expect(getLastSavedDate).toHaveBeenCalledTimes(2);
   });
 });
 
