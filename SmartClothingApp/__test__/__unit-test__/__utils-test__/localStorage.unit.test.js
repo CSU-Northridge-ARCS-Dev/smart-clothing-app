@@ -18,7 +18,7 @@
  */
 
 // Import the functions and AsyncStorage
-import { storeUID, getUID, storeMetrics, getMetrics } from '../../../src/utils/localStorage.js'; // Update the path to where your functions are located
+import { storeUID, getUID, storeMetrics, getMetrics, getLastSavedDate, setLastSavedDate } from '../../../src/utils/localStorage.js'; // Update the path to where your functions are located
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock AsyncStorage
@@ -240,4 +240,40 @@ describe('AsyncStorage', () => {
   //     expect(storedMetrics).toBeFalsy();
   //   });
   // });
+});
+
+describe('last saved date', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    console.error = jest.fn();
+  });
+
+  it('stores the date under a key for the user', async () => {
+    AsyncStorage.setItem.mockResolvedValue();
+    await setLastSavedDate('user-1', '2026-10-25');
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith('lastSavedDate:user-1', '2026-10-25');
+  });
+
+  it('reads the date for the user', async () => {
+    AsyncStorage.getItem.mockResolvedValue('2026-10-25');
+    expect(await getLastSavedDate('user-1')).toBe('2026-10-25');
+    expect(AsyncStorage.getItem).toHaveBeenCalledWith('lastSavedDate:user-1');
+  });
+
+  it('is null when nothing was saved yet', async () => {
+    AsyncStorage.getItem.mockResolvedValue(null);
+    expect(await getLastSavedDate('user-1')).toBeNull();
+  });
+
+  it('is null when reading fails', async () => {
+    AsyncStorage.getItem.mockRejectedValue(new Error('retrieval error'));
+    expect(await getLastSavedDate('user-1')).toBeNull();
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it('only logs when storing fails', async () => {
+    AsyncStorage.setItem.mockRejectedValue(new Error('storage error'));
+    await expect(setLastSavedDate('user-1', '2026-10-25')).resolves.toBeUndefined();
+    expect(console.error).toHaveBeenCalled();
+  });
 });
