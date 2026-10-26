@@ -11,6 +11,8 @@ jest.mock("../src/lib/fitbit-api", () => ({
   getActivitiesFrom: jest.fn(),
   getActivityTcx: jest.fn(),
   getHeartIntraday: jest.fn(),
+  getHeartDay5min: jest.fn(),
+  getVo2Max: jest.fn(),
   withFreshToken: jest.fn(),
 }));
 
@@ -101,7 +103,7 @@ describe("Fitbit routes", () => {
         "https://tunnel.example/api/fitbit/callback",
       );
       expect(url.searchParams.get("scope")).toBe(
-        "sleep heartrate activity profile location",
+        "sleep heartrate activity profile location cardio_fitness",
       );
       expect(stateStore.consume(url.searchParams.get("state"))).toEqual({
         uid: "user-1",
@@ -284,6 +286,17 @@ describe("Fitbit routes", () => {
         { activityName: "Run", activeDuration: 600000 },
         { activityName: "Yoga", activeDuration: 600000 },
       ]);
+      fitbitApi.getHeartDay5min.mockResolvedValue({
+        "activities-heart-intraday": {
+          dataset: [
+            { time: "00:00:00", value: 58 },
+            { time: "12:00:00", value: 72 },
+          ],
+        },
+      });
+      fitbitApi.getVo2Max.mockResolvedValue({
+        cardioScore: [{ dateTime: "2026-10-10", value: { vo2Max: "44-48" } }],
+      });
     });
 
     it("requires a Firebase ID token", async () => {
@@ -338,6 +351,38 @@ describe("Fitbit routes", () => {
       expect(res.body.day.heart.restingHeartRate).toBe(58);
       expect(res.body.day.workouts.map((w) => w.type)).toEqual(["Run"]);
       expect(res.body).not.toHaveProperty("refreshedTokens");
+    });
+
+    it("returns the 5-minute heart rate and VO2 max", async () => {
+      passThrough();
+      const res = await request(app)
+        .get("/api/fitbit/day/2026-10-10")
+        .set(FITBIT_HEADERS);
+
+      expect(res.status).toBe(200);
+      expect(fitbitApi.getHeartDay5min).toHaveBeenCalledWith("access-1", "2026-10-10");
+      expect(fitbitApi.getVo2Max).toHaveBeenCalledWith("access-1", "2026-10-10");
+      const { hr5min } = res.body.day.heart;
+      expect(hr5min).toHaveLength(288);
+      expect(hr5min[0]).toBe(58);
+      expect(hr5min[144]).toBe(72);
+      expect(hr5min[1]).toBeNull();
+      expect(res.body.day.vo2Max).toEqual({ low: 44, high: 48 });
+    });
+
+    it("still returns the day when the 5-minute and VO2 max calls fail", async () => {
+      passThrough();
+      fitbitApi.getHeartDay5min.mockRejectedValue(new Error("FITBIT_API_ERROR"));
+      fitbitApi.getVo2Max.mockRejectedValue(new Error("FITBIT_FORBIDDEN"));
+      const res = await request(app)
+        .get("/api/fitbit/day/2026-10-10")
+        .set(FITBIT_HEADERS);
+
+      expect(res.status).toBe(200);
+      expect(res.body.day.heart.hr5min).toBeNull();
+      expect(res.body.day.vo2Max).toBeNull();
+      expect(res.body.day.heart.restingHeartRate).toBe(58);
+      expect(res.body.day.steps).toBe(8432);
     });
 
     it("includes refreshedTokens when the service refreshed", async () => {

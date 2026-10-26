@@ -204,6 +204,31 @@ describe("fitbit-api", () => {
       );
     });
 
+    it("getHeartDay5min asks for the whole day at 5-minute detail", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, { "activities-heart-intraday": {} }));
+      await fitbitApi.getHeartDay5min("tok", "2026-10-20");
+      expect(fetch.mock.calls[0][0]).toBe(
+        "https://api.fitbit.com/1/user/-/activities/heart/date/2026-10-20/1d/5min.json",
+      );
+    });
+
+    it("getVo2Max calls the cardio score endpoint", async () => {
+      fetch.mockResolvedValue(fakeResponse(200, { cardioScore: [] }));
+      await fitbitApi.getVo2Max("tok", "2026-10-20");
+      const [url, init] = fetch.mock.calls[0];
+      expect(url).toBe("https://api.fitbit.com/1/user/-/cardioscore/date/2026-10-20.json");
+      expect(init.headers.Authorization).toBe("Bearer tok");
+    });
+
+    it("getVo2Max throws FITBIT_FORBIDDEN without the cardio_fitness scope", async () => {
+      fetch.mockResolvedValue(
+        fakeResponse(403, { errors: [{ errorType: "insufficient_scope" }] }),
+      );
+      await expect(fitbitApi.getVo2Max("tok", "2026-10-20")).rejects.toThrow(
+        "FITBIT_FORBIDDEN",
+      );
+    });
+
     it("throws FITBIT_FORBIDDEN on a 403 (missing scope)", async () => {
       fetch.mockResolvedValue(
         fakeResponse(403, { error: { code: 403, status: "PERMISSION_DENIED" } }),

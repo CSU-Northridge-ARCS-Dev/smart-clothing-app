@@ -4,6 +4,8 @@ jest.mock("../src/lib/fitbit-api", () => ({
   getHeart: jest.fn(),
   getActivities: jest.fn(),
   getDaySummary: jest.fn(),
+  getHeartDay5min: jest.fn(),
+  getVo2Max: jest.fn(),
   withFreshToken: jest.fn(),
 }));
 jest.mock("../src/lib/usageLog", () => ({ logUsage: jest.fn() }));
@@ -75,6 +77,8 @@ describe("POST /api/insights/generate", () => {
     });
 
     fitbitApi.getDaySummary.mockResolvedValue({ summary: { steps: 8432 } });
+    fitbitApi.getHeartDay5min.mockResolvedValue(null);
+    fitbitApi.getVo2Max.mockResolvedValue(null);
     fitbitApi.getSleep.mockResolvedValue({
       sleep: [
         {

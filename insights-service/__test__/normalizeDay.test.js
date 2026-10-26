@@ -161,6 +161,7 @@ describe("normalizeDay", () => {
       restingHeartRate: 56,
       previousRestingHeartRate: 59,
       zones: { fatBurn: 45, cardio: 22, peak: 4 },
+      hr5min: null,
     });
   });
 
@@ -183,6 +184,7 @@ describe("normalizeDay", () => {
       restingHeartRate: null,
       previousRestingHeartRate: null,
       zones: { fatBurn: 0, cardio: 0, peak: 0 },
+      hr5min: null,
     });
     expect(normalizeDay("2026-10-10", null, {}, []).heart.restingHeartRate)
       .toBeNull();
@@ -279,5 +281,84 @@ describe("normalizeDay", () => {
 
   it("returns an empty workout list when there are no activities", () => {
     expect(normalizeDay("2026-10-10", null, null, undefined).workouts).toEqual([]);
+  });
+});
+
+// 5-minute intraday response, one entry per slot with a reading
+function heart5min(entries) {
+  return {
+    "activities-heart": [{ dateTime: "2026-10-20", value: "70.5" }],
+    "activities-heart-intraday": {
+      dataset: entries.map(([time, value]) => ({ time, value })),
+      datasetInterval: 5,
+      datasetType: "minute",
+    },
+  };
+}
+
+const pad2 = (n) => String(n).padStart(2, "0");
+const slotTime = (i) =>
+  `${pad2(Math.floor((i * 5) / 60))}:${pad2((i * 5) % 60)}:00`;
+
+describe("normalizeDay heart.hr5min", () => {
+  const hr5 = (raw) =>
+    normalizeDay("2026-10-20", null, null, [], null, raw).heart.hr5min;
+
+  it("puts a full day into 288 slots from midnight", () => {
+    const full = Array.from({ length: 288 }, (_, i) => [slotTime(i), 50 + (i % 40)]);
+    const out = hr5(heart5min(full));
+    expect(out).toHaveLength(288);
+    expect(out[0]).toBe(50);
+    expect(out[12]).toBe(50 + 12); // 01:00
+    expect(out[287]).toBe(50 + (287 % 40)); // 23:55
+    expect(out.every((v) => typeof v === "number")).toBe(true);
+  });
+
+  it("leaves null where the watch has no reading", () => {
+    const out = hr5(
+      heart5min([
+        ["00:00:00", 58],
+        ["00:05:00", 57],
+        ["07:30:00", 142.6],
+        ["23:55:00", 61],
+      ]),
+    );
+    expect(out).toHaveLength(288);
+    expect(out[0]).toBe(58);
+    expect(out[1]).toBe(57);
+    expect(out[2]).toBeNull();
+    expect(out[90]).toBe(143);
+    expect(out[287]).toBe(61);
+    expect(out.filter((v) => v !== null)).toHaveLength(4);
+  });
+
+  it("is null when the call failed or the day has no readings", () => {
+    expect(hr5(null)).toBeNull();
+    expect(hr5(heart5min([]))).toBeNull();
+    expect(hr5({})).toBeNull();
+  });
+});
+
+describe("normalizeDay vo2Max", () => {
+  const vo2 = (raw) =>
+    normalizeDay("2026-10-20", null, null, [], null, null, raw).vo2Max;
+  const score = (value) => ({
+    cardioScore: [{ dateTime: "2026-10-20", value: { vo2Max: value } }],
+  });
+
+  it("splits a range into low and high", () => {
+    expect(vo2(score("44-48"))).toEqual({ low: 44, high: 48 });
+  });
+
+  it("uses one value for low and high", () => {
+    expect(vo2(score(46.2))).toEqual({ low: 46.2, high: 46.2 });
+    expect(vo2(score("45"))).toEqual({ low: 45, high: 45 });
+  });
+
+  it("is null with no estimate", () => {
+    expect(vo2({ cardioScore: [] })).toBeNull();
+    expect(vo2(null)).toBeNull();
+    expect(vo2(score(undefined))).toBeNull();
+    expect(vo2(score("n/a"))).toBeNull();
   });
 });
