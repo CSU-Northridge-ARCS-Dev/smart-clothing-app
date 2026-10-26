@@ -19,8 +19,10 @@ const {
 const { workoutWindow } = require("../lib/heartIntraday");
 
 const FITBIT_AUTH_URL = "https://www.fitbit.com/oauth2/authorize";
-// location lets the activity TCX include the GPS route
-const FITBIT_SCOPES = "sleep heartrate activity profile location";
+// location lets the activity TCX include the GPS route; cardio_fitness is for
+// VO2 max
+const FITBIT_SCOPES =
+  "sleep heartrate activity profile location cardio_fitness";
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
 const LOG_ID_RE = /^\d+$/;
 // Fitbit's maximum page size for the Activity Log List
