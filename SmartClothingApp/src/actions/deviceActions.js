@@ -42,7 +42,11 @@ import {
   getErrorCode,
 } from "../services/insightsApi";
 import { saveDailyStats } from "../services/healthStore";
-import { toLocalDateString } from "../utils/dateConversions";
+import {
+  toLocalDateString,
+  addDaysToDateString,
+} from "../utils/dateConversions";
+import { getLastSavedDate, setLastSavedDate } from "../utils/localStorage";
 
 export const getDevices = () => {
   return {
@@ -263,18 +267,62 @@ const loadFitbitEntry = async (
 
 // Saves a finished day to Firestore. Today isn't over yet, so it's skipped,
 // and a failed write is only logged so the screen still shows the day.
+// Returns true when the day was written.
 const saveFinishedDay = async (date, day) => {
   const uid = auth.currentUser?.uid;
-  if (!uid || date >= toLocalDateString()) return;
+  if (!uid || date >= toLocalDateString()) return false;
   try {
     await saveDailyStats(uid, day, {
       source: "fitbit",
       device: null,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
+    return true;
   } catch (error) {
     console.log("DailyStats save error: ", error);
+    return false;
   }
+};
+
+// How many finished days the auto-save goes back at most
+const AUTO_SAVE_MAX_DAYS = 3;
+let autoSaveRunning = false;
+
+// Saves the finished days since the last auto-save 
+// without opening DailySummary.
+export const startAutoSaveDays = () => {
+  return async (dispatch) => {
+    if (autoSaveRunning) return;
+    autoSaveRunning = true;
+    try {
+      const uid = auth.currentUser?.uid;
+      if (!uid || !(await getFitbitTokens())) return;
+
+      const today = toLocalDateString();
+      const yesterday = addDaysToDateString(today, -1);
+      const earliest = addDaysToDateString(today, -AUTO_SAVE_MAX_DAYS);
+      const lastSaved = await getLastSavedDate(uid);
+      const next = lastSaved ? addDaysToDateString(lastSaved, 1) : earliest;
+      let date = next > earliest ? next : earliest;
+
+      for (; date <= yesterday; date = addDaysToDateString(date, 1)) {
+        let day;
+        try {
+          day = await getFitbitDay(date);
+        } catch (error) {
+          await dispatch(startHandleFitbitError(getErrorCode(error)));
+          return;
+        }
+        dispatch(fitbitDayLoaded(date, day));
+        if (!(await saveFinishedDay(date, day))) return;
+        await setLastSavedDate(uid, date);
+      }
+    } catch (error) {
+      console.log("Auto-save error: ", error);
+    } finally {
+      autoSaveRunning = false;
+    }
+  };
 };
 
 // Loads one day (YYYY-MM-DD) into state.device.fitbit.days, then saves it
