@@ -3,18 +3,52 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow authenticated users to read/write 'Users' and 'Invitations' collections
-    match /Users/{userId} {
-      allow read, write: if request.auth != null;
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function userRef(uid) {
+      return /databases/$(database)/documents/Users/$(uid);
+    }
+
+    match /Users/{uid} {
+      // Open read: the dashboard browser looks athletes up by email, and the
+      // app reads coach docs to show their names.
+      allow read: if signedIn();
+      allow create, delete: if isOwner(uid);
+
+      // Others may only touch the two consent fields: a coach adding an invite
+      // to an athlete's pendingPermissions, and an athlete adding themselves to
+      // a coach's authorizedAthletes. Coach access is judged by the athlete's
+      // coachList, which only the athlete can write.
+      allow update: if isOwner(uid)
+        || (signedIn() && request.resource.data.diff(resource.data)
+              .affectedKeys().hasOnly(['pendingPermissions', 'authorizedAthletes']));
+
+      // Written only by the dashboard server (firebase-admin bypasses rules).
+      match /CoachInsights/{windowEnd} {
+        allow read: if isOwner(uid)
+          || (signedIn() && userRef(request.auth.uid) in
+                get(userRef(uid)).data.get('coachList', []));
+        allow write: if false;
+      }
+
+      // DailyStats, AIFeedback and the older health subcollections: owner only.
+      // Firestore ORs matching rules, so CoachInsights is excluded here or the
+      // athlete could write it.
+      match /{sub}/{docId=**} {
+        allow read, write: if isOwner(uid) && sub != 'CoachInsights';
+      }
     }
 
     match /Invitations/{invitationId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if signedIn();
     }
 
-    // Catch-all rule for authenticated users, no date restriction
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
+    // No catch-all: anything not matched above is denied.
   }
 }
