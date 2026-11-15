@@ -46,7 +46,7 @@ const DeviceCard = (props) => {
           style={{ flex: 2 }}
           onPress={props.onConnect}
           loading={props.connectLoading}
-          disabled={props.connectLoading}
+          disabled={props.connectLoading || props.connectDisabled}
           testID={`connect-${props.device.id}`}
         >
           {props.connectLabel || "Connect"}
