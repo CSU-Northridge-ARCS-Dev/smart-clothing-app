@@ -16,6 +16,9 @@ import {
   startLoadFitbitWorkout,
   startLoadFitbitMonth,
   startAutoSaveDays,
+  startCheckHealthConnect,
+  startConnectHealthConnect,
+  startDisconnectHealthConnect,
 } from '../../../src/actions/deviceActions';
 import {
   FITBIT_SET_STATUS,
@@ -32,6 +35,7 @@ import {
   FITBIT_MONTH_LOADING,
   FITBIT_MONTH_LOADED,
   FITBIT_MONTH_ERROR,
+  HEALTH_CONNECT_SET_STATUS,
 } from '../../../src/actions/types';
 import {
   getFitbitTokens,
@@ -49,7 +53,10 @@ import { saveDailyStats } from '../../../src/services/healthStore';
 import {
   getLastSavedDate,
   setLastSavedDate,
+  getHealthConnectDisconnected,
+  setHealthConnectDisconnected,
 } from '../../../src/utils/localStorage';
+import * as healthConnect from '../../../src/services/healthConnect';
 import { auth } from '../../../firebaseConfig.js';
 
 // These pull from __mocks__/
@@ -95,6 +102,16 @@ jest.mock('../../../src/services/healthStore', () => ({
 jest.mock('../../../src/utils/localStorage', () => ({
   getLastSavedDate: jest.fn(),
   setLastSavedDate: jest.fn(),
+  getHealthConnectDisconnected: jest.fn(),
+  setHealthConnectDisconnected: jest.fn(),
+}));
+
+jest.mock('../../../src/services/healthConnect', () => ({
+  getStatus: jest.fn(),
+  requestPermissions: jest.fn(),
+  getGranted: jest.fn(),
+  revoke: jest.fn(),
+  isRevokePending: jest.fn(),
 }));
 
 const mockStore = configureMockStore([thunk]);
@@ -622,6 +639,140 @@ describe('startLoadFitbitMonth', () => {
       type: FITBIT_MONTH_ERROR,
       month: '2026-10',
       error: 'FITBIT_API_ERROR',
+    });
+  });
+});
+
+describe('Health Connect', () => {
+  const STEPS = { accessType: 'read', recordType: 'Steps' };
+  const SLEEP = { accessType: 'read', recordType: 'SleepSession' };
+
+  const status = (value, permissions = [], error = null) => ({
+    type: HEALTH_CONNECT_SET_STATUS,
+    status: value,
+    permissions,
+    error,
+  });
+
+  beforeEach(() => {
+    healthConnect.getStatus.mockResolvedValue('available');
+    healthConnect.isRevokePending.mockReturnValue(false);
+    healthConnect.getGranted.mockResolvedValue([]);
+    healthConnect.requestPermissions.mockResolvedValue([]);
+    healthConnect.revoke.mockResolvedValue();
+    getHealthConnectDisconnected.mockResolvedValue(false);
+    setHealthConnectDisconnected.mockResolvedValue();
+  });
+
+  describe('startCheckHealthConnect', () => {
+    it('is connected when a read permission is granted', async () => {
+      healthConnect.getGranted.mockResolvedValue([STEPS, SLEEP]);
+      const store = mockStore({});
+      expect(await store.dispatch(startCheckHealthConnect())).toBe(true);
+      expect(store.getActions()).toEqual([status('connected', [STEPS, SLEEP])]);
+      expect(getHealthConnectDisconnected).toHaveBeenCalledWith('user-1');
+    });
+
+    it('is not connected when nothing is granted', async () => {
+      const store = mockStore({});
+      expect(await store.dispatch(startCheckHealthConnect())).toBe(false);
+      expect(store.getActions()).toEqual([status('not_connected')]);
+    });
+
+    it('is not connected after Disconnect, whatever Health Connect reports', async () => {
+      getHealthConnectDisconnected.mockResolvedValue(true);
+      healthConnect.getGranted.mockResolvedValue([STEPS]);
+      const store = mockStore({});
+      expect(await store.dispatch(startCheckHealthConnect())).toBe(false);
+      expect(store.getActions()).toEqual([status('not_connected')]);
+      expect(healthConnect.getGranted).not.toHaveBeenCalled();
+    });
+
+    it.each(['unavailable', 'update_needed'])(
+      'passes on %s without reading permissions',
+      async (value) => {
+        healthConnect.getStatus.mockResolvedValue(value);
+        const store = mockStore({});
+        expect(await store.dispatch(startCheckHealthConnect())).toBe(false);
+        expect(store.getActions()).toEqual([status(value)]);
+        expect(healthConnect.getGranted).not.toHaveBeenCalled();
+      }
+    );
+
+    it('is an error when the granted list cannot be read', async () => {
+      healthConnect.getGranted.mockRejectedValue(new Error('failed'));
+      const store = mockStore({});
+      expect(await store.dispatch(startCheckHealthConnect())).toBe(false);
+      expect(store.getActions()).toEqual([status('error', [], 'check_failed')]);
+    });
+  });
+
+  describe('startConnectHealthConnect', () => {
+    it('connects and clears the disconnected flag when types are allowed', async () => {
+      healthConnect.requestPermissions.mockResolvedValue([STEPS]);
+      const store = mockStore({});
+      expect(await store.dispatch(startConnectHealthConnect())).toBe(true);
+      expect(store.getActions()).toEqual([
+        status('connecting'),
+        status('connected', [STEPS]),
+      ]);
+      expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', false);
+    });
+
+    it('is not connected when nothing is allowed, and keeps the flag', async () => {
+      const store = mockStore({});
+      expect(await store.dispatch(startConnectHealthConnect())).toBe(false);
+      expect(store.getActions()).toEqual([
+        status('connecting'),
+        status('not_connected', [], 'no_permissions'),
+      ]);
+      expect(setHealthConnectDisconnected).not.toHaveBeenCalled();
+    });
+
+    it('asks for a restart while a revoke is pending', async () => {
+      healthConnect.isRevokePending.mockReturnValue(true);
+      const store = mockStore({});
+      expect(await store.dispatch(startConnectHealthConnect())).toBe(false);
+      expect(store.getActions()).toEqual([
+        status('not_connected', [], 'restart_needed'),
+      ]);
+      expect(healthConnect.requestPermissions).not.toHaveBeenCalled();
+    });
+
+    it('does not open the sheet when Health Connect is unavailable', async () => {
+      healthConnect.getStatus.mockResolvedValue('unavailable');
+      const store = mockStore({});
+      expect(await store.dispatch(startConnectHealthConnect())).toBe(false);
+      expect(store.getActions()).toEqual([status('unavailable')]);
+      expect(healthConnect.requestPermissions).not.toHaveBeenCalled();
+    });
+
+    it('is an error when the request fails', async () => {
+      healthConnect.requestPermissions.mockRejectedValue(new Error('failed'));
+      const store = mockStore({});
+      expect(await store.dispatch(startConnectHealthConnect())).toBe(false);
+      expect(store.getActions()).toEqual([
+        status('connecting'),
+        status('error', [], 'connect_failed'),
+      ]);
+    });
+  });
+
+  describe('startDisconnectHealthConnect', () => {
+    it('sets the flag, revokes and is not connected', async () => {
+      const store = mockStore({});
+      await store.dispatch(startDisconnectHealthConnect());
+      expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', true);
+      expect(healthConnect.revoke).toHaveBeenCalledTimes(1);
+      expect(store.getActions()).toEqual([status('not_connected')]);
+    });
+
+    it('is still not connected when the revoke fails', async () => {
+      healthConnect.revoke.mockRejectedValue(new Error('failed'));
+      const store = mockStore({});
+      await store.dispatch(startDisconnectHealthConnect());
+      expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', true);
+      expect(store.getActions()).toEqual([status('not_connected')]);
     });
   });
 });
