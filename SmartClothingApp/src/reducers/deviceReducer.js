@@ -14,6 +14,7 @@ import {
   FITBIT_MONTH_LOADING,
   FITBIT_MONTH_LOADED,
   FITBIT_MONTH_ERROR,
+  HEALTH_CONNECT_SET_STATUS,
 } from "./../actions/types";
 
 const dummyDevicesData = [
@@ -43,6 +44,16 @@ const dummyDevicesData = [
       "Connect your Pixel Watch through your Fitbit account to see your sleep, resting heart rate, heart rate zones and Run, Weights and Walk workouts recorded on the watch.",
     connection: "fitbit",
   },
+  {
+    id: 4,
+    name: "Health Connect",
+    device: "Pixel Watch, Galaxy Watch and other Android watches",
+    // TODO: replace with a watch photo
+    image: require("./../../assets/images/arcs_logo.png"),
+    details:
+      "Connect Health Connect to read the steps, heart rate, sleep and workouts your watch's phone app (Google Health or Samsung Health) saves on this phone.",
+    connection: "health_connect",
+  },
 ];
 
 // status: "unknown" | "not_connected" | "connecting" | "connected" | "error"
@@ -63,9 +74,19 @@ const initialFitbitState = {
   months: {},
 };
 
+// status: "unknown" | "unavailable" | "update_needed" | "not_connected" |
+// "connecting" | "connected" | "error"
+// permissions: the read permissions granted, [{ accessType, recordType }]
+const initialHealthConnectState = {
+  status: "unknown",
+  permissions: [],
+  error: null,
+};
+
 const initialState = {
   devicesData: dummyDevicesData,
   fitbit: initialFitbitState,
+  healthConnect: initialHealthConnectState,
 };
 
 // map is "days", "weeks", "workouts" or "months"
@@ -150,6 +171,15 @@ const deviceReducer = (state = initialState, action) => {
       return setEntry(state, "months", action.month, loadedEntry(action.workouts));
     case FITBIT_MONTH_ERROR:
       return setEntry(state, "months", action.month, errorEntry(action.error));
+    case HEALTH_CONNECT_SET_STATUS:
+      return {
+        ...state,
+        healthConnect: {
+          status: action.status,
+          permissions: action.permissions || [],
+          error: action.error || null,
+        },
+      };
     case FITBIT_CLEAR_DAYS:
       return {
         ...state,
