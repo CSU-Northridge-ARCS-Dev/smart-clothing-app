@@ -20,7 +20,8 @@
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
     ],
     "moduleNameMapper": {
-      "^react-native-webview$": "<rootDir>/__test__/__mocks__/react-native-webview.js"
+      "^react-native-webview$": "<rootDir>/__test__/__mocks__/react-native-webview.js",
+      "^react-native-health-connect$": "<rootDir>/__test__/__mocks__/react-native-health-connect.js"
     },
     "transform": {
       "^.+.jsx?$": "babel-jest"
@@ -79,6 +80,7 @@
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-element-dropdown": "^2.10.0",
     "react-native-gesture-handler": "^2.21.0",
+    "react-native-health-connect": "4.0.0",
     "react-native-modal-dropdown": "^1.0.2",
     "react-native-paper": "^5.8.0",
     "react-native-reanimated": "~3.16.1",
