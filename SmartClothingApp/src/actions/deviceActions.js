@@ -14,6 +14,7 @@ import {
   FITBIT_MONTH_LOADING,
   FITBIT_MONTH_LOADED,
   FITBIT_MONTH_ERROR,
+  HEALTH_CONNECT_SET_STATUS,
 } from "./types";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
@@ -46,7 +47,13 @@ import {
   toLocalDateString,
   addDaysToDateString,
 } from "../utils/dateConversions";
-import { getLastSavedDate, setLastSavedDate } from "../utils/localStorage";
+import {
+  getLastSavedDate,
+  setLastSavedDate,
+  getHealthConnectDisconnected,
+  setHealthConnectDisconnected,
+} from "../utils/localStorage";
+import * as healthConnect from "../services/healthConnect";
 
 export const getDevices = () => {
   return {
@@ -371,4 +378,99 @@ export const startLoadFitbitMonth = (month, { force = false } = {}) => {
       loaded: (workouts) => fitbitMonthLoaded(month, workouts),
       failed: (code) => fitbitMonthError(month, code),
     });
+};
+
+// Health Connect
+
+export const setHealthConnectStatus = (
+  status,
+  permissions = [],
+  error = null
+) => ({
+  type: HEALTH_CONNECT_SET_STATUS,
+  status,
+  permissions,
+  error,
+});
+
+// Connected means Health Connect is on the phone, at least one read
+// permission is granted, and the athlete hasn't pressed Disconnect.
+// Returns true when connected.
+export const startCheckHealthConnect = () => {
+  return async (dispatch) => {
+    const status = await healthConnect.getStatus();
+    if (status !== "available") {
+      dispatch(setHealthConnectStatus(status));
+      return false;
+    }
+    try {
+      const uid = auth.currentUser?.uid;
+      const disconnected = uid
+        ? await getHealthConnectDisconnected(uid)
+        : false;
+      const permissions = disconnected ? [] : await healthConnect.getGranted();
+      const connected = permissions.length > 0;
+      dispatch(
+        setHealthConnectStatus(
+          connected ? "connected" : "not_connected",
+          permissions
+        )
+      );
+      return connected;
+    } catch (error) {
+      console.log("Health Connect check error: ", error);
+      dispatch(setHealthConnectStatus("error", [], "check_failed"));
+      return false;
+    }
+  };
+};
+
+// Opens the Health Connect permission sheet. Returns true when the athlete
+// allowed at least one data type.
+export const startConnectHealthConnect = () => {
+  return async (dispatch) => {
+    const status = await healthConnect.getStatus();
+    if (status !== "available") {
+      dispatch(setHealthConnectStatus(status));
+      return false;
+    }
+    // After a Disconnect, Health Connect only drops the permissions when the
+    // app next starts, so the sheet can't be trusted until then.
+    if (healthConnect.isRevokePending()) {
+      dispatch(setHealthConnectStatus("not_connected", [], "restart_needed"));
+      return false;
+    }
+
+    dispatch(setHealthConnectStatus("connecting"));
+    try {
+      const permissions = await healthConnect.requestPermissions();
+      if (permissions.length === 0) {
+        dispatch(setHealthConnectStatus("not_connected", [], "no_permissions"));
+        return false;
+      }
+      const uid = auth.currentUser?.uid;
+      if (uid) await setHealthConnectDisconnected(uid, false);
+      dispatch(setHealthConnectStatus("connected", permissions));
+      return true;
+    } catch (error) {
+      console.log("Health Connect connect error: ", error);
+      dispatch(setHealthConnectStatus("error", [], "connect_failed"));
+      return false;
+    }
+  };
+};
+
+// Remembers the choice on the phone so the card changes at once, then asks
+// Health Connect to drop the permissions (applied when the app next starts).
+export const startDisconnectHealthConnect = () => {
+  return async (dispatch) => {
+    const uid = auth.currentUser?.uid;
+    if (uid) await setHealthConnectDisconnected(uid, true);
+    try {
+      await healthConnect.revoke();
+    } catch (error) {
+      console.log("Health Connect revoke error: ", error);
+    }
+    dispatch(setHealthConnectStatus("not_connected"));
+  };
 };
