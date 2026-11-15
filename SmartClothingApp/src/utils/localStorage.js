@@ -225,6 +225,35 @@ export const setLastSavedDate = async (uid, date) => {
   }
 };
 
+const healthConnectDisconnectedKey = (uid) =>
+  `healthConnectDisconnected:${uid}`;
+
+// Whether this user pressed Disconnect on the Health Connect card. Health
+// Connect keeps reporting the old permissions until the app restarts, so the
+// app remembers the choice itself.
+export const getHealthConnectDisconnected = async (uid) => {
+  try {
+    return (
+      (await AsyncStorage.getItem(healthConnectDisconnectedKey(uid))) === "true"
+    );
+  } catch (error) {
+    console.error("Error getting Health Connect disconnected flag:", error);
+    return false;
+  }
+};
+
+export const setHealthConnectDisconnected = async (uid, disconnected) => {
+  try {
+    if (disconnected) {
+      await AsyncStorage.setItem(healthConnectDisconnectedKey(uid), "true");
+    } else {
+      await AsyncStorage.removeItem(healthConnectDisconnectedKey(uid));
+    }
+  } catch (error) {
+    console.error("Error storing Health Connect disconnected flag:", error);
+  }
+};
+
 // Whether the user agreed to send their data to Claude
 export const getAIConsent = async () => {
   try {
