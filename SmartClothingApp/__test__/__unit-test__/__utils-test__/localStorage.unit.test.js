@@ -18,7 +18,7 @@
  */
 
 // Import the functions and AsyncStorage
-import { storeUID, getUID, storeMetrics, getMetrics, getLastSavedDate, setLastSavedDate } from '../../../src/utils/localStorage.js'; // Update the path to where your functions are located
+import { storeUID, getUID, storeMetrics, getMetrics, getLastSavedDate, setLastSavedDate, getHealthConnectDisconnected, setHealthConnectDisconnected } from '../../../src/utils/localStorage.js'; // Update the path to where your functions are located
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Mock AsyncStorage
@@ -274,6 +274,52 @@ describe('last saved date', () => {
   it('only logs when storing fails', async () => {
     AsyncStorage.setItem.mockRejectedValue(new Error('storage error'));
     await expect(setLastSavedDate('user-1', '2026-10-25')).resolves.toBeUndefined();
+    expect(console.error).toHaveBeenCalled();
+  });
+});
+
+describe('Health Connect disconnected flag', () => {
+  const KEY = 'healthConnectDisconnected:user-1';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    console.error = jest.fn();
+    AsyncStorage.removeItem = jest.fn();
+  });
+
+  it('stores the flag under a key for the user', async () => {
+    AsyncStorage.setItem.mockResolvedValue();
+    await setHealthConnectDisconnected('user-1', true);
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(KEY, 'true');
+  });
+
+  it('removes the key when the flag is cleared', async () => {
+    AsyncStorage.removeItem.mockResolvedValue();
+    await setHealthConnectDisconnected('user-1', false);
+    expect(AsyncStorage.removeItem).toHaveBeenCalledWith(KEY);
+    expect(AsyncStorage.setItem).not.toHaveBeenCalled();
+  });
+
+  it('is true when the flag was stored', async () => {
+    AsyncStorage.getItem.mockResolvedValue('true');
+    expect(await getHealthConnectDisconnected('user-1')).toBe(true);
+    expect(AsyncStorage.getItem).toHaveBeenCalledWith(KEY);
+  });
+
+  it('is false when nothing was stored', async () => {
+    AsyncStorage.getItem.mockResolvedValue(null);
+    expect(await getHealthConnectDisconnected('user-1')).toBe(false);
+  });
+
+  it('is false when reading fails', async () => {
+    AsyncStorage.getItem.mockRejectedValue(new Error('retrieval error'));
+    expect(await getHealthConnectDisconnected('user-1')).toBe(false);
+    expect(console.error).toHaveBeenCalled();
+  });
+
+  it('only logs when storing fails', async () => {
+    AsyncStorage.setItem.mockRejectedValue(new Error('storage error'));
+    await expect(setHealthConnectDisconnected('user-1', true)).resolves.toBeUndefined();
     expect(console.error).toHaveBeenCalled();
   });
 });
