@@ -25,6 +25,7 @@ export const READ_RECORD_TYPES = [
   "ExerciseSession",
   "Distance",
   "TotalCaloriesBurned",
+  "Vo2Max",
 ];
 
 // What the permission sheet asks for
@@ -164,6 +165,8 @@ const readSteps = async (start, end) => {
   return { total: watch?.COUNT_TOTAL ?? null, dataOrigins: watchApps };
 };
 
+const VO2_MAX_LOOKBACK_DAYS = 30;
+
 // The raw Health Connect records for one local day, unchanged apart from
 // keeping one source per type
 export const readDayRecords = async (date) => {
@@ -173,6 +176,11 @@ export const readDayRecords = async (date) => {
   const dayBefore = localMidnight(addDaysToDateString(date, -1));
   const noonBefore = new Date(dayBefore);
   noonBefore.setHours(12);
+  // The watch's app only writes VO2 max now and then (after an outdoor
+  // run), so a day carries the latest value from the days before it
+  const vo2MaxFrom = localMidnight(
+    addDaysToDateString(date, -VO2_MAX_LOOKBACK_DAYS)
+  );
 
   const granted = new Set((await getGranted()).map((p) => p.recordType));
   const errors = {};
@@ -196,16 +204,25 @@ export const readDayRecords = async (date) => {
       oneSource(await readAll(recordType, from, end))
     );
 
-  const [steps, heartRate, resting, sleep, exercise, distance, calories] =
-    await Promise.all([
-      attempt("Steps", () => readSteps(start, end)),
-      raw("HeartRate"),
-      raw("RestingHeartRate", dayBefore),
-      raw("SleepSession", noonBefore),
-      raw("ExerciseSession"),
-      raw("Distance"),
-      raw("TotalCaloriesBurned"),
-    ]);
+  const [
+    steps,
+    heartRate,
+    resting,
+    sleep,
+    exercise,
+    distance,
+    calories,
+    vo2Max,
+  ] = await Promise.all([
+    attempt("Steps", () => readSteps(start, end)),
+    raw("HeartRate"),
+    raw("RestingHeartRate", dayBefore),
+    raw("SleepSession", noonBefore),
+    raw("ExerciseSession"),
+    raw("Distance"),
+    raw("TotalCaloriesBurned"),
+    raw("Vo2Max", vo2MaxFrom),
+  ]);
 
   const onDay = (time) => {
     const t = new Date(time);
@@ -226,6 +243,7 @@ export const readDayRecords = async (date) => {
     exercise,
     distance,
     totalCalories: calories,
+    vo2Max,
     errors,
   };
 };
