@@ -63,7 +63,7 @@ describe('getStatus', () => {
 });
 
 describe('requestPermissions', () => {
-  it('asks for the seven read types and past data access', async () => {
+  it('asks for the eight read types and past data access', async () => {
     const { library, service } = load();
     await service.requestPermissions();
     expect(library.initialize).toHaveBeenCalledTimes(1);
@@ -75,6 +75,7 @@ describe('requestPermissions', () => {
       read('ExerciseSession'),
       read('Distance'),
       read('TotalCaloriesBurned'),
+      read('Vo2Max'),
       read('ReadHealthDataHistory'),
     ]);
   });
@@ -85,7 +86,7 @@ describe('requestPermissions', () => {
       read('Steps'),
       read('HeartRate'),
       { accessType: 'write', recordType: 'Steps' },
-      read('Vo2Max'),
+      read('Weight'),
     ]);
     expect(await service.requestPermissions()).toEqual([
       read('Steps'),
@@ -144,6 +145,7 @@ describe('readDayRecords', () => {
     'ExerciseSession',
     'Distance',
     'TotalCaloriesBurned',
+    'Vo2Max',
   ];
   const iso = (y, m, d, h = 0) => new Date(y, m - 1, d, h).toISOString();
   const from = (origin, extra = {}) => ({
@@ -360,6 +362,21 @@ describe('readDayRecords', () => {
     expect(day.errors).toEqual({ SleepSession: 'read_failed' });
     expect(day.heartRate).toHaveLength(1);
     expect(day.distance).toHaveLength(1);
+  });
+
+  it('reads VO2 max from 30 days before to the end of the day', async () => {
+    const record = from('a', {
+      time: iso(2026, 10, 20, 8),
+      vo2MillilitersPerMinuteKilogram: 46.5,
+    });
+    const { library, service } = setup({ Vo2Max: [record] });
+    const day = await service.readDayRecords('2026-11-13');
+    expect(filterFor(library, 'Vo2Max')).toEqual({
+      operator: 'between',
+      startTime: iso(2026, 10, 14),
+      endTime: iso(2026, 11, 14),
+    });
+    expect(day.vo2Max).toEqual([record]);
   });
 
   it('is null with read_failed when the step total fails', async () => {
