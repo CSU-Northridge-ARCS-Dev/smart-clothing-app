@@ -18,6 +18,7 @@ import {
   FITBIT_MONTH_LOADING,
   FITBIT_MONTH_LOADED,
   FITBIT_MONTH_ERROR,
+  HEALTH_CONNECT_SET_STATUS,
 } from '../../../src/actions/types';
 
 const DATE = '2026-10-10';
@@ -31,8 +32,45 @@ describe('deviceReducer', () => {
       'Smart Sock',
       'Smart Shirt',
       'Pixel Watch',
+      'Health Connect',
     ]);
     expect(initial.devicesData[2].connection).toBe('fitbit');
+    expect(initial.devicesData[3].connection).toBe('health_connect');
+  });
+
+  it('starts with an unknown Health Connect status and no permissions', () => {
+    expect(initial.healthConnect).toEqual({
+      status: 'unknown',
+      permissions: [],
+      error: null,
+    });
+  });
+
+  it('sets the Health Connect status, permissions and error', () => {
+    const permissions = [{ accessType: 'read', recordType: 'Steps' }];
+    let state = deviceReducer(initial, {
+      type: HEALTH_CONNECT_SET_STATUS,
+      status: 'connected',
+      permissions,
+      error: null,
+    });
+    expect(state.healthConnect).toEqual({
+      status: 'connected',
+      permissions,
+      error: null,
+    });
+    expect(state.fitbit).toBe(initial.fitbit);
+
+    state = deviceReducer(state, {
+      type: HEALTH_CONNECT_SET_STATUS,
+      status: 'not_connected',
+      error: 'no_permissions',
+    });
+    expect(state.healthConnect).toEqual({
+      status: 'not_connected',
+      permissions: [],
+      error: 'no_permissions',
+    });
   });
 
   it('starts with an unknown Fitbit status and no days, weeks, workouts or months', () => {
