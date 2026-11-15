@@ -86,6 +86,8 @@ jest.mock('../../../../src/utils/localStorage.js', () => ({
   setCachedFeedback: jest.fn(),
   getAIConsent: jest.fn(),
   setAIConsent: jest.fn(),
+  getHealthConnectDisconnected: jest.fn(() => Promise.resolve(false)),
+  setHealthConnectDisconnected: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
@@ -682,5 +684,57 @@ describe('MyDevices', () => {
     expect(await findByText('Disconnect')).toBeTruthy();
     fireEvent.press(getByTestId('view-3'));
     expect(await findByText('Daily Summary')).toBeTruthy();
+  });
+
+  it('shows Health Connect as unavailable off Android', async () => {
+    getFitbitTokens.mockResolvedValue(null);
+    const { findByText } = renderDevices();
+    expect(await findByText('Unavailable')).toBeTruthy();
+  });
+
+  describe('on Android', () => {
+    const { Platform } = require('react-native');
+    const originalOS = Platform.OS;
+    beforeEach(() => {
+      Platform.OS = 'android';
+    });
+    afterEach(() => {
+      Platform.OS = originalOS;
+    });
+
+    it('connects Health Connect from its card', async () => {
+      const healthConnect = require('react-native-health-connect');
+      getFitbitTokens.mockResolvedValue(null);
+      healthConnect.requestPermission.mockResolvedValueOnce([
+        { accessType: 'read', recordType: 'Steps' },
+      ]);
+      const { findByText, getByTestId, queryByText } = renderDevices();
+      expect(await findByText('Health Connect')).toBeTruthy();
+      expect(queryByText('Disconnect')).toBeNull();
+
+      await waitFor(() =>
+        expect(
+          getByTestId('connect-4').props.accessibilityState.disabled
+        ).toBe(false)
+      );
+      fireEvent.press(getByTestId('connect-4'));
+      expect(await findByText('Disconnect')).toBeTruthy();
+      expect(healthConnect.requestPermission).toHaveBeenCalledTimes(1);
+    });
+
+    it('offers Health Connect settings when no data type was allowed', async () => {
+      const healthConnect = require('react-native-health-connect');
+      getFitbitTokens.mockResolvedValue(null);
+      const { findByTestId, getByTestId } = renderDevices();
+      await waitFor(() =>
+        expect(
+          getByTestId('connect-4').props.accessibilityState.disabled
+        ).toBe(false)
+      );
+      fireEvent.press(getByTestId('connect-4'));
+      expect(await findByTestId('health-connect-message')).toBeTruthy();
+      fireEvent.press(getByTestId('health-connect-open-settings'));
+      expect(healthConnect.openHealthConnectSettings).toHaveBeenCalledTimes(1);
+    });
   });
 });
