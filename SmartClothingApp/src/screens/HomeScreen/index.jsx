@@ -15,6 +15,7 @@ import {
 import {
   startCheckWatch,
   startLoadDay,
+  startLoadWeek,
   selectWatchStatus,
 } from "../../actions/deviceActions";
 import { toLocalDateString } from "../../utils/dateConversions";
@@ -50,6 +51,7 @@ export default function HomeScreen({ navigation }) {
   const onRefresh = () => {
     if (fitbitStatus === "connected") {
       dispatch(startLoadDay(today, { force: true }));
+      dispatch(startLoadWeek(today, { force: true }));
     }
   };
 
