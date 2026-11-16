@@ -61,6 +61,7 @@ export const buildHr5min = (samples, date) => {
 };
 
 // Minutes in each zone: { fatBurn, cardio, peak }.
+export const zoneMinutes = (samples, age, restingHeartRate) => {
   if (!samples || !Number.isFinite(age) || age <= 0) return null;
   const starts = zoneStarts(age, restingHeartRate);
 
