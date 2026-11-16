@@ -35,8 +35,9 @@ import {
   getFitbitWorkout,
   getFitbitMonthWorkouts,
   generateInsight,
+  generateInsightFromDay,
 } from '../../../../src/services/insightsApi';
-import { saveDailyStats } from '../../../../src/services/healthStore';
+import { saveDailyStats, saveAIFeedback } from '../../../../src/services/healthStore';
 import {
   getCachedFeedback,
   setCachedFeedback,
@@ -111,6 +112,7 @@ jest.mock('../../../../src/services/insightsApi', () => ({
   getFitbitWorkout: jest.fn(),
   getFitbitMonthWorkouts: jest.fn(),
   generateInsight: jest.fn(),
+  generateInsightFromDay: jest.fn(),
   getErrorCode: (e) =>
     (e && e.response && e.response.data && e.response.data.error) ||
     (e && e.message) ||
@@ -791,11 +793,110 @@ describe('Health Connect on Android', () => {
     expect(saveDailyStats).not.toHaveBeenCalled();
   });
 
-  it('leaves out the feedback card', async () => {
-    connect();
-    const { findByTestId, queryByTestId } = renderDailySummary();
-    await findByTestId('workout-list');
-    expect(queryByTestId('ai-feedback-section')).toBeNull();
+  describe('AI feedback', () => {
+    const INSIGHT = {
+      headline: 'Good sleep set up your run',
+      keySignals: ['7h of sleep'],
+      focus: ['Easy day tomorrow'],
+    };
+    const USAGE = { model: 'm', inputTokens: 10, outputTokens: 20 };
+
+    beforeEach(() => {
+      aiConsent = true;
+      generateInsightFromDay.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    });
+
+    it('asks for consent first, then sends the Health Connect day', async () => {
+      aiConsent = false;
+      connect();
+      const { findByText, getByText } = renderDailySummary();
+      fireEvent.press(await findByText('Get feedback'));
+
+      expect(await findByText('Share your data with AI?')).toBeTruthy();
+      expect(generateInsightFromDay).not.toHaveBeenCalled();
+
+      fireEvent.press(getByText('I agree'));
+      expect(await findByText('Good sleep set up your run')).toBeTruthy();
+      expect(getByText('Easy day tomorrow')).toBeTruthy();
+      expect(generateInsightFromDay).toHaveBeenCalledWith(
+        TODAY,
+        expect.any(Object),
+        expect.objectContaining({
+          date: TODAY,
+          steps: 8432,
+          sleep: expect.objectContaining({ totalMinutes: 390 }),
+        })
+      );
+      expect(generateInsight).not.toHaveBeenCalled();
+      expect(setCachedFeedback).toHaveBeenCalledWith(TODAY, INSIGHT);
+    });
+
+    it('saves the feedback with health_connect as its source', async () => {
+      connect();
+      const { findByText } = renderDailySummary();
+      fireEvent.press(await findByText('Get feedback'));
+      await findByText('Good sleep set up your run');
+      expect(saveAIFeedback).toHaveBeenCalledWith('user-1', TODAY, INSIGHT, USAGE, {
+        dataSource: 'health_connect',
+        regenerate: false,
+      });
+    });
+
+    it('shows the cached feedback without calling the service', async () => {
+      feedbackCache[TODAY] = INSIGHT;
+      connect();
+      const { findByText } = renderDailySummary();
+      expect(await findByText('Good sleep set up your run')).toBeTruthy();
+      expect(generateInsightFromDay).not.toHaveBeenCalled();
+    });
+
+    it('regenerates the feedback on request', async () => {
+      feedbackCache[TODAY] = { headline: 'Old feedback', keySignals: [], focus: [] };
+      connect();
+      const { findByText } = renderDailySummary();
+      fireEvent.press(await findByText('Regenerate'));
+      expect(await findByText('Good sleep set up your run')).toBeTruthy();
+      expect(generateInsightFromDay).toHaveBeenCalledTimes(1);
+      expect(saveAIFeedback).toHaveBeenCalledWith('user-1', TODAY, INSIGHT, USAGE, {
+        dataSource: 'health_connect',
+        regenerate: true,
+      });
+    });
+
+    it('explains a day with no sleep or workouts without calling the service', async () => {
+      connect({ empty: true });
+      const { findByText } = renderDailySummary();
+      fireEvent.press(await findByText('Get feedback'));
+      expect(await findByText(/no sleep or workout recorded/)).toBeTruthy();
+      expect(generateInsightFromDay).not.toHaveBeenCalled();
+    });
+
+    it('shows an error and lets the user try again', async () => {
+      generateInsightFromDay.mockRejectedValueOnce({
+        response: { data: { error: 'COACH_API_ERROR' } },
+      });
+      connect();
+      const { findByText } = renderDailySummary();
+      fireEvent.press(await findByText('Get feedback'));
+      expect(
+        await findByText("The AI coach didn't respond. Try again in a moment.")
+      ).toBeTruthy();
+
+      fireEvent.press(await findByText('Try again'));
+      expect(await findByText('Good sleep set up your run')).toBeTruthy();
+    });
+
+    it('says so when the insights service cannot be reached', async () => {
+      generateInsightFromDay.mockRejectedValue(new Error('Network Error'));
+      connect();
+      const { findByText, getByText, queryByTestId } = renderDailySummary();
+      fireEvent.press(await findByText('Get feedback'));
+      expect(
+        await findByText("Can't reach the insights service. Is it running?")
+      ).toBeTruthy();
+      expect(getByText('Try again')).toBeTruthy();
+      expect(queryByTestId('fitbit-connect-prompt')).toBeNull();
+    });
   });
 
   it('opens a workout from its row, with the heart rate chart and no map', async () => {
