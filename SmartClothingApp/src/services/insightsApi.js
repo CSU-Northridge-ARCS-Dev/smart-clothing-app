@@ -49,14 +49,22 @@ insightsApi.interceptors.response.use(
   }
 );
 
-// Service error code from an axios error, e.g. "FITBIT_REAUTH_REQUIRED"
-export const getErrorCode = (error) =>
-  (error &&
-    error.response &&
-    error.response.data &&
-    error.response.data.error) ||
-  (error && error.message) ||
-  "UNKNOWN_ERROR";
+// The tunnel answers with one of these and no error code when the service
+// behind it is down
+const GATEWAY_STATUSES = [502, 503, 504];
+
+// Service error code from an axios error, e.g. "FITBIT_REAUTH_REQUIRED".
+// A service that can't be reached is "Network Error", with or without a
+// tunnel in front of it.
+export const getErrorCode = (error) => {
+  const response = error && error.response;
+  const code = response && response.data && response.data.error;
+  if (code) return code;
+  if (response && GATEWAY_STATUSES.includes(response.status)) {
+    return "Network Error";
+  }
+  return (error && error.message) || "UNKNOWN_ERROR";
+};
 
 // { url } - the Fitbit authorize URL; returnTo is the app link to come back to
 export const getFitbitAuthUrl = async (returnTo) => {
@@ -101,6 +109,34 @@ export const generateInsight = async (date, profile) => {
   const response = await insightsApi.post("/api/insights/generate", {
     date,
     profile,
+  });
+  return response.data;
+};
+
+// The parts of a day the coach reads. The heart rate slots, the sleep
+// timeline, VO2 max and the record ids stay on the phone.
+export const dayForCoach = (day) => {
+  const { levels, ...sleep } = day.sleep || {};
+  const { hr5min, ...heart } = day.heart || {};
+  return {
+    date: day.date,
+    steps: day.steps ?? null,
+    sleep: day.sleep ? sleep : null,
+    heart,
+    workouts: (day.workouts || []).map(
+      ({ logId, calories, steps, hasGps, ...workout }) => workout
+    ),
+  };
+};
+
+// Claude feedback for a day the phone built itself (Health Connect), so no
+// Fitbit login is involved. Returns the same as generateInsight.
+export const generateInsightFromDay = async (date, profile, day) => {
+  const response = await insightsApi.post("/api/insights/generate-from-day", {
+    date,
+    profile,
+    day: dayForCoach(day),
+    source: "health_connect",
   });
   return response.data;
 };
