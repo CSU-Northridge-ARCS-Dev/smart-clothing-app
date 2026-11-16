@@ -36,6 +36,7 @@ import {
   getFitbitMonthWorkouts,
   generateInsight,
 } from '../../../../src/services/insightsApi';
+import { saveDailyStats } from '../../../../src/services/healthStore';
 import {
   getCachedFeedback,
   setCachedFeedback,
@@ -660,6 +661,155 @@ describe('Insights screen', () => {
     const prompts = await utils.findAllByTestId('fitbit-connect-prompt');
     expect(prompts.length).toBeGreaterThan(0);
     expect(utils.queryByTestId('goal-steps')).toBeNull();
+  });
+});
+
+describe('Health Connect days on Android', () => {
+  const { Platform } = require('react-native');
+  const healthConnect = require('react-native-health-connect');
+  const originalOS = Platform.OS;
+  const HOUR = 60 * 60 * 1000;
+  const RUN_ID = 'run-1';
+
+  const GRANTED = [
+    'Steps',
+    'HeartRate',
+    'RestingHeartRate',
+    'SleepSession',
+    'ExerciseSession',
+    'Distance',
+    'TotalCaloriesBurned',
+    'Vo2Max',
+  ].map((recordType) => ({ accessType: 'read', recordType }));
+
+  // A night from 23:00 to 06:00 and a 30 minute run at 07:00, placed on
+  // whichever day is being read
+  const recordsFor = (recordType, dayStart) => {
+    const at = (hours) => new Date(dayStart + hours * HOUR).toISOString();
+    switch (recordType) {
+      case 'SleepSession':
+        return [
+          {
+            startTime: at(-1),
+            endTime: at(6),
+            stages: [
+              { startTime: at(-1), endTime: at(2), stage: 4 },
+              { startTime: at(2), endTime: at(4), stage: 5 },
+              { startTime: at(4), endTime: at(5.5), stage: 6 },
+              { startTime: at(5.5), endTime: at(6), stage: 1 },
+            ],
+          },
+        ];
+      case 'RestingHeartRate':
+        return [{ time: at(6), beatsPerMinute: 56 }];
+      case 'HeartRate':
+        return [
+          {
+            samples: [
+              { time: at(7.1), beatsPerMinute: 150 },
+              { time: at(7.3), beatsPerMinute: 154 },
+            ],
+          },
+        ];
+      case 'ExerciseSession':
+        return [
+          {
+            startTime: at(7),
+            endTime: at(7.5),
+            exerciseType: 56,
+            metadata: { id: RUN_ID },
+          },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const connect = ({ empty = false } = {}) => {
+    healthConnect.getGrantedPermissions.mockResolvedValue(GRANTED);
+    healthConnect.aggregateRecord.mockResolvedValue(
+      empty ? {} : { COUNT_TOTAL: 8432, dataOrigins: ['com.watch.app'] }
+    );
+    healthConnect.readRecords.mockImplementation(async (recordType, options) => {
+      if (empty) return { records: [] };
+      const dayStart =
+        new Date(options.timeRangeFilter.endTime).getTime() - 24 * HOUR;
+      return { records: recordsFor(recordType, dayStart) };
+    });
+  };
+
+  const renderDailySummary = () =>
+    renderStack('DailySummary', [
+      <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+    ]);
+
+  beforeEach(() => {
+    Platform.OS = 'android';
+    getFitbitTokens.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    Platform.OS = originalOS;
+    healthConnect.getGrantedPermissions.mockResolvedValue([]);
+    healthConnect.aggregateRecord.mockResolvedValue({});
+    healthConnect.readRecords.mockResolvedValue({ records: [] });
+  });
+
+  it('shows the day read from Health Connect with no Fitbit login', async () => {
+    connect();
+    const { findByTestId, getByTestId, getByText } = renderDailySummary();
+    expect(await findByTestId('sleep-card')).toBeTruthy();
+    expect(within(getByTestId('steps-card')).getByText('8,432')).toBeTruthy();
+    expect(getByTestId('heart-card')).toBeTruthy();
+    expect(getByText('Run')).toBeTruthy();
+    expect(getFitbitDay).not.toHaveBeenCalled();
+    expect(saveDailyStats).not.toHaveBeenCalled();
+  });
+
+  it('leaves out the feedback card and the workout page', async () => {
+    connect();
+    const { findByTestId, queryByTestId } = renderDailySummary();
+    await findByTestId('workout-list');
+    expect(queryByTestId(`workout-row-${RUN_ID}`)).toBeNull();
+    expect(queryByTestId('ai-feedback-section')).toBeNull();
+  });
+
+  it('asks to connect Health Connect when nothing is granted', async () => {
+    const { findByTestId, getByText } = renderDailySummary();
+    expect(await findByTestId('fitbit-connect-prompt')).toBeTruthy();
+    expect(getByText('Connect your watch')).toBeTruthy();
+    expect(healthConnect.readRecords).not.toHaveBeenCalled();
+  });
+
+  it('shows empty cards for a day with no records', async () => {
+    connect({ empty: true });
+    const { findByTestId, getByTestId, getByText } = renderDailySummary();
+    expect(await findByTestId('sleep-card')).toBeTruthy();
+    expect(getByTestId('steps-card')).toBeTruthy();
+    expect(getByTestId('heart-card')).toBeTruthy();
+    expect(getByText('No workouts recorded on the watch.')).toBeTruthy();
+  });
+
+  it('shows an error card when Health Connect cannot be read', async () => {
+    connect();
+    healthConnect.getGrantedPermissions
+      .mockResolvedValueOnce(GRANTED)
+      .mockRejectedValueOnce(new Error('failed'));
+    const { findByText } = renderDailySummary();
+    expect(
+      await findByText("Couldn't read Health Connect. Pull down to try again.")
+    ).toBeTruthy();
+  });
+
+  it("shows today's sleep and heart cards on Home", async () => {
+    connect();
+    const { findByTestId, getByTestId } = renderStack('Home', [
+      <Stack.Screen key="home" name="Home" component={HomeScreen} />,
+      <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+    ]);
+    expect(await findByTestId('heart-card')).toBeTruthy();
+    expect(getByTestId('sleep-card')).toBeTruthy();
+    expect(getFitbitDay).not.toHaveBeenCalled();
   });
 });
 
