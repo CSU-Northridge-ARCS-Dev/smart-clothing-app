@@ -55,7 +55,14 @@ import {
   setHealthConnectDisconnected,
 } from "../utils/localStorage";
 import * as healthConnect from "../services/healthConnect";
-import { buildDay, isEmptyDay, watchDevice } from "../utils/healthConnectDay";
+import {
+  buildDay,
+  buildWeek,
+  buildMonthWorkouts,
+  buildWorkoutDetail,
+  isEmptyDay,
+  watchDevice,
+} from "../utils/healthConnectDay";
 
 export const getDevices = () => {
   return {
@@ -303,6 +310,10 @@ const saveFinishedDay = async (
 // goes through Fitbit.
 const usesHealthConnect = () => Platform.OS === "android";
 
+// True when a record type couldn't be read
+const hasReadFailure = (raw) =>
+  Object.values(raw.errors || {}).includes("read_failed");
+
 // Reads and builds one Health Connect day. device is the watch model, and
 // readFailed is true when a record type couldn't be read.
 const readHealthConnectDay = async (date, getState) => {
@@ -311,8 +322,38 @@ const readHealthConnectDay = async (date, getState) => {
   return {
     day: buildDay(date, raw, { dob }),
     device: watchDevice(raw),
-    readFailed: Object.values(raw.errors || {}).includes("read_failed"),
+    readFailed: hasReadFailure(raw),
   };
+};
+
+const HEALTH_CONNECT_READ_FAILED = "HEALTH_CONNECT_READ_FAILED";
+
+// An error whose code is shown to the athlete
+const loadError = (code) => Object.assign(new Error(code), { loadCode: code });
+
+// Shared by the Health Connect week, month and workout loaders. existing is
+// the cached entry; one already loaded (or loading) is not read again unless
+// force is true. read returns the raw records and build turns them into
+// what the screen shows.
+const loadHealthConnectEntry = async (
+  dispatch,
+  getState,
+  existing,
+  force,
+  { read, build, loading, loaded, failed }
+) => {
+  if (!force && existing && (existing.loading || existing.data)) return;
+  if (getState().device.healthConnect.status !== "connected") return;
+
+  dispatch(loading());
+  try {
+    const raw = await read();
+    if (hasReadFailure(raw)) throw loadError(HEALTH_CONNECT_READ_FAILED);
+    dispatch(loaded(build(raw)));
+  } catch (error) {
+    if (!error?.loadCode) console.log("Health Connect load error: ", error);
+    dispatch(failed(error?.loadCode || HEALTH_CONNECT_READ_FAILED));
+  }
 };
 
 // How many finished days the auto-save goes back at most. Fitbit calls are
@@ -590,7 +631,7 @@ export const startLoadDay = (date, { force = false } = {}) => {
       dispatch(fitbitDayLoaded(date, loaded.day));
     } catch (error) {
       console.log("Health Connect day load error: ", error);
-      dispatch(fitbitDayError(date, "HEALTH_CONNECT_READ_FAILED"));
+      dispatch(fitbitDayError(date, HEALTH_CONNECT_READ_FAILED));
       return;
     }
     if (loaded.readFailed || isEmptyDay(loaded.day)) return;
@@ -598,5 +639,78 @@ export const startLoadDay = (date, { force = false } = {}) => {
       source: "health_connect",
       device: loaded.device,
     });
+  };
+};
+
+// Loads the 7 days ending at endDate (steps and sleep for the activity
+// rings) into state.device.fitbit.weeks
+export const startLoadWeek = (endDate, { force = false } = {}) => {
+  return (dispatch, getState) => {
+    if (!usesHealthConnect()) {
+      return dispatch(startLoadFitbitWeek(endDate, { force }));
+    }
+    return loadHealthConnectEntry(
+      dispatch,
+      getState,
+      getState().device.fitbit.weeks[endDate],
+      force,
+      {
+        read: () => healthConnect.readWeekRecords(endDate),
+        build: buildWeek,
+        loading: () => fitbitWeekLoading(endDate),
+        loaded: (week) => fitbitWeekLoaded(endDate, week),
+        failed: (code) => fitbitWeekError(endDate, code),
+      }
+    );
+  };
+};
+
+// Loads the workout days of a YYYY-MM month into state.device.fitbit.months
+export const startLoadMonth = (month, { force = false } = {}) => {
+  return (dispatch, getState) => {
+    if (!usesHealthConnect()) {
+      return dispatch(startLoadFitbitMonth(month, { force }));
+    }
+    return loadHealthConnectEntry(
+      dispatch,
+      getState,
+      getState().device.fitbit.months[month],
+      force,
+      {
+        read: () => healthConnect.readMonthSessions(month),
+        build: (raw) => buildMonthWorkouts(month, raw.exercise),
+        loading: () => fitbitMonthLoading(month),
+        loaded: (workouts) => fitbitMonthLoaded(month, workouts),
+        failed: (code) => fitbitMonthError(month, code),
+      }
+    );
+  };
+};
+
+// Loads one workout (its stats and heart rate points) into
+// state.device.fitbit.workouts. date is the day it was recorded, and id is
+// the workout's logId from that day.
+export const startLoadWorkout = (date, id, { force = false } = {}) => {
+  return (dispatch, getState) => {
+    if (!usesHealthConnect()) {
+      return dispatch(startLoadFitbitWorkout(date, id, { force }));
+    }
+    const dob = getState().user.userMetricsData?.dob;
+    return loadHealthConnectEntry(
+      dispatch,
+      getState,
+      getState().device.fitbit.workouts[id],
+      force,
+      {
+        read: () => healthConnect.readWorkoutRecords(date, id),
+        build: (raw) => {
+          if (!raw.session) throw loadError("WORKOUT_NOT_FOUND");
+          return buildWorkoutDetail(date, raw, { dob });
+        },
+        loading: () => fitbitWorkoutLoading(id),
+        loaded: (workout) => fitbitWorkoutLoaded(id, workout),
+        failed: (code) => fitbitWorkoutError(id, code),
+      }
+    );
   };
 };
