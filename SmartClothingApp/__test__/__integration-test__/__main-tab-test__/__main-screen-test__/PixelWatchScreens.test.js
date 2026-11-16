@@ -514,7 +514,7 @@ describe('WorkoutDetail', () => {
       response: { data: { error: 'WORKOUT_NOT_FOUND' } },
     });
     const { findByText } = renderWorkout(745);
-    expect(await findByText('This workout is no longer on Fitbit.')).toBeTruthy();
+    expect(await findByText('This workout is no longer available.')).toBeTruthy();
   });
 });
 
@@ -586,7 +586,7 @@ describe('Activity rings on Home', () => {
     getFitbitTokens.mockResolvedValue(null);
     const { findByText, getByTestId } = renderHome();
     expect(
-      await findByText('Connect your Pixel Watch to fill your rings.')
+      await findByText('Connect your watch to fill your rings.')
     ).toBeTruthy();
     for (const date of lastSevenDates(TODAY)) {
       expect(ringProgress(getByTestId, date)).toEqual([0, 0]);
@@ -656,7 +656,7 @@ describe('Insights screen', () => {
   it('asks to connect the watch when it is not connected', async () => {
     getFitbitTokens.mockResolvedValue(null);
     const utils = renderInsights();
-    await utils.findByText('Connect your Pixel Watch to fill your rings.');
+    await utils.findByText('Connect your watch to fill your rings.');
     await openInsights(utils);
     const prompts = await utils.findAllByTestId('fitbit-connect-prompt');
     expect(prompts.length).toBeGreaterThan(0);
@@ -664,7 +664,7 @@ describe('Insights screen', () => {
   });
 });
 
-describe('Health Connect days on Android', () => {
+describe('Health Connect on Android', () => {
   const { Platform } = require('react-native');
   const healthConnect = require('react-native-health-connect');
   const originalOS = Platform.OS;
@@ -725,18 +725,43 @@ describe('Health Connect days on Android', () => {
     }
   };
 
-  const connect = ({ empty = false } = {}) => {
+  const midnight = (date) => {
+    const [y, m, d] = date.split('-').map(Number);
+    return new Date(y, m - 1, d).getTime();
+  };
+
+  // The records land on the day being read, or always on day when it's given
+  const connect = ({ empty = false, day = null } = {}) => {
     healthConnect.getGrantedPermissions.mockResolvedValue(GRANTED);
     healthConnect.aggregateRecord.mockResolvedValue(
       empty ? {} : { COUNT_TOTAL: 8432, dataOrigins: ['com.watch.app'] }
     );
     healthConnect.readRecords.mockImplementation(async (recordType, options) => {
       if (empty) return { records: [] };
-      const dayStart =
-        new Date(options.timeRangeFilter.endTime).getTime() - 24 * HOUR;
+      const dayStart = day
+        ? midnight(day)
+        : new Date(options.timeRangeFilter.endTime).getTime() - 24 * HOUR;
       return { records: recordsFor(recordType, dayStart) };
     });
   };
+
+  const renderHome = () =>
+    renderStack('Home', [
+      <Stack.Screen key="home" name="Home" component={HomeScreen} />,
+      <Stack.Screen key="ins" name="Insights" component={ViewInsights} />,
+      <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+    ]);
+
+  const renderWorkout = (logId) =>
+    renderStack('WorkoutDetail', [
+      <Stack.Screen
+        key="wd"
+        name="WorkoutDetail"
+        component={WorkoutDetail}
+        initialParams={{ date: TODAY, logId }}
+      />,
+      <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+    ]);
 
   const renderDailySummary = () =>
     renderStack('DailySummary', [
@@ -766,12 +791,130 @@ describe('Health Connect days on Android', () => {
     expect(saveDailyStats).not.toHaveBeenCalled();
   });
 
-  it('leaves out the feedback card and the workout page', async () => {
+  it('leaves out the feedback card', async () => {
     connect();
     const { findByTestId, queryByTestId } = renderDailySummary();
     await findByTestId('workout-list');
-    expect(queryByTestId(`workout-row-${RUN_ID}`)).toBeNull();
     expect(queryByTestId('ai-feedback-section')).toBeNull();
+  });
+
+  it('opens a workout from its row, with the heart rate chart and no map', async () => {
+    connect({ day: TODAY });
+    const { findByTestId, getByTestId, queryByTestId } = renderStack(
+      'DailySummary',
+      [
+        <Stack.Screen key="ds" name="DailySummary" component={DailySummary} />,
+        <Stack.Screen key="wd" name="WorkoutDetail" component={WorkoutDetail} />,
+      ]
+    );
+    fireEvent.press(await findByTestId(`workout-row-${RUN_ID}`));
+
+    const stats = within(await findByTestId('workout-stats'));
+    expect(stats.getByText('30m')).toBeTruthy();
+    expect(stats.getByText('152 bpm')).toBeTruthy();
+    expect(getByTestId('workout-title').props.children).toContain('Run');
+    expect(getByTestId('heart-rate-timeline')).toBeTruthy();
+    expect(queryByTestId('route-map')).toBeNull();
+    expect(queryByTestId('route-reconnect-hint')).toBeNull();
+    expect(getFitbitWorkout).not.toHaveBeenCalled();
+  });
+
+  it("marks the month's workout days on the workout calendar", async () => {
+    connect({ day: TODAY });
+    const { findByTestId, UNSAFE_getByType } = renderWorkout(RUN_ID);
+    await findByTestId('workout-calendar');
+    await waitFor(() =>
+      expect(UNSAFE_getByType(Calendar).props.markedDates[TODAY]).toMatchObject(
+        { marked: true, selected: true }
+      )
+    );
+    expect(getFitbitMonthWorkouts).not.toHaveBeenCalled();
+  });
+
+  it('shows an empty calendar for a month with no workouts', async () => {
+    connect({ day: TODAY });
+    const { findByTestId, UNSAFE_getByType } = renderWorkout(RUN_ID);
+    await findByTestId('workout-stats');
+    healthConnect.readRecords.mockResolvedValue({ records: [] });
+    UNSAFE_getByType(Calendar).props.onMonthChange({ dateString: '2026-01-01' });
+    await waitFor(() =>
+      expect(healthConnect.readRecords).toHaveBeenCalledWith(
+        'ExerciseSession',
+        expect.objectContaining({
+          timeRangeFilter: expect.objectContaining({
+            startTime: new Date(2026, 0, 1).toISOString(),
+            endTime: new Date(2026, 1, 1).toISOString(),
+          }),
+        })
+      )
+    );
+    expect(await findByTestId('workout-calendar')).toBeTruthy();
+  });
+
+  it('shows an error card when the workout is no longer in Health Connect', async () => {
+    connect({ day: TODAY });
+    const { findByText, getByTestId } = renderWorkout('gone');
+    expect(await findByText('This workout is no longer available.')).toBeTruthy();
+    expect(getByTestId('workout-calendar')).toBeTruthy();
+  });
+
+  it('asks to connect on the workout page when nothing is granted', async () => {
+    const { findByTestId } = renderWorkout(RUN_ID);
+    expect(await findByTestId('fitbit-connect-prompt')).toBeTruthy();
+    expect(healthConnect.readRecords).not.toHaveBeenCalled();
+  });
+
+  it('fills the rings on Home from Health Connect', async () => {
+    connect();
+    const { findByLabelText, getByTestId } = renderHome();
+    expect(
+      await findByLabelText(`${TODAY}: 8,432 steps, 6h 30m sleep`)
+    ).toBeTruthy();
+    expect(ringProgress(getByTestId, TODAY)).toEqual([8432 / 10000, 390 / 360]);
+    expect(ringProgress(getByTestId, YESTERDAY)).toEqual([8432 / 10000, 0]);
+    expect(healthConnect.aggregateRecord).toHaveBeenCalledTimes(8);
+    expect(healthConnect.readRecords).not.toHaveBeenCalledWith(
+      'HeartRate',
+      expect.objectContaining({
+        timeRangeFilter: expect.objectContaining({
+          endTime: new Date(midnight(TODAY)).toISOString(),
+        }),
+      })
+    );
+    expect(getFitbitWeek).not.toHaveBeenCalled();
+  });
+
+  it('leaves the rings empty for days with no watch data', async () => {
+    connect({ empty: true });
+    const { findByLabelText, getByTestId } = renderHome();
+    expect(await findByLabelText(`${TODAY}: -- steps, -- sleep`)).toBeTruthy();
+    for (const date of lastSevenDates(TODAY)) {
+      expect(ringProgress(getByTestId, date)).toEqual([0, 0]);
+    }
+  });
+
+  it("shows the day's steps and sleep against the goals on Insights", async () => {
+    connect();
+    const utils = renderHome();
+    await utils.findByLabelText(`${TODAY}: 8,432 steps, 6h 30m sleep`);
+    fireEvent.press(utils.getByText('View'));
+    const steps = within(await utils.findByTestId('goal-steps'));
+    expect(steps.getByText('8,432 / 10,000')).toBeTruthy();
+    const sleep = within(utils.getByTestId('goal-sleep'));
+    expect(sleep.getByText('6h 30m / 6h 00m')).toBeTruthy();
+  });
+
+  it('asks to connect on Insights when nothing is granted', async () => {
+    const utils = renderHome();
+    await utils.findByText('Connect your watch to fill your rings.');
+    fireEvent.press(utils.getByText('View'));
+    await utils.findByTestId('selected-date');
+    expect(
+      await utils.findByText(
+        'Connect your watch to fill your steps and sleep rings.'
+      )
+    ).toBeTruthy();
+    expect(utils.queryByTestId('goal-steps')).toBeNull();
   });
 
   it('asks to connect Health Connect when nothing is granted', async () => {
