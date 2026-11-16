@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, RefreshControl } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { ActivityIndicator, Button, Text } from "react-native-paper";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
@@ -13,8 +13,9 @@ import {
   FitbitConnectPrompt,
 } from "../../components";
 import {
-  startCheckFitbit,
-  startLoadFitbitDay,
+  startCheckWatch,
+  startLoadDay,
+  selectWatchStatus,
 } from "../../actions/deviceActions";
 import { toLocalDateString } from "../../utils/dateConversions";
 
@@ -33,18 +34,24 @@ export default function HomeScreen({ navigation }) {
   const firstName = useSelector((state) => state.user.firstName);
   const dispatch = useDispatch();
   const today = toLocalDateString();
-  const fitbitStatus = useSelector((state) => state.device.fitbit.status);
+  const fitbitStatus = useSelector(selectWatchStatus);
   const todayState = useSelector((state) => state.device.fitbit.days[today]);
 
-  // Today's Pixel Watch data. Loaded once per session (pull to refresh on
-  // DailySummary); the focus check picks up a connect from the Devices tab.
+  // Today's watch data. Loaded once per session, then again on pull to
+  // refresh; the focus check picks up a connect from the Devices tab.
   useFocusEffect(
     useCallback(() => {
-      dispatch(startCheckFitbit()).then((connected) => {
-        if (connected) dispatch(startLoadFitbitDay(today));
+      dispatch(startCheckWatch()).then((connected) => {
+        if (connected) dispatch(startLoadDay(today));
       });
     }, [today])
   );
+
+  const onRefresh = () => {
+    if (fitbitStatus === "connected") {
+      dispatch(startLoadDay(today, { force: true }));
+    }
+  };
 
   const openDailySummary = () =>
     navigation.navigate("DailySummary", { date: today });
@@ -60,7 +67,7 @@ export default function HomeScreen({ navigation }) {
     if (todayState.error || !todayState.data) {
       return (
         <Text style={{ marginTop: 10 }}>
-          Couldn't load today's Pixel Watch data.
+          Couldn't load today's watch data.
         </Text>
       );
     }
@@ -86,6 +93,14 @@ export default function HomeScreen({ navigation }) {
       style={styles.container}
       // Room for the floating tab bar so the last card can scroll into view
       contentContainerStyle={{ paddingBottom: 120 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={Boolean(
+            todayState && todayState.loading && todayState.data
+          )}
+          onRefresh={onRefresh}
+        />
+      }
     >
       <AppHeader title={"Dashboard"} />
       <DataCollectModal />
