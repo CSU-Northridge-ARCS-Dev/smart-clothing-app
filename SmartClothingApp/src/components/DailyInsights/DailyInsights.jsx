@@ -5,7 +5,10 @@ import { AppColor, AppStyle, AppFonts } from "../../constants/themes";
 import { useSelector, useDispatch } from "react-redux";
 import { useRoute } from "@react-navigation/native";
 import { ActivityIndicator, Button } from "react-native-paper";
-import { startLoadFitbitWeek } from "../../actions/deviceActions";
+import {
+  startLoadWeek,
+  selectWatchStatus,
+} from "../../actions/deviceActions";
 import { toLocalDateString } from "../../utils/dateConversions";
 import { formatMinutes, formatSteps } from "../../utils/fitbitFormat";
 import {
@@ -14,7 +17,7 @@ import {
   weekdayLetter,
 } from "../../utils/rings";
 
-// The last 7 days of steps and sleep rings from the Pixel Watch.
+// The last 7 days of steps and sleep rings from the watch.
 // On Home (fromDashboard) a tap opens that day's DailySummary; on Insights a
 // tap selects the day through onSelectDate.
 const DailyInsights = ({
@@ -26,11 +29,11 @@ const DailyInsights = ({
   const route = useRoute();
   const dispatch = useDispatch();
   const today = toLocalDateString();
-  const status = useSelector((state) => state.device.fitbit.status);
+  const status = useSelector(selectWatchStatus);
   const weekState = useSelector((state) => state.device.fitbit.weeks[today]);
 
   useEffect(() => {
-    if (status === "connected") dispatch(startLoadFitbitWeek(today));
+    if (status === "connected") dispatch(startLoadWeek(today));
   }, [status, today]);
 
   const connected = status === "connected";
@@ -50,7 +53,7 @@ const DailyInsights = ({
     if (!connected) {
       return (
         <Text style={styles.note}>
-          Connect your Pixel Watch to fill your rings.
+          Connect your watch to fill your rings.
         </Text>
       );
     }
