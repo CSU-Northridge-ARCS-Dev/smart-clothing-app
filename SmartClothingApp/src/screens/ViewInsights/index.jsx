@@ -11,6 +11,7 @@ import DailyInsights from "../../components/DailyInsights/DailyInsights";
 import { fitbitCardStyles as card } from "../../components/fitbit/styles";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { STEP_GOAL, SLEEP_GOAL_MINUTES } from "../../constants/goals";
+import { selectWatchStatus } from "../../actions/deviceActions";
 import { toLocalDateString } from "../../utils/dateConversions";
 import {
   formatDateLabel,
@@ -50,7 +51,7 @@ const ViewInsights = ({ route, navigation }) => {
   const today = toLocalDateString();
   const [selectedDate, setSelectedDate] = useState(today);
 
-  const status = useSelector((state) => state.device.fitbit.status);
+  const status = useSelector(selectWatchStatus);
   const weekState = useSelector((state) => state.device.fitbit.weeks[today]);
   const connected = status === "connected";
   const week = (connected && weekState && weekState.data) || [];
@@ -63,7 +64,7 @@ const ViewInsights = ({ route, navigation }) => {
       return (
         <FitbitConnectPrompt
           onPress={() => navigation.navigate("Main", { screen: "Device" })}
-          message="Connect your watch through Fitbit to fill your steps and sleep rings."
+          message="Connect your watch to fill your steps and sleep rings."
         />
       );
     }
