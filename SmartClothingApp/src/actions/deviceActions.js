@@ -16,6 +16,7 @@ import {
   FITBIT_MONTH_ERROR,
   HEALTH_CONNECT_SET_STATUS,
 } from "./types";
+import { Platform } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import {
@@ -54,6 +55,7 @@ import {
   setHealthConnectDisconnected,
 } from "../utils/localStorage";
 import * as healthConnect from "../services/healthConnect";
+import { buildDay } from "../utils/healthConnectDay";
 
 export const getDevices = () => {
   return {
@@ -450,6 +452,7 @@ export const startConnectHealthConnect = () => {
       }
       const uid = auth.currentUser?.uid;
       if (uid) await setHealthConnectDisconnected(uid, false);
+      dispatch(clearFitbitDays());
       dispatch(setHealthConnectStatus("connected", permissions));
       return true;
     } catch (error) {
@@ -471,6 +474,54 @@ export const startDisconnectHealthConnect = () => {
     } catch (error) {
       console.log("Health Connect revoke error: ", error);
     }
+    dispatch(clearFitbitDays());
     dispatch(setHealthConnectStatus("not_connected"));
+  };
+};
+
+// The watch
+
+// Android reads the watch through Health Connect. Everything else still
+// goes through Fitbit.
+const usesHealthConnect = () => Platform.OS === "android";
+
+// The connection status the screens wait on
+export const selectWatchStatus = (state) =>
+  usesHealthConnect()
+    ? state.device.healthConnect.status
+    : state.device.fitbit.status;
+
+// Returns true when the watch's data can be read
+export const startCheckWatch = () => {
+  return (dispatch) =>
+    dispatch(
+      usesHealthConnect() ? startCheckHealthConnect() : startCheckFitbit()
+    );
+};
+
+// Loads one day (YYYY-MM-DD) into state.device.fitbit.days, the cache Home
+// and DailySummary share. A day already loaded (or loading) is not read
+// again unless force is true. The Health Connect day is only shown, never
+// saved.
+export const startLoadDay = (date, { force = false } = {}) => {
+  return async (dispatch, getState) => {
+    if (!usesHealthConnect()) {
+      return dispatch(startLoadFitbitDay(date, { force }));
+    }
+
+    const { fitbit, healthConnect: connection } = getState().device;
+    const existing = fitbit.days[date];
+    if (!force && existing && (existing.loading || existing.data)) return;
+    if (connection.status !== "connected") return;
+
+    dispatch(fitbitDayLoading(date));
+    try {
+      const raw = await healthConnect.readDayRecords(date);
+      const dob = getState().user.userMetricsData?.dob;
+      dispatch(fitbitDayLoaded(date, buildDay(date, raw, { dob })));
+    } catch (error) {
+      console.log("Health Connect day load error: ", error);
+      dispatch(fitbitDayError(date, "HEALTH_CONNECT_READ_FAILED"));
+    }
   };
 };
