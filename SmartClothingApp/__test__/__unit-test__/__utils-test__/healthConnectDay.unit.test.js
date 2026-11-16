@@ -4,7 +4,11 @@
  * Every fixture is made up.
  */
 
-import { buildDay } from '../../../src/utils/healthConnectDay';
+import {
+  buildDay,
+  isEmptyDay,
+  watchDevice,
+} from '../../../src/utils/healthConnectDay';
 import { buildHypnogram } from '../../../src/utils/fitbitFormat';
 
 jest.mock('../../../firebaseConfig.js', () => ({ database: {} }));
@@ -579,5 +583,77 @@ describe('buildDay with missing data', () => {
       ],
     });
     expect(buildDay(DATE, raw, PROFILE).vo2Max).toEqual({ low: 47, high: 47 });
+  });
+});
+
+describe('isEmptyDay', () => {
+  const noStepsRaw = (extra = {}) =>
+    emptyRaw({ steps: { total: null, dataOrigins: [] }, ...extra });
+
+  it('is true when nothing was recorded', () => {
+    expect(isEmptyDay(buildDay(DATE, noStepsRaw(), PROFILE))).toBe(true);
+  });
+
+  it('is true when the only value is a step total of 0', () => {
+    const raw = emptyRaw({ steps: { total: 0, dataOrigins: [] } });
+    expect(isEmptyDay(buildDay(DATE, raw, PROFILE))).toBe(true);
+  });
+
+  it('is true when every record type is missing', () => {
+    const raw = { date: DATE, errors: {} };
+    expect(isEmptyDay(buildDay(DATE, raw, PROFILE))).toBe(true);
+  });
+
+  it('is false with steps', () => {
+    expect(isEmptyDay(buildDay(DATE, emptyRaw(), PROFILE))).toBe(false);
+  });
+
+  it('is false with only a night of sleep', () => {
+    const raw = noStepsRaw({ sleep: [night()] });
+    expect(isEmptyDay(buildDay(DATE, raw, PROFILE))).toBe(false);
+  });
+
+  it('is false with only heart rate', () => {
+    const raw = noStepsRaw({ heartRate: [heartRecord(13, 9, 0, [60, 62])] });
+    expect(isEmptyDay(buildDay(DATE, raw, PROFILE))).toBe(false);
+  });
+
+  it('is false with only a workout', () => {
+    const raw = noStepsRaw({ exercise: [run()] });
+    expect(isEmptyDay(buildDay(DATE, raw, PROFILE))).toBe(false);
+  });
+
+  it('is false for a full day', () => {
+    expect(isEmptyDay(buildDay(DATE, fullRaw(), PROFILE))).toBe(false);
+  });
+});
+
+describe('watchDevice', () => {
+  const from = (model, type) => ({ metadata: { device: { model, type } } });
+
+  it('is the model on a sleep session', () => {
+    const raw = emptyRaw({
+      heartRate: [from(null, 0)],
+      sleep: [from('Pixel Watch 3', 1)],
+    });
+    expect(watchDevice(raw)).toBe('Pixel Watch 3');
+  });
+
+  it('is the model on a workout when there is no sleep', () => {
+    const raw = emptyRaw({ exercise: [from('Galaxy Watch7', 1)] });
+    expect(watchDevice(raw)).toBe('Galaxy Watch7');
+  });
+
+  it('ignores records written by the phone', () => {
+    const raw = emptyRaw({ exercise: [from('SM-A176U1', 2)] });
+    expect(watchDevice(raw)).toBeNull();
+  });
+
+  it('is null when no record names a model', () => {
+    expect(watchDevice(emptyRaw({ heartRate: [from(null, 0)] }))).toBeNull();
+  });
+
+  it('is null when record types are missing', () => {
+    expect(watchDevice({ date: DATE, errors: {} })).toBeNull();
   });
 });
