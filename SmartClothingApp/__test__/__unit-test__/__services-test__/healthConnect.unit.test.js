@@ -239,7 +239,7 @@ describe('readDayRecords', () => {
     });
   });
 
-  it('uses the phone step counter when nothing else wrote steps', async () => {
+  it('has no step total when only the phone step counter wrote steps', async () => {
     const { library, service } = setup();
     const phone = 'com.android.healthconnect.phone.abc123';
     library.aggregateRecord.mockResolvedValue({
@@ -248,7 +248,17 @@ describe('readDayRecords', () => {
     });
     const day = await service.readDayRecords('2026-11-13');
     expect(library.aggregateRecord).toHaveBeenCalledTimes(1);
-    expect(day.steps).toEqual({ total: 6206, dataOrigins: [phone] });
+    expect(day.steps).toEqual({ total: null, dataOrigins: [] });
+  });
+
+  it('has no step total when no app wrote steps', async () => {
+    const { library, service } = setup();
+    library.aggregateRecord.mockResolvedValue({
+      COUNT_TOTAL: 0,
+      dataOrigins: [],
+    });
+    const day = await service.readDayRecords('2026-11-13');
+    expect(day.steps).toEqual({ total: null, dataOrigins: [] });
   });
 
   it('follows every page', async () => {
