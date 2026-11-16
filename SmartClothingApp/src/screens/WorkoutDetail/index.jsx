@@ -5,13 +5,13 @@ import { ActivityIndicator, Text } from "react-native-paper";
 
 import {
   AppHeader,
-  FitbitConnectPrompt,
+  WatchConnectPrompt,
   HeartRateTimeline,
   RouteMap,
   WorkoutCalendar,
   WorkoutStats,
 } from "../../components";
-import { fitbitCardStyles as card } from "../../components/fitbit/styles";
+import { watchCardStyles as card } from "../../components/watch/styles";
 import {
   startCheckWatch,
   startLoadMonth,
@@ -19,7 +19,7 @@ import {
   selectWatchStatus,
 } from "../../actions/deviceActions";
 import { toLocalDateString } from "../../utils/dateConversions";
-import { formatClockTime, formatDateLabel } from "../../utils/fitbitFormat";
+import { formatClockTime, formatDateLabel } from "../../utils/watchFormat";
 import { monthOf } from "../../utils/workoutRoute";
 import { AppColor, AppFonts } from "../../constants/themes";
 
@@ -41,9 +41,9 @@ const WorkoutDetail = ({ route, navigation }) => {
 
   const status = useSelector(selectWatchStatus);
   const workoutState = useSelector(
-    (state) => state.device.fitbit.workouts[logId]
+    (state) => state.device.watch.workouts[logId]
   );
-  const monthState = useSelector((state) => state.device.fitbit.months[month]);
+  const monthState = useSelector((state) => state.device.watch.months[month]);
 
   useEffect(() => {
     if (status === "unknown") dispatch(startCheckWatch());
@@ -99,7 +99,7 @@ const WorkoutDetail = ({ route, navigation }) => {
       return <ActivityIndicator style={styles.spinner} />;
     }
     if (status !== "connected") {
-      return <FitbitConnectPrompt onPress={goToDevices} />;
+      return <WatchConnectPrompt onPress={goToDevices} />;
     }
     return (
       <>

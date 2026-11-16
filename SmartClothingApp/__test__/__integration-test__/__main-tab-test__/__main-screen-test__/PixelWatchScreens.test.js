@@ -454,7 +454,7 @@ describe('Watch screens', () => {
         await findByText("Can't reach the insights service. Is it running?")
       ).toBeTruthy();
       expect(getByText('Try again')).toBeTruthy();
-      expect(queryByTestId('fitbit-connect-prompt')).toBeNull();
+      expect(queryByTestId('watch-connect-prompt')).toBeNull();
     });
   });
 
@@ -517,7 +517,7 @@ describe('Watch screens', () => {
 
   it('asks to connect on the workout page when nothing is granted', async () => {
     const { findByTestId } = renderWorkout(RUN_ID);
-    expect(await findByTestId('fitbit-connect-prompt')).toBeTruthy();
+    expect(await findByTestId('watch-connect-prompt')).toBeTruthy();
     expect(healthConnect.readRecords).not.toHaveBeenCalled();
   });
 
@@ -629,7 +629,7 @@ describe('Watch screens', () => {
 
   it('asks to connect Health Connect when nothing is granted', async () => {
     const { findByTestId, getByText } = renderDailySummary();
-    expect(await findByTestId('fitbit-connect-prompt')).toBeTruthy();
+    expect(await findByTestId('watch-connect-prompt')).toBeTruthy();
     expect(getByText('Connect your watch')).toBeTruthy();
     expect(healthConnect.readRecords).not.toHaveBeenCalled();
   });
@@ -673,7 +673,7 @@ describe('Watch screens', () => {
 
   it('replaces the demo charts on Home with a connect prompt when nothing is granted', async () => {
     const { findByTestId, queryByText } = renderHome();
-    expect(await findByTestId('fitbit-connect-prompt')).toBeTruthy();
+    expect(await findByTestId('watch-connect-prompt')).toBeTruthy();
     expect(queryByText('Breath Rate')).toBeNull();
     expect(queryByText('Ventilation Rate')).toBeNull();
     expect(queryByText('Heartbeat Rate')).toBeNull();

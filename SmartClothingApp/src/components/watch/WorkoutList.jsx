@@ -8,8 +8,8 @@ import {
   formatDistanceMiles,
   formatMinutes,
   formatPace,
-} from "../../utils/fitbitFormat";
-import { fitbitCardStyles as card } from "./styles";
+} from "../../utils/watchFormat";
+import { watchCardStyles as card } from "./styles";
 
 // One line of details: "30m · avg 152 bpm · 3.1 mi · 9:39 /mi"
 const workoutDetails = (w) => {

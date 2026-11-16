@@ -20,19 +20,19 @@ import {
   selectWatchStatus,
 } from '../../../src/actions/deviceActions';
 import {
-  FITBIT_DAY_LOADING,
-  FITBIT_DAY_LOADED,
-  FITBIT_DAY_ERROR,
-  FITBIT_CLEAR_DAYS,
-  FITBIT_WEEK_LOADING,
-  FITBIT_WEEK_LOADED,
-  FITBIT_WEEK_ERROR,
-  FITBIT_WORKOUT_LOADING,
-  FITBIT_WORKOUT_LOADED,
-  FITBIT_WORKOUT_ERROR,
-  FITBIT_MONTH_LOADING,
-  FITBIT_MONTH_LOADED,
-  FITBIT_MONTH_ERROR,
+  WATCH_DAY_LOADING,
+  WATCH_DAY_LOADED,
+  WATCH_DAY_ERROR,
+  WATCH_CLEAR_DAYS,
+  WATCH_WEEK_LOADING,
+  WATCH_WEEK_LOADED,
+  WATCH_WEEK_ERROR,
+  WATCH_WORKOUT_LOADING,
+  WATCH_WORKOUT_LOADED,
+  WATCH_WORKOUT_ERROR,
+  WATCH_MONTH_LOADING,
+  WATCH_MONTH_LOADED,
+  WATCH_MONTH_ERROR,
   HEALTH_CONNECT_SET_STATUS,
 } from '../../../src/actions/types';
 import { saveDailyStats } from '../../../src/services/healthStore';
@@ -178,7 +178,7 @@ describe('Health Connect', () => {
       expect(await store.dispatch(startConnectHealthConnect())).toBe(true);
       expect(store.getActions()).toEqual([
         status('connecting'),
-        { type: FITBIT_CLEAR_DAYS },
+        { type: WATCH_CLEAR_DAYS },
         status('connected', [STEPS]),
       ]);
       expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', false);
@@ -230,7 +230,7 @@ describe('Health Connect', () => {
       expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', true);
       expect(healthConnect.revoke).toHaveBeenCalledTimes(1);
       expect(store.getActions()).toEqual([
-        { type: FITBIT_CLEAR_DAYS },
+        { type: WATCH_CLEAR_DAYS },
         status('not_connected'),
       ]);
     });
@@ -241,7 +241,7 @@ describe('Health Connect', () => {
       await store.dispatch(startDisconnectHealthConnect());
       expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', true);
       expect(store.getActions()).toEqual([
-        { type: FITBIT_CLEAR_DAYS },
+        { type: WATCH_CLEAR_DAYS },
         status('not_connected'),
       ]);
     });
@@ -263,7 +263,7 @@ describe('The watch', () => {
   } = {}) =>
     mockStore({
       device: {
-        fitbit: { days, weeks, workouts, months },
+        watch: { days, weeks, workouts, months },
         healthConnect: { status, permissions: [], error: null },
       },
       user: { userMetricsData: { dob: DOB } },
@@ -284,8 +284,8 @@ describe('The watch', () => {
       expect(healthConnect.readDayRecords).toHaveBeenCalledWith(DATE);
       expect(buildDay).toHaveBeenCalledWith(DATE, RAW, { dob: DOB });
       expect(store.getActions()).toEqual([
-        { type: FITBIT_DAY_LOADING, date: DATE },
-        { type: FITBIT_DAY_LOADED, date: DATE, day: DAY },
+        { type: WATCH_DAY_LOADING, date: DATE },
+        { type: WATCH_DAY_LOADED, date: DATE, day: DAY },
       ]);
     });
 
@@ -319,9 +319,9 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startLoadDay(DATE));
       expect(store.getActions()).toEqual([
-        { type: FITBIT_DAY_LOADING, date: DATE },
+        { type: WATCH_DAY_LOADING, date: DATE },
         {
-          type: FITBIT_DAY_ERROR,
+          type: WATCH_DAY_ERROR,
           date: DATE,
           error: 'HEALTH_CONNECT_READ_FAILED',
         },
@@ -371,8 +371,8 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startLoadDay(DATE));
       expect(store.getActions()).toEqual([
-        { type: FITBIT_DAY_LOADING, date: DATE },
-        { type: FITBIT_DAY_LOADED, date: DATE, day: DAY },
+        { type: WATCH_DAY_LOADING, date: DATE },
+        { type: WATCH_DAY_LOADED, date: DATE, day: DAY },
       ]);
     });
   });
@@ -426,7 +426,7 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startAutoSaveDays());
       const types = store.getActions().map((action) => action.type);
-      expect(types).not.toContain(FITBIT_DAY_LOADED);
+      expect(types).not.toContain(WATCH_DAY_LOADED);
     });
 
     it('goes back 30 days when nothing was saved before', async () => {
@@ -551,8 +551,8 @@ describe('The watch', () => {
       expect(healthConnect.readWeekRecords).toHaveBeenCalledWith(DATE);
       expect(buildWeek).toHaveBeenCalledWith(RAW_WEEK);
       expect(store.getActions()).toEqual([
-        { type: FITBIT_WEEK_LOADING, endDate: DATE },
-        { type: FITBIT_WEEK_LOADED, endDate: DATE, week: WEEK },
+        { type: WATCH_WEEK_LOADING, endDate: DATE },
+        { type: WATCH_WEEK_LOADED, endDate: DATE, week: WEEK },
       ]);
     });
 
@@ -581,9 +581,9 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startLoadWeek(DATE));
       expect(store.getActions()).toEqual([
-        { type: FITBIT_WEEK_LOADING, endDate: DATE },
+        { type: WATCH_WEEK_LOADING, endDate: DATE },
         {
-          type: FITBIT_WEEK_ERROR,
+          type: WATCH_WEEK_ERROR,
           endDate: DATE,
           error: 'HEALTH_CONNECT_READ_FAILED',
         },
@@ -598,7 +598,7 @@ describe('The watch', () => {
       });
       const store = watchStore();
       await store.dispatch(startLoadWeek(DATE));
-      expect(store.getActions()[1].type).toBe(FITBIT_WEEK_LOADED);
+      expect(store.getActions()[1].type).toBe(WATCH_WEEK_LOADED);
     });
 
     it('records an error when the read throws', async () => {
@@ -606,7 +606,7 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startLoadWeek(DATE));
       expect(store.getActions()[1]).toEqual({
-        type: FITBIT_WEEK_ERROR,
+        type: WATCH_WEEK_ERROR,
         endDate: DATE,
         error: 'HEALTH_CONNECT_READ_FAILED',
       });
@@ -633,8 +633,8 @@ describe('The watch', () => {
       expect(healthConnect.readMonthSessions).toHaveBeenCalledWith(MONTH);
       expect(buildMonthWorkouts).toHaveBeenCalledWith(MONTH, SESSIONS);
       expect(store.getActions()).toEqual([
-        { type: FITBIT_MONTH_LOADING, month: MONTH },
-        { type: FITBIT_MONTH_LOADED, month: MONTH, workouts: WORKOUTS },
+        { type: WATCH_MONTH_LOADING, month: MONTH },
+        { type: WATCH_MONTH_LOADED, month: MONTH, workouts: WORKOUTS },
       ]);
     });
 
@@ -657,7 +657,7 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startLoadMonth(MONTH));
       expect(store.getActions()[1]).toEqual({
-        type: FITBIT_MONTH_ERROR,
+        type: WATCH_MONTH_ERROR,
         month: MONTH,
         error: 'HEALTH_CONNECT_READ_FAILED',
       });
@@ -686,8 +686,8 @@ describe('The watch', () => {
         dob: DOB,
       });
       expect(store.getActions()).toEqual([
-        { type: FITBIT_WORKOUT_LOADING, logId: ID },
-        { type: FITBIT_WORKOUT_LOADED, logId: ID, workout: WORKOUT },
+        { type: WATCH_WORKOUT_LOADING, logId: ID },
+        { type: WATCH_WORKOUT_LOADED, logId: ID, workout: WORKOUT },
       ]);
     });
 
@@ -710,8 +710,8 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startLoadWorkout(DATE, ID));
       expect(store.getActions()).toEqual([
-        { type: FITBIT_WORKOUT_LOADING, logId: ID },
-        { type: FITBIT_WORKOUT_ERROR, logId: ID, error: 'WORKOUT_NOT_FOUND' },
+        { type: WATCH_WORKOUT_LOADING, logId: ID },
+        { type: WATCH_WORKOUT_ERROR, logId: ID, error: 'WORKOUT_NOT_FOUND' },
       ]);
       expect(buildWorkoutDetail).not.toHaveBeenCalled();
     });
@@ -724,7 +724,7 @@ describe('The watch', () => {
       const store = watchStore();
       await store.dispatch(startLoadWorkout(DATE, ID));
       expect(store.getActions()[1]).toEqual({
-        type: FITBIT_WORKOUT_ERROR,
+        type: WATCH_WORKOUT_ERROR,
         logId: ID,
         error: 'HEALTH_CONNECT_READ_FAILED',
       });

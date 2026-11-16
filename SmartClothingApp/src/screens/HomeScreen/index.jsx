@@ -10,7 +10,7 @@ import {
   DataCollectModal,
   HeartCard,
   SleepCard,
-  FitbitConnectPrompt,
+  WatchConnectPrompt,
 } from "../../components";
 import {
   startCheckWatch,
@@ -35,8 +35,8 @@ export default function HomeScreen({ navigation }) {
   const firstName = useSelector((state) => state.user.firstName);
   const dispatch = useDispatch();
   const today = toLocalDateString();
-  const fitbitStatus = useSelector(selectWatchStatus);
-  const todayState = useSelector((state) => state.device.fitbit.days[today]);
+  const watchStatus = useSelector(selectWatchStatus);
+  const todayState = useSelector((state) => state.device.watch.days[today]);
 
   // Today's watch data. Loaded once per session, then again on pull to
   // refresh; the focus check picks up a connect from the Devices tab.
@@ -49,7 +49,7 @@ export default function HomeScreen({ navigation }) {
   );
 
   const onRefresh = () => {
-    if (fitbitStatus === "connected") {
+    if (watchStatus === "connected") {
       dispatch(startLoadDay(today, { force: true }));
       dispatch(startLoadWeek(today, { force: true }));
     }
@@ -59,9 +59,9 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate("DailySummary", { date: today });
 
   const renderToday = () => {
-    if (fitbitStatus === "unknown") return null;
-    if (fitbitStatus !== "connected") {
-      return <FitbitConnectPrompt onPress={() => navigation.navigate("Device")} />;
+    if (watchStatus === "unknown") return null;
+    if (watchStatus !== "connected") {
+      return <WatchConnectPrompt onPress={() => navigation.navigate("Device")} />;
     }
     if (!todayState || (todayState.loading && !todayState.data)) {
       return <ActivityIndicator style={{ marginTop: 20 }} />;

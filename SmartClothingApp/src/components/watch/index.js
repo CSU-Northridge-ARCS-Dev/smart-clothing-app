@@ -2,7 +2,7 @@ import HeartCard from "./HeartCard";
 import SleepCard from "./SleepCard";
 import WorkoutList from "./WorkoutList";
 import StepsCard from "./StepsCard";
-import FitbitConnectPrompt from "./FitbitConnectPrompt";
+import WatchConnectPrompt from "./WatchConnectPrompt";
 import RouteMap from "./RouteMap";
 import HeartRateTimeline from "./HeartRateTimeline";
 import WorkoutStats from "./WorkoutStats";
@@ -14,7 +14,7 @@ export {
   SleepCard,
   StepsCard,
   WorkoutList,
-  FitbitConnectPrompt,
+  WatchConnectPrompt,
   RouteMap,
   HeartRateTimeline,
   WorkoutStats,

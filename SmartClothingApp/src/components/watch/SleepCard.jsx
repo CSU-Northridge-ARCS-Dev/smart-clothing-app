@@ -7,8 +7,8 @@ import {
   buildHypnogram,
   formatClockTime,
   formatMinutes,
-} from "../../utils/fitbitFormat";
-import { fitbitCardStyles as card, LEVEL_COLORS } from "./styles";
+} from "../../utils/watchFormat";
+import { watchCardStyles as card, LEVEL_COLORS } from "./styles";
 
 const ROW_HEIGHT = 18;
 

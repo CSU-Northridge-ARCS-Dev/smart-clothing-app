@@ -22,9 +22,9 @@ import {
   SleepCard,
   StepsCard,
   WorkoutList,
-  FitbitConnectPrompt,
+  WatchConnectPrompt,
 } from "../../components";
-import { fitbitCardStyles as card } from "../../components/fitbit/styles";
+import { watchCardStyles as card } from "../../components/watch/styles";
 import {
   startCheckWatch,
   startLoadDay,
@@ -34,7 +34,7 @@ import {
   toLocalDateString,
   addDaysToDateString,
 } from "../../utils/dateConversions";
-import { formatDateLabel } from "../../utils/fitbitFormat";
+import { formatDateLabel } from "../../utils/watchFormat";
 import { AppColor, AppFonts } from "../../constants/themes";
 import AIFeedbackSection from "./AIFeedbackSection";
 
@@ -54,7 +54,7 @@ const DailySummary = ({ route, navigation }) => {
   const [calendarVisible, setCalendarVisible] = useState(false);
 
   const status = useSelector(selectWatchStatus);
-  const dayState = useSelector((state) => state.device.fitbit.days[date]);
+  const dayState = useSelector((state) => state.device.watch.days[date]);
 
   useEffect(() => {
     dispatch(startCheckWatch());
@@ -72,7 +72,7 @@ const DailySummary = ({ route, navigation }) => {
       return <ActivityIndicator style={styles.spinner} />;
     }
     if (status !== "connected") {
-      return <FitbitConnectPrompt onPress={goToDevices} />;
+      return <WatchConnectPrompt onPress={goToDevices} />;
     }
     if (!dayState || (dayState.loading && !dayState.data)) {
       return <ActivityIndicator style={styles.spinner} testID="day-loading" />;

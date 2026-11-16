@@ -3,8 +3,8 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Text } from "react-native-paper";
 
 import { AppColor } from "../../constants/themes";
-import { formatMinutes } from "../../utils/fitbitFormat";
-import { fitbitCardStyles as card, ZONE_COLORS } from "./styles";
+import { formatMinutes } from "../../utils/watchFormat";
+import { watchCardStyles as card, ZONE_COLORS } from "./styles";
 
 // only the harder zones show.
 const ZONES = [

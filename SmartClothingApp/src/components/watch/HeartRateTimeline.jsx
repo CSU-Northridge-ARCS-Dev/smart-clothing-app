@@ -3,9 +3,9 @@ import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 import Svg, { Polyline } from "react-native-svg";
 
-import { formatMinutes } from "../../utils/fitbitFormat";
+import { formatMinutes } from "../../utils/watchFormat";
 import { heartRateChart, ZONE_LABELS } from "../../utils/workoutRoute";
-import { fitbitCardStyles as card, ZONE_COLORS } from "./styles";
+import { watchCardStyles as card, ZONE_COLORS } from "./styles";
 import ZoneLegend from "./ZoneLegend";
 
 const CHART_HEIGHT = 140;

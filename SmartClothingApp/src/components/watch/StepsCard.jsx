@@ -4,9 +4,9 @@ import { ProgressBar, Text } from "react-native-paper";
 
 import { AppColor } from "../../constants/themes";
 import { STEP_GOAL } from "../../constants/goals";
-import { formatSteps } from "../../utils/fitbitFormat";
+import { formatSteps } from "../../utils/watchFormat";
 import { goalProgress } from "../../utils/rings";
-import { fitbitCardStyles as card } from "./styles";
+import { watchCardStyles as card } from "./styles";
 
 // steps: the day's step count from insights-service, or null
 const StepsCard = ({ steps, onPress, style }) => {

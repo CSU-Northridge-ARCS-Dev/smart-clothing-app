@@ -14,12 +14,12 @@ import {
   SleepCard,
   StepsCard,
   WorkoutList,
-  FitbitConnectPrompt,
+  WatchConnectPrompt,
   RouteMap,
   HeartRateTimeline,
   WorkoutStats,
   WorkoutCalendar,
-} from "./fitbit";
+} from "./watch";
 
 export {
   GoogleButton,
@@ -37,7 +37,7 @@ export {
   SleepCard,
   StepsCard,
   WorkoutList,
-  FitbitConnectPrompt,
+  WatchConnectPrompt,
   RouteMap,
   HeartRateTimeline,
   WorkoutStats,

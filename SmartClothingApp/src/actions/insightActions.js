@@ -46,7 +46,7 @@ export const startGenerateFeedback = (date, { force = false } = {}) => {
 
     const profile = buildCoachProfile(getState().user.userMetricsData);
 
-    const day = getState().device.fitbit.days[date]?.data;
+    const day = getState().device.watch.days[date]?.data;
     if (!hasCoachableData(day)) return { reason: "NO_DATA" };
     try {
       const data = await generateInsightFromDay(date, profile, day);

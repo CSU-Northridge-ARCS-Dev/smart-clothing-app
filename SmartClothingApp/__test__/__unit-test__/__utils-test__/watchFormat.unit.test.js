@@ -1,6 +1,6 @@
 /**
- * @file fitbitFormat.unit.test.js
- * Display helpers for the Fitbit day , plus the local-date helpers
+ * @file watchFormat.unit.test.js
+ * Display helpers for the watch day , plus the local-date helpers
  * in dateConversions.js.
  */
 import {
@@ -9,7 +9,7 @@ import {
   formatPace,
   formatDistanceMiles,
   buildHypnogram,
-} from '../../../src/utils/fitbitFormat';
+} from '../../../src/utils/watchFormat';
 import {
   toLocalDateString,
   addDaysToDateString,

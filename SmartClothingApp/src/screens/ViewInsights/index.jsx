@@ -3,12 +3,12 @@ import { View, StyleSheet, ScrollView } from "react-native";
 import { useSelector } from "react-redux";
 import { Button, ProgressBar, Text } from "react-native-paper";
 
-import { AppHeader, FitbitConnectPrompt } from "../../components";
+import { AppHeader, WatchConnectPrompt } from "../../components";
 import ActivityRings, {
   RINGS,
 } from "../../components/visualizations/ActivityRings/ActivityRings";
 import DailyInsights from "../../components/DailyInsights/DailyInsights";
-import { fitbitCardStyles as card } from "../../components/fitbit/styles";
+import { watchCardStyles as card } from "../../components/watch/styles";
 import { AppColor, AppFonts } from "../../constants/themes";
 import { STEP_GOAL, SLEEP_GOAL_MINUTES } from "../../constants/goals";
 import { selectWatchStatus } from "../../actions/deviceActions";
@@ -17,7 +17,7 @@ import {
   formatDateLabel,
   formatMinutes,
   formatSteps,
-} from "../../utils/fitbitFormat";
+} from "../../utils/watchFormat";
 import { toRingProgress } from "../../utils/rings";
 
 const ringStyle = (key) => RINGS.find((r) => r.key === key);
@@ -52,7 +52,7 @@ const ViewInsights = ({ route, navigation }) => {
   const [selectedDate, setSelectedDate] = useState(today);
 
   const status = useSelector(selectWatchStatus);
-  const weekState = useSelector((state) => state.device.fitbit.weeks[today]);
+  const weekState = useSelector((state) => state.device.watch.weeks[today]);
   const connected = status === "connected";
   const week = (connected && weekState && weekState.data) || [];
   const entry = week.find((d) => d.date === selectedDate);
@@ -62,7 +62,7 @@ const ViewInsights = ({ route, navigation }) => {
     if (status === "unknown") return null;
     if (!connected) {
       return (
-        <FitbitConnectPrompt
+        <WatchConnectPrompt
           onPress={() => navigation.navigate("Main", { screen: "Device" })}
           message="Connect your watch to fill your steps and sleep rings."
         />

@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 
 import { ZONE_LABELS, ZONE_ORDER } from "../../utils/workoutRoute";
-import { fitbitCardStyles as card, ZONE_COLORS } from "./styles";
+import { watchCardStyles as card, ZONE_COLORS } from "./styles";
 
 // Color key for the heart rate zones on the route map and heart rate chart
 const ZoneLegend = () => (

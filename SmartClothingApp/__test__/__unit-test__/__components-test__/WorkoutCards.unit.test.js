@@ -8,16 +8,16 @@ import { fireEvent, render } from '@testing-library/react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { Calendar } from 'react-native-calendars';
 
-import RouteMap from '../../../src/components/fitbit/RouteMap';
-import HeartRateTimeline from '../../../src/components/fitbit/HeartRateTimeline';
+import RouteMap from '../../../src/components/watch/RouteMap';
+import HeartRateTimeline from '../../../src/components/watch/HeartRateTimeline';
 import WorkoutStats, {
   workoutStatTiles,
-} from '../../../src/components/fitbit/WorkoutStats';
+} from '../../../src/components/watch/WorkoutStats';
 import WorkoutCalendar, {
   workoutMarkedDates,
-} from '../../../src/components/fitbit/WorkoutCalendar';
-import WorkoutList from '../../../src/components/fitbit/WorkoutList';
-import { ZONE_COLORS } from '../../../src/components/fitbit/styles';
+} from '../../../src/components/watch/WorkoutCalendar';
+import WorkoutList from '../../../src/components/watch/WorkoutList';
+import { ZONE_COLORS } from '../../../src/components/watch/styles';
 
 // The row chevron is a Paper Icon, which loads fonts through expo-font
 jest.mock('expo-font', () => ({
@@ -140,6 +140,16 @@ describe('WorkoutCalendar', () => {
     });
   });
 
+  it('draws the dot on the selected day in a colour that shows on the fill', () => {
+    const day = workoutMarkedDates(monthState.data, '2026-10-11')['2026-10-11'];
+    expect(day.dotColor).not.toBe(day.selectedColor);
+  });
+
+  it('gives a selected day with no workout no dot', () => {
+    const day = workoutMarkedDates(monthState.data, '2026-10-12')['2026-10-12'];
+    expect(day).toEqual({ selected: true, selectedColor: expect.any(String) });
+  });
+
   it('reports month changes as YYYY-MM and only opens workout days', () => {
     const onMonthChange = jest.fn();
     const onDayPress = jest.fn();
@@ -165,7 +175,7 @@ describe('WorkoutCalendar', () => {
     const { getByText } = renderWithPaper(
       <WorkoutCalendar
         current="2026-10-11"
-        monthState={{ loading: false, error: 'FITBIT_API_ERROR', data: null }}
+        monthState={{ loading: false, error: 'HEALTH_CONNECT_READ_FAILED', data: null }}
         onMonthChange={jest.fn()}
         onDayPress={jest.fn()}
       />

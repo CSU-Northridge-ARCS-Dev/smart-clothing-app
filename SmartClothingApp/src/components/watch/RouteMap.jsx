@@ -4,7 +4,7 @@ import { Text } from "react-native-paper";
 import { WebView } from "react-native-webview";
 
 import { routeMapHtml, routeSegments } from "../../utils/workoutRoute";
-import { fitbitCardStyles as card, ZONE_COLORS } from "./styles";
+import { watchCardStyles as card, ZONE_COLORS } from "./styles";
 import ZoneLegend from "./ZoneLegend";
 
 // A run's GPS route, each stretch colored by the heart rate zone at that point.

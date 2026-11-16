@@ -5,7 +5,7 @@ import { ActivityIndicator, Button, Text } from "react-native-paper";
 
 import FeedbackCard from "../../components/FeedbackCard";
 import ConsentModal from "../../components/ConsentModal";
-import { fitbitCardStyles as card } from "../../components/fitbit/styles";
+import { watchCardStyles as card } from "../../components/watch/styles";
 import { startGenerateFeedback } from "../../actions/insightActions";
 import {
   getAIConsent,

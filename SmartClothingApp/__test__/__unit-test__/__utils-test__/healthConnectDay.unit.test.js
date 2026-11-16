@@ -13,7 +13,7 @@ import {
   isEmptyDay,
   watchDevice,
 } from '../../../src/utils/healthConnectDay';
-import { buildHypnogram } from '../../../src/utils/fitbitFormat';
+import { buildHypnogram } from '../../../src/utils/watchFormat';
 
 jest.mock('../../../firebaseConfig.js', () => ({ database: {} }));
 jest.mock('firebase/firestore', () => ({

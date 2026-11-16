@@ -1,4 +1,4 @@
-// Display helpers for the Fitbit day object returned by insights-service.
+// Display helpers for the day object built from the watch data.
 
 // 412 -> "6h 52m", 45 -> "45m", null -> "--"
 export function formatMinutes(minutes) {
@@ -15,7 +15,7 @@ export function formatSteps(steps) {
   return String(Math.round(steps)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// Fitbit times are wall-clock strings ("2026-10-09T23:10:00.000", sometimes
+// Times are wall-clock strings ("2026-10-09T23:10:00.000", sometimes
 // with an offset). Read the HH:MM directly so the phone's timezone is not
 // applied a second time. -> "11:10 PM"
 export function formatClockTime(dateTime) {

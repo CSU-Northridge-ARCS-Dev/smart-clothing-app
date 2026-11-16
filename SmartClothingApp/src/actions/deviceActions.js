@@ -1,18 +1,18 @@
 import {
   GET_DEVICES,
-  FITBIT_DAY_LOADING,
-  FITBIT_DAY_LOADED,
-  FITBIT_DAY_ERROR,
-  FITBIT_CLEAR_DAYS,
-  FITBIT_WEEK_LOADING,
-  FITBIT_WEEK_LOADED,
-  FITBIT_WEEK_ERROR,
-  FITBIT_WORKOUT_LOADING,
-  FITBIT_WORKOUT_LOADED,
-  FITBIT_WORKOUT_ERROR,
-  FITBIT_MONTH_LOADING,
-  FITBIT_MONTH_LOADED,
-  FITBIT_MONTH_ERROR,
+  WATCH_DAY_LOADING,
+  WATCH_DAY_LOADED,
+  WATCH_DAY_ERROR,
+  WATCH_CLEAR_DAYS,
+  WATCH_WEEK_LOADING,
+  WATCH_WEEK_LOADED,
+  WATCH_WEEK_ERROR,
+  WATCH_WORKOUT_LOADING,
+  WATCH_WORKOUT_LOADED,
+  WATCH_WORKOUT_ERROR,
+  WATCH_MONTH_LOADING,
+  WATCH_MONTH_LOADED,
+  WATCH_MONTH_ERROR,
   HEALTH_CONNECT_SET_STATUS,
 } from "./types";
 import {
@@ -88,73 +88,73 @@ export const removePushTokenFromBackend = () => {
 
 // The watch data cache
 
-export const fitbitDayLoading = (date) => ({ type: FITBIT_DAY_LOADING, date });
+export const watchDayLoading = (date) => ({ type: WATCH_DAY_LOADING, date });
 
-export const fitbitDayLoaded = (date, day) => ({
-  type: FITBIT_DAY_LOADED,
+export const watchDayLoaded = (date, day) => ({
+  type: WATCH_DAY_LOADED,
   date,
   day,
 });
 
-export const fitbitDayError = (date, error) => ({
-  type: FITBIT_DAY_ERROR,
+export const watchDayError = (date, error) => ({
+  type: WATCH_DAY_ERROR,
   date,
   error,
 });
 
-export const fitbitWeekLoading = (endDate) => ({
-  type: FITBIT_WEEK_LOADING,
+export const watchWeekLoading = (endDate) => ({
+  type: WATCH_WEEK_LOADING,
   endDate,
 });
 
-export const fitbitWeekLoaded = (endDate, week) => ({
-  type: FITBIT_WEEK_LOADED,
+export const watchWeekLoaded = (endDate, week) => ({
+  type: WATCH_WEEK_LOADED,
   endDate,
   week,
 });
 
-export const fitbitWeekError = (endDate, error) => ({
-  type: FITBIT_WEEK_ERROR,
+export const watchWeekError = (endDate, error) => ({
+  type: WATCH_WEEK_ERROR,
   endDate,
   error,
 });
 
-export const fitbitWorkoutLoading = (logId) => ({
-  type: FITBIT_WORKOUT_LOADING,
+export const watchWorkoutLoading = (logId) => ({
+  type: WATCH_WORKOUT_LOADING,
   logId,
 });
 
-export const fitbitWorkoutLoaded = (logId, workout) => ({
-  type: FITBIT_WORKOUT_LOADED,
+export const watchWorkoutLoaded = (logId, workout) => ({
+  type: WATCH_WORKOUT_LOADED,
   logId,
   workout,
 });
 
-export const fitbitWorkoutError = (logId, error) => ({
-  type: FITBIT_WORKOUT_ERROR,
+export const watchWorkoutError = (logId, error) => ({
+  type: WATCH_WORKOUT_ERROR,
   logId,
   error,
 });
 
-export const fitbitMonthLoading = (month) => ({
-  type: FITBIT_MONTH_LOADING,
+export const watchMonthLoading = (month) => ({
+  type: WATCH_MONTH_LOADING,
   month,
 });
 
-export const fitbitMonthLoaded = (month, workouts) => ({
-  type: FITBIT_MONTH_LOADED,
+export const watchMonthLoaded = (month, workouts) => ({
+  type: WATCH_MONTH_LOADED,
   month,
   workouts,
 });
 
-export const fitbitMonthError = (month, error) => ({
-  type: FITBIT_MONTH_ERROR,
+export const watchMonthError = (month, error) => ({
+  type: WATCH_MONTH_ERROR,
   month,
   error,
 });
 
 // Clears the loaded days, weeks, workouts and months
-export const clearFitbitDays = () => ({ type: FITBIT_CLEAR_DAYS });
+export const clearWatchDays = () => ({ type: WATCH_CLEAR_DAYS });
 
 // Saves a finished day to Firestore. Today isn't over yet, so it's skipped,
 // and a failed write is only logged so the screen still shows the day.
@@ -359,7 +359,7 @@ export const startConnectHealthConnect = () => {
       }
       const uid = auth.currentUser?.uid;
       if (uid) await setHealthConnectDisconnected(uid, false);
-      dispatch(clearFitbitDays());
+      dispatch(clearWatchDays());
       dispatch(setHealthConnectStatus("connected", permissions));
       return true;
     } catch (error) {
@@ -381,7 +381,7 @@ export const startDisconnectHealthConnect = () => {
     } catch (error) {
       console.log("Health Connect revoke error: ", error);
     }
-    dispatch(clearFitbitDays());
+    dispatch(clearWatchDays());
     dispatch(setHealthConnectStatus("not_connected"));
   };
 };
@@ -396,24 +396,24 @@ export const startCheckWatch = () => {
   return (dispatch) => dispatch(startCheckHealthConnect());
 };
 
-// Loads one day (YYYY-MM-DD) into state.device.fitbit.days, the cache Home
+// Loads one day (YYYY-MM-DD) into state.device.watch.days, the cache Home
 // and DailySummary share. A day already loaded (or loading) is not read
 // again unless force is true. A finished day with data is then saved.
 export const startLoadDay = (date, { force = false } = {}) => {
   return async (dispatch, getState) => {
-    const { fitbit, healthConnect: connection } = getState().device;
-    const existing = fitbit.days[date];
+    const { watch, healthConnect: connection } = getState().device;
+    const existing = watch.days[date];
     if (!force && existing && (existing.loading || existing.data)) return;
     if (connection.status !== "connected") return;
 
-    dispatch(fitbitDayLoading(date));
+    dispatch(watchDayLoading(date));
     let loaded;
     try {
       loaded = await readHealthConnectDay(date, getState);
-      dispatch(fitbitDayLoaded(date, loaded.day));
+      dispatch(watchDayLoaded(date, loaded.day));
     } catch (error) {
       console.log("Health Connect day load error: ", error);
-      dispatch(fitbitDayError(date, HEALTH_CONNECT_READ_FAILED));
+      dispatch(watchDayError(date, HEALTH_CONNECT_READ_FAILED));
       return;
     }
     if (loaded.readFailed || isEmptyDay(loaded.day)) return;
@@ -425,46 +425,46 @@ export const startLoadDay = (date, { force = false } = {}) => {
 };
 
 // Loads the 7 days ending at endDate (steps and sleep for the activity
-// rings) into state.device.fitbit.weeks
+// rings) into state.device.watch.weeks
 export const startLoadWeek = (endDate, { force = false } = {}) => {
   return (dispatch, getState) => {
     return loadHealthConnectEntry(
       dispatch,
       getState,
-      getState().device.fitbit.weeks[endDate],
+      getState().device.watch.weeks[endDate],
       force,
       {
         read: () => healthConnect.readWeekRecords(endDate),
         build: buildWeek,
-        loading: () => fitbitWeekLoading(endDate),
-        loaded: (week) => fitbitWeekLoaded(endDate, week),
-        failed: (code) => fitbitWeekError(endDate, code),
+        loading: () => watchWeekLoading(endDate),
+        loaded: (week) => watchWeekLoaded(endDate, week),
+        failed: (code) => watchWeekError(endDate, code),
       }
     );
   };
 };
 
-// Loads the workout days of a YYYY-MM month into state.device.fitbit.months
+// Loads the workout days of a YYYY-MM month into state.device.watch.months
 export const startLoadMonth = (month, { force = false } = {}) => {
   return (dispatch, getState) => {
     return loadHealthConnectEntry(
       dispatch,
       getState,
-      getState().device.fitbit.months[month],
+      getState().device.watch.months[month],
       force,
       {
         read: () => healthConnect.readMonthSessions(month),
         build: (raw) => buildMonthWorkouts(month, raw.exercise),
-        loading: () => fitbitMonthLoading(month),
-        loaded: (workouts) => fitbitMonthLoaded(month, workouts),
-        failed: (code) => fitbitMonthError(month, code),
+        loading: () => watchMonthLoading(month),
+        loaded: (workouts) => watchMonthLoaded(month, workouts),
+        failed: (code) => watchMonthError(month, code),
       }
     );
   };
 };
 
 // Loads one workout (its stats and heart rate points) into
-// state.device.fitbit.workouts. date is the day it was recorded, and id is
+// state.device.watch.workouts. date is the day it was recorded, and id is
 // the workout's logId from that day.
 export const startLoadWorkout = (date, id, { force = false } = {}) => {
   return (dispatch, getState) => {
@@ -472,7 +472,7 @@ export const startLoadWorkout = (date, id, { force = false } = {}) => {
     return loadHealthConnectEntry(
       dispatch,
       getState,
-      getState().device.fitbit.workouts[id],
+      getState().device.watch.workouts[id],
       force,
       {
         read: () => healthConnect.readWorkoutRecords(date, id),
@@ -480,9 +480,9 @@ export const startLoadWorkout = (date, id, { force = false } = {}) => {
           if (!raw.session) throw loadError("WORKOUT_NOT_FOUND");
           return buildWorkoutDetail(date, raw, { dob });
         },
-        loading: () => fitbitWorkoutLoading(id),
-        loaded: (workout) => fitbitWorkoutLoaded(id, workout),
-        failed: (code) => fitbitWorkoutError(id, code),
+        loading: () => watchWorkoutLoading(id),
+        loaded: (workout) => watchWorkoutLoaded(id, workout),
+        failed: (code) => watchWorkoutError(id, code),
       }
     );
   };

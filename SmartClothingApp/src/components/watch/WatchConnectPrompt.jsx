@@ -2,11 +2,11 @@ import React from "react";
 import { Text, Button } from "react-native-paper";
 import { View } from "react-native";
 
-import { fitbitCardStyles as card } from "./styles";
+import { watchCardStyles as card } from "./styles";
 
 // Shown on Home and DailySummary while no watch is connected
-const FitbitConnectPrompt = ({ onPress, message, style }) => (
-  <View style={[card.card, style]} testID="fitbit-connect-prompt">
+const WatchConnectPrompt = ({ onPress, message, style }) => (
+  <View style={[card.card, style]} testID="watch-connect-prompt">
     <Text style={card.title}>Connect your watch</Text>
     <Text style={[card.empty, { marginBottom: 10 }]}>
       {message ||
@@ -18,4 +18,4 @@ const FitbitConnectPrompt = ({ onPress, message, style }) => (
   </View>
 );
 
-export default FitbitConnectPrompt;
+export default WatchConnectPrompt;

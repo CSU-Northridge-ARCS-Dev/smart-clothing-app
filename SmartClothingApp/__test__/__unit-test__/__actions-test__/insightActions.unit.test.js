@@ -121,7 +121,7 @@ describe('startGenerateFeedback', () => {
   const storeWith = (day = DAY) =>
     mockStore({
       user: { userMetricsData: METRICS },
-      device: { fitbit: { days: day ? { [DATE]: { data: day } } : {} } },
+      device: { watch: { days: day ? { [DATE]: { data: day } } : {} } },
     });
 
   it('sends the loaded day, caches and returns the insight', async () => {

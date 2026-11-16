@@ -1,8 +1,8 @@
 import { StyleSheet } from "react-native";
 import { AppColor, AppFonts } from "../../constants/themes";
 
-// Shared card look for the Fitbit (Pixel Watch) cards
-export const fitbitCardStyles = StyleSheet.create({
+// Shared card look for the watch cards
+export const watchCardStyles = StyleSheet.create({
   card: {
     elevation: 3,
     shadowColor: AppColor.secondary,

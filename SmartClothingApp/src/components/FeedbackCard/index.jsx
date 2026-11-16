@@ -2,7 +2,7 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import { Button, Icon, Text } from "react-native-paper";
 
-import { fitbitCardStyles as card } from "../fitbit/styles";
+import { watchCardStyles as card } from "../watch/styles";
 import { AppColor, AppFonts } from "../../constants/themes";
 
 const BulletList = ({ items, color }) =>

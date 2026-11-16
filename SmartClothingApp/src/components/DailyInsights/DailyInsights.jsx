@@ -10,7 +10,7 @@ import {
   selectWatchStatus,
 } from "../../actions/deviceActions";
 import { toLocalDateString } from "../../utils/dateConversions";
-import { formatMinutes, formatSteps } from "../../utils/fitbitFormat";
+import { formatMinutes, formatSteps } from "../../utils/watchFormat";
 import {
   lastSevenDates,
   toRingProgress,
@@ -30,7 +30,7 @@ const DailyInsights = ({
   const dispatch = useDispatch();
   const today = toLocalDateString();
   const status = useSelector(selectWatchStatus);
-  const weekState = useSelector((state) => state.device.fitbit.weeks[today]);
+  const weekState = useSelector((state) => state.device.watch.weeks[today]);
 
   useEffect(() => {
     if (status === "connected") dispatch(startLoadWeek(today));

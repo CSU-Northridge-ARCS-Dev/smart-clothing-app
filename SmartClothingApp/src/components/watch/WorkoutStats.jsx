@@ -8,8 +8,8 @@ import {
   formatMinutes,
   formatPace,
   formatSteps,
-} from "../../utils/fitbitFormat";
-import { fitbitCardStyles as card } from "./styles";
+} from "../../utils/watchFormat";
+import { watchCardStyles as card } from "./styles";
 
 const hasValue = (v) => v !== null && v !== undefined;
 
