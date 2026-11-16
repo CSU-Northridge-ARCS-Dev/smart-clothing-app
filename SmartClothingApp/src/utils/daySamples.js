@@ -14,8 +14,9 @@ const SLOTS_PER_DAY = 288;
 const RESERVE_ZONES = { fatBurn: 0.4, cardio: 0.6, peak: 0.85 };
 const MAX_ZONES = { fatBurn: 0.5, cardio: 0.7, peak: 0.85 };
 
-// The bpm each zone starts at
-const zoneStarts = (age, restingHeartRate) => {
+// The bpm each zone starts at, or null without a usable age
+export const zoneStarts = (age, restingHeartRate) => {
+  if (!Number.isFinite(age) || age <= 0) return null;
   const max = 220 - age;
   const useReserve =
     Number.isFinite(restingHeartRate) &&
@@ -26,6 +27,15 @@ const zoneStarts = (age, restingHeartRate) => {
       ? restingHeartRate + RESERVE_ZONES[zone] * (max - restingHeartRate)
       : MAX_ZONES[zone] * max;
   return { fatBurn: start("fatBurn"), cardio: start("cardio"), peak: start("peak") };
+};
+
+// The zone a bpm falls in. Below every zone is "outOfRange".
+export const zoneForBpm = (bpm, starts) => {
+  if (!Number.isFinite(bpm) || !starts) return null;
+  if (bpm >= starts.peak) return "peak";
+  if (bpm >= starts.cardio) return "cardio";
+  if (bpm >= starts.fatBurn) return "fatBurn";
+  return "outOfRange";
 };
 
 const timeOf = (sample) => new Date(sample.time).getTime();
@@ -62,8 +72,8 @@ export const buildHr5min = (samples, date) => {
 
 // Minutes in each zone: { fatBurn, cardio, peak }.
 export const zoneMinutes = (samples, age, restingHeartRate) => {
-  if (!samples || !Number.isFinite(age) || age <= 0) return null;
   const starts = zoneStarts(age, restingHeartRate);
+  if (!samples || !starts) return null;
 
   const minutes = new Map();
   samples.forEach((sample) => {
@@ -78,10 +88,8 @@ export const zoneMinutes = (samples, age, restingHeartRate) => {
 
   const zones = { fatBurn: 0, cardio: 0, peak: 0 };
   minutes.forEach(({ sum, count }) => {
-    const bpm = sum / count;
-    if (bpm >= starts.peak) zones.peak += 1;
-    else if (bpm >= starts.cardio) zones.cardio += 1;
-    else if (bpm >= starts.fatBurn) zones.fatBurn += 1;
+    const zone = zoneForBpm(sum / count, starts);
+    if (zone !== "outOfRange") zones[zone] += 1;
   });
   return zones;
 };
