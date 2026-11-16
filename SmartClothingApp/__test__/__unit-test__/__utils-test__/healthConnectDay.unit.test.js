@@ -1,11 +1,15 @@
 /**
  * @file healthConnectDay.unit.test.js
- * Building the day object from one day's raw Health Connect records.
+ * Building the day object from one day's raw Health Connect records, and
+ * the week of rings, the month of workouts and one workout's page.
  * Every fixture is made up.
  */
 
 import {
   buildDay,
+  buildWeek,
+  buildMonthWorkouts,
+  buildWorkoutDetail,
   isEmptyDay,
   watchDevice,
 } from '../../../src/utils/healthConnectDay';
@@ -655,5 +659,193 @@ describe('watchDevice', () => {
 
   it('is null when record types are missing', () => {
     expect(watchDevice({ date: DATE, errors: {} })).toBeNull();
+  });
+});
+
+describe('buildWeek', () => {
+  const rawWeek = (extra = {}) => ({
+    dates: ['2026-11-12', DATE],
+    steps: { '2026-11-12': null, [DATE]: 9120 },
+    sleep: { '2026-11-12': [], [DATE]: [nap(), night()] },
+    errors: {},
+    ...extra,
+  });
+
+  it('has one entry per day, oldest first, with null for a day with no data', () => {
+    expect(buildWeek(rawWeek())).toEqual([
+      { date: '2026-11-12', steps: null, sleepMinutes: null },
+      { date: DATE, steps: 9120, sleepMinutes: 450 },
+    ]);
+  });
+
+  it("has the same sleep as the day's own total", () => {
+    const day = buildDay(DATE, fullRaw(), PROFILE);
+    expect(buildWeek(rawWeek())[1].sleepMinutes).toBe(day.sleep.totalMinutes);
+  });
+
+  it('keeps a real step count of 0', () => {
+    const week = buildWeek(rawWeek({ steps: { '2026-11-12': 0, [DATE]: 9120 } }));
+    expect(week[0].steps).toBe(0);
+  });
+
+  it('has no sleep when sleep could not be read', () => {
+    const week = buildWeek(rawWeek({ sleep: null }));
+    expect(week.map((d) => d.sleepMinutes)).toEqual([null, null]);
+    expect(week[1].steps).toBe(9120);
+  });
+});
+
+describe('buildMonthWorkouts', () => {
+  const walk = () => ({
+    metadata: { id: 'exercise-walk' },
+    startTime: at(20, 7),
+    endTime: at(20, 8),
+    exerciseType: 79,
+  });
+
+  it('lists the workouts of the month, oldest first', () => {
+    expect(buildMonthWorkouts('2026-11', [walk(), run()])).toEqual([
+      { date: DATE, logId: 'exercise-run', type: 'Run' },
+      { date: '2026-11-20', logId: 'exercise-walk', type: 'Walk' },
+    ]);
+  });
+
+  it('leaves out a workout that started in another month', () => {
+    const october = run({
+      startTime: new Date(2026, 9, 31, 23, 50).toISOString(),
+      endTime: at(1, 0, 20),
+    });
+    expect(buildMonthWorkouts('2026-11', [october])).toEqual([]);
+  });
+
+  it('puts a late evening workout on its local date', () => {
+    const late = run({ startTime: at(13, 23, 30), endTime: at(13, 23, 55) });
+    expect(buildMonthWorkouts('2026-11', [late])[0].date).toBe(DATE);
+  });
+
+  it('has no logId when the record has no id', () => {
+    const [workout] = buildMonthWorkouts('2026-11', [run({ metadata: {} })]);
+    expect(workout.logId).toBeNull();
+  });
+
+  it('is an empty list when there are no sessions', () => {
+    expect(buildMonthWorkouts('2026-11', [])).toEqual([]);
+    expect(buildMonthWorkouts('2026-11', null)).toEqual([]);
+  });
+});
+
+describe('buildWorkoutDetail', () => {
+  // The run's records out of the full day, as readWorkoutRecords returns them
+  const rawWorkout = (extra = {}) => {
+    const day = fullRaw();
+    return {
+      date: DATE,
+      session: run(),
+      heartRate: day.heartRate,
+      restingHeartRate: day.restingHeartRate,
+      distance: day.distance,
+      totalCalories: day.totalCalories,
+      errors: {},
+      ...extra,
+    };
+  };
+
+  it("has the same stats as the workout in the day's list", () => {
+    const day = buildDay(DATE, fullRaw(), PROFILE);
+    const detail = buildWorkoutDetail(DATE, rawWorkout(), PROFILE);
+    expect(detail).toMatchObject(day.workouts[0]);
+    expect(detail.date).toBe(DATE);
+  });
+
+  it('has no route, so the page shows no map', () => {
+    const detail = buildWorkoutDetail(DATE, rawWorkout(), PROFILE);
+    expect(detail.hasRoute).toBe(false);
+    expect(detail.hasGps).toBe(false);
+  });
+
+  // Resting 58 and max 200: fat burn from 114.8, cardio 143.2, peak 178.7
+  it('gives each point its seconds from the start and its zone', () => {
+    const detail = buildWorkoutDetail(DATE, rawWorkout(), PROFILE);
+    expect(detail.points).toEqual([
+      { t: 0, bpm: 150, zone: 'cardio' },
+      { t: 60, bpm: 150, zone: 'cardio' },
+      { t: 120, bpm: 160, zone: 'cardio' },
+      { t: 180, bpm: 180, zone: 'peak' },
+    ]);
+  });
+
+  it('leaves out readings from before and after the session', () => {
+    const detail = buildWorkoutDetail(
+      DATE,
+      rawWorkout({
+        heartRate: [
+          heartRecord(13, 16, 58, [90, 95]),
+          heartRecord(13, 17, 0, [150]),
+          heartRecord(13, 17, 30, [120]),
+        ],
+      }),
+      PROFILE
+    );
+    expect(detail.points).toEqual([{ t: 0, bpm: 150, zone: 'cardio' }]);
+  });
+
+  it('marks a low reading as out of range', () => {
+    const detail = buildWorkoutDetail(
+      DATE,
+      rawWorkout({ heartRate: [heartRecord(13, 17, 0, [100, 120])] }),
+      PROFILE
+    );
+    expect(detail.points.map((p) => p.zone)).toEqual(['outOfRange', 'fatBurn']);
+  });
+
+  it('keeps at most 600 points, the last reading among them', () => {
+    const start = new Date(at(13, 17)).getTime();
+    const samples = Array.from({ length: 900 }, (_, i) => ({
+      time: new Date(start + i * 2000).toISOString(),
+      beatsPerMinute: 120 + (i % 10),
+    }));
+    const detail = buildWorkoutDetail(
+      DATE,
+      rawWorkout({ heartRate: [{ samples }] }),
+      PROFILE
+    );
+    expect(detail.points.length).toBeLessThanOrEqual(600);
+    expect(detail.points.length).toBeGreaterThan(300);
+    expect(detail.points[0].t).toBe(0);
+    expect(detail.points[detail.points.length - 1].t).toBe(1798);
+  });
+
+  it('has no points when the watch recorded no heart rate', () => {
+    const detail = buildWorkoutDetail(
+      DATE,
+      rawWorkout({ heartRate: [] }),
+      PROFILE
+    );
+    expect(detail.points).toEqual([]);
+    expect(detail.avgHeartRate).toBeNull();
+    expect(detail.durationMin).toBe(30);
+  });
+
+  it('has no points when heart rate could not be read', () => {
+    const detail = buildWorkoutDetail(
+      DATE,
+      rawWorkout({ heartRate: null }),
+      PROFILE
+    );
+    expect(detail.points).toEqual([]);
+    expect(detail.zones).toBeNull();
+  });
+
+  it('has points without zones when the age is not known', () => {
+    const detail = buildWorkoutDetail(DATE, rawWorkout(), {});
+    expect(detail.points).toHaveLength(4);
+    expect(detail.points.every((p) => p.zone === null)).toBe(true);
+    expect(detail.zones).toBeNull();
+  });
+
+  it('is null when the session is gone', () => {
+    expect(
+      buildWorkoutDetail(DATE, { date: DATE, session: null, errors: {} }, PROFILE)
+    ).toBeNull();
   });
 });
