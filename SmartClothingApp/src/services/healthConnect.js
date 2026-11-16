@@ -170,21 +170,16 @@ const readSteps = async (start, end) => {
 
 const VO2_MAX_LOOKBACK_DAYS = 30;
 
-// The raw Health Connect records for one local day, unchanged apart from
-// keeping one source per type
-export const readDayRecords = async (date) => {
-  await ensureInitialized();
-  const start = localMidnight(date);
-  const end = localMidnight(addDaysToDateString(date, 1));
-  const dayBefore = localMidnight(addDaysToDateString(date, -1));
-  const noonBefore = new Date(dayBefore);
-  noonBefore.setHours(12);
-  // The watch's app only writes VO2 max now and then (after an outdoor
-  // run), so a day carries the latest value from the days before it
-  const vo2MaxFrom = localMidnight(
-    addDaysToDateString(date, -VO2_MAX_LOOKBACK_DAYS)
-  );
+// Noon of the day before a date. A night's sleep starts after it.
+const noonOfDayBefore = (date) => {
+  const noon = localMidnight(addDaysToDateString(date, -1));
+  noon.setHours(12);
+  return noon;
+};
 
+// attempt(recordType, read) runs one read. A type the athlete didn't allow,
+// or one that can't be read, comes back as null with the reason in errors.
+const startReads = async () => {
   const granted = new Set((await getGranted()).map((p) => p.recordType));
   const errors = {};
 
@@ -201,6 +196,25 @@ export const readDayRecords = async (date) => {
       return null;
     }
   };
+
+  return { attempt, errors };
+};
+
+// The raw Health Connect records for one local day, unchanged apart from
+// keeping one source per type
+export const readDayRecords = async (date) => {
+  await ensureInitialized();
+  const start = localMidnight(date);
+  const end = localMidnight(addDaysToDateString(date, 1));
+  const dayBefore = localMidnight(addDaysToDateString(date, -1));
+  const noonBefore = noonOfDayBefore(date);
+  // The watch's app only writes VO2 max now and then (after an outdoor
+  // run), so a day carries the latest value from the days before it
+  const vo2MaxFrom = localMidnight(
+    addDaysToDateString(date, -VO2_MAX_LOOKBACK_DAYS)
+  );
+
+  const { attempt, errors } = await startReads();
 
   const raw = async (recordType, from = start) =>
     attempt(recordType, async () =>
@@ -247,6 +261,125 @@ export const readDayRecords = async (date) => {
     distance,
     totalCalories: calories,
     vo2Max,
+    errors,
+  };
+};
+
+const WEEK_LENGTH = 7;
+
+// Steps and sleep for the 7 local days ending at endDate, for the activity
+// rings. Heart rate isn't read, so this stays quick.
+// steps: { [date]: total or null }. sleep: { [date]: the sessions that end
+// on that date }, or null when sleep couldn't be read.
+export const readWeekRecords = async (endDate) => {
+  await ensureInitialized();
+  const dates = [];
+  for (let i = WEEK_LENGTH - 1; i >= 0; i--) {
+    dates.push(addDaysToDateString(endDate, -i));
+  }
+  const dayStart = (date) => localMidnight(date);
+  const dayEnd = (date) => localMidnight(addDaysToDateString(date, 1));
+
+  const { attempt, errors } = await startReads();
+  const [totals, sessions] = await Promise.all([
+    attempt("Steps", () =>
+      Promise.all(dates.map((date) => readSteps(dayStart(date), dayEnd(date))))
+    ),
+    attempt("SleepSession", () =>
+      readAll("SleepSession", noonOfDayBefore(dates[0]), dayEnd(endDate))
+    ),
+  ]);
+
+  const steps = {};
+  dates.forEach((date, i) => {
+    steps[date] = totals ? totals[i].total : null;
+  });
+
+  // The same sessions a single day's read keeps: one source out of those
+  // from noon the day before, then the ones that end on the date
+  const sleep = sessions && {};
+  if (sessions) {
+    dates.forEach((date) => {
+      const from = noonOfDayBefore(date);
+      const start = dayStart(date);
+      const end = dayEnd(date);
+      const near = sessions.filter(
+        (s) => new Date(s.endTime) > from && new Date(s.startTime) < end
+      );
+      sleep[date] = oneSource(near).filter((s) => {
+        const ended = new Date(s.endTime);
+        return ended >= start && ended < end;
+      });
+    });
+  }
+
+  return { endDate, dates, steps, sleep, errors };
+};
+
+// The exercise sessions of a YYYY-MM month, for the workout calendar
+export const readMonthSessions = async (month) => {
+  await ensureInitialized();
+  const [y, m] = month.split("-").map(Number);
+  const start = new Date(y, m - 1, 1);
+  const end = new Date(y, m, 1);
+
+  const { attempt, errors } = await startReads();
+  const exercise = await attempt("ExerciseSession", async () =>
+    oneSource(await readAll("ExerciseSession", start, end))
+  );
+  return { month, exercise, errors };
+};
+
+// Heart rate is read a little past both ends of a workout, so a record
+// that only partly overlaps it isn't missed
+const WORKOUT_HEART_RATE_MARGIN_MS = 10 * 60 * 1000;
+
+// One exercise session and what its page needs. date is the day it was
+// recorded and id is the session's record id. session is null when Health
+// Connect no longer has it. Heart rate covers only the session, so a long
+// day isn't read for one workout; distance and calories are the day's, the
+// same records the day's own workout list is built from.
+export const readWorkoutRecords = async (date, id) => {
+  await ensureInitialized();
+  const start = localMidnight(date);
+  const end = localMidnight(addDaysToDateString(date, 1));
+  const dayBefore = localMidnight(addDaysToDateString(date, -1));
+
+  const { attempt, errors } = await startReads();
+  const sessions = await attempt("ExerciseSession", () =>
+    readAll("ExerciseSession", start, end)
+  );
+  const session = (sessions || []).find((s) => s?.metadata?.id === id) || null;
+  if (!session) return { date, session: null, errors };
+
+  const raw = async (recordType, from, to) =>
+    attempt(recordType, async () =>
+      oneSource(await readAll(recordType, from, to))
+    );
+  const heartFrom = new Date(
+    new Date(session.startTime).getTime() - WORKOUT_HEART_RATE_MARGIN_MS
+  );
+  const heartTo = new Date(
+    new Date(session.endTime).getTime() + WORKOUT_HEART_RATE_MARGIN_MS
+  );
+
+  const [heartRate, resting, distance, calories] = await Promise.all([
+    raw("HeartRate", heartFrom, heartTo),
+    raw("RestingHeartRate", dayBefore, end),
+    raw("Distance", start, end),
+    raw("TotalCaloriesBurned", start, end),
+  ]);
+
+  return {
+    date,
+    session,
+    heartRate,
+    restingHeartRate: resting && {
+      today: resting.filter((r) => new Date(r.time) >= start),
+      previous: resting.filter((r) => new Date(r.time) < start),
+    },
+    distance,
+    totalCalories: calories,
     errors,
   };
 };
