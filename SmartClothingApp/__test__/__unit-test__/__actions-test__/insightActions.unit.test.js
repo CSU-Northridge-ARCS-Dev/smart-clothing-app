@@ -11,7 +11,11 @@ import {
   startGenerateFeedback,
 } from '../../../src/actions/insightActions';
 import { FITBIT_SET_STATUS, FITBIT_CLEAR_DAYS } from '../../../src/actions/types';
-import { generateInsight } from '../../../src/services/insightsApi';
+import { Platform } from 'react-native';
+import {
+  generateInsight,
+  generateInsightFromDay,
+} from '../../../src/services/insightsApi';
 import {
   getCachedFeedback,
   setCachedFeedback,
@@ -56,6 +60,7 @@ jest.mock('../../../src/services/healthStore', () => ({
 
 jest.mock('../../../src/services/insightsApi', () => ({
   generateInsight: jest.fn(),
+  generateInsightFromDay: jest.fn(),
   getErrorCode: jest.requireActual('../../../src/services/insightsApi')
     .getErrorCode,
 }));
@@ -240,4 +245,108 @@ describe('startGenerateFeedback saving to Firestore', () => {
     expect(result).toEqual({ insight: INSIGHT });
     expect(saveAIFeedback).not.toHaveBeenCalled();
   });
+});
+
+describe('startGenerateFeedback on Android', () => {
+  const originalOS = Platform.OS;
+  const DAY = {
+    date: DATE,
+    steps: 9483,
+    sleep: { totalMinutes: 401 },
+    heart: { restingHeartRate: 58 },
+    workouts: [],
+  };
+
+  const androidStore = (day = DAY) =>
+    mockStore({
+      user: { userMetricsData: METRICS },
+      device: { fitbit: { days: day ? { [DATE]: { data: day } } : {} } },
+    });
+
+  beforeEach(() => {
+    Platform.OS = 'android';
+  });
+
+  afterEach(() => {
+    Platform.OS = originalOS;
+  });
+
+  it('sends the loaded day and never asks the Fitbit route', async () => {
+    generateInsightFromDay.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    const result = await androidStore().dispatch(startGenerateFeedback(DATE));
+    expect(result).toEqual({ insight: INSIGHT });
+    expect(generateInsightFromDay).toHaveBeenCalledWith(
+      DATE,
+      expect.objectContaining({ gender: 'male', height: 70 }),
+      DAY
+    );
+    expect(generateInsight).not.toHaveBeenCalled();
+    expect(setCachedFeedback).toHaveBeenCalledWith(DATE, INSIGHT);
+  });
+
+  it('saves the feedback with health_connect as its source', async () => {
+    generateInsightFromDay.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    await androidStore().dispatch(startGenerateFeedback(DATE));
+    expect(saveAIFeedback).toHaveBeenCalledWith('user-1', DATE, INSIGHT, USAGE, {
+      dataSource: 'health_connect',
+      regenerate: false,
+    });
+  });
+
+  it('counts a forced generate as a regenerate', async () => {
+    getCachedFeedback.mockResolvedValue({ headline: 'old' });
+    generateInsightFromDay.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    await androidStore().dispatch(startGenerateFeedback(DATE, { force: true }));
+    expect(getCachedFeedback).not.toHaveBeenCalled();
+    expect(saveAIFeedback).toHaveBeenCalledWith('user-1', DATE, INSIGHT, USAGE, {
+      dataSource: 'health_connect',
+      regenerate: true,
+    });
+  });
+
+  it('returns the cached insight without calling the service', async () => {
+    getCachedFeedback.mockResolvedValue(INSIGHT);
+    const result = await androidStore().dispatch(startGenerateFeedback(DATE));
+    expect(result).toEqual({ insight: INSIGHT, cached: true });
+    expect(generateInsightFromDay).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['has no sleep and no workouts', { ...DAY, sleep: null }],
+    ['is not loaded', null],
+  ])('answers NO_DATA without a call when the day %s', async (label, day) => {
+    const result = await androidStore(day).dispatch(startGenerateFeedback(DATE));
+    expect(result).toEqual({ reason: 'NO_DATA' });
+    expect(generateInsightFromDay).not.toHaveBeenCalled();
+    expect(saveAIFeedback).not.toHaveBeenCalled();
+  });
+
+  it('gives feedback on a day with a workout and no sleep', async () => {
+    generateInsightFromDay.mockResolvedValue({ insight: INSIGHT, usage: USAGE });
+    const day = { ...DAY, sleep: null, workouts: [{ type: 'Walk' }] };
+    const result = await androidStore(day).dispatch(startGenerateFeedback(DATE));
+    expect(result).toEqual({ insight: INSIGHT });
+  });
+
+  it('passes on the NO_DATA answer of the service', async () => {
+    generateInsightFromDay.mockResolvedValue({ insight: null, reason: 'NO_DATA' });
+    const result = await androidStore().dispatch(startGenerateFeedback(DATE));
+    expect(result).toEqual({ reason: 'NO_DATA' });
+    expect(setCachedFeedback).not.toHaveBeenCalled();
+  });
+
+  it.each(['COACH_API_ERROR', 'INVALID_DAY', 'FITBIT_REAUTH_REQUIRED'])(
+    'rethrows %s and leaves the watch connection alone',
+    async (code) => {
+      generateInsightFromDay.mockRejectedValue(serviceError(code));
+      const store = androidStore();
+      const error = await rejectionOf(
+        store.dispatch(startGenerateFeedback(DATE))
+      );
+      expect(error.message).toBe(code);
+      expect(clearFitbitTokens).not.toHaveBeenCalled();
+      expect(store.getActions()).toEqual([]);
+      expect(saveAIFeedback).not.toHaveBeenCalled();
+    }
+  );
 });
