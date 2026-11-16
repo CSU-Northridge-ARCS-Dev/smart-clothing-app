@@ -13,9 +13,10 @@ import {
 } from "../../components";
 import { fitbitCardStyles as card } from "../../components/fitbit/styles";
 import {
-  startCheckFitbit,
-  startLoadFitbitMonth,
-  startLoadFitbitWorkout,
+  startCheckWatch,
+  startLoadMonth,
+  startLoadWorkout,
+  selectWatchStatus,
 } from "../../actions/deviceActions";
 import { toLocalDateString } from "../../utils/dateConversions";
 import { formatClockTime, formatDateLabel } from "../../utils/fitbitFormat";
@@ -24,41 +25,44 @@ import { AppColor, AppFonts } from "../../constants/themes";
 
 const ERROR_MESSAGES = {
   FITBIT_API_ERROR: "Fitbit didn't respond. Pull down to try again.",
-  WORKOUT_NOT_FOUND: "This workout is no longer on Fitbit.",
+  HEALTH_CONNECT_READ_FAILED:
+    "Couldn't read Health Connect. Pull down to try again.",
+  WORKOUT_NOT_FOUND: "This workout is no longer available.",
   Network_Error: "Can't reach the insights service. Is it running?",
 };
 
-// One workout from the watch: the GPS route colored by heart rate zone (runs),
-// heart rate over the session, the stats, and a calendar of the month's
-// workout days. route.params: { date: "YYYY-MM-DD", logId }
+// One workout from the watch: the GPS route colored by heart rate zone (when
+// the workout has one), heart rate over the session, the stats, and a
+// calendar of the month's workout days.
+// route.params: { date: "YYYY-MM-DD", logId }
 const WorkoutDetail = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const { date, logId } = route.params || {};
   const today = toLocalDateString();
   const [month, setMonth] = useState(monthOf(date));
 
-  const status = useSelector((state) => state.device.fitbit.status);
+  const status = useSelector(selectWatchStatus);
   const workoutState = useSelector(
     (state) => state.device.fitbit.workouts[logId]
   );
   const monthState = useSelector((state) => state.device.fitbit.months[month]);
 
   useEffect(() => {
-    if (status === "unknown") dispatch(startCheckFitbit());
+    if (status === "unknown") dispatch(startCheckWatch());
   }, []);
 
   useEffect(() => {
-    if (status === "connected") dispatch(startLoadFitbitWorkout(date, logId));
+    if (status === "connected") dispatch(startLoadWorkout(date, logId));
   }, [status, date, logId]);
 
   useEffect(() => {
-    if (status === "connected" && month) dispatch(startLoadFitbitMonth(month));
+    if (status === "connected" && month) dispatch(startLoadMonth(month));
   }, [status, month]);
 
   const goToDevices = () => navigation.navigate("Main", { screen: "Device" });
   const onRefresh = () => {
-    dispatch(startLoadFitbitWorkout(date, logId, { force: true }));
-    dispatch(startLoadFitbitMonth(month, { force: true }));
+    dispatch(startLoadWorkout(date, logId, { force: true }));
+    dispatch(startLoadMonth(month, { force: true }));
   };
 
   const renderWorkout = () => {
