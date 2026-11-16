@@ -46,8 +46,8 @@ const ERROR_MESSAGES = {
   Network_Error: "Can't reach the insights service. Is it running?",
 };
 
-// The workout page and the AI feedback still go through Fitbit, so they're
-// left off where the day comes from Health Connect
+// The AI feedback still goes through Fitbit, so it's left off where the day
+// comes from Health Connect
 const fromHealthConnect = () => Platform.OS === "android";
 
 // One day of watch data: sleep, steps, heart rate and workouts,
@@ -103,11 +103,8 @@ const DailySummary = ({ route, navigation }) => {
         <HeartCard heart={day.heart} />
         <WorkoutList
           workouts={day.workouts}
-          onPressWorkout={
-            fromHealthConnect()
-              ? undefined
-              : (w) =>
-                  navigation.navigate("WorkoutDetail", { date, logId: w.logId })
+          onPressWorkout={(w) =>
+            navigation.navigate("WorkoutDetail", { date, logId: w.logId })
           }
         />
         {fromHealthConnect() ? null : <AIFeedbackSection date={date} />}
