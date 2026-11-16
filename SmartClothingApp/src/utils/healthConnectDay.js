@@ -217,6 +217,36 @@ const buildWorkout = (session, raw, samples, age, restingHeartRate) => {
   return workout;
 };
 
+// Health Connect device types that are worn: watch, ring, fitness band,
+// chest strap
+const WORN_DEVICE_TYPES = [1, 4, 6, 7];
+
+// The model of the watch that recorded the day ("Pixel Watch 3"), or null.
+// Only some record types carry it, and the phone's own records are ignored.
+export const watchDevice = (raw) => {
+  const records = [
+    ...(raw.sleep || []),
+    ...(raw.exercise || []),
+    ...(raw.heartRate || []),
+    ...(raw.restingHeartRate?.today || []),
+  ];
+  for (const record of records) {
+    const device = record?.metadata?.device;
+    if (device?.model && WORN_DEVICE_TYPES.includes(device.type)) {
+      return device.model;
+    }
+  }
+  return null;
+};
+
+// True when the watch recorded nothing at all for the day
+export const isEmptyDay = (day) =>
+  !day.sleep &&
+  (day.workouts || []).length === 0 &&
+  !day.steps &&
+  day.heart?.restingHeartRate == null &&
+  !(day.heart?.hr5min || []).some((bpm) => bpm != null);
+
 // date: "YYYY-MM-DD". raw: what readDayRecords(date) returned.
 // profile: { dob }, used for the heart rate zones.
 export const buildDay = (date, raw, profile) => {
