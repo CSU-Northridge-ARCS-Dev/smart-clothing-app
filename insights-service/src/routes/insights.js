@@ -1,13 +1,7 @@
 const { Router } = require("express");
 const { getConfig } = require("../config");
 const requireFirebaseUser = require("../middleware/requireFirebaseUser");
-const fitbitApi = require("../lib/fitbit-api");
-const {
-  DATE_RE,
-  fetchDayRaw,
-  toDay,
-  sendFitbitError,
-} = require("../lib/fitbitDay");
+const { DATE_RE } = require("../lib/dates");
 const {
   sanitizeProfile,
   hasCoachableData,
@@ -41,16 +35,11 @@ function createInsightsRouter({ coachClient } = {}) {
     return config;
   };
 
-  // The Claude half both routes share: answers NO_DATA without a call, or
-  // asks for feedback, logs the usage and answers. extra is added to every
-  // response body.
-  const sendFeedback = async (
-    res,
-    config,
-    { date, profile, day, source, extra = {} },
-  ) => {
+  // Answers NO_DATA without a Claude call, or asks for feedback, logs the
+  // usage and answers
+  const sendFeedback = async (res, config, { date, profile, day, source }) => {
     if (!hasCoachableData(day)) {
-      return res.json({ insight: null, reason: "NO_DATA", ...extra });
+      return res.json({ insight: null, reason: "NO_DATA" });
     }
 
     const { anthropicApiKey, coachModel, usageLogPath } = config;
@@ -65,55 +54,16 @@ function createInsightsRouter({ coachClient } = {}) {
         { date, ...usage, source },
         usageLogPath ? { filePath: usageLogPath } : {},
       );
-      res.json({ insight, usage, ...extra });
+      res.json({ insight, usage });
     } catch (error) {
       if (error.message === "COACH_API_ERROR" || error.message === "COACH_REFUSED") {
         console.error(`Claude feedback failed (${error.message}):`, error.cause || "");
-        return res.status(502).json({ error: error.message, ...extra });
+        return res.status(502).json({ error: error.message });
       }
       console.error("Claude feedback error:", error);
-      res.status(500).json({ error: "INTERNAL_ERROR", ...extra });
+      res.status(500).json({ error: "INTERNAL_ERROR" });
     }
   };
-
-  // POST /api/insights/generate { date, profile } - Claude feedback on one
-  // day.
-  router.post("/generate", requireFirebaseUser, async (req, res) => {
-    const { date, profile } = req.body || {};
-    if (typeof date !== "string" || !DATE_RE.test(date)) {
-      return res.status(400).json({ error: "INVALID_DATE" });
-    }
-
-    const accessToken = req.get("X-Fitbit-Token");
-    if (!accessToken) {
-      return res.status(401).json({ error: "FITBIT_NOT_CONNECTED" });
-    }
-    const refreshToken = req.get("X-Fitbit-Refresh-Token");
-
-    const config = coachConfig(res);
-    if (!config) return;
-
-    let day;
-    let extra = {};
-    try {
-      const { result, refreshedTokens } = await fitbitApi.withFreshToken(
-        { accessToken, refreshToken },
-        (token) => fetchDayRaw(token, date),
-      );
-      if (refreshedTokens) extra = { refreshedTokens };
-      day = toDay(date, result);
-    } catch (error) {
-      return sendFitbitError(res, error, "Insights day");
-    }
-
-    await sendFeedback(res, config, {
-      date,
-      profile,
-      day,
-      source: "fitbit",
-      extra,
-    });
-  });
 
   // POST /api/insights/generate-from-day { date, profile, day, source } -
   // Claude feedback on a day the phone built itself. source says where the

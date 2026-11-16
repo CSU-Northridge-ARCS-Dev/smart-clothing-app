@@ -17,7 +17,6 @@ const ERROR_MESSAGES = {
   COACH_API_ERROR: "The AI coach didn't respond. Try again in a moment.",
   COACH_REFUSED: "The AI coach couldn't write feedback for this day.",
   COACH_NOT_CONFIGURED: "AI feedback isn't set up on the insights service yet.",
-  FITBIT_API_ERROR: "Fitbit didn't respond. Try again in a moment.",
   INVALID_DAY: "This day's data couldn't be sent for feedback.",
   "Network Error": "Can't reach the insights service. Is it running?",
 };

@@ -24,11 +24,9 @@ import { monthOf } from "../../utils/workoutRoute";
 import { AppColor, AppFonts } from "../../constants/themes";
 
 const ERROR_MESSAGES = {
-  FITBIT_API_ERROR: "Fitbit didn't respond. Pull down to try again.",
   HEALTH_CONNECT_READ_FAILED:
     "Couldn't read Health Connect. Pull down to try again.",
   WORKOUT_NOT_FOUND: "This workout is no longer available.",
-  Network_Error: "Can't reach the insights service. Is it running?",
 };
 
 // One workout from the watch: the GPS route colored by heart rate zone (when
@@ -72,7 +70,7 @@ const WorkoutDetail = ({ route, navigation }) => {
       );
     }
     if (workoutState.error) {
-      const key = workoutState.error.replace(/ /g, "_");
+      const key = workoutState.error;
       return (
         <View style={card.card}>
           <Text style={card.title}>Couldn't load this workout</Text>
@@ -90,15 +88,6 @@ const WorkoutDetail = ({ route, navigation }) => {
           {workout.type} · {formatClockTime(workout.startTime)}
         </Text>
         {workout.hasRoute ? <RouteMap points={workout.points} /> : null}
-        {workout.hasGps && !workout.hasRoute ? (
-          <View style={card.card} testID="route-reconnect-hint">
-            <Text style={card.title}>Route</Text>
-            <Text style={card.empty}>
-              To see the route, disconnect and reconnect your Pixel Watch on
-              the Devices tab and allow location access.
-            </Text>
-          </View>
-        ) : null}
         <WorkoutStats workout={workout} />
         <HeartRateTimeline points={workout.points} zones={workout.zones} />
       </>

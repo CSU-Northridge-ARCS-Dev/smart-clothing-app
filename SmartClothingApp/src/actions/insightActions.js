@@ -1,25 +1,14 @@
-import { Platform } from "react-native";
-
 import { auth } from "../../firebaseConfig.js";
-import {
-  generateInsight,
-  generateInsightFromDay,
-  getErrorCode,
-} from "../services/insightsApi";
+import { generateInsightFromDay, getErrorCode } from "../services/insightsApi";
 import { saveAIFeedback } from "../services/healthStore";
 import { getCachedFeedback, setCachedFeedback } from "../utils/localStorage";
 import { ageFromDob } from "../utils/age";
-import { startHandleFitbitError } from "./deviceActions";
 
 // The signup profile Claude sees
 export const buildCoachProfile = (userMetricsData = {}) => {
   const { gender, dob, height, weight, sports } = userMetricsData;
   return { gender, age: ageFromDob(dob), height, weight, sports };
 };
-
-// Android builds the day on the phone from Health Connect and sends it.
-// Everything else still has the service fetch the day from Fitbit.
-const usesHealthConnect = () => Platform.OS === "android";
 
 // Sleep or a workout is enough to give feedback on; the service applies the
 // same rule
@@ -46,7 +35,8 @@ const keepFeedback = async (date, data, meta) => {
   return { insight: data.insight };
 };
 
-// AI feedback for one day (YYYY-MM-DD). force skips the cache (Regenerate).
+// AI feedback for one day (YYYY-MM-DD), which the phone built from Health
+// Connect and sends to the service. force skips the cache (Regenerate).
 export const startGenerateFeedback = (date, { force = false } = {}) => {
   return async (dispatch, getState) => {
     if (!force) {
@@ -56,30 +46,16 @@ export const startGenerateFeedback = (date, { force = false } = {}) => {
 
     const profile = buildCoachProfile(getState().user.userMetricsData);
 
-    if (usesHealthConnect()) {
-      const day = getState().device.fitbit.days[date]?.data;
-      if (!hasCoachableData(day)) return { reason: "NO_DATA" };
-      try {
-        const data = await generateInsightFromDay(date, profile, day);
-        return await keepFeedback(date, data, {
-          dataSource: "health_connect",
-          regenerate: force,
-        });
-      } catch (error) {
-        throw new Error(getErrorCode(error));
-      }
-    }
-
+    const day = getState().device.fitbit.days[date]?.data;
+    if (!hasCoachableData(day)) return { reason: "NO_DATA" };
     try {
-      const data = await generateInsight(date, profile);
+      const data = await generateInsightFromDay(date, profile, day);
       return await keepFeedback(date, data, {
-        dataSource: "fitbit",
+        dataSource: "health_connect",
         regenerate: force,
       });
     } catch (error) {
-      const code = getErrorCode(error);
-      await dispatch(startHandleFitbitError(code));
-      throw new Error(code);
+      throw new Error(getErrorCode(error));
     }
   };
 };

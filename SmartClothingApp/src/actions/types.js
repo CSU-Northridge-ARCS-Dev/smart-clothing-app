@@ -38,8 +38,7 @@ export const ADD_DEVICE = "ADD_DEVICE";
 export const UPDATE_DEVICE = "UPDATE_DEVICE";
 export const DELETE_DEVICE = "DELETE_DEVICE";
 
-// Fitbit 
-export const FITBIT_SET_STATUS = "FITBIT_SET_STATUS";
+// Watch data
 export const FITBIT_DAY_LOADING = "FITBIT_DAY_LOADING";
 export const FITBIT_DAY_LOADED = "FITBIT_DAY_LOADED";
 export const FITBIT_DAY_ERROR = "FITBIT_DAY_ERROR";

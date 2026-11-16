@@ -39,10 +39,8 @@ import { AppColor, AppFonts } from "../../constants/themes";
 import AIFeedbackSection from "./AIFeedbackSection";
 
 const ERROR_MESSAGES = {
-  FITBIT_API_ERROR: "Fitbit didn't respond. Pull down to try again.",
   HEALTH_CONNECT_READ_FAILED:
     "Couldn't read Health Connect. Pull down to try again.",
-  Network_Error: "Can't reach the insights service. Is it running?",
 };
 
 // One day of watch data: sleep, steps, heart rate and workouts,
@@ -80,7 +78,7 @@ const DailySummary = ({ route, navigation }) => {
       return <ActivityIndicator style={styles.spinner} testID="day-loading" />;
     }
     if (dayState.error) {
-      const key = dayState.error.replace(/ /g, "_");
+      const key = dayState.error;
       return (
         <View style={card.card}>
           <Text style={card.title}>Couldn't load this day</Text>

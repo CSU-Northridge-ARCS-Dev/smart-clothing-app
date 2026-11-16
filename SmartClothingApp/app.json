@@ -54,7 +54,6 @@
           "enableBackgroundRemoteNotifications": false
         }
       ],
-      "expo-secure-store",
       "react-native-health-connect"
     ],
     "runtimeVersion": "1.0.0",

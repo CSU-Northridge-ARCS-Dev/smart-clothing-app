@@ -1,7 +1,7 @@
 // A day built on the phone can't be trusted the way one fetched by this
 // service can. validateDay rebuilds it with only the fields the coach prompt
 // reads, so nothing else the client sends can reach Claude.
-const { DATE_RE } = require("./fitbitDay");
+const { DATE_RE } = require("./dates");
 
 const MINUTES_PER_DAY = 1440;
 const MAX_WORKOUTS = 20;

@@ -1,10 +1,9 @@
 /**
  * @file deviceReducer.unit.test.js
- * The device list and the Fitbit (Pixel Watch) slice .
+ * The device list, the Health Connect status and the watch data slice.
  */
 import deviceReducer from '../../../src/reducers/deviceReducer';
 import {
-  FITBIT_SET_STATUS,
   FITBIT_DAY_LOADING,
   FITBIT_DAY_LOADED,
   FITBIT_DAY_ERROR,
@@ -27,15 +26,13 @@ const DAY = { date: DATE, sleep: null, heart: {}, workouts: [] };
 describe('deviceReducer', () => {
   const initial = deviceReducer(undefined, { type: '@@INIT' });
 
-  it('lists the Pixel Watch after the demo devices', () => {
+  it('lists Health Connect after the demo devices', () => {
     expect(initial.devicesData.map((d) => d.name)).toEqual([
       'Smart Sock',
       'Smart Shirt',
-      'Pixel Watch',
       'Health Connect',
     ]);
-    expect(initial.devicesData[2].connection).toBe('fitbit');
-    expect(initial.devicesData[3].connection).toBe('health_connect');
+    expect(initial.devicesData[2].connection).toBe('health_connect');
   });
 
   it('starts with an unknown Health Connect status and no permissions', () => {
@@ -73,26 +70,13 @@ describe('deviceReducer', () => {
     });
   });
 
-  it('starts with an unknown Fitbit status and no days, weeks, workouts or months', () => {
+  it('starts with no days, weeks, workouts or months', () => {
     expect(initial.fitbit).toEqual({
-      status: 'unknown',
-      error: null,
       days: {},
       weeks: {},
       workouts: {},
       months: {},
     });
-  });
-
-  it('sets the status and error', () => {
-    const state = deviceReducer(initial, {
-      type: FITBIT_SET_STATUS,
-      status: 'error',
-      error: 'access_denied',
-    });
-    expect(state.fitbit.status).toBe('error');
-    expect(state.fitbit.error).toBe('access_denied');
-    expect(state.devicesData).toBe(initial.devicesData);
   });
 
   it('tracks a day from loading to loaded', () => {
@@ -112,9 +96,9 @@ describe('deviceReducer', () => {
     let state = deviceReducer(initial, {
       type: FITBIT_DAY_ERROR,
       date: DATE,
-      error: 'FITBIT_API_ERROR',
+      error: 'HEALTH_CONNECT_READ_FAILED',
     });
-    expect(state.fitbit.days[DATE].error).toBe('FITBIT_API_ERROR');
+    expect(state.fitbit.days[DATE].error).toBe('HEALTH_CONNECT_READ_FAILED');
     state = deviceReducer(state, { type: FITBIT_CLEAR_DAYS });
     expect(state.fitbit.days).toEqual({});
   });
@@ -135,11 +119,11 @@ describe('deviceReducer', () => {
     state = deviceReducer(state, {
       type: FITBIT_WEEK_ERROR,
       endDate: DATE,
-      error: 'FITBIT_API_ERROR',
+      error: 'HEALTH_CONNECT_READ_FAILED',
     });
     expect(state.fitbit.weeks[DATE]).toEqual({
       loading: false,
-      error: 'FITBIT_API_ERROR',
+      error: 'HEALTH_CONNECT_READ_FAILED',
       data: null,
     });
     state = deviceReducer(state, { type: FITBIT_CLEAR_DAYS });
@@ -200,9 +184,9 @@ describe('deviceReducer workouts and months', () => {
     state = deviceReducer(state, {
       type: FITBIT_MONTH_ERROR,
       month: '2026-09',
-      error: 'FITBIT_API_ERROR',
+      error: 'HEALTH_CONNECT_READ_FAILED',
     });
-    expect(state.fitbit.months['2026-09'].error).toBe('FITBIT_API_ERROR');
+    expect(state.fitbit.months['2026-09'].error).toBe('HEALTH_CONNECT_READ_FAILED');
     expect(state.fitbit.months['2026-10'].data).toBe(MONTH_WORKOUTS);
   });
 

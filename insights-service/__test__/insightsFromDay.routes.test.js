@@ -1,11 +1,8 @@
 jest.mock("../src/lib/firebaseAdmin", () => ({ verifyIdToken: jest.fn() }));
-jest.mock("../src/lib/fitbit-api", () => ({ withFreshToken: jest.fn() }));
 jest.mock("../src/lib/usageLog", () => ({ logUsage: jest.fn() }));
 
 const request = require("supertest");
-const { setFitbitEnv } = require("./helpers");
 const { verifyIdToken } = require("../src/lib/firebaseAdmin");
-const fitbitApi = require("../src/lib/fitbit-api");
 const { logUsage } = require("../src/lib/usageLog");
 const { createApp } = require("../src/app");
 
@@ -65,7 +62,7 @@ describe("POST /api/insights/generate-from-day", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    setFitbitEnv();
+    process.env.FIREBASE_PROJECT_ID = "test-project";
     process.env.ANTHROPIC_API_KEY = "sk-test";
     process.env.COACH_MODEL = "claude-opus-5-5";
     delete process.env.USAGE_LOG_PATH;
@@ -172,10 +169,10 @@ describe("POST /api/insights/generate-from-day", () => {
     expect(logUsage.mock.calls[0][0].source).toBe("healthkit");
   });
 
-  it("needs no Fitbit tokens and never calls Fitbit", async () => {
-    const res = await generate();
-    expect(res.status).toBe(200);
-    expect(fitbitApi.withFreshToken).not.toHaveBeenCalled();
+  it("writes the usage row to USAGE_LOG_PATH when it is set", async () => {
+    process.env.USAGE_LOG_PATH = "/tmp/usage.csv";
+    await generate();
+    expect(logUsage.mock.calls[0][1]).toEqual({ filePath: "/tmp/usage.csv" });
   });
 
   it("sends Claude the sanitized profile and the phone's day", async () => {

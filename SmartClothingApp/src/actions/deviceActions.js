@@ -1,6 +1,5 @@
 import {
   GET_DEVICES,
-  FITBIT_SET_STATUS,
   FITBIT_DAY_LOADING,
   FITBIT_DAY_LOADED,
   FITBIT_DAY_ERROR,
@@ -16,9 +15,6 @@ import {
   FITBIT_MONTH_ERROR,
   HEALTH_CONNECT_SET_STATUS,
 } from "./types";
-import { Platform } from "react-native";
-import * as WebBrowser from "expo-web-browser";
-import * as Linking from "expo-linking";
 import {
   collection,
   addDoc,
@@ -30,19 +26,6 @@ import {
   deleteField 
 } from "firebase/firestore";
 import { auth, database } from "../../firebaseConfig.js";
-import {
-  getFitbitTokens,
-  setFitbitTokens,
-  clearFitbitTokens,
-} from "../utils/fitbitTokens";
-import {
-  getFitbitAuthUrl,
-  getFitbitDay,
-  getFitbitWeek,
-  getFitbitWorkout,
-  getFitbitMonthWorkouts,
-  getErrorCode,
-} from "../services/insightsApi";
 import { saveDailyStats } from "../services/healthStore";
 import {
   toLocalDateString,
@@ -103,16 +86,7 @@ export const removePushTokenFromBackend = () => {
   };
 };
 
-// Fitbit 
-
-// Service errors that mean the stored tokens are no longer usable
-const FITBIT_REAUTH_ERRORS = ["FITBIT_REAUTH_REQUIRED", "FITBIT_NOT_CONNECTED"];
-
-export const setFitbitStatus = (status, error = null) => ({
-  type: FITBIT_SET_STATUS,
-  status,
-  error,
-});
+// The watch data cache
 
 export const fitbitDayLoading = (date) => ({ type: FITBIT_DAY_LOADING, date });
 
@@ -145,7 +119,6 @@ export const fitbitWeekError = (endDate, error) => ({
   error,
 });
 
-// Clears the loaded days and weeks
 export const fitbitWorkoutLoading = (logId) => ({
   type: FITBIT_WORKOUT_LOADING,
   logId,
@@ -180,106 +153,8 @@ export const fitbitMonthError = (month, error) => ({
   error,
 });
 
+// Clears the loaded days, weeks, workouts and months
 export const clearFitbitDays = () => ({ type: FITBIT_CLEAR_DAYS });
-
-// Connected means a token pair is in SecureStore
-export const startCheckFitbit = () => {
-  return async (dispatch) => {
-    const tokens = await getFitbitTokens();
-    dispatch(setFitbitStatus(tokens ? "connected" : "not_connected"));
-    return Boolean(tokens);
-  };
-};
-
-// Fitbit login in the in-app browser. The service redirects back to returnTo
-// with the tokens (or with error=) in the query string.
-export const startConnectFitbit = () => {
-  return async (dispatch) => {
-    dispatch(setFitbitStatus("connecting"));
-    try {
-      const returnTo = Linking.createURL("fitbit");
-      const authUrl = await getFitbitAuthUrl(returnTo);
-      const result = await WebBrowser.openAuthSessionAsync(authUrl, returnTo);
-
-      if (result.type !== "success") {
-        // The user closed the browser
-        dispatch(setFitbitStatus("not_connected"));
-        return false;
-      }
-
-      const params = Linking.parse(result.url).queryParams || {};
-      if (params.error || !params.accessToken || !params.refreshToken) {
-        dispatch(setFitbitStatus("error", params.error || "missing_tokens"));
-        return false;
-      }
-
-      await setFitbitTokens({
-        accessToken: params.accessToken,
-        refreshToken: params.refreshToken,
-        expiresAt: params.expiresAt,
-        fitbitUserId: params.fitbitUserId,
-      });
-      dispatch(clearFitbitDays());
-      dispatch(setFitbitStatus("connected"));
-      return true;
-    } catch (error) {
-      console.log("Fitbit connect error: ", error);
-      dispatch(setFitbitStatus("error", getErrorCode(error)));
-      return false;
-    }
-  };
-};
-
-export const startDisconnectFitbit = () => {
-  return async (dispatch) => {
-    await clearFitbitTokens();
-    dispatch(clearFitbitDays());
-    dispatch(setFitbitStatus("not_connected"));
-  };
-};
-
-// If a service error means the Fitbit login is no longer usable, forget the
-// tokens and go back to not connected. Returns true when that happened.
-export const startHandleFitbitError = (code) => {
-  return async (dispatch) => {
-    if (!FITBIT_REAUTH_ERRORS.includes(code)) return false;
-    await clearFitbitTokens();
-    dispatch(clearFitbitDays());
-    dispatch(setFitbitStatus("not_connected", code));
-    return true;
-  };
-};
-
-// Shared by the day and week loaders. existing is the cached entry; one
-// already loaded (or loading) is not fetched again unless force is true.
-// saved, if given, runs after a successful load.
-const loadFitbitEntry = async (
-  dispatch,
-  existing,
-  force,
-  { fetch, loading, loaded, failed, saved }
-) => {
-  if (!force && existing && (existing.loading || existing.data)) return;
-
-  const tokens = await getFitbitTokens();
-  if (!tokens) {
-    dispatch(setFitbitStatus("not_connected"));
-    return;
-  }
-
-  dispatch(loading());
-  let data;
-  try {
-    data = await fetch();
-    dispatch(loaded(data));
-  } catch (error) {
-    const code = getErrorCode(error);
-    dispatch(failed(code));
-    await dispatch(startHandleFitbitError(code));
-    return;
-  }
-  if (saved) await saved(data);
-};
 
 // Saves a finished day to Firestore. Today isn't over yet, so it's skipped,
 // and a failed write is only logged so the screen still shows the day.
@@ -288,7 +163,7 @@ const loadFitbitEntry = async (
 const saveFinishedDay = async (
   date,
   day,
-  { source = "fitbit", device = null } = {}
+  { source = "health_connect", device = null } = {}
 ) => {
   const uid = auth.currentUser?.uid;
   if (!uid) return "failed";
@@ -305,10 +180,6 @@ const saveFinishedDay = async (
     return "failed";
   }
 };
-
-// Android reads the watch through Health Connect. Everything else still
-// goes through Fitbit.
-const usesHealthConnect = () => Platform.OS === "android";
 
 // True when a record type couldn't be read
 const hasReadFailure = (raw) =>
@@ -356,10 +227,8 @@ const loadHealthConnectEntry = async (
   }
 };
 
-// How many finished days the auto-save goes back at most. Fitbit calls are
-// limited; Health Connect reads stay on the phone.
-const AUTO_SAVE_MAX_DAYS = 3;
-const HEALTH_CONNECT_AUTO_SAVE_MAX_DAYS = 30;
+// How many finished days the auto-save goes back at most
+const AUTO_SAVE_MAX_DAYS = 30;
 // A day with no data this recent may only be waiting for the watch to sync
 const EMPTY_DAY_WAIT_DAYS = 3;
 let autoSaveRunning = false;
@@ -372,27 +241,6 @@ const firstDayToSave = async (uid, today, maxDays) => {
   return next > earliest ? next : earliest;
 };
 
-const autoSaveFitbitDays = async (dispatch, uid) => {
-  if (!(await getFitbitTokens())) return;
-
-  const today = toLocalDateString();
-  const yesterday = addDaysToDateString(today, -1);
-  let date = await firstDayToSave(uid, today, AUTO_SAVE_MAX_DAYS);
-
-  for (; date <= yesterday; date = addDaysToDateString(date, 1)) {
-    let day;
-    try {
-      day = await getFitbitDay(date);
-    } catch (error) {
-      await dispatch(startHandleFitbitError(getErrorCode(error)));
-      return;
-    }
-    dispatch(fitbitDayLoaded(date, day));
-    if ((await saveFinishedDay(date, day)) === "failed") return;
-    await setLastSavedDate(uid, date);
-  }
-};
-
 // A day that can't be read or written stops the run, and the next run starts
 // again from that day. A day with no data is never written: a recent one
 // stops the run too, and an older one is passed over.
@@ -402,11 +250,7 @@ const autoSaveHealthConnectDays = async (dispatch, getState, uid) => {
   const today = toLocalDateString();
   const yesterday = addDaysToDateString(today, -1);
   const emptyWaitFrom = addDaysToDateString(today, -EMPTY_DAY_WAIT_DAYS);
-  let date = await firstDayToSave(
-    uid,
-    today,
-    HEALTH_CONNECT_AUTO_SAVE_MAX_DAYS
-  );
+  let date = await firstDayToSave(uid, today, AUTO_SAVE_MAX_DAYS);
 
   for (; date <= yesterday; date = addDaysToDateString(date, 1)) {
     const { day, device, readFailed } = await readHealthConnectDay(
@@ -436,65 +280,13 @@ export const startAutoSaveDays = () => {
     try {
       const uid = auth.currentUser?.uid;
       if (!uid) return;
-      if (usesHealthConnect()) {
-        await autoSaveHealthConnectDays(dispatch, getState, uid);
-      } else {
-        await autoSaveFitbitDays(dispatch, uid);
-      }
+      await autoSaveHealthConnectDays(dispatch, getState, uid);
     } catch (error) {
       console.log("Auto-save error: ", error);
     } finally {
       autoSaveRunning = false;
     }
   };
-};
-
-// Loads one day (YYYY-MM-DD) into state.device.fitbit.days, then saves it
-// to Firestore if the day is finished
-export const startLoadFitbitDay = (date, { force = false } = {}) => {
-  return (dispatch, getState) =>
-    loadFitbitEntry(dispatch, getState().device.fitbit.days[date], force, {
-      fetch: () => getFitbitDay(date),
-      loading: () => fitbitDayLoading(date),
-      loaded: (day) => fitbitDayLoaded(date, day),
-      failed: (code) => fitbitDayError(date, code),
-      saved: (day) => saveFinishedDay(date, day),
-    });
-};
-
-// Loads the 7 days ending at endDate (steps and sleep for the activity rings)
-// into state.device.fitbit.weeks
-export const startLoadFitbitWeek = (endDate, { force = false } = {}) => {
-  return (dispatch, getState) =>
-    loadFitbitEntry(dispatch, getState().device.fitbit.weeks[endDate], force, {
-      fetch: () => getFitbitWeek(endDate),
-      loading: () => fitbitWeekLoading(endDate),
-      loaded: (week) => fitbitWeekLoaded(endDate, week),
-      failed: (code) => fitbitWeekError(endDate, code),
-    });
-};
-
-// Loads one workout (route and heart rate points) into
-// state.device.fitbit.workouts. date is the day it was recorded.
-export const startLoadFitbitWorkout = (date, logId, { force = false } = {}) => {
-  return (dispatch, getState) =>
-    loadFitbitEntry(dispatch, getState().device.fitbit.workouts[logId], force, {
-      fetch: () => getFitbitWorkout(date, logId),
-      loading: () => fitbitWorkoutLoading(logId),
-      loaded: (workout) => fitbitWorkoutLoaded(logId, workout),
-      failed: (code) => fitbitWorkoutError(logId, code),
-    });
-};
-
-// Loads the workout days of a YYYY-MM month into state.device.fitbit.months
-export const startLoadFitbitMonth = (month, { force = false } = {}) => {
-  return (dispatch, getState) =>
-    loadFitbitEntry(dispatch, getState().device.fitbit.months[month], force, {
-      fetch: () => getFitbitMonthWorkouts(month),
-      loading: () => fitbitMonthLoading(month),
-      loaded: (workouts) => fitbitMonthLoaded(month, workouts),
-      failed: (code) => fitbitMonthError(month, code),
-    });
 };
 
 // Health Connect
@@ -597,17 +389,11 @@ export const startDisconnectHealthConnect = () => {
 // The watch
 
 // The connection status the screens wait on
-export const selectWatchStatus = (state) =>
-  usesHealthConnect()
-    ? state.device.healthConnect.status
-    : state.device.fitbit.status;
+export const selectWatchStatus = (state) => state.device.healthConnect.status;
 
 // Returns true when the watch's data can be read
 export const startCheckWatch = () => {
-  return (dispatch) =>
-    dispatch(
-      usesHealthConnect() ? startCheckHealthConnect() : startCheckFitbit()
-    );
+  return (dispatch) => dispatch(startCheckHealthConnect());
 };
 
 // Loads one day (YYYY-MM-DD) into state.device.fitbit.days, the cache Home
@@ -615,10 +401,6 @@ export const startCheckWatch = () => {
 // again unless force is true. A finished day with data is then saved.
 export const startLoadDay = (date, { force = false } = {}) => {
   return async (dispatch, getState) => {
-    if (!usesHealthConnect()) {
-      return dispatch(startLoadFitbitDay(date, { force }));
-    }
-
     const { fitbit, healthConnect: connection } = getState().device;
     const existing = fitbit.days[date];
     if (!force && existing && (existing.loading || existing.data)) return;
@@ -646,9 +428,6 @@ export const startLoadDay = (date, { force = false } = {}) => {
 // rings) into state.device.fitbit.weeks
 export const startLoadWeek = (endDate, { force = false } = {}) => {
   return (dispatch, getState) => {
-    if (!usesHealthConnect()) {
-      return dispatch(startLoadFitbitWeek(endDate, { force }));
-    }
     return loadHealthConnectEntry(
       dispatch,
       getState,
@@ -668,9 +447,6 @@ export const startLoadWeek = (endDate, { force = false } = {}) => {
 // Loads the workout days of a YYYY-MM month into state.device.fitbit.months
 export const startLoadMonth = (month, { force = false } = {}) => {
   return (dispatch, getState) => {
-    if (!usesHealthConnect()) {
-      return dispatch(startLoadFitbitMonth(month, { force }));
-    }
     return loadHealthConnectEntry(
       dispatch,
       getState,
@@ -692,9 +468,6 @@ export const startLoadMonth = (month, { force = false } = {}) => {
 // the workout's logId from that day.
 export const startLoadWorkout = (date, id, { force = false } = {}) => {
   return (dispatch, getState) => {
-    if (!usesHealthConnect()) {
-      return dispatch(startLoadFitbitWorkout(date, id, { force }));
-    }
     const dob = getState().user.userMetricsData?.dob;
     return loadHealthConnectEntry(
       dispatch,

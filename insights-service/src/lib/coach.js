@@ -134,7 +134,7 @@ function formatMinutes(total) {
   return m > 0 ? `${h}h ${m}min` : `${h}h`;
 }
 
-// Fitbit times are local wall-clock ISO strings; read HH:MM straight from
+// Times are local wall-clock ISO strings; read HH:MM straight from
 // the text so the server's time zone never shifts them
 function formatClock(iso) {
   const match = typeof iso === "string" && iso.match(/T(\d{2}):(\d{2})/);
