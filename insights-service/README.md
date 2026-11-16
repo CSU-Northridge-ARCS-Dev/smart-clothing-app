@@ -22,6 +22,7 @@ npm test                 # Jest + supertest, no network calls
 | POST | `/api/fitbit/refresh` | Firebase | `{ refreshToken }` -> new token pair |
 | GET | `/api/fitbit/day/:date` | Firebase + `X-Fitbit-Token`, `X-Fitbit-Refresh-Token` | `{ day, refreshedTokens? }` for a `YYYY-MM-DD` date |
 | POST | `/api/insights/generate` | Firebase + `X-Fitbit-Token`, `X-Fitbit-Refresh-Token` | body `{ date, profile }` -> `{ insight: { headline, keySignals[], focus[] }, usage, refreshedTokens? }`, or `{ insight: null, reason: "NO_DATA" }` when the day has no sleep and no workout (Claude is not called) |
+| POST | `/api/insights/generate-from-day` | Firebase | body `{ date, profile, day, source }`, where `day` is the day the phone built and `source` is `health_connect` or `healthkit`. Same responses as `/generate`, with no Fitbit tokens. The day is rebuilt by `validateDay` first: `400 INVALID_DAY` for a malformed one, `400 INVALID_SOURCE` for an unknown source |
 
 "Firebase" means the request sends `Authorization: Bearer <Firebase ID token>`.
 
@@ -33,7 +34,7 @@ Error codes: `UNAUTHENTICATED`, `INVALID_RETURN_TO`, `INVALID_DATE`, `MISSING_RE
 
 `profile` is the signup data the app already has: `{ gender, age, height (inches), weight (lbs), sports }`. Any field can be missing; the app's `"No Data"` placeholder is ignored. The prompt is built from the day **without** the sleep-stage timeline (`sleep.levels`).
 
-The model comes from `COACH_MODEL`. Every call appends a row to `usage-log.csv` (gitignored; `USAGE_LOG_PATH` moves it): `timestamp,date,model,input_tokens,output_tokens`. The cost estimate is worked out from it. `model` is the model that actually answered, which can differ from `COACH_MODEL` after a refusal fallback.
+The model comes from `COACH_MODEL`. Every call appends a row to `usage-log.csv` (gitignored; `USAGE_LOG_PATH` moves it): `timestamp,date,model,input_tokens,output_tokens,source`. `source` is where the day came from (`fitbit`, `health_connect` or `healthkit`); rows written before the column was added have none. The cost estimate is worked out from it. `model` is the model that actually answered, which can differ from `COACH_MODEL` after a refusal fallback.
 
 To try the prompt without the app:
 
