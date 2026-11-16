@@ -60,7 +60,11 @@ import {
   setHealthConnectDisconnected,
 } from '../../../src/utils/localStorage';
 import * as healthConnect from '../../../src/services/healthConnect';
-import { buildDay } from '../../../src/utils/healthConnectDay';
+import {
+  buildDay,
+  isEmptyDay,
+  watchDevice,
+} from '../../../src/utils/healthConnectDay';
 import { Platform } from 'react-native';
 import { auth } from '../../../firebaseConfig.js';
 
@@ -122,6 +126,8 @@ jest.mock('../../../src/services/healthConnect', () => ({
 
 jest.mock('../../../src/utils/healthConnectDay', () => ({
   buildDay: jest.fn(),
+  isEmptyDay: jest.fn(),
+  watchDevice: jest.fn(),
 }));
 
 const mockStore = configureMockStore([thunk]);
@@ -814,6 +820,9 @@ describe('The watch on Android', () => {
     Platform.OS = 'android';
     healthConnect.readDayRecords.mockResolvedValue(RAW);
     buildDay.mockReturnValue(DAY);
+    isEmptyDay.mockReturnValue(false);
+    watchDevice.mockReturnValue('Pixel Watch 3');
+    saveDailyStats.mockResolvedValue('saved');
   });
 
   afterEach(() => {
@@ -872,10 +881,52 @@ describe('The watch on Android', () => {
       ]);
     });
 
-    it('does not save a finished day', async () => {
+    it('saves a finished day with the Health Connect source and the watch model', async () => {
+      const store = androidStore();
+      await store.dispatch(startLoadDay(DATE));
+      expect(watchDevice).toHaveBeenCalledWith(RAW);
+      expect(saveDailyStats).toHaveBeenCalledWith('user-1', DAY, {
+        source: 'health_connect',
+        device: 'Pixel Watch 3',
+        timezone: expect.any(String),
+      });
+    });
+
+    it('never saves today', async () => {
+      jest.useFakeTimers({ now: new Date(2026, 9, 10, 9, 0) });
+      const store = androidStore();
+      await store.dispatch(startLoadDay(DATE));
+      jest.useRealTimers();
+      expect(store.getActions()).toHaveLength(2);
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('does not save a day with no data', async () => {
+      isEmptyDay.mockReturnValue(true);
       const store = androidStore();
       await store.dispatch(startLoadDay(DATE));
       expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('does not save a day when a record type could not be read', async () => {
+      healthConnect.readDayRecords.mockResolvedValue({
+        ...RAW,
+        errors: { HeartRate: 'read_failed' },
+      });
+      const store = androidStore();
+      await store.dispatch(startLoadDay(DATE));
+      expect(store.getActions()).toHaveLength(2);
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('still shows the day when the write fails', async () => {
+      saveDailyStats.mockRejectedValue(new Error('offline'));
+      const store = androidStore();
+      await store.dispatch(startLoadDay(DATE));
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_DAY_LOADING, date: DATE },
+        { type: FITBIT_DAY_LOADED, date: DATE, day: DAY },
+      ]);
     });
 
     it('uses the Fitbit loader off Android', async () => {
@@ -886,6 +937,166 @@ describe('The watch on Android', () => {
       await store.dispatch(startLoadDay(DATE));
       expect(getFitbitDay).toHaveBeenCalledWith(DATE);
       expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('startAutoSaveDays', () => {
+    const readDates = () =>
+      healthConnect.readDayRecords.mock.calls.map(([date]) => date);
+    const writtenDates = () =>
+      saveDailyStats.mock.calls.map(([, day]) => day.date);
+    const markedDates = () =>
+      setLastSavedDate.mock.calls.map(([, date]) => date);
+
+    beforeEach(() => {
+      // Today is 2026-11-15
+      jest.useFakeTimers({ now: new Date(2026, 10, 15, 9, 0) });
+      healthConnect.getStatus.mockResolvedValue('available');
+      healthConnect.getGranted.mockResolvedValue([
+        { accessType: 'read', recordType: 'Steps' },
+      ]);
+      getHealthConnectDisconnected.mockResolvedValue(false);
+      healthConnect.readDayRecords.mockImplementation(async (date) => ({
+        date,
+        errors: {},
+      }));
+      buildDay.mockImplementation((date) => ({ ...DAY, date }));
+      isEmptyDay.mockImplementation((day) => day.empty === true);
+      getLastSavedDate.mockResolvedValue('2026-11-12');
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('saves each finished day since the last saved date, oldest first', async () => {
+      const store = androidStore();
+      await store.dispatch(startAutoSaveDays());
+      expect(readDates()).toEqual(['2026-11-13', '2026-11-14']);
+      expect(saveDailyStats).toHaveBeenCalledWith(
+        'user-1',
+        { ...DAY, date: '2026-11-13' },
+        {
+          source: 'health_connect',
+          device: 'Pixel Watch 3',
+          timezone: expect.any(String),
+        }
+      );
+      expect(markedDates()).toEqual(['2026-11-13', '2026-11-14']);
+      expect(getFitbitDay).not.toHaveBeenCalled();
+    });
+
+    it('does not put the saved days in the store', async () => {
+      const store = androidStore();
+      await store.dispatch(startAutoSaveDays());
+      const types = store.getActions().map((action) => action.type);
+      expect(types).not.toContain(FITBIT_DAY_LOADED);
+    });
+
+    it('goes back 30 days when nothing was saved before', async () => {
+      getLastSavedDate.mockResolvedValue(null);
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(readDates()).toHaveLength(30);
+      expect(readDates()[0]).toBe('2026-10-16');
+      expect(readDates()[29]).toBe('2026-11-14');
+    });
+
+    it('goes back 30 days at most', async () => {
+      getLastSavedDate.mockResolvedValue('2026-08-01');
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(readDates()[0]).toBe('2026-10-16');
+    });
+
+    it('reads nothing when Health Connect is not connected', async () => {
+      healthConnect.getGranted.mockResolvedValue([]);
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('reads nothing when nobody is signed in', async () => {
+      auth.currentUser = null;
+      await androidStore().dispatch(startAutoSaveDays());
+      auth.currentUser = { uid: 'user-1' };
+      expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+    });
+
+    it('moves past a day already saved from Fitbit', async () => {
+      saveDailyStats
+        .mockResolvedValueOnce('skipped')
+        .mockResolvedValue('saved');
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(markedDates()).toEqual(['2026-11-13', '2026-11-14']);
+    });
+
+    it('passes over an old day with no data without writing it', async () => {
+      getLastSavedDate.mockResolvedValue('2026-11-09');
+      buildDay.mockImplementation((date) => ({
+        ...DAY,
+        date,
+        empty: date === '2026-11-10',
+      }));
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(writtenDates()).toEqual([
+        '2026-11-11',
+        '2026-11-12',
+        '2026-11-13',
+        '2026-11-14',
+      ]);
+      expect(markedDates()[0]).toBe('2026-11-10');
+    });
+
+    it('stops at a day with no data from the last 3 days', async () => {
+      getLastSavedDate.mockResolvedValue('2026-11-10');
+      buildDay.mockImplementation((date) => ({
+        ...DAY,
+        date,
+        empty: date === '2026-11-12',
+      }));
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(writtenDates()).toEqual(['2026-11-11']);
+      expect(markedDates()).toEqual(['2026-11-11']);
+    });
+
+    it('stops without moving the last saved date when a write fails', async () => {
+      saveDailyStats.mockRejectedValueOnce(new Error('offline'));
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(readDates()).toEqual(['2026-11-13']);
+      expect(setLastSavedDate).not.toHaveBeenCalled();
+    });
+
+    it('stops when a record type could not be read', async () => {
+      healthConnect.readDayRecords.mockResolvedValue({
+        errors: { SleepSession: 'read_failed' },
+      });
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(saveDailyStats).not.toHaveBeenCalled();
+      expect(setLastSavedDate).not.toHaveBeenCalled();
+    });
+
+    it('stops quietly when the read throws, and can run again', async () => {
+      healthConnect.readDayRecords.mockRejectedValueOnce(new Error('failed'));
+      const store = androidStore();
+      await store.dispatch(startAutoSaveDays());
+      expect(saveDailyStats).not.toHaveBeenCalled();
+      await store.dispatch(startAutoSaveDays());
+      expect(writtenDates()).toEqual(['2026-11-13', '2026-11-14']);
+    });
+
+    it('writes nothing when yesterday is already saved', async () => {
+      getLastSavedDate.mockResolvedValue('2026-11-14');
+      await androidStore().dispatch(startAutoSaveDays());
+      expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('runs once when started twice at the same time', async () => {
+      const store = androidStore();
+      await Promise.all([
+        store.dispatch(startAutoSaveDays()),
+        store.dispatch(startAutoSaveDays()),
+      ]);
+      expect(readDates()).toEqual(['2026-11-13', '2026-11-14']);
     });
   });
 
