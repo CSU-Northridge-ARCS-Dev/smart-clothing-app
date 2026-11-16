@@ -19,6 +19,9 @@ import {
   startCheckHealthConnect,
   startConnectHealthConnect,
   startDisconnectHealthConnect,
+  startCheckWatch,
+  startLoadDay,
+  selectWatchStatus,
 } from '../../../src/actions/deviceActions';
 import {
   FITBIT_SET_STATUS,
@@ -57,6 +60,8 @@ import {
   setHealthConnectDisconnected,
 } from '../../../src/utils/localStorage';
 import * as healthConnect from '../../../src/services/healthConnect';
+import { buildDay } from '../../../src/utils/healthConnectDay';
+import { Platform } from 'react-native';
 import { auth } from '../../../firebaseConfig.js';
 
 // These pull from __mocks__/
@@ -112,6 +117,11 @@ jest.mock('../../../src/services/healthConnect', () => ({
   getGranted: jest.fn(),
   revoke: jest.fn(),
   isRevokePending: jest.fn(),
+  readDayRecords: jest.fn(),
+}));
+
+jest.mock('../../../src/utils/healthConnectDay', () => ({
+  buildDay: jest.fn(),
 }));
 
 const mockStore = configureMockStore([thunk]);
@@ -714,6 +724,7 @@ describe('Health Connect', () => {
       expect(await store.dispatch(startConnectHealthConnect())).toBe(true);
       expect(store.getActions()).toEqual([
         status('connecting'),
+        { type: FITBIT_CLEAR_DAYS },
         status('connected', [STEPS]),
       ]);
       expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', false);
@@ -764,7 +775,10 @@ describe('Health Connect', () => {
       await store.dispatch(startDisconnectHealthConnect());
       expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', true);
       expect(healthConnect.revoke).toHaveBeenCalledTimes(1);
-      expect(store.getActions()).toEqual([status('not_connected')]);
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_CLEAR_DAYS },
+        status('not_connected'),
+      ]);
     });
 
     it('is still not connected when the revoke fails', async () => {
@@ -772,7 +786,145 @@ describe('Health Connect', () => {
       const store = mockStore({});
       await store.dispatch(startDisconnectHealthConnect());
       expect(setHealthConnectDisconnected).toHaveBeenCalledWith('user-1', true);
-      expect(store.getActions()).toEqual([status('not_connected')]);
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_CLEAR_DAYS },
+        status('not_connected'),
+      ]);
+    });
+  });
+});
+
+describe('The watch on Android', () => {
+  const DATE = '2026-10-10';
+  const DOB = '2000-01-01';
+  const RAW = { date: DATE, steps: { total: 8432 }, errors: {} };
+  const DAY = { date: DATE, steps: 8432, sleep: null, heart: {}, workouts: [] };
+  const originalOS = Platform.OS;
+
+  const androidStore = ({ status = 'connected', days = {} } = {}) =>
+    mockStore({
+      device: {
+        fitbit: { status: 'unknown', error: null, days },
+        healthConnect: { status, permissions: [], error: null },
+      },
+      user: { userMetricsData: { dob: DOB } },
+    });
+
+  beforeEach(() => {
+    Platform.OS = 'android';
+    healthConnect.readDayRecords.mockResolvedValue(RAW);
+    buildDay.mockReturnValue(DAY);
+  });
+
+  afterEach(() => {
+    Platform.OS = originalOS;
+  });
+
+  describe('startLoadDay', () => {
+    it('reads the day from Health Connect and builds it with the date of birth', async () => {
+      const store = androidStore();
+      await store.dispatch(startLoadDay(DATE));
+      expect(healthConnect.readDayRecords).toHaveBeenCalledWith(DATE);
+      expect(buildDay).toHaveBeenCalledWith(DATE, RAW, { dob: DOB });
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_DAY_LOADING, date: DATE },
+        { type: FITBIT_DAY_LOADED, date: DATE, day: DAY },
+      ]);
+      expect(getFitbitDay).not.toHaveBeenCalled();
+    });
+
+    it('skips a day that is already loaded unless forced', async () => {
+      const store = androidStore({
+        days: { [DATE]: { loading: false, error: null, data: DAY } },
+      });
+      await store.dispatch(startLoadDay(DATE));
+      expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+      await store.dispatch(startLoadDay(DATE, { force: true }));
+      expect(healthConnect.readDayRecords).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips a day that is still loading', async () => {
+      const store = androidStore({
+        days: { [DATE]: { loading: true, error: null, data: null } },
+      });
+      await store.dispatch(startLoadDay(DATE));
+      expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+    });
+
+    it('reads nothing when Health Connect is not connected', async () => {
+      const store = androidStore({ status: 'not_connected' });
+      await store.dispatch(startLoadDay(DATE));
+      expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+      expect(store.getActions()).toEqual([]);
+    });
+
+    it('records an error for the day when the read fails', async () => {
+      healthConnect.readDayRecords.mockRejectedValue(new Error('failed'));
+      const store = androidStore();
+      await store.dispatch(startLoadDay(DATE));
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_DAY_LOADING, date: DATE },
+        {
+          type: FITBIT_DAY_ERROR,
+          date: DATE,
+          error: 'HEALTH_CONNECT_READ_FAILED',
+        },
+      ]);
+    });
+
+    it('does not save a finished day', async () => {
+      const store = androidStore();
+      await store.dispatch(startLoadDay(DATE));
+      expect(saveDailyStats).not.toHaveBeenCalled();
+    });
+
+    it('uses the Fitbit loader off Android', async () => {
+      Platform.OS = 'ios';
+      getFitbitTokens.mockResolvedValue(TOKENS);
+      getFitbitDay.mockResolvedValue(DAY);
+      const store = storeWithDays();
+      await store.dispatch(startLoadDay(DATE));
+      expect(getFitbitDay).toHaveBeenCalledWith(DATE);
+      expect(healthConnect.readDayRecords).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('startCheckWatch', () => {
+    it('checks Health Connect on Android', async () => {
+      healthConnect.getStatus.mockResolvedValue('available');
+      healthConnect.getGranted.mockResolvedValue([
+        { accessType: 'read', recordType: 'Steps' },
+      ]);
+      getHealthConnectDisconnected.mockResolvedValue(false);
+      const store = androidStore({ status: 'unknown' });
+      expect(await store.dispatch(startCheckWatch())).toBe(true);
+      expect(getFitbitTokens).not.toHaveBeenCalled();
+    });
+
+    it('checks the Fitbit tokens off Android', async () => {
+      Platform.OS = 'ios';
+      getFitbitTokens.mockResolvedValue(null);
+      const store = androidStore({ status: 'unknown' });
+      expect(await store.dispatch(startCheckWatch())).toBe(false);
+      expect(healthConnect.getStatus).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('selectWatchStatus', () => {
+    const state = {
+      device: {
+        fitbit: { status: 'not_connected' },
+        healthConnect: { status: 'connected' },
+      },
+    };
+
+    it('is the Health Connect status on Android', () => {
+      expect(selectWatchStatus(state)).toBe('connected');
+    });
+
+    it('is the Fitbit status off Android', () => {
+      Platform.OS = 'ios';
+      expect(selectWatchStatus(state)).toBe('not_connected');
     });
   });
 });
