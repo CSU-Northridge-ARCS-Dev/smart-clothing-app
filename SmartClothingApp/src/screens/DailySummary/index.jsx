@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, RefreshControl } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  Platform,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import {
   ActivityIndicator,
@@ -21,8 +27,9 @@ import {
 } from "../../components";
 import { fitbitCardStyles as card } from "../../components/fitbit/styles";
 import {
-  startCheckFitbit,
-  startLoadFitbitDay,
+  startCheckWatch,
+  startLoadDay,
+  selectWatchStatus,
 } from "../../actions/deviceActions";
 import {
   toLocalDateString,
@@ -34,10 +41,16 @@ import AIFeedbackSection from "./AIFeedbackSection";
 
 const ERROR_MESSAGES = {
   FITBIT_API_ERROR: "Fitbit didn't respond. Pull down to try again.",
+  HEALTH_CONNECT_READ_FAILED:
+    "Couldn't read Health Connect. Pull down to try again.",
   Network_Error: "Can't reach the insights service. Is it running?",
 };
 
-// One day of Pixel Watch data: sleep, steps, heart rate and workouts,
+// The workout page and the AI feedback still go through Fitbit, so they're
+// left off where the day comes from Health Connect
+const fromHealthConnect = () => Platform.OS === "android";
+
+// One day of watch data: sleep, steps, heart rate and workouts,
 // with Claude's feedback for the day at the bottom
 const DailySummary = ({ route, navigation }) => {
   const dispatch = useDispatch();
@@ -47,19 +60,19 @@ const DailySummary = ({ route, navigation }) => {
   );
   const [calendarVisible, setCalendarVisible] = useState(false);
 
-  const status = useSelector((state) => state.device.fitbit.status);
+  const status = useSelector(selectWatchStatus);
   const dayState = useSelector((state) => state.device.fitbit.days[date]);
 
   useEffect(() => {
-    dispatch(startCheckFitbit());
+    dispatch(startCheckWatch());
   }, []);
 
   useEffect(() => {
-    if (status === "connected") dispatch(startLoadFitbitDay(date));
+    if (status === "connected") dispatch(startLoadDay(date));
   }, [status, date]);
 
   const goToDevices = () => navigation.navigate("Main", { screen: "Device" });
-  const onRefresh = () => dispatch(startLoadFitbitDay(date, { force: true }));
+  const onRefresh = () => dispatch(startLoadDay(date, { force: true }));
 
   const renderBody = () => {
     if (status === "unknown") {
@@ -90,11 +103,14 @@ const DailySummary = ({ route, navigation }) => {
         <HeartCard heart={day.heart} />
         <WorkoutList
           workouts={day.workouts}
-          onPressWorkout={(w) =>
-            navigation.navigate("WorkoutDetail", { date, logId: w.logId })
+          onPressWorkout={
+            fromHealthConnect()
+              ? undefined
+              : (w) =>
+                  navigation.navigate("WorkoutDetail", { date, logId: w.logId })
           }
         />
-        <AIFeedbackSection date={date} />
+        {fromHealthConnect() ? null : <AIFeedbackSection date={date} />}
       </>
     );
   };
