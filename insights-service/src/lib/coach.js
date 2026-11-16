@@ -70,7 +70,7 @@ function buildSystemPrompt(profile = {}) {
     ? `About the athlete:\n${lines.join("\n")}`
     : "The athlete hasn't filled in their profile, so you don't know their age, size or sport.";
 
-  return `You are a recovery and training coach for student athletes. Each athlete wears a Pixel Watch. You look back over ONE day of their data and answer: "How did this day go for recovery and training, and what should the next session look like?"
+  return `You are a recovery and training coach for student athletes. Each athlete wears a smartwatch. You look back over ONE day of their data and answer: "How did this day go for recovery and training, and what should the next session look like?"
 
 ${athlete}
 
@@ -144,8 +144,10 @@ function formatClock(iso) {
   return `${hour % 12 || 12}:${match[2]} ${suffix}`;
 }
 
+// null when the day or workout has no zone minutes at all
 function zoneText(zones) {
-  const z = zones || {};
+  if (!zones) return null;
+  const z = zones;
   return `${z.fatBurn || 0}min fat burn, ${z.cardio || 0}min cardio, ${z.peak || 0}min peak`;
 }
 
@@ -154,7 +156,8 @@ function workoutLine(w) {
   if (w.avgHeartRate != null) parts.push(`avg HR ${w.avgHeartRate} bpm`);
   if (w.distanceKm != null) parts.push(`${w.distanceKm} km`);
   if (w.paceMinPerKm != null) parts.push(`${w.paceMinPerKm} min/km`);
-  parts.push(`zones: ${zoneText(w.zones)}`);
+  const zones = zoneText(w.zones);
+  if (zones) parts.push(`zones: ${zones}`);
   return `- ${parts.join(", ")}`;
 }
 
@@ -186,7 +189,9 @@ function buildUserMessage(day) {
   } else {
     parts.push("Resting heart rate: no data");
   }
-  parts.push(`Heart-rate zones for the whole day: ${zoneText(h.zones)}`);
+  parts.push(
+    `Heart-rate zones for the whole day: ${zoneText(h.zones) || "no data"}`,
+  );
 
   if (day.steps != null) {
     parts.push(`Steps (daily movement): ${day.steps.toLocaleString("en-US")}`);
@@ -278,8 +283,7 @@ function coachError(code, cause) {
   return error;
 }
 
-// client: an Anthropic SDK client. Returns { insight, usage }; throws
-// COACH_API_ERROR when the API call fails and COACH_REFUSED on a refusal.
+// client: an Anthropic SDK client. Returns { insight, usage }
 async function getFeedback(client, { model, profile, day }) {
   let response;
   try {
