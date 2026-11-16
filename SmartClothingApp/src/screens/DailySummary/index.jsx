@@ -4,7 +4,6 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
-  Platform,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -45,10 +44,6 @@ const ERROR_MESSAGES = {
     "Couldn't read Health Connect. Pull down to try again.",
   Network_Error: "Can't reach the insights service. Is it running?",
 };
-
-// The AI feedback still goes through Fitbit, so it's left off where the day
-// comes from Health Connect
-const fromHealthConnect = () => Platform.OS === "android";
 
 // One day of watch data: sleep, steps, heart rate and workouts,
 // with Claude's feedback for the day at the bottom
@@ -107,7 +102,7 @@ const DailySummary = ({ route, navigation }) => {
             navigation.navigate("WorkoutDetail", { date, logId: w.logId })
           }
         />
-        {fromHealthConnect() ? null : <AIFeedbackSection date={date} />}
+        <AIFeedbackSection date={date} />
       </>
     );
   };
