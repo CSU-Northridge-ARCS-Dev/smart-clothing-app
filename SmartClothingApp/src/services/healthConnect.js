@@ -146,17 +146,20 @@ const oneSource = (records) => {
 };
 
 // The phone's own step counter writes steps under a package that starts
-// with this. It counts the same walking as the watch.
+// with this. It counts the same walking as the watch, and it also counts
+// on days the watch isn't worn, so it is never used.
 const PHONE_STEPS_ORIGIN = "com.android.healthconnect.phone";
 
-// The day's step total from the watch apps only
+// The day's step total from the watch apps only. With no watch steps there
+// is no total, even though Health Connect reports 0 or the phone's count.
 const readSteps = async (start, end) => {
   const request = { recordType: "Steps", timeRangeFilter: between(start, end) };
   const all = await aggregateRecord(request);
   const origins = all?.dataOrigins || [];
   const watchApps = origins.filter((o) => !o.startsWith(PHONE_STEPS_ORIGIN));
-  if (watchApps.length === 0 || watchApps.length === origins.length) {
-    return { total: all?.COUNT_TOTAL ?? null, dataOrigins: origins };
+  if (watchApps.length === 0) return { total: null, dataOrigins: [] };
+  if (watchApps.length === origins.length) {
+    return { total: all.COUNT_TOTAL ?? null, dataOrigins: origins };
   }
   const watch = await aggregateRecord({
     ...request,
