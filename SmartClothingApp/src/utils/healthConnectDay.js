@@ -1,5 +1,11 @@
 import { ageFromDob } from "./age";
-import { buildHr5min, zoneMinutes, sleepEfficiency } from "./daySamples";
+import {
+  buildHr5min,
+  zoneMinutes,
+  zoneStarts,
+  zoneForBpm,
+  sleepEfficiency,
+} from "./daySamples";
 
 // Turns the raw Health Connect records for one local day (readDayRecords)
 // into the day object the screens, the saved document and the coach prompt
@@ -32,9 +38,14 @@ const pad = (n, width = 2) => String(n).padStart(width, "0");
 const ms = (time) => new Date(time).getTime();
 
 // Health Connect times are UTC.
+const toLocalDate = (time) => {
+  const t = new Date(time);
+  return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+};
+
 const toLocalDateTime = (time) => {
   const t = new Date(time);
-  const day = `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+  const day = toLocalDate(time);
   const clock = `${pad(t.getHours())}:${pad(t.getMinutes())}:${pad(
     t.getSeconds()
   )}`;
@@ -217,6 +228,80 @@ const buildWorkout = (session, raw, samples, age, restingHeartRate) => {
   return workout;
 };
 
+const ageOn = (date, profile) => {
+  const [y, m, d] = date.split("-").map(Number);
+  return ageFromDob(profile?.dob, new Date(y, m - 1, d));
+};
+
+// The heart rate chart only needs enough points to draw
+const MAX_WORKOUT_POINTS = 600;
+
+// Every nth point, always keeping the last one
+const thinOut = (points, max = MAX_WORKOUT_POINTS) => {
+  if (points.length <= max) return points;
+  const step = Math.ceil(points.length / max);
+  const kept = points.filter((_, i) => i % step === 0);
+  const last = points[points.length - 1];
+  if (kept[kept.length - 1] !== last) kept.push(last);
+  return kept;
+};
+
+// raw: what readWeekRecords(endDate) returned. One entry per day for the
+// activity rings, oldest first: [{ date, steps, sleepMinutes }]. Missing
+// data is null, never 0. Sleep follows the day's rule (the longest session).
+export const buildWeek = (raw) =>
+  (raw.dates || []).map((date) => ({
+    date,
+    steps: raw.steps?.[date] ?? null,
+    sleepMinutes: buildSleep(raw.sleep?.[date])?.totalMinutes ?? null,
+  }));
+
+// sessions: the exercise sessions readMonthSessions(month) returned.
+// The workouts that started in the YYYY-MM month, oldest first:
+// [{ date, logId, type }], for the workout calendar.
+export const buildMonthWorkouts = (month, sessions) =>
+  [...(sessions || [])]
+    .sort((a, b) => ms(a.startTime) - ms(b.startTime))
+    .map((session) => ({
+      date: toLocalDate(session.startTime),
+      logId: session.metadata?.id ?? null,
+      type: WORKOUT_TYPES[session.exerciseType] || "Workout",
+    }))
+    .filter((w) => w.date.slice(0, 7) === month);
+
+// raw: what readWorkoutRecords(date, id) returned. The workout as the day
+// lists it, plus its heart rate points for the chart:
+// points: [{ t, bpm, zone }], t in seconds from the start. There is no
+// route, so the page shows no map. null when the session is gone.
+export const buildWorkoutDetail = (date, raw, profile) => {
+  if (!raw.session) return null;
+  const age = ageOn(date, profile);
+  const samples = flattenHeartRate(raw.heartRate);
+  const resting = raw.restingHeartRate || {};
+  const restingHeartRate =
+    lastByTime(resting.today)?.beatsPerMinute ??
+    lastByTime(resting.previous)?.beatsPerMinute ??
+    null;
+
+  const start = ms(raw.session.startTime);
+  const end = ms(raw.session.endTime);
+  const starts = zoneStarts(age, restingHeartRate);
+  const inside = (samples || [])
+    .filter((s) => s.time >= start && s.time < end && Number.isFinite(s.bpm))
+    .sort((a, b) => a.time - b.time);
+
+  return {
+    ...buildWorkout(raw.session, raw, samples, age, restingHeartRate),
+    date,
+    points: thinOut(inside).map((s) => ({
+      t: Math.round((s.time - start) / 1000),
+      bpm: s.bpm,
+      zone: zoneForBpm(s.bpm, starts),
+    })),
+    hasRoute: false,
+  };
+};
+
 // Health Connect device types that are worn: watch, ring, fitness band,
 // chest strap
 const WORN_DEVICE_TYPES = [1, 4, 6, 7];
@@ -250,8 +335,7 @@ export const isEmptyDay = (day) =>
 // date: "YYYY-MM-DD". raw: what readDayRecords(date) returned.
 // profile: { dob }, used for the heart rate zones.
 export const buildDay = (date, raw, profile) => {
-  const [y, m, d] = date.split("-").map(Number);
-  const age = ageFromDob(profile?.dob, new Date(y, m - 1, d));
+  const age = ageOn(date, profile);
   const samples = flattenHeartRate(raw.heartRate);
   const heart = buildHeart(date, raw, samples, age);
   const resting = heart.restingHeartRate ?? heart.previousRestingHeartRate;
