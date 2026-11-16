@@ -21,6 +21,9 @@ import {
   startDisconnectHealthConnect,
   startCheckWatch,
   startLoadDay,
+  startLoadWeek,
+  startLoadMonth,
+  startLoadWorkout,
   selectWatchStatus,
 } from '../../../src/actions/deviceActions';
 import {
@@ -62,6 +65,9 @@ import {
 import * as healthConnect from '../../../src/services/healthConnect';
 import {
   buildDay,
+  buildWeek,
+  buildMonthWorkouts,
+  buildWorkoutDetail,
   isEmptyDay,
   watchDevice,
 } from '../../../src/utils/healthConnectDay';
@@ -122,10 +128,16 @@ jest.mock('../../../src/services/healthConnect', () => ({
   revoke: jest.fn(),
   isRevokePending: jest.fn(),
   readDayRecords: jest.fn(),
+  readWeekRecords: jest.fn(),
+  readMonthSessions: jest.fn(),
+  readWorkoutRecords: jest.fn(),
 }));
 
 jest.mock('../../../src/utils/healthConnectDay', () => ({
   buildDay: jest.fn(),
+  buildWeek: jest.fn(),
+  buildMonthWorkouts: jest.fn(),
+  buildWorkoutDetail: jest.fn(),
   isEmptyDay: jest.fn(),
   watchDevice: jest.fn(),
 }));
@@ -807,10 +819,16 @@ describe('The watch on Android', () => {
   const DAY = { date: DATE, steps: 8432, sleep: null, heart: {}, workouts: [] };
   const originalOS = Platform.OS;
 
-  const androidStore = ({ status = 'connected', days = {} } = {}) =>
+  const androidStore = ({
+    status = 'connected',
+    days = {},
+    weeks = {},
+    workouts = {},
+    months = {},
+  } = {}) =>
     mockStore({
       device: {
-        fitbit: { status: 'unknown', error: null, days },
+        fitbit: { status: 'unknown', error: null, days, weeks, workouts, months },
         healthConnect: { status, permissions: [], error: null },
       },
       user: { userMetricsData: { dob: DOB } },
@@ -1097,6 +1115,234 @@ describe('The watch on Android', () => {
         store.dispatch(startAutoSaveDays()),
       ]);
       expect(readDates()).toEqual(['2026-11-13', '2026-11-14']);
+    });
+  });
+
+  describe('startLoadWeek', () => {
+    const RAW_WEEK = { endDate: DATE, dates: [DATE], errors: {} };
+    const WEEK = [{ date: DATE, steps: 8432, sleepMinutes: 412 }];
+
+    beforeEach(() => {
+      healthConnect.readWeekRecords.mockResolvedValue(RAW_WEEK);
+      buildWeek.mockReturnValue(WEEK);
+    });
+
+    it('reads the week from Health Connect and builds it', async () => {
+      const store = androidStore();
+      await store.dispatch(startLoadWeek(DATE));
+      expect(healthConnect.readWeekRecords).toHaveBeenCalledWith(DATE);
+      expect(buildWeek).toHaveBeenCalledWith(RAW_WEEK);
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_WEEK_LOADING, endDate: DATE },
+        { type: FITBIT_WEEK_LOADED, endDate: DATE, week: WEEK },
+      ]);
+      expect(getFitbitWeek).not.toHaveBeenCalled();
+    });
+
+    it('skips a week that is already loaded unless forced', async () => {
+      const store = androidStore({
+        weeks: { [DATE]: { loading: false, error: null, data: WEEK } },
+      });
+      await store.dispatch(startLoadWeek(DATE));
+      expect(healthConnect.readWeekRecords).not.toHaveBeenCalled();
+      await store.dispatch(startLoadWeek(DATE, { force: true }));
+      expect(healthConnect.readWeekRecords).toHaveBeenCalledTimes(1);
+    });
+
+    it('reads nothing when Health Connect is not connected', async () => {
+      const store = androidStore({ status: 'not_connected' });
+      await store.dispatch(startLoadWeek(DATE));
+      expect(healthConnect.readWeekRecords).not.toHaveBeenCalled();
+      expect(store.getActions()).toEqual([]);
+    });
+
+    it('records an error when a record type could not be read', async () => {
+      healthConnect.readWeekRecords.mockResolvedValue({
+        ...RAW_WEEK,
+        errors: { SleepSession: 'read_failed' },
+      });
+      const store = androidStore();
+      await store.dispatch(startLoadWeek(DATE));
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_WEEK_LOADING, endDate: DATE },
+        {
+          type: FITBIT_WEEK_ERROR,
+          endDate: DATE,
+          error: 'HEALTH_CONNECT_READ_FAILED',
+        },
+      ]);
+      expect(buildWeek).not.toHaveBeenCalled();
+    });
+
+    it('still loads when a record type is not allowed', async () => {
+      healthConnect.readWeekRecords.mockResolvedValue({
+        ...RAW_WEEK,
+        errors: { SleepSession: 'no_permission' },
+      });
+      const store = androidStore();
+      await store.dispatch(startLoadWeek(DATE));
+      expect(store.getActions()[1].type).toBe(FITBIT_WEEK_LOADED);
+    });
+
+    it('records an error when the read throws', async () => {
+      healthConnect.readWeekRecords.mockRejectedValue(new Error('failed'));
+      const store = androidStore();
+      await store.dispatch(startLoadWeek(DATE));
+      expect(store.getActions()[1]).toEqual({
+        type: FITBIT_WEEK_ERROR,
+        endDate: DATE,
+        error: 'HEALTH_CONNECT_READ_FAILED',
+      });
+    });
+
+    it('goes through Fitbit off Android', async () => {
+      Platform.OS = 'ios';
+      getFitbitTokens.mockResolvedValue(TOKENS);
+      getFitbitWeek.mockResolvedValue(WEEK);
+      const store = storeWithDays();
+      await store.dispatch(startLoadWeek(DATE));
+      expect(getFitbitWeek).toHaveBeenCalledWith(DATE);
+      expect(healthConnect.readWeekRecords).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('startLoadMonth', () => {
+    const MONTH = '2026-10';
+    const SESSIONS = [{ metadata: { id: 'run-1' } }];
+    const WORKOUTS = [{ date: DATE, logId: 'run-1', type: 'Run' }];
+
+    beforeEach(() => {
+      healthConnect.readMonthSessions.mockResolvedValue({
+        month: MONTH,
+        exercise: SESSIONS,
+        errors: {},
+      });
+      buildMonthWorkouts.mockReturnValue(WORKOUTS);
+    });
+
+    it("reads the month's workouts from Health Connect", async () => {
+      const store = androidStore();
+      await store.dispatch(startLoadMonth(MONTH));
+      expect(healthConnect.readMonthSessions).toHaveBeenCalledWith(MONTH);
+      expect(buildMonthWorkouts).toHaveBeenCalledWith(MONTH, SESSIONS);
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_MONTH_LOADING, month: MONTH },
+        { type: FITBIT_MONTH_LOADED, month: MONTH, workouts: WORKOUTS },
+      ]);
+      expect(getFitbitMonthWorkouts).not.toHaveBeenCalled();
+    });
+
+    it('skips a month that is already loaded unless forced', async () => {
+      const store = androidStore({
+        months: { [MONTH]: { loading: false, error: null, data: WORKOUTS } },
+      });
+      await store.dispatch(startLoadMonth(MONTH));
+      expect(healthConnect.readMonthSessions).not.toHaveBeenCalled();
+      await store.dispatch(startLoadMonth(MONTH, { force: true }));
+      expect(healthConnect.readMonthSessions).toHaveBeenCalledTimes(1);
+    });
+
+    it('records an error when the read fails', async () => {
+      healthConnect.readMonthSessions.mockResolvedValue({
+        month: MONTH,
+        exercise: null,
+        errors: { ExerciseSession: 'read_failed' },
+      });
+      const store = androidStore();
+      await store.dispatch(startLoadMonth(MONTH));
+      expect(store.getActions()[1]).toEqual({
+        type: FITBIT_MONTH_ERROR,
+        month: MONTH,
+        error: 'HEALTH_CONNECT_READ_FAILED',
+      });
+    });
+
+    it('goes through Fitbit off Android', async () => {
+      Platform.OS = 'ios';
+      getFitbitTokens.mockResolvedValue(TOKENS);
+      getFitbitMonthWorkouts.mockResolvedValue(WORKOUTS);
+      const store = storeWithDays();
+      await store.dispatch(startLoadMonth(MONTH));
+      expect(getFitbitMonthWorkouts).toHaveBeenCalledWith(MONTH);
+      expect(healthConnect.readMonthSessions).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('startLoadWorkout', () => {
+    const ID = 'run-1';
+    const RAW_WORKOUT = {
+      date: DATE,
+      session: { metadata: { id: ID } },
+      errors: {},
+    };
+    const WORKOUT = { logId: ID, type: 'Run', points: [], hasRoute: false };
+
+    beforeEach(() => {
+      healthConnect.readWorkoutRecords.mockResolvedValue(RAW_WORKOUT);
+      buildWorkoutDetail.mockReturnValue(WORKOUT);
+    });
+
+    it('reads the workout from Health Connect and builds it with the date of birth', async () => {
+      const store = androidStore();
+      await store.dispatch(startLoadWorkout(DATE, ID));
+      expect(healthConnect.readWorkoutRecords).toHaveBeenCalledWith(DATE, ID);
+      expect(buildWorkoutDetail).toHaveBeenCalledWith(DATE, RAW_WORKOUT, {
+        dob: DOB,
+      });
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_WORKOUT_LOADING, logId: ID },
+        { type: FITBIT_WORKOUT_LOADED, logId: ID, workout: WORKOUT },
+      ]);
+      expect(getFitbitWorkout).not.toHaveBeenCalled();
+    });
+
+    it('skips a workout that is already loaded unless forced', async () => {
+      const store = androidStore({
+        workouts: { [ID]: { loading: false, error: null, data: WORKOUT } },
+      });
+      await store.dispatch(startLoadWorkout(DATE, ID));
+      expect(healthConnect.readWorkoutRecords).not.toHaveBeenCalled();
+      await store.dispatch(startLoadWorkout(DATE, ID, { force: true }));
+      expect(healthConnect.readWorkoutRecords).toHaveBeenCalledTimes(1);
+    });
+
+    it('says the workout is gone when Health Connect no longer has it', async () => {
+      healthConnect.readWorkoutRecords.mockResolvedValue({
+        date: DATE,
+        session: null,
+        errors: {},
+      });
+      const store = androidStore();
+      await store.dispatch(startLoadWorkout(DATE, ID));
+      expect(store.getActions()).toEqual([
+        { type: FITBIT_WORKOUT_LOADING, logId: ID },
+        { type: FITBIT_WORKOUT_ERROR, logId: ID, error: 'WORKOUT_NOT_FOUND' },
+      ]);
+      expect(buildWorkoutDetail).not.toHaveBeenCalled();
+    });
+
+    it('records a read error when a record type could not be read', async () => {
+      healthConnect.readWorkoutRecords.mockResolvedValue({
+        ...RAW_WORKOUT,
+        errors: { HeartRate: 'read_failed' },
+      });
+      const store = androidStore();
+      await store.dispatch(startLoadWorkout(DATE, ID));
+      expect(store.getActions()[1]).toEqual({
+        type: FITBIT_WORKOUT_ERROR,
+        logId: ID,
+        error: 'HEALTH_CONNECT_READ_FAILED',
+      });
+    });
+
+    it('goes through Fitbit off Android', async () => {
+      Platform.OS = 'ios';
+      getFitbitTokens.mockResolvedValue(TOKENS);
+      getFitbitWorkout.mockResolvedValue(WORKOUT);
+      const store = storeWithDays();
+      await store.dispatch(startLoadWorkout(DATE, 745));
+      expect(getFitbitWorkout).toHaveBeenCalledWith(DATE, 745);
+      expect(healthConnect.readWorkoutRecords).not.toHaveBeenCalled();
     });
   });
 
