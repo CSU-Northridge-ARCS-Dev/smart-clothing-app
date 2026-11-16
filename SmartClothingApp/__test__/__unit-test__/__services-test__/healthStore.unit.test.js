@@ -8,12 +8,13 @@ jest.mock('../../../firebaseConfig.js', () => ({ database: { name: 'db' } }));
 
 jest.mock('firebase/firestore', () => ({
   doc: jest.fn((db, ...path) => ({ path: path.join('/') })),
+  getDoc: jest.fn(),
   setDoc: jest.fn(() => Promise.resolve()),
   serverTimestamp: jest.fn(() => 'SERVER_TIME'),
   increment: jest.fn((n) => ({ increment: n })),
 }));
 
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import {
   toDailyStatsDoc,
   saveDailyStats,
@@ -187,6 +188,49 @@ describe('saveDailyStats', () => {
     await expect(saveDailyStats('uid-1', fitbitDay(), META)).rejects.toThrow(
       'offline',
     );
+  });
+
+  describe('a day from Health Connect', () => {
+    const HC_META = { ...META, source: 'health_connect' };
+    const stored = (data) => ({ exists: () => data !== null, data: () => data });
+
+    it('is written when there is no document yet', async () => {
+      getDoc.mockResolvedValue(stored(null));
+      const result = await saveDailyStats('uid-1', fitbitDay(), HC_META);
+      expect(result).toBe('saved');
+      expect(getDoc.mock.calls[0][0].path).toBe(
+        'Users/uid-1/DailyStats/2026-10-22',
+      );
+      expect(setDoc.mock.calls[0][1].source).toBe('health_connect');
+    });
+
+    it('overwrites an earlier Health Connect document', async () => {
+      getDoc.mockResolvedValue(stored({ source: 'health_connect' }));
+      const result = await saveDailyStats('uid-1', fitbitDay(), HC_META);
+      expect(result).toBe('saved');
+      expect(setDoc).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves a document saved from Fitbit as it is', async () => {
+      getDoc.mockResolvedValue(stored({ source: 'fitbit' }));
+      const result = await saveDailyStats('uid-1', fitbitDay(), HC_META);
+      expect(result).toBe('skipped');
+      expect(setDoc).not.toHaveBeenCalled();
+    });
+
+    it('writes nothing when the existing document cannot be read', async () => {
+      getDoc.mockRejectedValue(new Error('offline'));
+      await expect(
+        saveDailyStats('uid-1', fitbitDay(), HC_META),
+      ).rejects.toThrow('offline');
+      expect(setDoc).not.toHaveBeenCalled();
+    });
+  });
+
+  it('does not read first for a Fitbit day', async () => {
+    const result = await saveDailyStats('uid-1', fitbitDay(), META);
+    expect(result).toBe('saved');
+    expect(getDoc).not.toHaveBeenCalled();
   });
 });
 
