@@ -124,6 +124,12 @@ describe("buildSystemPrompt", () => {
     expect(prompt).not.toMatch(/trainingNote|progressive overload/i);
   });
 
+  it("doesn't name a watch brand", () => {
+    const prompt = buildSystemPrompt({});
+    expect(prompt).toContain("Each athlete wears a smartwatch.");
+    expect(prompt).not.toMatch(/pixel/i);
+  });
+
   it("keeps the grounding rules", () => {
     expect(buildSystemPrompt({})).toContain("Only mention workouts listed");
   });
@@ -177,6 +183,32 @@ describe("buildUserMessage", () => {
     expect(text).toContain("Sleep: 7h asleep");
     expect(text).not.toContain("Stages:");
     expect(text).toContain("Bedtime: N/A");
+  });
+
+  it("says no data for a day without zone minutes", () => {
+    const day = emptyDay({
+      heart: { restingHeartRate: 60, previousRestingHeartRate: null, zones: null },
+    });
+    const text = buildUserMessage(day);
+    expect(text).toContain("Heart-rate zones for the whole day: no data");
+    expect(text).not.toContain("0min fat burn");
+  });
+
+  it("leaves the zones off a workout that has none", () => {
+    const day = emptyDay({
+      workouts: [
+        {
+          type: "Walk",
+          startTime: "2026-10-12T17:05",
+          durationMin: 36,
+          avgHeartRate: 122,
+          zones: null,
+        },
+      ],
+    });
+    expect(buildUserMessage(day)).toContain(
+      "- Walk at 5:05 PM: 36min, avg HR 122 bpm\n",
+    );
   });
 });
 
