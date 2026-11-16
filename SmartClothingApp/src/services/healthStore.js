@@ -1,4 +1,10 @@
-import { doc, setDoc, serverTimestamp, increment } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
+  increment,
+} from "firebase/firestore";
 
 import { database } from "../../firebaseConfig.js";
 
@@ -84,13 +90,20 @@ export const toDailyStatsDoc = (day, { source, device, timezone } = {}) => ({
   workouts: (day.workouts || []).map(toWorkout),
 });
 
-// One write per day. A re-save overwrites the document.
+// One write per day. A re-save overwrites the document, except that a day
+// saved from Fitbit is kept: the Fitbit API has ended, so that data can't be
+// fetched again. Returns "saved", or "skipped" when the Fitbit day was kept.
 export const saveDailyStats = async (uid, day, meta) => {
   const data = toDailyStatsDoc(day, meta);
-  await setDoc(doc(database, "Users", uid, "DailyStats", data.date), {
-    ...data,
-    syncedAt: serverTimestamp(),
-  });
+  const ref = doc(database, "Users", uid, "DailyStats", data.date);
+  if (data.source !== "fitbit") {
+    const existing = await getDoc(ref);
+    if (existing.exists() && existing.data().source === "fitbit") {
+      return "skipped";
+    }
+  }
+  await setDoc(ref, { ...data, syncedAt: serverTimestamp() });
+  return "saved";
 };
 
 // meta.dataSource: source of the day the feedback was based on.
