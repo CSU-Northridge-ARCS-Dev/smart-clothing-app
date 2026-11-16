@@ -55,7 +55,7 @@ import {
   setHealthConnectDisconnected,
 } from "../utils/localStorage";
 import * as healthConnect from "../services/healthConnect";
-import { buildDay } from "../utils/healthConnectDay";
+import { buildDay, isEmptyDay, watchDevice } from "../utils/healthConnectDay";
 
 export const getDevices = () => {
   return {
@@ -276,55 +276,129 @@ const loadFitbitEntry = async (
 
 // Saves a finished day to Firestore. Today isn't over yet, so it's skipped,
 // and a failed write is only logged so the screen still shows the day.
-// Returns true when the day was written.
-const saveFinishedDay = async (date, day) => {
+// Returns "saved", "skipped" (nothing to write: today, or a day already
+// saved from Fitbit) or "failed".
+const saveFinishedDay = async (
+  date,
+  day,
+  { source = "fitbit", device = null } = {}
+) => {
   const uid = auth.currentUser?.uid;
-  if (!uid || date >= toLocalDateString()) return false;
+  if (!uid) return "failed";
+  if (date >= toLocalDateString()) return "skipped";
   try {
-    await saveDailyStats(uid, day, {
-      source: "fitbit",
-      device: null,
+    const result = await saveDailyStats(uid, day, {
+      source,
+      device,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
-    return true;
+    return result === "skipped" ? "skipped" : "saved";
   } catch (error) {
     console.log("DailyStats save error: ", error);
-    return false;
+    return "failed";
   }
 };
 
-// How many finished days the auto-save goes back at most
+// Android reads the watch through Health Connect. Everything else still
+// goes through Fitbit.
+const usesHealthConnect = () => Platform.OS === "android";
+
+// Reads and builds one Health Connect day. device is the watch model, and
+// readFailed is true when a record type couldn't be read.
+const readHealthConnectDay = async (date, getState) => {
+  const raw = await healthConnect.readDayRecords(date);
+  const dob = getState().user.userMetricsData?.dob;
+  return {
+    day: buildDay(date, raw, { dob }),
+    device: watchDevice(raw),
+    readFailed: Object.values(raw.errors || {}).includes("read_failed"),
+  };
+};
+
+// How many finished days the auto-save goes back at most. Fitbit calls are
+// limited; Health Connect reads stay on the phone.
 const AUTO_SAVE_MAX_DAYS = 3;
+const HEALTH_CONNECT_AUTO_SAVE_MAX_DAYS = 30;
+// A day with no data this recent may only be waiting for the watch to sync
+const EMPTY_DAY_WAIT_DAYS = 3;
 let autoSaveRunning = false;
 
-// Saves the finished days since the last auto-save 
+// The first day the auto-save still has to save
+const firstDayToSave = async (uid, today, maxDays) => {
+  const earliest = addDaysToDateString(today, -maxDays);
+  const lastSaved = await getLastSavedDate(uid);
+  const next = lastSaved ? addDaysToDateString(lastSaved, 1) : earliest;
+  return next > earliest ? next : earliest;
+};
+
+const autoSaveFitbitDays = async (dispatch, uid) => {
+  if (!(await getFitbitTokens())) return;
+
+  const today = toLocalDateString();
+  const yesterday = addDaysToDateString(today, -1);
+  let date = await firstDayToSave(uid, today, AUTO_SAVE_MAX_DAYS);
+
+  for (; date <= yesterday; date = addDaysToDateString(date, 1)) {
+    let day;
+    try {
+      day = await getFitbitDay(date);
+    } catch (error) {
+      await dispatch(startHandleFitbitError(getErrorCode(error)));
+      return;
+    }
+    dispatch(fitbitDayLoaded(date, day));
+    if ((await saveFinishedDay(date, day)) === "failed") return;
+    await setLastSavedDate(uid, date);
+  }
+};
+
+// A day that can't be read or written stops the run, and the next run starts
+// again from that day. A day with no data is never written: a recent one
+// stops the run too, and an older one is passed over.
+const autoSaveHealthConnectDays = async (dispatch, getState, uid) => {
+  if (!(await dispatch(startCheckHealthConnect()))) return;
+
+  const today = toLocalDateString();
+  const yesterday = addDaysToDateString(today, -1);
+  const emptyWaitFrom = addDaysToDateString(today, -EMPTY_DAY_WAIT_DAYS);
+  let date = await firstDayToSave(
+    uid,
+    today,
+    HEALTH_CONNECT_AUTO_SAVE_MAX_DAYS
+  );
+
+  for (; date <= yesterday; date = addDaysToDateString(date, 1)) {
+    const { day, device, readFailed } = await readHealthConnectDay(
+      date,
+      getState
+    );
+    if (readFailed) return;
+    if (isEmptyDay(day)) {
+      if (date >= emptyWaitFrom) return;
+    } else {
+      const result = await saveFinishedDay(date, day, {
+        source: "health_connect",
+        device,
+      });
+      if (result === "failed") return;
+    }
+    await setLastSavedDate(uid, date);
+  }
+};
+
+// Saves the finished days since the last auto-save
 // without opening DailySummary.
 export const startAutoSaveDays = () => {
-  return async (dispatch) => {
+  return async (dispatch, getState) => {
     if (autoSaveRunning) return;
     autoSaveRunning = true;
     try {
       const uid = auth.currentUser?.uid;
-      if (!uid || !(await getFitbitTokens())) return;
-
-      const today = toLocalDateString();
-      const yesterday = addDaysToDateString(today, -1);
-      const earliest = addDaysToDateString(today, -AUTO_SAVE_MAX_DAYS);
-      const lastSaved = await getLastSavedDate(uid);
-      const next = lastSaved ? addDaysToDateString(lastSaved, 1) : earliest;
-      let date = next > earliest ? next : earliest;
-
-      for (; date <= yesterday; date = addDaysToDateString(date, 1)) {
-        let day;
-        try {
-          day = await getFitbitDay(date);
-        } catch (error) {
-          await dispatch(startHandleFitbitError(getErrorCode(error)));
-          return;
-        }
-        dispatch(fitbitDayLoaded(date, day));
-        if (!(await saveFinishedDay(date, day))) return;
-        await setLastSavedDate(uid, date);
+      if (!uid) return;
+      if (usesHealthConnect()) {
+        await autoSaveHealthConnectDays(dispatch, getState, uid);
+      } else {
+        await autoSaveFitbitDays(dispatch, uid);
       }
     } catch (error) {
       console.log("Auto-save error: ", error);
@@ -481,10 +555,6 @@ export const startDisconnectHealthConnect = () => {
 
 // The watch
 
-// Android reads the watch through Health Connect. Everything else still
-// goes through Fitbit.
-const usesHealthConnect = () => Platform.OS === "android";
-
 // The connection status the screens wait on
 export const selectWatchStatus = (state) =>
   usesHealthConnect()
@@ -501,8 +571,7 @@ export const startCheckWatch = () => {
 
 // Loads one day (YYYY-MM-DD) into state.device.fitbit.days, the cache Home
 // and DailySummary share. A day already loaded (or loading) is not read
-// again unless force is true. The Health Connect day is only shown, never
-// saved.
+// again unless force is true. A finished day with data is then saved.
 export const startLoadDay = (date, { force = false } = {}) => {
   return async (dispatch, getState) => {
     if (!usesHealthConnect()) {
@@ -515,13 +584,19 @@ export const startLoadDay = (date, { force = false } = {}) => {
     if (connection.status !== "connected") return;
 
     dispatch(fitbitDayLoading(date));
+    let loaded;
     try {
-      const raw = await healthConnect.readDayRecords(date);
-      const dob = getState().user.userMetricsData?.dob;
-      dispatch(fitbitDayLoaded(date, buildDay(date, raw, { dob })));
+      loaded = await readHealthConnectDay(date, getState);
+      dispatch(fitbitDayLoaded(date, loaded.day));
     } catch (error) {
       console.log("Health Connect day load error: ", error);
       dispatch(fitbitDayError(date, "HEALTH_CONNECT_READ_FAILED"));
+      return;
     }
+    if (loaded.readFailed || isEmptyDay(loaded.day)) return;
+    await saveFinishedDay(date, loaded.day, {
+      source: "health_connect",
+      device: loaded.device,
+    });
   };
 };
