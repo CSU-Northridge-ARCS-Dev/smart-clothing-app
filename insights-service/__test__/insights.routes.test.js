@@ -187,6 +187,7 @@ describe("POST /api/insights/generate", () => {
         model: "claude-opus-5-5",
         inputTokens: 1500,
         outputTokens: 200,
+        source: "fitbit",
       },
       {},
     );
